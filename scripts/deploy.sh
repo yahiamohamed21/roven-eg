@@ -39,6 +39,9 @@ sudo "$PROJECT_ROOT/scripts/secure-env.sh" >> "$LOG_FILE" 2>&1
 log "Restoring NuGet packages..."
 dotnet restore Stockify.csproj >> "$LOG_FILE" 2>&1
 
+log "Stopping roven-web service before publish to release file locks..."
+sudo systemctl stop roven-web >> "$LOG_FILE" 2>&1 || true
+
 log "Publishing .NET project in Release mode..."
 dotnet publish Stockify.csproj -c Release -o "$PUBLISH_DIR" >> "$LOG_FILE" 2>&1
 
