@@ -1,0 +1,36 @@
+# ==============================================================================
+# ROVEN Haute Parfumerie - Official Robots Configuration for Search Engines
+# Designed for maximum SEO visibility and brand authority on Google & Bing
+# ==============================================================================
+
+User-agent: *
+Allow: /
+Allow: /Store
+Allow: /Store/Details/
+Allow: /OrderTracking
+Allow: /Home
+Allow: /images/
+Allow: /css/
+Allow: /js/
+Allow: /lib/
+
+# Disallow internal back-office administration from public indexing
+Disallow: /Dashboard/
+Disallow: /Products/
+Disallow: /Categories/
+Disallow: /Orders/
+Disallow: /Customers/
+Disallow: /Users/
+Disallow: /Inventory/
+Disallow: /Reports/
+Disallow: /Account/
+Disallow: /Cart/
+Disallow: /Checkout/
+Disallow: /HomeControl/
+Disallow: /AbandonedCheckouts/
+Disallow: /Coupons/
+Disallow: /Messages/
+
+# XML Sitemap References
+Sitemap: /sitemap.xml
+

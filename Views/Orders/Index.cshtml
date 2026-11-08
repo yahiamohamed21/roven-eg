@@ -1,0 +1,303 @@
+@model IEnumerable<Stockify.Models.Entities.Order>
+@using Stockify.Models.Enums
+@{
+    ViewData["Title"] = "Sales Orders";
+    var totalOrders = (int)(ViewBag.TotalOrders ?? 0);
+    var completedOrders = (int)(ViewBag.CompletedOrders ?? 0);
+    var pendingOrders = (int)(ViewBag.PendingOrders ?? 0);
+    var cancelledOrders = (int)(ViewBag.CancelledOrders ?? 0);
+    var totalRevenue = (decimal)(ViewBag.TotalSalesRevenue ?? 0m);
+
+    var websiteOrders = (int)(ViewBag.WebsiteOrders ?? 0);
+    var pendingWebsiteOrders = (int)(ViewBag.PendingWebsiteOrders ?? 0);
+    var manualOrders = (int)(ViewBag.ManualOrders ?? 0);
+    var websiteRevenue = (decimal)(ViewBag.WebsiteRevenue ?? 0m);
+
+    var currentSearch = ViewBag.CurrentSearch as string ?? "";
+    var currentStatus = ViewBag.CurrentStatus as OrderStatus?;
+    var currentSource = ViewBag.CurrentSource as OrderSource?;
+    var currentDate = ViewBag.CurrentDate as string ?? "";
+}
+
+<!-- Header -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Sales Orders & Omnichannel Fulfillment</h3>
+        <p class="text-muted mb-0 small">Manage all orders from both the online E-commerce storefront and internal POS terminals.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a asp-action="ExportToExcel" 
+           asp-route-search="@currentSearch" 
+           asp-route-status="@currentStatus" 
+           asp-route-source="@currentSource" 
+           asp-route-date="@currentDate" 
+           class="btn btn-outline-primary d-flex align-items-center gap-2 shadow-sm"
+           title="Export Orders & Deliveries to Excel (.xlsx)">
+            <i class="fa-solid fa-file-excel text-success fs-6"></i>
+            <span>Export to Excel</span>
+        </a>
+        <a asp-action="Create" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+            <i class="bi bi-cart-plus-fill"></i>
+            <span>Create POS Order</span>
+        </a>
+    </div>
+</div>
+
+<!-- Quick Stats Strip -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-3 fs-4 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-receipt"></i>
+                </div>
+                <div>
+                    <span class="text-muted small fw-medium">Total Orders Placed</span>
+                    <h5 class="fw-bold text-dark mb-0">@totalOrders</h5>
+                    <div class="small text-muted" style="font-size: 0.75rem;">Total Rev: @totalRevenue.ToString("N0") EGP</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm p-3 h-100 border-start border-info border-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 bg-info bg-opacity-10 text-info p-3 fs-4 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-globe"></i>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-1">
+                        <span class="text-muted small fw-medium">Website Orders</span>
+                        @if (pendingWebsiteOrders > 0)
+                        {
+                            <span class="badge bg-danger rounded-pill" style="font-size: 0.65rem;">@pendingWebsiteOrders new</span>
+                        }
+                    </div>
+                    <h5 class="fw-bold text-dark mb-0">@websiteOrders</h5>
+                    <div class="small text-info fw-semibold" style="font-size: 0.75rem;">Online Rev: @websiteRevenue.ToString("N0") EGP</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 bg-warning bg-opacity-10 text-warning p-3 fs-4 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div>
+                    <span class="text-muted small fw-medium">Pending Fulfillment</span>
+                    <h5 class="fw-bold text-warning mb-0">@pendingOrders</h5>
+                    <div class="small text-muted" style="font-size: 0.75rem;">Needs packing / courier</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 bg-success bg-opacity-10 text-success p-3 fs-4 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div>
+                    <span class="text-muted small fw-medium">Delivered / Completed</span>
+                    <h5 class="fw-bold text-success mb-0">@completedOrders</h5>
+                    <div class="small text-muted" style="font-size: 0.75rem;">Cancelled: @cancelledOrders</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Orders Table Card -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3">
+        <form method="get" asp-action="Index" class="row g-2 align-items-center">
+            <div class="col-12 col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="search" value="@currentSearch" class="form-control border-start-0" placeholder="Order #, Customer, Phone..." />
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <select name="source" class="form-select" onchange="this.form.submit()">
+                    <option value="" selected="@(!currentSource.HasValue ? "selected" : null)">All Channels</option>
+                    <option value="@OrderSource.Website" selected="@(currentSource == OrderSource.Website ? "selected" : null)">Website Orders (Online)</option>
+                    <option value="@OrderSource.Manual" selected="@(currentSource == OrderSource.Manual ? "selected" : null)">POS / In-Store (Branch)</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="" selected="@(!currentStatus.HasValue ? "selected" : null)">All Statuses</option>
+                    <option value="@OrderStatus.Pending" selected="@(currentStatus == OrderStatus.Pending ? "selected" : null)">Pending</option>
+                    <option value="@OrderStatus.Processing" selected="@(currentStatus == OrderStatus.Processing ? "selected" : null)">Processing</option>
+                    <option value="@OrderStatus.Shipped" selected="@(currentStatus == OrderStatus.Shipped ? "selected" : null)">Shipped</option>
+                    <option value="@OrderStatus.Completed" selected="@(currentStatus == OrderStatus.Completed ? "selected" : null)">Completed</option>
+                    <option value="@OrderStatus.Cancelled" selected="@(currentStatus == OrderStatus.Cancelled ? "selected" : null)">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <input type="date" name="date" value="@currentDate" class="form-control" onchange="this.form.submit()" />
+            </div>
+            <div class="col-6 col-md-2 text-md-end d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i> Filter
+                </button>
+                @if (!string.IsNullOrEmpty(currentSearch) || currentStatus.HasValue || currentSource.HasValue || !string.IsNullOrEmpty(currentDate))
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary" title="Clear all filters">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Order #</th>
+                    <th>Channel</th>
+                    <th>Customer & Destination</th>
+                    <th>Order Date</th>
+                    <th>Items</th>
+                    <th>Total (EGP)</th>
+                    <th>Status</th>
+                    <th class="text-end pe-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-receipt-cutoff fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                            <h6 class="fw-bold">No sales orders found</h6>
+                            <p class="small mb-3">@(string.IsNullOrEmpty(currentSearch) && !currentStatus.HasValue && !currentSource.HasValue ? "No orders have been recorded in the database yet." : "No orders match the specified filter criteria.")</p>
+                            <a asp-action="Create" class="btn btn-sm btn-primary">
+                                <i class="bi bi-cart-plus me-1"></i>Create First Order
+                            </a>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var order in Model)
+                    {
+                        var totalUnits = order.OrderItems.Sum(i => i.Quantity);
+                        var customerDisplayName = !string.IsNullOrWhiteSpace(order.CustomerName) 
+                            ? order.CustomerName 
+                            : (order.Customer?.FullName ?? "Guest Customer");
+
+                        <tr>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@order.Id" class="fw-bold text-primary font-monospace text-decoration-none hover-primary">
+                                    @order.OrderNumber
+                                </a>
+                            </td>
+                            <td>
+                                @if (order.OrderSource == OrderSource.Website)
+                                {
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1">
+                                        <i class="fa-solid fa-globe me-1"></i>Website
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary border px-2 py-1">
+                                        <i class="fa-solid fa-shop me-1"></i>POS / Store
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark">
+                                    @if (order.CustomerId > 0)
+                                    {
+                                        <a asp-controller="Customers" asp-action="Details" asp-route-id="@order.CustomerId" class="text-decoration-none text-dark">
+                                            @customerDisplayName
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span>@customerDisplayName</span>
+                                    }
+                                </div>
+                                <div class="text-muted small">
+                                    @if (!string.IsNullOrWhiteSpace(order.City))
+                                    {
+                                        <i class="bi bi-geo-alt me-1 text-secondary"></i><span>@order.City</span>
+                                        @if (!string.IsNullOrWhiteSpace(order.CustomerPhone))
+                                        {
+                                            <span> &bull; @order.CustomerPhone</span>
+                                        }
+                                    }
+                                    else if (order.Customer != null)
+                                    {
+                                        <span>@order.Customer.Email</span>
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-muted small text-nowrap">
+                                <i class="bi bi-calendar3 me-1"></i>@order.OrderDate.ToEgyptTimeString("dd MMM yyyy, hh:mm tt")
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    @order.OrderItems.Count item(s) (@totalUnits units)
+                                </span>
+                            </td>
+                            <td class="fw-bold text-dark fs-6">
+                                @order.TotalAmount.ToString("N2") EGP
+                                @if (!string.IsNullOrEmpty(order.CouponCode))
+                                {
+                                    <div class="small text-danger fw-semibold" style="font-size: 0.73rem;" title="كوبون خصم مطبق">
+                                        <i class="fa-solid fa-ticket me-1"></i>@order.CouponCode (-@order.DiscountAmount.ToString("N2"))
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                @switch (order.Status)
+                                {
+                                    case OrderStatus.Completed:
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                            <i class="bi bi-check2-all me-1"></i>Completed
+                                        </span>
+                                        break;
+                                    case OrderStatus.Shipped:
+                                        <span class="badge bg-info-subtle text-info border border-info-subtle">
+                                            <i class="bi bi-truck me-1"></i>Shipped
+                                        </span>
+                                        break;
+                                    case OrderStatus.Processing:
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                            <i class="bi bi-arrow-repeat me-1"></i>Processing
+                                        </span>
+                                        break;
+                                    case OrderStatus.Cancelled:
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                            <i class="bi bi-x-circle me-1"></i>Cancelled
+                                        </span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                                            <i class="bi bi-clock-history me-1"></i>Pending
+                                        </span>
+                                        break;
+                                }
+                            </td>
+                            <td class="text-end pe-3">
+                                <div class="roven-table-actions">
+                                    <a asp-action="Details" asp-route-id="@order.Id" class="roven-action-btn roven-action-view" title="View Full Order Details">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

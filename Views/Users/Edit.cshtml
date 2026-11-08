@@ -1,0 +1,223 @@
+@model Stockify.ViewModels.Users.UserEditViewModel
+@using Stockify.Common.Constants
+@{
+    ViewData["Title"] = "Edit User";
+    var allPermissions = (List<Permissions.PermissionItem>)(ViewBag.AllPermissions ?? Permissions.All);
+    var categories = allPermissions.Select(p => p.Category).Distinct().ToList();
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-10">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-user-pen text-primary fs-5" style="color: #810100 !important;"></i>
+                    <h5 class="fw-bold mb-0 text-dark">تعديل بيانات وصلاحيات المستخدم: <span class="text-primary">@Model.FullName</span></h5>
+                </div>
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left me-1"></i>Back to Users
+                </a>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="Email" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger border-0 small mb-4 py-2"></div>
+
+                    @if (Model.IsCurrentUser)
+                    {
+                        <div class="alert alert-info border-0 py-2 small mb-4">
+                            <i class="fa-solid fa-circle-info me-2"></i>أنت تقوم بتعديل حسابك الشخصي المسجل به حالياً. لا يمكنك تعطيل هذا الحساب.
+                        </div>
+                    }
+
+                    <!-- 1. Basic Account Info -->
+                    <div class="border-bottom pb-4 mb-4">
+                        <h6 class="fw-bold text-dark mb-3">
+                            <i class="fa-solid fa-id-card text-muted me-2"></i>1. البيانات الأساسية (Account Information)
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label asp-for="FullName" class="form-label small fw-semibold text-secondary">
+                                    الاسم الكامل (Full Name) <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="FullName" class="form-control" required />
+                                <span asp-validation-for="FullName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Email" class="form-label small fw-semibold text-secondary">
+                                    البريد الإلكتروني (Email Address)
+                                </label>
+                                <input asp-for="Email" class="form-control bg-light" readonly />
+                                <div class="form-text small text-muted">البريد الإلكتروني مقفل لضمان سلامة السجلات والمراجعة.</div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Role" class="form-label small fw-semibold text-secondary">
+                                    الدور الوظيفي (Assigned Role) <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="Role" id="select-user-role" class="form-select" required>
+                                    <option value="@Roles.Employee" selected="@(Model.Role == Roles.Employee)">Employee (Sales & POS Operator - موظف مبيعات)</option>
+                                    <option value="@Roles.Admin" selected="@(Model.Role == Roles.Admin)">Administrator (Manager / Executive - مدير ومسؤول)</option>
+                                </select>
+                                <span asp-validation-for="Role" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label asp-for="PhoneNumber" class="form-label small fw-semibold text-secondary">
+                                    رقم الهاتف (Phone Number)
+                                </label>
+                                <input asp-for="PhoneNumber" type="tel" class="form-control" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label asp-for="NewPassword" class="form-label small fw-semibold text-secondary">
+                                    تعيين كلمة مرور جديدة (اختياري)
+                                </label>
+                                <input asp-for="NewPassword" class="form-control" placeholder="اتركه فارغاً للاحتفاظ بالحالية" />
+                                <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                            </div>
+                            <div class="col-12 col-md-6 d-flex align-items-center">
+                                <div class="form-check form-switch mt-3">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" id="editUserStatus" disabled="@(Model.IsCurrentUser)" />
+                                    <label class="form-check-label fw-semibold text-dark" for="editUserStatus">
+                                        الحساب نشط (Account Active)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Dashboard Permissions & Access Control -->
+                    <div class="mb-4">
+                        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">
+                                    <i class="fa-solid fa-shield-halved text-warning me-2"></i>2. صلاحيات الداشبورد والشريط الجانبي (Dashboard Permissions)
+                                </h6>
+                                <p class="text-muted small mb-0">حدد الصفحات والأقسام المسموح بظهورها في الداشبورد والقائمة الجانبية لهذا المستخدم:</p>
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-outline-dark" id="btn-select-all">تحديد الكل</button>
+                                <button type="button" class="btn btn-outline-primary" id="btn-select-sales">افتراضي السيلز</button>
+                                <button type="button" class="btn btn-outline-secondary" id="btn-deselect-all">إلغاء التحديد</button>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            @foreach (var category in categories)
+                            {
+                                <div class="col-12">
+                                    <div class="bg-light px-3 py-2 rounded-2 fw-bold text-dark small border-start border-4 border-danger">
+                                        @category
+                                    </div>
+                                </div>
+
+                                @foreach (var perm in allPermissions.Where(p => p.Category == category))
+                                {
+                                    var isChecked = Model.SelectedPermissions != null && Model.SelectedPermissions.Contains(perm.Key);
+                                    <div class="col-12 col-md-6 col-lg-4">
+                                        <div class="card h-100 border p-3 permission-card @(isChecked ? "border-primary bg-light" : "")" style="cursor: pointer; transition: all 0.2s ease;">
+                                            <div class="form-check">
+                                                <input class="form-check-input permission-checkbox" 
+                                                       type="checkbox" 
+                                                       name="SelectedPermissions" 
+                                                       value="@perm.Key" 
+                                                       id="perm-@perm.Key" 
+                                                       @(isChecked ? "checked" : "") />
+                                                <label class="form-check-label w-100" for="perm-@perm.Key" style="cursor: pointer;">
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <i class="@perm.Icon text-primary" style="color: #810100 !important;"></i>
+                                                        <span class="fw-bold text-dark">@perm.NameAr</span>
+                                                    </div>
+                                                    <div class="text-muted small font-monospace mb-1" style="font-size: 0.75rem;">@perm.NameEn</div>
+                                                    <p class="text-secondary small mb-0" style="font-size: 0.72rem; line-height: 1.35;">
+                                                        @perm.Description
+                                                    </p>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center border-top pt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">إلغاء</a>
+                        <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-sm" style="background: #810100; border-color: #810100;">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> حفظ التعديلات والصلاحيات
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectRole = document.getElementById('select-user-role');
+        const checkboxes = document.querySelectorAll('.permission-checkbox');
+
+        const salesDefaults = ['Dashboard', 'POS', 'Orders', 'Customers', 'Products'];
+        const adminDefaults = [
+            'Dashboard', 'Products', 'Categories', 'Inventory',
+            'POS', 'Orders', 'Customers', 'Coupons',
+            'HomeControl', 'Messages', 'Reports', 'Users'
+        ];
+
+        function updateCardStyles() {
+            checkboxes.forEach(cb => {
+                const card = cb.closest('.permission-card');
+                if (card) {
+                    if (cb.checked) {
+                        card.classList.add('border-primary', 'bg-light');
+                    } else {
+                        card.classList.remove('border-primary', 'bg-light');
+                    }
+                }
+            });
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateCardStyles);
+        });
+
+        // Quick Preset Buttons
+        document.getElementById('btn-select-all').addEventListener('click', function () {
+            checkboxes.forEach(cb => cb.checked = true);
+            updateCardStyles();
+        });
+
+        document.getElementById('btn-deselect-all').addEventListener('click', function () {
+            checkboxes.forEach(cb => cb.checked = false);
+            updateCardStyles();
+        });
+
+        document.getElementById('btn-select-sales').addEventListener('click', function () {
+            checkboxes.forEach(cb => {
+                cb.checked = salesDefaults.includes(cb.value);
+            });
+            updateCardStyles();
+        });
+
+        // When role dropdown changes
+        selectRole.addEventListener('change', function () {
+            if (this.value === 'Admin') {
+                checkboxes.forEach(cb => {
+                    cb.checked = adminDefaults.includes(cb.value);
+                });
+            } else {
+                checkboxes.forEach(cb => {
+                    cb.checked = salesDefaults.includes(cb.value);
+                });
+            }
+            updateCardStyles();
+        });
+
+        updateCardStyles();
+    });
+</script>
+}

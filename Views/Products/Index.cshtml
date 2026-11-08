@@ -1,0 +1,215 @@
+@model IEnumerable<Stockify.ViewModels.Products.ProductViewModel>
+@{
+    ViewData["Title"] = "Products";
+    var totalCount = ViewBag.TotalProducts ?? Model?.Count() ?? 0;
+    var inStock = ViewBag.InStockCount ?? 0;
+    var lowStock = ViewBag.LowStockCount ?? 0;
+    var outOfStock = ViewBag.OutOfStockCount ?? 0;
+    var categories = ViewBag.Categories as List<SelectListItem> ?? new List<SelectListItem>();
+}
+
+<!-- Header -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Products Management</h3>
+        <p class="text-muted mb-0 small">Manage your product catalog, prices, categories, and stock availability.</p>
+    </div>
+    <div class="d-flex gap-2">
+        @if (User.IsInRole(Stockify.Common.Constants.Roles.Admin))
+        {
+            <a asp-controller="Products" asp-action="Create" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+                <i class="bi bi-plus-lg"></i>
+                <span>Add Product</span>
+            </a>
+        }
+    </div>
+</div>
+
+<!-- Quick Stats Strip -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon primary">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div>
+                    <span class="text-muted small">Total Products</span>
+                    <h5 class="fw-bold mb-0">@totalCount</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon success">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+                <div>
+                    <span class="text-muted small">In Stock</span>
+                    <h5 class="fw-bold mb-0">@inStock</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <div>
+                    <span class="text-muted small">Low Stock</span>
+                    <h5 class="fw-bold mb-0">@lowStock</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background-color: #fee2e2; color: #dc2626;">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+                <div>
+                    <span class="text-muted small">Out of Stock</span>
+                    <h5 class="fw-bold mb-0">@outOfStock</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table Card -->
+<div class="card border-0 shadow-sm">
+    <!-- Filter Bar -->
+    <div class="card-header bg-white py-3">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-12 col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="search" class="form-control border-start-0" placeholder="Search by name, SKU..." value="@Context.Request.Query["search"]" />
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <select name="categoryId" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    @foreach (var c in categories)
+                    {
+                        <option value="@c.Value" selected="@c.Selected">@c.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="" selected="@(string.IsNullOrEmpty(Context.Request.Query["status"]))">All Status</option>
+                    <option value="instock" selected="@(Context.Request.Query["status"] == "instock")">In Stock</option>
+                    <option value="lowstock" selected="@(Context.Request.Query["status"] == "lowstock")">Low Stock</option>
+                    <option value="outofstock" selected="@(Context.Request.Query["status"] == "outofstock")">Out of Stock</option>
+                    <option value="alert" selected="@(Context.Request.Query["status"] == "alert")">Stock Alerts (Low & Out)</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-2 text-md-end">
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 35%;">Product</th>
+                    <th style="width: 15%;">SKU</th>
+                    <th style="width: 15%;">Category</th>
+                    <th style="width: 12%;">Price (EGP)</th>
+                    <th style="width: 10%;">Stock</th>
+                    <th style="width: 13%;" class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var p in Model)
+                    {
+                        <tr class="@(!p.IsActive ? "opacity-75 bg-light" : "")">
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    @if (!string.IsNullOrEmpty(p.ImageUrl))
+                                    {
+                                        <img src="@p.ImageUrl" alt="@p.Name" class="rounded border object-fit-cover" style="width: 44px; height: 44px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded bg-light border d-flex align-items-center justify-content-center text-muted" style="width: 44px; height: 44px;">
+                                            <i class="bi bi-box-seam fs-5"></i>
+                                        </div>
+                                    }
+                                    <div>
+                                        <div class="fw-semibold text-dark">
+                                            <a asp-action="Details" asp-route-id="@p.Id" class="text-decoration-none text-dark hover-primary">
+                                                @p.Name
+                                            </a>
+                                            @if (!p.IsActive)
+                                            {
+                                                <span class="badge bg-secondary-subtle text-secondary ms-1 small">Archived</span>
+                                            }
+                                        </div>
+                                        <span class="text-muted small">Threshold: @p.ReorderLevel units</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><code>@p.Sku</code></td>
+                            <td><span class="badge bg-light text-dark border">@p.CategoryName</span></td>
+                            <td class="fw-bold">@p.Price.ToString("N2") EGP</td>
+                            <td>
+                                <span class="badge @p.StockBadgeClass">
+                                    @p.StockQuantity units
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="roven-table-actions">
+                                    <a asp-action="Details" asp-route-id="@p.Id" class="roven-action-btn roven-action-view" title="View Details">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                    @if (User.IsInRole(Stockify.Common.Constants.Roles.Admin))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@p.Id" class="roven-action-btn roven-action-edit" title="Edit Product">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
+                                        <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="button" class="roven-action-btn roven-action-delete btn-delete" data-name="Product '@p.Name'" title="Delete / Archive Product">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-box-seam fs-2 d-block mb-2 text-secondary"></i>
+                            No products matching criteria found in inventory.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="card-footer bg-white py-3">
+        <partial name="_PaginationPartial" />
+    </div>
+</div>

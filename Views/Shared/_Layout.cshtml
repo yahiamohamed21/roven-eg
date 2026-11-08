@@ -1,0 +1,724 @@
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Stockify.Models.Entities
+@using Stockify.Models.Enums
+@using Stockify.Common.Constants
+@using Stockify.Common.Extensions
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject Stockify.Data.ApplicationDbContext DbContext
+
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var isAdmin = isAuthenticated && User.IsInRole(Roles.Admin);
+    var isSales = isAuthenticated && !isAdmin;
+
+    int pendingOrdersCount = 0;
+    int lowStockCount = 0;
+    int unreadMessagesCount = 0;
+    int abandonedCartsCount = 0;
+    List<Order> recentNotificationOrders = new();
+    DateTime? notifsLastReadAt = null;
+    var readOrderIds = new HashSet<int>();
+
+    if (isAuthenticated)
+    {
+        if (Context.Request.Cookies.TryGetValue("roven_notifs_read_at", out var readAtStr) &&
+            long.TryParse(readAtStr, out var readAtMs))
+        {
+            notifsLastReadAt = DateTimeOffset.FromUnixTimeMilliseconds(readAtMs).UtcDateTime;
+        }
+
+        if (Context.Request.Cookies.TryGetValue("roven_read_orders", out var readOrdersCookie) && !string.IsNullOrEmpty(readOrdersCookie))
+        {
+            foreach (var part in readOrdersCookie.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (int.TryParse(part.Trim(), out var parsedId))
+                {
+                    readOrderIds.Add(parsedId);
+                }
+            }
+        }
+
+        var pendingOrdersQuery = DbContext.Orders
+            .AsNoTracking()
+            .Where(o => o.Status == OrderStatus.Pending || o.Status == OrderStatus.Processing);
+
+        if (notifsLastReadAt.HasValue)
+        {
+            pendingOrdersQuery = pendingOrdersQuery.Where(o => o.OrderDate > notifsLastReadAt.Value);
+        }
+
+        pendingOrdersCount = pendingOrdersQuery.Count(o => !readOrderIds.Contains(o.Id));
+
+        lowStockCount = DbContext.Products
+            .AsNoTracking()
+            .Count(p => p.IsActive && p.StockQuantity <= p.ReorderLevel);
+
+        if (notifsLastReadAt.HasValue)
+        {
+            lowStockCount = 0;
+        }
+
+        abandonedCartsCount = DbContext.AbandonedCheckouts
+            .AsNoTracking()
+            .Count(a => !a.IsRecovered);
+
+        if (isAdmin)
+        {
+            var msgQuery = DbContext.ContactMessages
+                .AsNoTracking()
+                .Where(m => !m.IsRead);
+            if (notifsLastReadAt.HasValue)
+            {
+                msgQuery = msgQuery.Where(m => m.CreatedAt > notifsLastReadAt.Value);
+            }
+            unreadMessagesCount = msgQuery.Count();
+        }
+
+        recentNotificationOrders = DbContext.Orders
+            .Include(o => o.Customer)
+            .AsNoTracking()
+            .OrderByDescending(o => o.OrderDate)
+            .Take(4)
+            .ToList();
+    }
+
+    var totalAlerts = pendingOrdersCount + lowStockCount + unreadMessagesCount;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ROVEN Atelier & Boutique Portal</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Local FontAwesome 6 & Bootstrap Icons (Guaranteed Offline / TE Data Protection) -->
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" asp-append-version="true" />
+    <!-- CDN Fallbacks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <!-- Custom Theme CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <!-- SweetAlert2 Stylesheet -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    
+    <!-- Favicon & Touch Icons (Crisp 1:1 ROVEN Monogram) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=roven3" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png?v=roven3" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/images/favicon-64.png?v=roven3" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=roven3" />
+    <link rel="shortcut icon" href="/favicon.ico?v=roven3" />
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <script>
+        // Prevent layout shift on desktop when user previously collapsed the sidebar
+        try {
+            if (window.innerWidth >= 992 && localStorage.getItem('roven_sidebar_closed') === 'true') {
+                document.body.classList.add('sidebar-closed');
+            }
+        } catch (e) {}
+    </script>
+    <div class="app-wrapper">
+        <!-- Mobile Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar" id="appSidebar">
+            <!-- ROVEN Seamless Brand Header -->
+            <div class="sidebar-brand-wrapper">
+                <button type="button" class="sidebar-internal-close-btn position-absolute top-0 end-0 m-2.5" id="sidebarInternalCloseBtn" title="إغلاق السايد بار (Close Sidebar)" aria-label="Close sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <a asp-controller="Dashboard" asp-action="Index" class="d-inline-block">
+                    <img src="/images/roven-logo.png" alt="ROVEN" />
+                </a>
+                <div class="mt-2">
+                    <span class="badge" style="background-color: #630000; color: #EDEBDD; font-size: 0.68rem; letter-spacing: 1.2px; font-weight: 700; padding: 0.35rem 0.8rem; border-radius: 50px;">
+                        <i class="fa-solid fa-crown me-1" style="color: #EDEBDD;"></i> MANAGEMENT PORTAL
+                    </span>
+                </div>
+            </div>
+
+            <!-- Direct Storefront Link -->
+            <div class="px-3 pt-3 pb-1">
+                <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-sm w-100 d-flex align-items-center justify-content-between px-3 py-2 rounded-3" style="background: rgba(237, 235, 221, 0.08); color: #EDEBDD; border: 1px solid rgba(237, 235, 221, 0.18); font-size: 0.85rem; text-decoration: none;">
+                    <span class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-store" style="color: #EDEBDD;"></i>
+                        <span class="fw-semibold">Online Storefront</span>
+                    </span>
+                    <i class="fa-solid fa-arrow-up-right-from-square small opacity-75"></i>
+                </a>
+            </div>
+
+            <div class="sidebar-nav">
+                <!-- ============================================== -->
+                <!-- PERMISSION-AWARE UNIFIED DYNAMIC SIDEBAR       -->
+                <!-- ============================================== -->
+
+                <!-- 1. Overview & Workspace -->
+                @if (User.HasPermission(Permissions.Dashboard))
+                {
+                    <div class="sidebar-section-title">Overview</div>
+                    <a class="nav-link @(currentController == "Dashboard" ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>@(User.IsInRole(Roles.Admin) ? "Executive Dashboard" : "Sales Dashboard")</span>
+                    </a>
+                }
+
+                <!-- 2. Point of Sale & Quick Sales -->
+                @if (User.HasPermission(Permissions.POS) || User.HasPermission(Permissions.Orders))
+                {
+                    <div class="sidebar-section-title">Point of Sale & Orders</div>
+                    @if (User.HasPermission(Permissions.POS))
+                    {
+                        <a class="nav-link mb-2 @(currentController == "Orders" && currentAction == "Create" ? "active" : "")" 
+                           asp-controller="Orders" asp-action="Create" 
+                           style="background: rgba(99, 0, 0, 0.45); border: 1px solid rgba(237, 235, 221, 0.2); color: #EDEBDD;">
+                            <i class="fa-solid fa-cash-register" style="color: #EDEBDD;"></i>
+                            <span class="fw-bold">Create Order (POS)</span>
+                        </a>
+                    }
+                    @if (User.HasPermission(Permissions.Orders))
+                    {
+                        <a class="nav-link @(currentController == "Orders" && currentAction == "Index" ? "active" : "")" 
+                           asp-controller="Orders" asp-action="Index">
+                            <i class="fa-solid fa-receipt"></i>
+                            <span>Orders List</span>
+                        </a>
+                        <a class="nav-link @(currentController == "AbandonedCheckouts" ? "active" : "")" 
+                           asp-controller="AbandonedCheckouts" asp-action="Index">
+                            <i class="fa-solid fa-cart-arrow-down text-warning"></i>
+                            <span>Abandoned Checkouts</span>
+                            @if (abandonedCartsCount > 0)
+                            {
+                                <span class="badge bg-warning text-dark rounded-pill ms-auto" style="font-size: 0.72rem;">@abandonedCartsCount</span>
+                            }
+                        </a>
+                    }
+                }
+
+                <!-- 3. Catalog & Warehouse -->
+                @if (User.HasPermission(Permissions.Products) || User.HasPermission(Permissions.Categories) || User.HasPermission(Permissions.Inventory))
+                {
+                    <div class="sidebar-section-title">Catalog & Inventory</div>
+                    @if (User.HasPermission(Permissions.Products))
+                    {
+                        <a class="nav-link @(currentController == "Products" ? "active" : "")" asp-controller="Products" asp-action="Index">
+                            <i class="fa-solid fa-spray-can-sparkles"></i>
+                            <span>Products Catalog</span>
+                        </a>
+                    }
+                    @if (User.HasPermission(Permissions.Categories))
+                    {
+                        <a class="nav-link @(currentController == "Categories" ? "active" : "")" asp-controller="Categories" asp-action="Index">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <span>Categories</span>
+                        </a>
+                    }
+                    @if (User.HasPermission(Permissions.Inventory))
+                    {
+                        <a class="nav-link @(currentController == "Inventory" ? "active" : "")" asp-controller="Inventory" asp-action="Index">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                            <span>Inventory Control</span>
+                        </a>
+                    }
+                }
+
+                <!-- 4. Sales, CRM & Loyalty -->
+                @if (User.HasPermission(Permissions.Customers) || User.HasPermission(Permissions.Coupons))
+                {
+                    <div class="sidebar-section-title">Sales & CRM</div>
+                    @if (User.HasPermission(Permissions.Customers))
+                    {
+                        <a class="nav-link @(currentController == "Customers" ? "active" : "")" asp-controller="Customers" asp-action="Index">
+                            <i class="fa-solid fa-users"></i>
+                            <span>Customers (CRM)</span>
+                        </a>
+                    }
+                    @if (User.HasPermission(Permissions.Coupons))
+                    {
+                        <a class="nav-link @(currentController == "Coupons" ? "active" : "")" asp-controller="Coupons" asp-action="Index">
+                            <i class="fa-solid fa-ticket"></i>
+                            <span>الكوبونات والخصومات</span>
+                        </a>
+                    }
+                }
+
+                <!-- 5. Storefront & Customer Inquiries -->
+                @if (User.HasPermission(Permissions.HomeControl) || User.HasPermission(Permissions.Messages))
+                {
+                    <div class="sidebar-section-title">Storefront & Concierge</div>
+                    @if (User.HasPermission(Permissions.HomeControl))
+                    {
+                        <a class="nav-link @(currentController == "HomeControl" ? "active" : "")" asp-controller="HomeControl" asp-action="Index">
+                            <i class="fa-solid fa-sliders"></i>
+                            <span>Home Control</span>
+                        </a>
+                    }
+                    @if (isAdmin)
+                    {
+                        <a class="nav-link @(currentController == "Government" || currentController == "goverment" ? "active" : "")" href="/goverment">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            <span>المحافظات والشحن (Government)</span>
+                        </a>
+                    }
+                    @if (User.HasPermission(Permissions.Messages))
+                    {
+                        <a class="nav-link @(currentController == "Messages" ? "active" : "")" asp-controller="Messages" asp-action="Index">
+                            <i class="fa-solid fa-envelope-open-text"></i>
+                            <span>رسائل واستفسارات المتجر</span>
+                        </a>
+                    }
+                }
+
+                <!-- 6. Administration & Reporting -->
+                @if (User.HasPermission(Permissions.Reports) || User.HasPermission(Permissions.Users))
+                {
+                    <div class="sidebar-section-title">Administration & Analytics</div>
+                    @if (User.HasPermission(Permissions.Reports))
+                    {
+                        <a class="nav-link @(currentController == "Reports" ? "active" : "")" asp-controller="Reports" asp-action="Index">
+                            <i class="fa-solid fa-chart-column"></i>
+                            <span>Reports & Analytics</span>
+                        </a>
+                    }
+                    @if (User.HasPermission(Permissions.Users))
+                    {
+                        <a class="nav-link @(currentController == "Users" ? "active" : "")" asp-controller="Users" asp-action="Index">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>Users & Permissions</span>
+                        </a>
+                    }
+                }
+            </div>
+
+            <div class="sidebar-footer">
+                <a asp-controller="Account" asp-action="Logout" class="btn w-100 d-flex align-items-center justify-content-center py-2 shadow-sm rounded-pill" style="background: rgba(129, 1, 0, 0.35); border: 1px solid #810100; color: #EDEBDD !important; font-weight: 600; font-size: 0.88rem; transition: all 0.2s ease;">
+                    <i class="fa-solid fa-right-from-bracket me-2" style="color: #EDEBDD;"></i>
+                    <span>Sign Out</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <div class="app-main">
+            <!-- Top Navbar -->
+            <header class="app-topbar">
+                <div class="d-flex align-items-center">
+                    <button class="sidebar-toggle-btn me-3" id="sidebarToggleBtn" type="button" aria-label="Toggle navigation" title="فتح / إغلاق القائمة الجانبية (Toggle Sidebar)">
+                        <i class="fa-solid fa-bars-staggered fs-5" id="sidebarToggleIcon" style="color: #630000;"></i>
+                    </button>
+                    <div>
+                        <h5 class="mb-0 fw-extrabold" style="color: #1B1717;">@(ViewData["Title"] ?? "Atelier Dashboard")</h5>
+                    </div>
+                </div>
+
+                <!-- Search Input -->
+                <div class="topbar-search d-none d-md-block">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" class="form-control" placeholder="Search flacons, orders, patrons..." />
+                </div>
+
+                <!-- Right Utility Actions -->
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Notifications Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-light rounded-circle position-relative p-2" type="button" id="notificationDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" style="width: 40px; height: 40px; background-color: #EDEBDD; border: 1px solid rgba(99, 0, 0, 0.15);" title="الإشعارات والتنبيهات">
+                            <i class="fa-regular fa-bell" style="color: #630000; font-size: 1.05rem;"></i>
+                            <span id="notification-bell-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light shadow-sm @(totalAlerts > 0 ? "" : "d-none")" style="font-size: 0.65rem; padding: 0.25em 0.5em;">
+                                @(totalAlerts > 99 ? "99+" : totalAlerts.ToString())
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 py-0 mt-2 rounded-4 overflow-hidden" style="width: 340px; border: 1px solid #e8e3d5 !important;">
+                            <li class="p-2.5 px-3 border-bottom d-flex align-items-center justify-content-between gap-2" style="background: linear-gradient(135deg, #fdfbf7 0%, #EDEBDD 100%);">
+                                <div class="fw-bold d-flex align-items-center gap-1.5" style="color: #630000; font-size: 0.88rem;">
+                                    <i class="fa-solid fa-bell me-1"></i> إشعارات وتنبيهات
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5">
+                                    <span id="notif-header-badge" class="badge bg-danger rounded-pill px-2 py-1 @(totalAlerts > 0 ? "" : "d-none")" style="font-size: 0.7rem;">
+                                        <span id="notif-header-num">@totalAlerts</span> جديد
+                                    </span>
+                                    <span id="notif-header-allread" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 @(totalAlerts == 0 ? "" : "d-none")" style="font-size: 0.7rem;">
+                                        <i class="fa-solid fa-check me-1"></i>تمت القراءة
+                                    </span>
+                                    <button type="button" id="markAllNotifsReadBtn" onclick="markAllNotificationsAsRead(event)" class="btn btn-sm rounded-pill px-2.5 py-0.5 fw-semibold d-inline-flex align-items-center gap-1 shadow-2xs" style="background-color: #630000; color: #EDEBDD; border: 1px solid #810100; font-size: 0.72rem; transition: all 0.2s;" title="تحديد كافة الإشعارات كمقروءة">
+                                        <i class="fa-solid fa-check-double"></i>
+                                        <span>تمت القراءة</span>
+                                    </button>
+                                </div>
+                            </li>
+
+                            <li class="notification-scroll-area" style="max-height: 380px; overflow-y: auto;">
+                                @if (totalAlerts > 0)
+                                {
+                                    @if (pendingOrdersCount > 0)
+                                    {
+                                        <a asp-controller="Orders" asp-action="Index" asp-route-status="@OrderStatus.Pending" class="dropdown-item d-flex align-items-center py-2 px-3 border-bottom text-wrap text-decoration-none">
+                                            <div class="rounded-3 d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 36px; height: 36px; background-color: #fff3cd; color: #856404;">
+                                                <i class="fa-solid fa-cart-shopping fs-6"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="fw-bold text-dark small">طلبات معلقة</span>
+                                                    <span class="badge bg-warning text-dark rounded-pill">@pendingOrdersCount</span>
+                                                </div>
+                                                <div class="text-muted" style="font-size: 0.75rem;">طلبات بحاجة للتأكيد أو التجهيز</div>
+                                            </div>
+                                        </a>
+                                    }
+
+                                    @if (lowStockCount > 0)
+                                    {
+                                        <a asp-controller="Products" asp-action="Index" asp-route-status="alert" class="dropdown-item d-flex align-items-center py-2 px-3 border-bottom text-wrap text-decoration-none">
+                                            <div class="rounded-3 d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 36px; height: 36px; background-color: #f8d7da; color: #842029;">
+                                                <i class="fa-solid fa-triangle-exclamation fs-6"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="fw-bold text-dark small">تنبيه المخزون</span>
+                                                    <span class="badge bg-danger rounded-pill">@lowStockCount</span>
+                                                </div>
+                                                <div class="text-muted" style="font-size: 0.75rem;">عطور بلغت حد إعادة الطلب</div>
+                                            </div>
+                                        </a>
+                                    }
+
+                                    @if (unreadMessagesCount > 0)
+                                    {
+                                        <a asp-controller="Messages" asp-action="Index" asp-route-status="unread" class="dropdown-item d-flex align-items-center py-2 px-3 border-bottom text-wrap text-decoration-none">
+                                            <div class="rounded-3 d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 36px; height: 36px; background-color: #cff4fc; color: #055160;">
+                                                <i class="fa-solid fa-envelope fs-6"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="fw-bold text-dark small">رسائل المتجر</span>
+                                                    <span class="badge bg-info text-dark rounded-pill">@unreadMessagesCount</span>
+                                                </div>
+                                                <div class="text-muted" style="font-size: 0.75rem;">استفسارات عملاء جديدة غير مقروءة</div>
+                                            </div>
+                                        </a>
+                                    }
+                                }
+
+                                <!-- Recent Activity Stream -->
+                                <div class="px-3 py-1 bg-light border-bottom text-muted fw-semibold d-flex justify-content-between align-items-center" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                                    <span><i class="fa-solid fa-clock-rotate-left me-1"></i> آخر العمليات</span>
+                                    <span class="badge bg-secondary-subtle text-secondary rounded-pill" style="font-size: 0.65rem;">مباشر</span>
+                                </div>
+
+                                @if (recentNotificationOrders.Any())
+                                {
+                                    @foreach (var ord in recentNotificationOrders)
+                                    {
+                                        var isOrderRead = (notifsLastReadAt.HasValue && ord.OrderDate <= notifsLastReadAt.Value) || readOrderIds.Contains(ord.Id);
+                                        var statusBadgeClass = ord.Status switch
+                                        {
+                                            OrderStatus.Completed => "bg-success-subtle text-success border border-success-subtle",
+                                            OrderStatus.Pending => "bg-warning-subtle text-warning-emphasis border border-warning-subtle",
+                                            OrderStatus.Processing => "bg-primary-subtle text-primary border border-primary-subtle",
+                                            OrderStatus.Cancelled => "bg-danger-subtle text-danger border border-danger-subtle",
+                                            OrderStatus.Shipped => "bg-info-subtle text-info-emphasis border border-info-subtle",
+                                            _ => "bg-secondary-subtle text-secondary border border-secondary-subtle"
+                                        };
+                                        var statusArabic = ord.Status switch
+                                        {
+                                            OrderStatus.Completed => "مكتمل",
+                                            OrderStatus.Pending => "معلق",
+                                            OrderStatus.Processing => "قيد المعالجة",
+                                            OrderStatus.Cancelled => "ملغي",
+                                            OrderStatus.Shipped => "تم الشحن",
+                                            _ => ord.Status.ToString()
+                                        };
+                                        var patronName = ord.Customer?.FullName ?? ord.CustomerName ?? "عميل صالة";
+
+                                        <a asp-controller="Orders" asp-action="Details" asp-route-id="@ord.Id" onclick="markOrderAsReadOnNavigate(@ord.Id)" class="dropdown-item py-2 px-3 border-bottom text-decoration-none notif-order-row" data-order-id="@ord.Id" style="@(isOrderRead ? "opacity: 0.85;" : "background-color: rgba(99, 0, 0, 0.02);")">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="fw-bold text-dark" style="font-size: 0.8rem;">
+                                                    <i class="fa-solid fa-receipt text-muted me-1"></i>@ord.OrderNumber
+                                                </span>
+                                                <div class="d-flex align-items-center gap-1.5">
+                                                    <span class="badge @statusBadgeClass rounded-pill" style="font-size: 0.65rem;">@statusArabic</span>
+                                                    @if (isOrderRead)
+                                                    {
+                                                        <span class="badge bg-light text-muted border rounded-pill" style="font-size: 0.62rem;" title="تمت القراءة">
+                                                            <i class="fa-solid fa-check text-success me-0.5"></i>مقروء
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none btn-mark-order-read" onclick="markSingleOrderNotifAsRead(event, @ord.Id, this)" title="تعليم كمقروء (تمت القراءة)" style="font-size: 0.68rem; color: #630000; font-weight: 600;">
+                                                            <i class="fa-regular fa-circle-check"></i> تمت القراءة
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 0.75rem;">
+                                                <span class="text-truncate" style="max-width: 140px;" title="@patronName">
+                                                    <i class="fa-regular fa-user me-1 text-muted"></i>@patronName
+                                                </span>
+                                                <span class="fw-bold text-dark">@ord.TotalAmount.ToString("N0") ج.م</span>
+                                            </div>
+                                            <div class="text-muted mt-1" style="font-size: 0.68rem;">
+                                                <i class="fa-regular fa-clock me-1"></i>@ord.OrderDate.ToEgyptTimeString()
+                                            </div>
+                                        </a>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-center py-4 text-muted">
+                                        <i class="fa-solid fa-circle-check text-success fs-3 mb-2 d-block"></i>
+                                        <div class="small fw-semibold">لا توجد إشعارات أو عمليات جديدة</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">المتجر والمخزون في حالة ممتازة</div>
+                                    </div>
+                                }
+                            </li>
+
+                            <li class="p-1.5 px-3 bg-light border-top border-bottom d-flex justify-content-between align-items-center">
+                                <span class="text-muted" style="font-size: 0.72rem;">تحديث التنبيهات:</span>
+                                <button type="button" onclick="markAllNotificationsAsRead(event)" class="btn btn-link p-0 text-decoration-none fw-semibold d-inline-flex align-items-center gap-1" style="color: #630000; font-size: 0.74rem;">
+                                    <i class="fa-solid fa-check-double text-success"></i>
+                                    <span>تعليم الكل كمقروء</span>
+                                </button>
+                            </li>
+
+                            <li class="p-2 bg-light border-top d-flex gap-2 justify-content-between">
+                                <a asp-controller="Orders" asp-action="Index" class="btn btn-sm btn-outline-secondary w-50 py-1" style="font-size: 0.75rem;">
+                                    <i class="fa-solid fa-list me-1"></i>جميع الطلبات
+                                </a>
+                                <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-outline-secondary w-50 py-1" style="font-size: 0.75rem;">
+                                    <i class="fa-solid fa-boxes-stacked me-1"></i>المخزون
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- User Profile Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-light d-flex align-items-center gap-2 border-0 bg-transparent p-0" type="button" data-bs-toggle="dropdown">
+                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 40px; height: 40px; font-size: 0.95rem; background: linear-gradient(135deg, #630000 0%, #810100 100%); color: #EDEBDD;">
+                                @(User.Identity?.IsAuthenticated == true ? User.GetUserFullName()[0].ToString().ToUpper() : "R")
+                            </div>
+                            <div class="d-none d-sm-block text-start lh-sm">
+                                <div class="fw-bold fs-7" style="color: #1B1717;">@(User.Identity?.IsAuthenticated == true ? User.GetUserFullName() : "Maison Admin")</div>
+                                <div class="text-muted fs-8" style="font-size: 0.75rem;">@(User.IsInRole(Roles.Admin) ? "Atelier Director (مدير)" : "Boutique Associate (سيلز)")</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-muted small d-none d-sm-inline"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 py-2 mt-2 rounded-4" style="border: 1px solid #e8e3d5 !important;">
+                            <li class="px-3 py-2 border-bottom">
+                                <div class="fw-bold" style="color: #1B1717;">@(User.Identity?.IsAuthenticated == true ? User.GetUserFullName() : "director@roven.eg")</div>
+                                <div class="text-muted small">@(User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? User.Identity?.Name)</div>
+                                <div class="badge mt-1" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99,0,0,0.2);">
+                                    @(User.IsInRole(Roles.Admin) ? "مدير نظام (Administrator)" : "مسؤول مبيعات (Sales)")
+                                </div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2" asp-controller="Account" asp-action="Profile">
+                                    <i class="fa-regular fa-user me-2" style="color: #630000;"></i>My Atelier Profile
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Canvas -->
+            <main class="app-content">
+                <partial name="_AlertsPartial" />
+                @RenderBody()
+            </main>
+
+            <!-- Footer -->
+            <footer class="app-footer d-flex flex-column align-items-center justify-content-center gap-2 py-3 text-center">
+                <div class="small">&copy; @DateTime.UtcNow.Year <span class="fw-bold" style="color: #630000;">ROVEN</span> Haute Parfumerie – Atelier & Boutique Management System</div>
+                <div class="developer-box d-inline-flex align-items-center justify-content-center flex-wrap gap-2 px-3 py-1 rounded-pill shadow-sm" style="background-color: #EDEBDD; border: 1px solid rgba(99, 0, 0, 0.18); max-width: 100%;">
+                    <span class="small" style="color: #630000; font-weight: 500;">
+                        Created by <strong style="color: #1B1717;">Yahia Mohamed</strong>
+                    </span>
+                    <span class="vr mx-1" style="height: 16px; opacity: 0.35; background-color: #630000;"></span>
+                    <a href="https://www.linkedin.com/in/yahia-mohamed-b8b440372/" target="_blank" rel="noopener noreferrer" class="d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none shadow-sm" style="width: 24px; height: 24px; background-color: #0a66c2; color: #ffffff; font-size: 0.75rem;" title="LinkedIn Profile">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://wa.me/201090411612" target="_blank" rel="noopener noreferrer" class="d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none shadow-sm" style="width: 24px; height: 24px; background-color: #25d366; color: #ffffff; font-size: 0.85rem;" title="WhatsApp">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 Library with Failover -->
+    <script src="~/lib/sweetalert2/sweetalert2.all.min.js"></script>
+    <script>
+        if (typeof Swal === 'undefined' && typeof Sweetalert2 !== 'undefined') {
+            window.Swal = Sweetalert2;
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        if (typeof Swal === 'undefined' && typeof Sweetalert2 !== 'undefined') {
+            window.Swal = Sweetalert2;
+        }
+    </script>
+    <!-- Chart.js for Visual Reports -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <!-- Custom Application JS -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script>
+            (function() {
+                window.markAllNotificationsAsRead = function(e) {
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    const now = Date.now();
+                    document.cookie = "roven_notifs_read_at=" + now + "; path=/; max-age=" + (30 * 24 * 3600) + "; SameSite=Lax";
+                    try {
+                        localStorage.setItem('roven_notifs_read_at', now);
+                    } catch (err) {}
+
+                    // Update UI immediately
+                    const bellBadge = document.getElementById('notification-bell-badge');
+                    if (bellBadge) {
+                        bellBadge.classList.add('d-none');
+                        bellBadge.textContent = '0';
+                    }
+
+                    const headerBadge = document.getElementById('notif-header-badge');
+                    if (headerBadge) {
+                        headerBadge.classList.add('d-none');
+                    }
+
+                    const allReadBadge = document.getElementById('notif-header-allread');
+                    if (allReadBadge) {
+                        allReadBadge.classList.remove('d-none');
+                    }
+
+                    const markBtn = document.getElementById('markAllNotifsReadBtn');
+                    if (markBtn) {
+                        markBtn.innerHTML = '<i class="fa-solid fa-check text-success"></i> <span>تمت</span>';
+                        markBtn.style.backgroundColor = '#EDEBDD';
+                        markBtn.style.color = '#198754';
+                        markBtn.style.borderColor = 'rgba(25, 135, 84, 0.4)';
+                        markBtn.disabled = true;
+                    }
+
+                    // Convert pending order indicators to read
+                    document.querySelectorAll('.btn-mark-order-read').forEach(el => {
+                        el.outerHTML = '<span class="badge bg-light text-muted border rounded-pill" style="font-size: 0.62rem;" title="تمت القراءة"><i class="fa-solid fa-check text-success me-0.5"></i>مقروء</span>';
+                    });
+
+                    // Sync server endpoint
+                    fetch('/Orders/MarkNotificationsAsRead', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ timestamp: now })
+                    }).catch(() => {});
+                };
+
+                window.markSingleOrderNotifAsRead = function(e, orderId, btn) {
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    const orderIdStr = String(orderId);
+                    let readIds = [];
+                    const match = document.cookie.match(/(^|;)\s*roven_read_orders=([^;]+)/);
+                    if (match && match[2]) {
+                        readIds = match[2].split(',').filter(Boolean);
+                    }
+                    if (!readIds.includes(orderIdStr)) {
+                        readIds.push(orderIdStr);
+                    }
+                    document.cookie = "roven_read_orders=" + readIds.join(',') + "; path=/; max-age=" + (30 * 24 * 3600) + "; SameSite=Lax";
+
+                    if (btn) {
+                        btn.outerHTML = '<span class="badge bg-light text-muted border rounded-pill" style="font-size: 0.62rem;" title="تمت القراءة"><i class="fa-solid fa-check text-success me-0.5"></i>مقروء</span>';
+                    }
+
+                    // Decrement bell badge
+                    const bellBadge = document.getElementById('notification-bell-badge');
+                    if (bellBadge && !bellBadge.classList.contains('d-none')) {
+                        let count = parseInt(bellBadge.textContent.trim(), 10) || 0;
+                        count = Math.max(0, count - 1);
+                        if (count === 0) {
+                            bellBadge.classList.add('d-none');
+                            document.getElementById('notif-header-badge')?.classList.add('d-none');
+                            document.getElementById('notif-header-allread')?.classList.remove('d-none');
+                        } else {
+                            bellBadge.textContent = count;
+                            const headerNum = document.getElementById('notif-header-num');
+                            if (headerNum) headerNum.textContent = count;
+                        }
+                    }
+
+                    fetch('/Orders/MarkNotificationsAsRead', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ orderId: orderId })
+                    }).catch(() => {});
+                };
+
+                window.markOrderAsReadOnNavigate = function(orderId) {
+                    const orderIdStr = String(orderId);
+                    let readIds = [];
+                    const match = document.cookie.match(/(^|;)\s*roven_read_orders=([^;]+)/);
+                    if (match && match[2]) {
+                        readIds = match[2].split(',').filter(Boolean);
+                    }
+                    if (!readIds.includes(orderIdStr)) {
+                        readIds.push(orderIdStr);
+                    }
+                    document.cookie = "roven_read_orders=" + readIds.join(',') + "; path=/; max-age=" + (30 * 24 * 3600) + "; SameSite=Lax";
+                };
+
+                function updateNotificationBadge() {
+                    fetch('/Dashboard/GetLiveNotifications')
+                        .then(function(res) { return res.ok ? res.json() : null; })
+                        .then(function(data) {
+                            if (!data) return;
+                            var badge = document.getElementById('notification-bell-badge');
+                            if (badge) {
+                                if (data.totalAlerts > 0) {
+                                    badge.textContent = data.totalAlerts > 99 ? '99+' : data.totalAlerts;
+                                    badge.classList.remove('d-none');
+                                    var headerNum = document.getElementById('notif-header-num');
+                                    if (headerNum) headerNum.textContent = data.totalAlerts;
+                                    document.getElementById('notif-header-badge')?.classList.remove('d-none');
+                                    document.getElementById('notif-header-allread')?.classList.add('d-none');
+                                } else {
+                                    badge.classList.add('d-none');
+                                    document.getElementById('notif-header-badge')?.classList.add('d-none');
+                                    document.getElementById('notif-header-allread')?.classList.remove('d-none');
+                                }
+                            }
+                        })
+                        .catch(function() {});
+                }
+                setInterval(updateNotificationBadge, 45000);
+            })();
+        </script>
+    }
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

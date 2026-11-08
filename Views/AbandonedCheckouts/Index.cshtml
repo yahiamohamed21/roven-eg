@@ -1,0 +1,373 @@
+@model List<Stockify.Models.Entities.AbandonedCheckout>
+@using System.Text.Json
+@using Stockify.Common.Extensions
+@{
+    ViewData["Title"] = "Abandoned Checkouts & Incomplete Orders";
+    var currentFilter = ViewBag.CurrentFilter as string ?? "pending";
+    var currentSearch = ViewBag.CurrentSearch as string ?? "";
+    var totalPending = (int)(ViewBag.TotalPending ?? 0);
+    var totalRecovered = (int)(ViewBag.TotalRecovered ?? 0);
+    var totalAll = (int)(ViewBag.TotalAll ?? 0);
+    var pendingValue = (decimal)(ViewBag.PendingValue ?? 0m);
+}
+
+<!-- Page Header / Action Bar -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-roven-cream px-3 py-1 rounded-pill fw-bold">
+                <i class="fa-solid fa-cart-arrow-down me-1" style="color: #630000;"></i> E-Commerce Intelligence
+            </span>
+            <span class="small text-muted">Cart Recovery System</span>
+        </div>
+        <h3 class="fw-extrabold mb-1" style="color: #1B1717;">Abandoned Checkouts (طلبات لم تكتمل)</h3>
+        <p class="text-muted mb-0 small">قائمة العملاء الذين أدخلوا بياناتهم في صفحة الدفع ولم يكملوا عملية الشراء مع إمكانية التواصل الفوري عبر واتساب لاسترجاع الطلب.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>العودة للوحة التحكم</span>
+        </a>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-4 mb-4" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- 4 KPI Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a asp-action="Index" asp-route-filter="pending" class="text-decoration-none">
+            <div class="card border-0 shadow-sm p-3 h-100 rounded-4 @(currentFilter == "pending" ? "border-warning border-2" : "")">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-warning bg-opacity-10 text-warning-emphasis p-3 fs-4 d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-cart-arrow-down"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-medium">سلات معلقة (لم تكتمل)</span>
+                        <h4 class="fw-bold text-warning-emphasis mb-0">@totalPending</h4>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm p-3 h-100 rounded-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 bg-danger bg-opacity-10 text-danger p-3 fs-4 d-flex align-items-center justify-content-center">
+                    <i class="fa-solid fa-sack-dollar"></i>
+                </div>
+                <div>
+                    <span class="text-muted small fw-medium">قيمة المبيعات المحتملة</span>
+                    <h4 class="fw-bold text-danger mb-0 font-monospace">@pendingValue.ToString("N2") EGP</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a asp-action="Index" asp-route-filter="recovered" class="text-decoration-none">
+            <div class="card border-0 shadow-sm p-3 h-100 rounded-4 @(currentFilter == "recovered" ? "border-success border-2" : "")">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-success bg-opacity-10 text-success p-3 fs-4 d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-medium">تم استرجاعها بنجاح</span>
+                        <h4 class="fw-bold text-success mb-0">@totalRecovered</h4>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a asp-action="Index" asp-route-filter="all" class="text-decoration-none">
+            <div class="card border-0 shadow-sm p-3 h-100 rounded-4 @(currentFilter == "all" ? "border-primary border-2" : "")">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-3 fs-4 d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-medium">إجمالي السجلات</span>
+                        <h4 class="fw-bold text-primary mb-0">@totalAll</h4>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Filter Pills & Search Bar -->
+<div class="card border-0 shadow-sm rounded-4 mb-4 p-3 bg-white">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="btn-group shadow-xs p-1 bg-light rounded-pill border" role="group">
+            <a asp-action="Index" asp-route-filter="pending" asp-route-search="@currentSearch" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold @(currentFilter == "pending" ? "btn-warning text-dark shadow-sm" : "text-secondary")">
+                <i class="fa-solid fa-hourglass-half me-1"></i> سلات معلقة (@totalPending)
+            </a>
+            <a asp-action="Index" asp-route-filter="recovered" asp-route-search="@currentSearch" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold @(currentFilter == "recovered" ? "btn-success text-white shadow-sm" : "text-secondary")">
+                <i class="fa-solid fa-circle-check me-1"></i> مسترجعة (@totalRecovered)
+            </a>
+            <a asp-action="Index" asp-route-filter="all" asp-route-search="@currentSearch" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold @(currentFilter == "all" ? "btn-primary shadow-sm" : "text-secondary")">
+                <i class="fa-solid fa-list me-1"></i> الكل (@totalAll)
+            </a>
+        </div>
+
+        <form method="get" asp-action="Index" class="d-flex gap-2">
+            <input type="hidden" name="filter" value="@currentFilter" />
+            <div class="input-group input-group-sm" style="min-width: 260px;">
+                <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                <input type="text" name="search" class="form-control border-start-0" placeholder="بحث بالاسم، الرقم، المحافظة..." value="@currentSearch" />
+                <button type="submit" class="btn btn-primary px-3">بحث</button>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(currentSearch))
+            {
+                <a asp-action="Index" asp-route-filter="@currentFilter" class="btn btn-sm btn-outline-secondary rounded-pill px-3">إلغاء</a>
+            }
+        </form>
+    </div>
+</div>
+
+<!-- Abandoned Checkouts Table Card -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th style="min-width: 170px;">العميل وبيانات التواصل</th>
+                    <th style="min-width: 220px;">المنتجات المتروكة في السلة</th>
+                    <th>إجمالي القيمة</th>
+                    <th>المحافظة والعنوان</th>
+                    <th>وقت ترك الطلب</th>
+                    <th>الحالة</th>
+                    <th class="text-end pe-3">إجراءات الاسترجاع</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="fa-solid fa-cart-shopping fs-2 mb-2 text-muted opacity-50 d-block"></i>
+                            <span>لا توجد طلبات معلقة تطابق هذا البحث حالياً.</span>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        var cleanPhone = item.CustomerPhone.Replace("+", "").Replace(" ", "").Replace("-", "");
+                        var waPhone = cleanPhone.StartsWith("01") ? "20" + cleanPhone.Substring(1) : cleanPhone;
+                        
+                        // Parse JSON cart items
+                        var productsList = new List<string>();
+                        try
+                        {
+                            using var doc = JsonDocument.Parse(item.CartItemsJson);
+                            foreach (var el in doc.RootElement.EnumerateArray())
+                            {
+                                var pName = el.GetProperty("ProductName").GetString() ?? "Fragrance";
+                                var pQty = el.GetProperty("Quantity").GetInt32();
+                                productsList.Add($"{pName} (×{pQty})");
+                            }
+                        }
+                        catch
+                        {
+                            productsList.Add($"{item.ItemCount} منتجات");
+                        }
+
+                        var firstProductName = productsList.FirstOrDefault() ?? "عطور روڤين";
+                        var encodedWaMsg = Uri.EscapeDataString($"أهلاً بك أ/ {item.CustomerName} في دار روڤين للعطور، لاحظنا أنك لم تتمكن من استكمال طلبك لـ ({firstProductName})، هل واجهتك أي مشكلة في إتمام الطلب؟ يسعدنا مساعدتك وتوفير كود خصم خاص لك!");
+
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">@item.CustomerName</div>
+                                <div class="d-flex align-items-center gap-1.5 mt-0.5">
+                                    <a href="tel:@item.CustomerPhone" class="text-decoration-none small text-muted">
+                                        <i class="fa-solid fa-phone me-1"></i>@item.CustomerPhone
+                                    </a>
+                                    <a href="https://wa.me/@waPhone?text=@encodedWaMsg" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline-success rounded-circle p-1 d-inline-flex align-items-center justify-content-center" style="width: 22px; height: 22px;" title="مراسلة عبر واتساب">
+                                        <i class="fa-brands fa-whatsapp fs-7"></i>
+                                    </a>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(item.CustomerEmail) && !item.CustomerEmail.EndsWith("@roven.vip"))
+                                {
+                                    <div class="small text-muted font-monospace" style="font-size: 0.76rem;">@item.CustomerEmail</div>
+                                }
+                            </td>
+                            <td>
+                                @foreach (var p in productsList.Take(3))
+                                {
+                                    <div class="small text-dark fw-medium">
+                                        <i class="fa-solid fa-spray-can-sparkles text-muted me-1" style="font-size: 0.75rem;"></i>@p
+                                    </div>
+                                }
+                                @if (productsList.Count > 3)
+                                {
+                                    <span class="badge bg-light text-muted border small mt-1">+@(productsList.Count - 3) إضافية</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="fw-bold font-monospace" style="color: #630000; font-size: 1.05rem;">
+                                    @item.TotalAmount.ToString("N2") EGP
+                                </span>
+                            </td>
+                            <td>
+                                <div class="small fw-bold text-dark">@(string.IsNullOrWhiteSpace(item.City) ? "—" : item.City)</div>
+                                <div class="small text-muted text-truncate" style="max-width: 170px;" title="@item.ShippingAddress">
+                                    @(string.IsNullOrWhiteSpace(item.ShippingAddress) ? "—" : item.ShippingAddress)
+                                </div>
+                            </td>
+                            <td>
+                                <div class="small text-dark fw-medium">@item.LastUpdatedAt.ToEgyptTimeString("dd MMM yyyy")</div>
+                                <span class="small text-muted">@item.LastUpdatedAt.ToEgyptTimeString("hh:mm tt")</span>
+                            </td>
+                            <td>
+                                @if (item.IsRecovered)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1.5 rounded-pill d-inline-flex align-items-center gap-1">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        <span>تم الاسترجاع</span>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2.5 py-1.5 rounded-pill d-inline-flex align-items-center gap-1">
+                                        <i class="fa-solid fa-clock"></i>
+                                        <span>معلقة لم تكتمل</span>
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-end pe-3">
+                                <div class="d-inline-flex align-items-center gap-1.5">
+                                    <!-- Direct WhatsApp Recovery Action Button -->
+                                    <a href="https://wa.me/@waPhone?text=@encodedWaMsg" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-success rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1" title="مراسلة العميل عبر واتساب لاسترجاع السلة">
+                                        <i class="fa-brands fa-whatsapp"></i>
+                                        <span class="d-none d-md-inline" style="font-size: 0.8rem;">استرجاع عبر واتساب</span>
+                                    </a>
+
+                                    @if (!item.IsRecovered)
+                                    {
+                                        <form asp-action="MarkRecovered" asp-route-id="@item.Id" method="post" class="d-inline form-mark-recovered">
+                                            @Html.AntiForgeryToken()
+                                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-1 btn-mark-recovered" data-name="@item.CustomerName" title="تحديد كمسترجع يدوياً">
+                                                <i class="fa-solid fa-check"></i>
+                                            </button>
+                                        </form>
+                                    }
+
+                                    @if (User.IsInRole(Roles.Admin))
+                                    {
+                                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline form-delete-checkout">
+                                            @Html.AntiForgeryToken()
+                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1 btn-delete-checkout" data-name="@item.CustomerName" title="حذف السجل">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener('click', function (e) {
+        const swalApi = window.Swal || window.Sweetalert2;
+
+        // Mark as Recovered confirmation with SweetAlert2
+        const markBtn = e.target.closest('.btn-mark-recovered');
+        if (markBtn) {
+            e.preventDefault();
+            const form = markBtn.closest('form');
+            const customerName = markBtn.getAttribute('data-name') || 'هذا الطلب';
+
+            if (swalApi) {
+                swalApi.fire({
+                    title: '<span style="font-family: \'Playfair Display\', serif; color: #1B1717;">تمييز الطلب كمسترجع؟</span>',
+                    html: `
+                        <div class="text-center my-2">
+                            <p class="mb-3 text-secondary fs-6">هل تريد تمييز طلب العميل <strong>${customerName}</strong> كمسترجع؟</p>
+                            <div class="alert alert-success text-start small mb-0 py-2 border-0 bg-success-subtle text-success-emphasis rounded-3">
+                                <i class="fa-solid fa-circle-check me-1 text-success"></i> سيتم نقل الطلب تلقائياً إلى قائمة السلات المسترجعة بنجاح وتحديث إحصائيات المبيعات.
+                            </div>
+                        </div>
+                    `,
+                    icon: 'question',
+                    iconColor: '#16a34a',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fa-solid fa-check me-1"></i> نعم، تمييز كمسترجع',
+                    cancelButtonText: 'إلغاء',
+                    confirmButtonColor: '#16a34a',
+                    cancelButtonColor: '#6c757d',
+                    customClass: {
+                        confirmButton: 'btn btn-success px-4 py-2 fw-bold me-2 rounded-pill shadow-sm',
+                        cancelButton: 'btn btn-outline-secondary px-4 py-2 rounded-pill'
+                    },
+                    buttonsStyling: false,
+                    reverseButtons: false
+                }).then(function (result) {
+                    if (result.isConfirmed && form) {
+                        form.submit();
+                    }
+                });
+            } else if (form) {
+                form.submit();
+            }
+            return;
+        }
+
+        // Delete Abandoned Checkout confirmation with SweetAlert2
+        const deleteBtn = e.target.closest('.btn-delete-checkout');
+        if (deleteBtn) {
+            e.preventDefault();
+            const form = deleteBtn.closest('form');
+            const customerName = deleteBtn.getAttribute('data-name') || 'هذا السجل';
+
+            if (swalApi) {
+                swalApi.fire({
+                    title: '<span style="font-family: \'Playfair Display\', serif; color: #630000;">حذف السجل نهائياً؟</span>',
+                    html: `
+                        <div class="text-center my-2">
+                            <p class="mb-3 text-secondary fs-6">هل أنت متأكد من رغبتك في حذف سجل العميل <strong>${customerName}</strong>؟</p>
+                            <div class="alert alert-danger text-start small mb-0 py-2 border-0 bg-danger-subtle text-danger-emphasis rounded-3">
+                                <i class="fa-solid fa-triangle-exclamation me-1 text-danger"></i> تحذير: لا يمكن التراجع عن هذا الإجراء بعد الحذف نهائياً.
+                            </div>
+                        </div>
+                    `,
+                    icon: 'warning',
+                    iconColor: '#630000',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fa-solid fa-trash-can me-1"></i> نعم، حذف السجل',
+                    cancelButtonText: 'إلغاء',
+                    confirmButtonColor: '#630000',
+                    cancelButtonColor: '#6c757d',
+                    customClass: {
+                        confirmButton: 'btn btn-danger px-4 py-2 fw-bold me-2 rounded-pill shadow-sm',
+                        cancelButton: 'btn btn-outline-secondary px-4 py-2 rounded-pill'
+                    },
+                    buttonsStyling: false,
+                    reverseButtons: false
+                }).then(function (result) {
+                    if (result.isConfirmed && form) {
+                        form.submit();
+                    }
+                });
+            } else if (form) {
+                form.submit();
+            }
+            return;
+        }
+    });
+</script>
+}
+

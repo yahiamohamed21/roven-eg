@@ -1,0 +1,281 @@
+@model Stockify.ViewModels.Store.StoreCatalogViewModel
+@{
+    Layout = "_StoreLayout";
+    var catTitle = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "Luxury Perfumes & Extraits Catalog" : Model.SelectedCategoryName;
+    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "Parfums Catalog — ROVEN" : $"{Model.SelectedCategoryName} — ROVEN";
+    ViewData["MetaDescription"] = $"Explore the official ROVEN fragrance catalog: {catTitle}. Handcrafted Extraits de Parfum, signature scents, and royal oud flacons with Cash on Delivery in Egypt.";
+}
+
+<div class="container py-4">
+    <!-- Luxury Maison ROVEN Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <div class="roven-breadcrumb-nav">
+            <a asp-controller="Home" asp-action="Index">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+            @if (string.IsNullOrWhiteSpace(Model.SelectedCategoryName))
+            {
+                <span class="breadcrumb-current">Catalog</span>
+            }
+            else
+            {
+                <a asp-controller="Store" asp-action="Index">Catalog</a>
+                <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+                <span class="breadcrumb-current">@Model.SelectedCategoryName</span>
+            }
+        </div>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Filter Sidebar -->
+        <div class="col-12 col-lg-3">
+            <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 90px; z-index: 10;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-funnel text-primary me-2"></i>Filters</h5>
+                    <a asp-action="Index" class="small text-decoration-none text-muted">Clear All</a>
+                </div>
+
+                <form method="get" asp-action="Index" id="catalog-filter-form">
+                    <!-- Search Field Preservation -->
+                    @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+                    {
+                        <input type="hidden" name="search" value="@Model.SearchTerm" />
+                    }
+
+                    <!-- Sort Preservation -->
+                    <input type="hidden" name="sort" id="form-sort-input" value="@Model.CurrentSort" />
+
+                    <!-- Categories Section -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-secondary small text-uppercase mb-2">Category</label>
+                        <div class="d-flex flex-column gap-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="categoryId" id="cat-all" value="" @(Model.SelectedCategoryId == null ? "checked" : "") onchange="this.form.submit()" />
+                                <label class="form-check-label small d-flex justify-content-between" for="cat-all">
+                                    <span>All Categories</span>
+                                </label>
+                            </div>
+                            @foreach (var c in Model.Categories)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="categoryId" id="cat-@c.Id" value="@c.Id" @(Model.SelectedCategoryId == c.Id ? "checked" : "") onchange="this.form.submit()" />
+                                    <label class="form-check-label small d-flex justify-content-between" for="cat-@c.Id">
+                                        <span>@c.Name</span>
+                                        <span class="text-muted">(@c.ProductsCount)</span>
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- In-Stock Only Switch -->
+                    <div class="mb-4 pt-3 border-top">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="inStockOnly" value="true" id="inStockCheck" @(Model.InStockOnly ? "checked" : "") onchange="this.form.submit()" />
+                            <label class="form-check-label small fw-semibold" for="inStockCheck">
+                                In-Stock Only
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Product Grid Area -->
+        <div class="col-12 col-lg-9">
+            @if (!string.IsNullOrWhiteSpace(Model.SearchCorrectionNotice))
+            {
+                <div class="alert border-0 shadow-xs rounded-4 mb-3 d-flex align-items-center gap-3 p-3" style="background: linear-gradient(135deg, rgba(99, 0, 0, 0.08) 0%, rgba(129, 1, 0, 0.04) 100%); border-right: 4px solid #630000 !important;">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 36px; height: 36px; background-color: #630000; color: #EDEBDD;">
+                        <i class="fa-solid fa-sparkles"></i>
+                    </div>
+                    <div>
+                        <span class="small d-block text-muted" style="font-size: 0.78rem;">البحث الذكي لدار ROVEN:</span>
+                        <strong style="color: #630000; font-size: 0.92rem;">@Model.SearchCorrectionNotice</strong>
+                    </div>
+                </div>
+            }
+
+            <!-- Catalog Header Controls -->
+            <div class="card border-0 shadow-sm p-3 mb-4">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                    <div>
+                        <h4 class="fw-bold mb-1 text-dark">
+                            @(string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "All Products" : Model.SelectedCategoryName)
+                        </h4>
+                        <div class="small text-muted">
+                            Showing <strong>@Model.TotalCount</strong> product@(Model.TotalCount == 1 ? "" : "s")
+                            @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+                            {
+                                <span>matching "<strong>@Model.SearchTerm</strong>"</span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Sort Select -->
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="small text-muted text-nowrap fw-semibold">Sort By:</label>
+                        <select class="form-select form-select-sm" style="width: auto;" onchange="applySorting(this.value)">
+                            @if (Model.CurrentSort == "newest")
+                            {
+                                <option value="newest" selected>Newest First</option>
+                            }
+                            else
+                            {
+                                <option value="newest">Newest First</option>
+                            }
+
+                            @if (Model.CurrentSort == "price_asc")
+                            {
+                                <option value="price_asc" selected>Price: Low to High</option>
+                            }
+                            else
+                            {
+                                <option value="price_asc">Price: Low to High</option>
+                            }
+
+                            @if (Model.CurrentSort == "price_desc")
+                            {
+                                <option value="price_desc" selected>Price: High to Low</option>
+                            }
+                            else
+                            {
+                                <option value="price_desc">Price: High to Low</option>
+                            }
+
+                            @if (Model.CurrentSort == "name_asc")
+                            {
+                                <option value="name_asc" selected>Product Name (A-Z)</option>
+                            }
+                            else
+                            {
+                                <option value="name_asc">Product Name (A-Z)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Active Filter Tags -->
+                @if (!string.IsNullOrWhiteSpace(Model.SearchTerm) || Model.SelectedCategoryId.HasValue || Model.InStockOnly)
+                {
+                    <div class="d-flex flex-wrap gap-2 pt-3 mt-3 border-top align-items-center">
+                        <span class="small text-muted me-1">Active Filters:</span>
+                        @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+                        {
+                            <span class="badge bg-light text-dark border d-flex align-items-center gap-1">
+                                Search: @Model.SearchTerm
+                                <a asp-action="Index" asp-route-categoryId="@Model.SelectedCategoryId" asp-route-sort="@Model.CurrentSort" class="text-secondary text-decoration-none"><i class="bi bi-x"></i></a>
+                            </span>
+                        }
+                        @if (Model.SelectedCategoryId.HasValue)
+                        {
+                            <span class="badge bg-light text-dark border d-flex align-items-center gap-1">
+                                Category: @Model.SelectedCategoryName
+                                <a asp-action="Index" asp-route-search="@Model.SearchTerm" asp-route-sort="@Model.CurrentSort" class="text-secondary text-decoration-none"><i class="bi bi-x"></i></a>
+                            </span>
+                        }
+                        @if (Model.InStockOnly)
+                        {
+                            <span class="badge bg-light text-dark border d-flex align-items-center gap-1">
+                                In Stock Only
+                                <a asp-action="Index" asp-route-categoryId="@Model.SelectedCategoryId" asp-route-search="@Model.SearchTerm" asp-route-sort="@Model.CurrentSort" class="text-secondary text-decoration-none"><i class="bi bi-x"></i></a>
+                            </span>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Products Grid -->
+            @if (Model.Products.Any())
+            {
+                <div class="row g-4">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="col-12 col-sm-6 col-xl-4">
+                            <div class="product-card" data-details-url="@Url.Action("Details", "Store", new { id = product.Id })">
+                                <a asp-action="Details" asp-route-id="@product.Id" class="product-image-container d-block text-decoration-none position-relative" title="عرض تفاصيل عطر @product.Name">
+                                    @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                                    {
+                                        <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='/images/products/perfume_default.svg'" />
+                                    }
+                                    else
+                                    {
+                                        <i class="fa-solid fa-spray-can-sparkles text-muted display-4"></i>
+                                    }
+
+                                    @if (product.IsFeatured)
+                                    {
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge shadow-sm" style="background-color: #630000; color: #EDEBDD;"><i class="fa-solid fa-gem me-1" style="color: #EDEBDD;"></i>Featured</span>
+                                        </div>
+                                    }
+
+                                    @if (product.IsOutOfStock)
+                                    {
+                                        <div class="position-absolute bottom-0 start-0 m-2">
+                                            <span class="badge bg-secondary shadow-sm">Allocated</span>
+                                        </div>
+                                    }
+                                </a>
+
+                                <div class="p-3 d-flex flex-column flex-grow-1">
+                                    <div class="small mb-1" style="color: #6c6358;">@product.CategoryName</div>
+                                    <h6 class="fw-bold mb-1 line-clamp-2">
+                                        <a asp-action="Details" asp-route-id="@product.Id" class="text-decoration-none" style="color: #1B1717;">
+                                            @product.Name
+                                        </a>
+                                    </h6>
+                                    <div class="font-monospace small mb-2" style="color: #8c8374;">SKU: @product.Sku</div>
+
+                                    <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between" style="border-color: #e8e3d5 !important;">
+                                        <div>
+                                            <div class="small" style="color: #6c6358;">Price</div>
+                                            <div class="fw-bold fs-5" style="color: #630000;">@product.Price.ToString("N2") <span class="fs-6 fw-normal" style="color: #6c6358;">EGP</span></div>
+                                        </div>
+
+                                        @if (product.IsOutOfStock)
+                                        {
+                                            <button class="btn btn-sm btn-secondary" disabled>Unavailable</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-sm px-3 py-1 rounded-pill d-inline-flex align-items-center gap-1 shadow-xs" style="background-color: #630000; color: #EDEBDD; border: 1px solid #810100;" onclick="window.addStoreItemToCart(@product.Id, 1, this)" title="Add to Bag">
+                                                <i class="fa-solid fa-bag-shopping"></i> Add
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="card border-0 shadow-sm p-5 text-center">
+                    <i class="bi bi-search text-muted display-3 mb-3"></i>
+                    <h4 class="fw-bold text-dark">No Products Found</h4>
+                    <p class="text-muted mb-4">We couldn't find any products matching your selected filters or search terms.</p>
+                    <div>
+                        <a asp-action="Index" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>Reset All Filters
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function applySorting(sortValue) {
+        const form = document.getElementById('catalog-filter-form');
+        document.getElementById('form-sort-input').value = sortValue;
+        form.submit();
+    }
+</script>
+}
+

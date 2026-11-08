@@ -1,0 +1,370 @@
+@model Stockify.Models.Entities.HomeSetting
+@{
+    Layout = "_StoreLayout";
+    ViewData["Title"] = "Contact Us & Concierge — Maison ROVEN";
+    ViewData["MetaDescription"] = "Connect with Maison ROVEN fragrance advisors. Inquiries about bespoke flacons, private orders, corporate gifting, and order tracking across Egypt.";
+}
+
+@section Styles {
+    <style>
+        .contact-hero {
+            background: linear-gradient(135deg, #1B1717 0%, #2b0b0b 50%, #1B1717 100%);
+            color: #EDEBDD;
+            padding: 4.5rem 0 4rem;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid rgba(129, 1, 0, 0.4);
+        }
+
+        .contact-info-card {
+            background: #ffffff;
+            border: 1px solid #e8e3d5;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(27, 23, 23, 0.04);
+            height: 100%;
+        }
+
+        .contact-channel-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.2rem;
+            padding: 1.1rem 0;
+            border-bottom: 1px solid #f0ede4;
+        }
+
+        .contact-channel-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .channel-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: #EDEBDD;
+            color: #630000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            border: 1px solid rgba(99, 0, 0, 0.12);
+        }
+
+        .contact-form-card {
+            background: #ffffff;
+            border: 1px solid #e8e3d5;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 30px rgba(27, 23, 23, 0.06);
+        }
+
+        .roven-form-control {
+            border: 1.5px solid #e8e3d5;
+            border-radius: 12px;
+            padding: 0.8rem 1.1rem;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            background-color: #faf9f5;
+        }
+
+        .roven-form-control:focus {
+            background-color: #ffffff;
+            border-color: #630000;
+            box-shadow: 0 0 0 0.25rem rgba(99, 0, 0, 0.12);
+        }
+
+        .quick-track-banner,
+        .roven-social-box {
+            background: #EDEBDD;
+            border-radius: 18px;
+            padding: 1.35rem 1.25rem;
+            border: 1px solid rgba(99, 0, 0, 0.15);
+            margin-top: 1.5rem;
+        }
+
+        .social-link-pill {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #ffffff;
+            border: 1px solid #e8e3d5;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            margin-bottom: 9px;
+            color: #1B1717;
+        }
+
+        .social-link-pill:last-child {
+            margin-bottom: 0;
+        }
+
+        .social-link-pill:hover {
+            transform: translateY(-2px);
+            border-color: #630000;
+            box-shadow: 0 4px 12px rgba(99, 0, 0, 0.1);
+            color: #630000;
+        }
+
+        .social-ico {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            color: #ffffff;
+        }
+
+        .ico-facebook { background: #1877F2; }
+        .ico-instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        .ico-whatsapp { background: #25D366; }
+    </style>
+}
+
+<!-- Contact Hero Section -->
+<section class="contact-hero">
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(129, 1, 0, 0.3); border: 1px solid #810100; color: #EDEBDD; font-size: 0.8rem; letter-spacing: 1px;">
+            <i class="fa-solid fa-headset" style="color: #EDEBDD;"></i>
+            <span>PRIVATE FRAGRANCE CONCIERGE</span>
+        </div>
+        <h1 class="display-5 fw-extrabold mb-3" style="font-family: 'Playfair Display', Georgia, serif;">
+            Direct Dialogue with Maison ROVEN
+        </h1>
+        <p class="lead mb-0" style="color: #EDEBDD; opacity: 0.9; max-width: 650px; line-height: 1.65; font-size: 1.1rem;">
+            Whether consulting on bespoke flacon selection, inquiring about private reserve Extraits, or coordinating corporate gifting, our fragrance concierges are at your service.
+        </p>
+    </div>
+</section>
+
+<!-- Main Contact Body -->
+<section class="py-5" style="background-color: #FAF9F5;">
+    <div class="container py-3">
+        <div class="row g-4 g-lg-5">
+            <!-- Left Column: Concierge Channels & Quick Track -->
+            <div class="col-12 col-lg-5">
+                <div class="contact-info-card">
+                    <h4 class="fw-bold mb-4" style="color: #1B1717; font-family: 'Playfair Display', serif;">Concierge Inquiries</h4>
+
+                    <div class="contact-channel-item">
+                        <div class="channel-icon-box">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+                        <div>
+                            <div class="text-uppercase small fw-bold" style="color: #810100; font-size: 0.75rem; letter-spacing: 0.5px;">Telephone Hotline</div>
+                            @{
+                                var phone = !string.IsNullOrWhiteSpace(Model?.ContactPhone) ? Model.ContactPhone : "+20 (02) 19888";
+                                var cleanPhone = phone.Replace(" ", "").Replace("(", "").Replace(")", "").Replace("-", "");
+                                var workingHours = !string.IsNullOrWhiteSpace(Model?.ContactWorkingHours) ? Model.ContactWorkingHours : "Daily: 10:00 AM – 11:00 PM CLT";
+                            }
+                            <a href="tel:@cleanPhone" class="fs-5 fw-bold text-decoration-none" style="color: #1B1717;">@phone</a>
+                            <div class="small text-muted">@workingHours</div>
+                        </div>
+                    </div>
+
+                    <div class="contact-channel-item">
+                        <div class="channel-icon-box">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <div>
+                            <div class="text-uppercase small fw-bold" style="color: #810100; font-size: 0.75rem; letter-spacing: 0.5px;">WhatsApp Concierge</div>
+                            @{
+                                var waRaw = !string.IsNullOrWhiteSpace(Model?.WhatsAppNumber) ? Model.WhatsAppNumber : "+20 100 888 9999";
+                                var waDigits = waRaw.Replace("+", "").Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
+                                var waLinkUrl = waRaw.StartsWith("http") ? waRaw : $"https://wa.me/{waDigits}";
+                            }
+                            <a href="@waLinkUrl" target="_blank" rel="noopener noreferrer" class="fs-6 fw-bold text-decoration-none" style="color: #1B1717;">@waRaw</a>
+                            <div class="small text-muted">Instant advisory & flacon dispatch status</div>
+                        </div>
+                    </div>
+
+                    <div class="contact-channel-item">
+                        <div class="channel-icon-box">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        <div>
+                            <div class="text-uppercase small fw-bold" style="color: #810100; font-size: 0.75rem; letter-spacing: 0.5px;">Official Inquiries</div>
+                            @{
+                                var contactEmail = !string.IsNullOrWhiteSpace(Model?.ContactEmail) ? Model.ContactEmail : "concierge@roven.local";
+                            }
+                            <a href="mailto:@contactEmail" class="fs-6 fw-bold text-decoration-none" style="color: #1B1717;">@contactEmail</a>
+                            <div class="small text-muted">Formal corporate & press communications</div>
+                        </div>
+                    </div>
+
+                    <div class="contact-channel-item">
+                        <div class="channel-icon-box">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <div>
+                            <div class="text-uppercase small fw-bold" style="color: #810100; font-size: 0.75rem; letter-spacing: 0.5px;">Flagship Atelier</div>
+                            @{
+                                var atelierName = !string.IsNullOrWhiteSpace(Model?.AtelierName) ? Model.AtelierName : "Zamalek & New Cairo Salons";
+                                var atelierAddress = !string.IsNullOrWhiteSpace(Model?.AtelierAddress) ? Model.AtelierAddress : "Cairo & Giza, Arab Republic of Egypt";
+                            }
+                            <div class="fw-semibold" style="color: #1B1717;">@atelierName</div>
+                            <div class="small text-muted">@atelierAddress</div>
+                        </div>
+                    </div>
+
+                    <!-- Official Social Channels (Facebook, Instagram, WhatsApp) -->
+                    <div class="roven-social-box">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="fa-solid fa-share-nodes" style="color: #810100;"></i>
+                            <span class="fw-bold" style="color: #1B1717; font-size: 0.95rem;">Official Social Ateliers</span>
+                        </div>
+                        <p class="small text-muted mb-3" style="font-size: 0.82rem;">
+                            Direct channels for boutique releases, flacon advisories, and instant messaging:
+                        </p>
+                        
+                        <div class="d-flex flex-column">
+                            <!-- Facebook -->
+                            <a href="@(Model?.FacebookUrl ?? "https://facebook.com/roven.parfumerie")" target="_blank" class="social-link-pill" rel="noopener noreferrer">
+                                <span class="social-ico ico-facebook"><i class="fa-brands fa-facebook-f"></i></span>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold small" style="color: #1B1717;">Facebook Atelier</div>
+                                    <div class="text-muted" style="font-size: 0.76rem;">ROVEN Haute Parfumerie</div>
+                                </div>
+                                <i class="fa-solid fa-arrow-up-right-from-square small text-muted"></i>
+                            </a>
+
+                            <!-- Instagram -->
+                            <a href="@(Model?.InstagramUrl ?? "https://instagram.com/roven.parfums")" target="_blank" class="social-link-pill" rel="noopener noreferrer">
+                                <span class="social-ico ico-instagram"><i class="fa-brands fa-instagram"></i></span>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold small" style="color: #1B1717;">Instagram Maison</div>
+                                    <div class="text-muted" style="font-size: 0.76rem;">@@roven.parfums</div>
+                                </div>
+                                <i class="fa-solid fa-arrow-up-right-from-square small text-muted"></i>
+                            </a>
+
+                            <!-- WhatsApp -->
+                            @{
+                                var rawWa = Model?.WhatsAppNumber ?? "+201008889999";
+                                var waLink = rawWa.StartsWith("http") ? rawWa : $"https://wa.me/{rawWa.Replace("+", "").Replace(" ", "").Replace("-", "")}";
+                            }
+                            <a href="@waLink" target="_blank" class="social-link-pill" rel="noopener noreferrer">
+                                <span class="social-ico ico-whatsapp"><i class="fa-brands fa-whatsapp"></i></span>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold small" style="color: #1B1717;">WhatsApp Concierge</div>
+                                    <div class="text-muted" style="font-size: 0.76rem;">Instant flacon dispatch & consultation</div>
+                                </div>
+                                <i class="fa-solid fa-arrow-up-right-from-square small text-muted"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Interactive Concierge Message Form -->
+            <div class="col-12 col-lg-7">
+                <div class="contact-form-card">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="drawer-monogram-shield" style="width: 32px; height: 32px; font-size: 0.9rem;">R</div>
+                        <span class="text-uppercase small fw-bold" style="color: #810100; letter-spacing: 1px;">Direct Message</span>
+                    </div>
+                    <h3 class="fw-extrabold mb-2" style="color: #1B1717; font-family: 'Playfair Display', serif;">Transmit Your Inquiry</h3>
+                    <p class="small text-muted mb-4">Please provide your details below. A dedicated Maison ROVEN perfume advisor will respond promptly.</p>
+
+                    <form id="rovenContactForm" method="post" asp-controller="Home" asp-action="SubmitContact">
+                        @Html.AntiForgeryToken()
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold" style="color: #1B1717;">Full Name *</label>
+                                <input type="text" name="fullName" class="form-control roven-form-control" placeholder="e.g. Tarek Mansour" required />
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold" style="color: #1B1717;">Mobile Phone Number *</label>
+                                <input type="tel" name="phoneNumber" class="form-control roven-form-control" placeholder="e.g. 01001234567" required />
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold" style="color: #1B1717;">Email Address</label>
+                                <input type="email" name="email" class="form-control roven-form-control" placeholder="name@domain.com" />
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold" style="color: #1B1717;">Inquiry Classification</label>
+                                <select name="subject" class="form-select roven-form-control">
+                                    <option value="General Inquiry">General Olfactory Inquiry</option>
+                                    <option value="Order Tracking">Order & Delivery Assistance</option>
+                                    <option value="Bespoke Consultation">Bespoke Flacon Advisory</option>
+                                    <option value="Corporate Gifting">Corporate Gifting & Coffrets</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold" style="color: #1B1717;">Your Message / Request *</label>
+                            <textarea name="message" rows="5" class="form-control roven-form-control" placeholder="How may our fragrance concierge assist you today? Details regarding preferred olfactory notes, delivery destinations, or questions..." required></textarea>
+                        </div>
+
+                        <button type="submit" id="btnSubmitContact" class="btn btn-roven-wine btn-lg w-100 py-3 fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Transmit Concierge Inquiry</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.getElementById('rovenContactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitContact');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Transmitting...';
+
+            try {
+                const formData = new FormData(this);
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        iconColor: '#630000',
+                        title: '<span style="font-family: \'Playfair Display\', serif;">Inquiry Transmitted</span>',
+                        text: data.message,
+                        confirmButtonColor: '#630000',
+                        confirmButtonText: 'Understood'
+                    });
+                    this.reset();
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        iconColor: '#810100',
+                        title: 'Incomplete Details',
+                        text: data.message,
+                        confirmButtonColor: '#630000'
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Transmission Error',
+                    text: 'Unable to reach the concierge server. Please call @(Model?.ContactPhone ?? "+20 (02) 19888") directly.',
+                    confirmButtonColor: '#630000'
+                });
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> Transmit Concierge Inquiry';
+            }
+        });
+    </script>
+}
+

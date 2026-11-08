@@ -1,0 +1,92 @@
+@model Stockify.ViewModels.Inventory.StockAdjustmentViewModel
+@using Stockify.Models.Enums
+@{
+    ViewData["Title"] = "Adjust Inventory Stock";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-sliders text-warning fs-5"></i>
+                    <h5 class="fw-bold mb-0">Record Stock Adjustment / Deduction</h5>
+                </div>
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Inventory
+                </a>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-warning d-flex align-items-center gap-2 mb-4" role="alert">
+                    <i class="bi bi-shield-exclamation fs-5"></i>
+                    <div class="small">
+                        <strong>Business Rule:</strong> Stock cannot become negative. Every adjustment must include an explicit reason for auditing compliance.
+                    </div>
+                </div>
+
+                <form asp-action="Adjust" method="post" id="stockAdjustForm">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label asp-for="ProductId" class="form-label small fw-semibold text-secondary">
+                                Select Product <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="ProductId" asp-items="Model.ProductsList" class="form-select" required autofocus>
+                                <option value="" disabled selected="@(Model.ProductId == 0 ? "selected" : null)">Choose product to adjust...</option>
+                            </select>
+                            <span asp-validation-for="ProductId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label asp-for="AdjustmentType" class="form-label small fw-semibold text-secondary">
+                                Operation Type <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="AdjustmentType" class="form-select" required>
+                                <option value="@TransactionType.Adjustment">Adjustment (Audit Cycle Correction / Shrinkage)</option>
+                                <option value="@TransactionType.StockOut">Stock Out (Damaged Goods / Expired / Scrap)</option>
+                                <option value="@TransactionType.Return">Return (Customer Return / Restock)</option>
+                            </select>
+                            <span asp-validation-for="AdjustmentType" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label asp-for="Quantity" class="form-label small fw-semibold text-secondary">
+                                Units Quantity <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Quantity" type="number" class="form-control" placeholder="e.g. 5" min="1" required />
+                            <span asp-validation-for="Quantity" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-semibold text-secondary">Adjustment Date</label>
+                            <input type="text" class="form-control bg-light" value="@DateTime.UtcNow.ToString("dd MMM yyyy (UTC)")" readonly />
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Reason" class="form-label small fw-semibold text-secondary">
+                                Reason for Adjustment / Audit Note <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="Reason" class="form-control" rows="3" placeholder="Provide detailed explanation: e.g. 'Found 2 broken units during shelf count', 'Customer return with RMA #550'..." required></textarea>
+                            <span asp-validation-for="Reason" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 mt-4 text-end">
+                            <a asp-action="Index" class="btn btn-light border px-4 me-2">Cancel</a>
+                            <button type="submit" class="btn btn-warning px-4">
+                                <i class="bi bi-check2-circle me-1"></i>Save Adjustment
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

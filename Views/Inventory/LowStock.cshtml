@@ -1,0 +1,115 @@
+@model IEnumerable<Stockify.ViewModels.Inventory.LowStockItemViewModel>
+@using Stockify.Common.Constants
+@{
+    ViewData["Title"] = "Low Stock Alerts";
+}
+
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-danger mb-1">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>Low Stock Alerts
+        </h3>
+        <p class="text-muted mb-0 small">Products that have reached or fallen below their required reorder threshold.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>All Inventory
+        </a>
+        @if (User.IsInRole(Roles.Admin))
+        {
+            <a asp-action="StockIn" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+                <i class="bi bi-box-arrow-in-down"></i>
+                <span>Receive Inbound Stock</span>
+            </a>
+        }
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Product</th>
+                    <th>SKU</th>
+                    <th>In Stock</th>
+                    <th>Minimum Threshold</th>
+                    <th>Deficit Quantity</th>
+                    <th>Urgency Status</th>
+                    @if (User.IsInRole(Roles.Admin))
+                    {
+                        <th class="text-end pe-3">Quick Restock</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="@(User.IsInRole(Roles.Admin) ? 7 : 6)" class="text-center py-5 text-muted">
+                            <i class="bi bi-shield-check fs-1 text-success mb-2 d-block"></i>
+                            <h5 class="fw-bold text-dark">All Inventory Levels Are Healthy!</h5>
+                            <p class="small text-muted mb-0">None of your active products have breached their minimum reorder thresholds.</p>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">@item.ProductName</div>
+                                <span class="text-muted small">@item.CategoryName</span>
+                            </td>
+                            <td><code>@item.Sku</code></td>
+                            <td>
+                                @if (item.IsOutOfStock)
+                                {
+                                    <span class="badge bg-secondary text-white fs-6">0 units</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle fs-6">@item.CurrentStock units</span>
+                                }
+                            </td>
+                            <td class="text-muted small">@item.ReorderLevel units</td>
+                            <td>
+                                @if (item.Deficit > 0)
+                                {
+                                    <span class="text-danger fw-bold">-@item.Deficit units</span>
+                                }
+                                else
+                                {
+                                    <span class="text-warning fw-semibold">At limit</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.IsOutOfStock)
+                                {
+                                    <span class="badge bg-danger text-white"><i class="bi bi-x-circle me-1"></i>Out of Stock</span>
+                                }
+                                else if (item.CurrentStock <= 2)
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-lightning-charge me-1"></i>Critical</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle"><i class="bi bi-bell me-1"></i>Warning</span>
+                                }
+                            </td>
+                            @if (User.IsInRole(Roles.Admin))
+                            {
+                                <td class="text-end pe-3">
+                                    <a asp-action="StockIn" asp-route-productId="@item.ProductId" class="btn btn-sm btn-primary shadow-sm">
+                                        <i class="bi bi-plus-lg me-1"></i>Restock
+                                    </a>
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,108 @@
+@model Stockify.Models.Entities.Coupon
+@using Stockify.Models.Enums
+@{
+    ViewData["Title"] = $"Orders for Coupon {Model.Code}";
+    var validOrders = Model.Orders.Where(o => o.Status != OrderStatus.Cancelled).ToList();
+    var totalSales = validOrders.Sum(o => o.TotalAmount);
+    var totalDiscounts = validOrders.Sum(o => o.DiscountAmount);
+}
+
+<!-- Page Header -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <a asp-controller="Coupons" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="fa-solid fa-arrow-right me-1"></i>العودة للكوبونات
+            </a>
+            <h3 class="fw-bold text-dark mb-0">
+                طلبات الكوبون: <span class="badge bg-dark font-monospace">@Model.Code</span>
+            </h3>
+        </div>
+        <p class="text-muted mb-0 small">استعراض كافة الطلبات التي تم تطبيق هذا الكوبون عليها وبيانات العملاء وقيم الخصم الممنوحة.</p>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-3 bg-white">
+            <span class="text-muted small fw-semibold">إجمالي مبيعات الكوبون</span>
+            <h4 class="fw-bold text-success mb-0 mt-1">@totalSales.ToString("N2") <small class="fs-6 text-muted">EGP</small></h4>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-3 bg-white">
+            <span class="text-muted small fw-semibold">إجمالي الخصم الممنوح</span>
+            <h4 class="fw-bold text-danger mb-0 mt-1">- @totalDiscounts.ToString("N2") <small class="fs-6 text-muted">EGP</small></h4>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-3 bg-white">
+            <span class="text-muted small fw-semibold">عدد الطلبات الناجحة</span>
+            <h4 class="fw-bold text-primary mb-0 mt-1">@validOrders.Count طلبات</h4>
+        </div>
+    </div>
+</div>
+
+<!-- Orders Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3">
+        <span class="fw-bold"><i class="fa-solid fa-receipt text-primary me-2"></i>قائمة الطلبات المحققة</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">رقم الطلب</th>
+                        <th>تاريخ الطلب</th>
+                        <th>العميل</th>
+                        <th>المحافظة</th>
+                        <th>قناة البيع</th>
+                        <th>الخصم الممنوح</th>
+                        <th>المبلغ الصافي</th>
+                        <th class="text-end pe-4">التفاصيل</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Orders.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                لم يتم استخدام هذا الكوبون في أي طلب حتى الآن.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var o in Model.Orders.OrderByDescending(x => x.OrderDate))
+                        {
+                            <tr>
+                                <td class="ps-4 font-monospace fw-bold text-primary">@o.OrderNumber</td>
+                                <td class="small text-muted">@o.OrderDate.ToEgyptTimeString("yyyy/MM/dd hh:mm tt")</td>
+                                <td>
+                                    <div class="fw-semibold text-dark">@(o.CustomerName ?? o.Customer?.FullName ?? "عميل")</div>
+                                    <div class="text-muted small">@(o.CustomerPhone ?? o.Customer?.PhoneNumber ?? "")</div>
+                                </td>
+                                <td>@(o.City ?? "مصر")</td>
+                                <td>
+                                    <span class="badge @(o.OrderSource == OrderSource.Website ? "bg-info-subtle text-info border border-info-subtle" : "bg-warning-subtle text-warning border border-warning-subtle")">
+                                        @(o.OrderSource == OrderSource.Website ? "متجر إلكتروني" : "مبيعات مباشرة (POS)")
+                                    </span>
+                                </td>
+                                <td class="fw-bold text-danger">- @o.DiscountAmount.ToString("N2") EGP</td>
+                                <td class="fw-bold text-success fs-6">@o.TotalAmount.ToString("N2") EGP</td>
+                                <td class="text-end pe-4">
+                                    <a asp-controller="Orders" asp-action="Details" asp-route-id="@o.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="fa-solid fa-eye me-1"></i>عرض الطلب
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

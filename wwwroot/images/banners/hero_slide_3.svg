@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 800" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e0e14" />
+      <stop offset="35%" stop-color="#1d1b29" />
+      <stop offset="70%" stop-color="#3c1e30" />
+      <stop offset="100%" stop-color="#0e0e14" />
+    </linearGradient>
+    <radialGradient id="glow3" cx="75%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#e8c688" stop-opacity="0.3" />
+      <stop offset="50%" stop-color="#810100" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#0e0e14" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="goldText3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="50%" stop-color="#e8c688" />
+      <stop offset="100%" stop-color="#fdf4dc" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1920" height="800" fill="url(#bgGrad3)" />
+  <rect width="1920" height="800" fill="url(#glow3)" />
+
+  <!-- Geometric rings -->
+  <circle cx="1450" cy="400" r="320" fill="none" stroke="#e8c688" stroke-width="1.2" opacity="0.3" />
+  <circle cx="1450" cy="400" r="240" fill="none" stroke="#d4af37" stroke-width="0.8" stroke-dasharray="8,8" opacity="0.25" />
+
+  <!-- Left Content Group -->
+  <g transform="translate(140, 150)">
+    <!-- Eyebrow Badge -->
+    <rect x="0" y="0" width="410" height="42" rx="21" fill="#2b1424" stroke="#e8c688" stroke-width="1" opacity="0.9" />
+    <circle cx="24" cy="21" r="5" fill="#e8c688" />
+    <text x="44" y="27" font-family="'Cinzel', 'Playfair Display', Georgia, serif" font-size="14" font-weight="700" fill="#fdf4dc" letter-spacing="3">MAISON ROVEN • THE DISCOVERY COFFRET</text>
+
+    <!-- Main Title -->
+    <text x="0" y="130" font-family="'Playfair Display', Georgia, serif" font-size="64" font-weight="900" fill="#ffffff" letter-spacing="1">
+      Discover Your Signature Scent
+    </text>
+    <text x="0" y="200" font-family="'Playfair Display', Georgia, serif" font-size="52" font-weight="700" fill="url(#goldText3)" letter-spacing="0.5">
+      5 Iconic Travel Flacons
+    </text>
+
+    <!-- Subtitle / Description -->
+    <text x="0" y="270" font-family="'Cairo', sans-serif" font-size="22" font-weight="400" fill="#EDEBDD" opacity="0.88">
+      صندوق الاكتشاف الفاخر يحتوي على 5 إصدارات عطرية بحجم 10ml داخل عبوة جلدية راقية.
+    </text>
+    <text x="0" y="305" font-family="'Cairo', sans-serif" font-size="20" font-weight="400" fill="#EDEBDD" opacity="0.75">
+      يتضمن قسيمة شراء مستردة بقيمة الصندوق بالكامل عند طلب الحجم الكبير (100ml).
+    </text>
+
+    <!-- Specs Pills -->
+    <g transform="translate(0, 360)">
+      <rect x="0" y="0" width="180" height="38" rx="19" fill="#1B1717" stroke="#e8c688" stroke-width="1" opacity="0.7" />
+      <text x="90" y="24" font-family="'Cairo', sans-serif" font-size="14" font-weight="600" fill="#fdf4dc" text-anchor="middle">5 عطور ميني 10ml</text>
+
+      <rect x="200" y="0" width="190" height="38" rx="19" fill="#1B1717" stroke="#e8c688" stroke-width="1" opacity="0.7" />
+      <text x="295" y="24" font-family="'Cairo', sans-serif" font-size="14" font-weight="600" fill="#fdf4dc" text-anchor="middle">قسيمة استرداد 100%</text>
+
+      <rect x="410" y="0" width="190" height="38" rx="19" fill="#1B1717" stroke="#e8c688" stroke-width="1" opacity="0.7" />
+      <text x="505" y="24" font-family="'Cairo', sans-serif" font-size="14" font-weight="600" fill="#fdf4dc" text-anchor="middle">تغليف إهداء فاخر</text>
+    </g>
+
+    <!-- CTA Button -->
+    <g transform="translate(0, 440)">
+      <rect x="0" y="0" width="280" height="58" rx="29" fill="#630000" stroke="#dfb15b" stroke-width="1.5" />
+      <text x="120" y="36" font-family="'Cinzel', 'Playfair Display', sans-serif" font-size="16" font-weight="700" fill="#EDEBDD" letter-spacing="2">CLAIM DISCOVERY SET</text>
+      <circle cx="245" cy="29" r="15" fill="#3d0303" />
+      <path d="M 241 24 L 247 29 L 241 34" fill="none" stroke="#fdf4dc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+  </g>
+
+  <!-- Right Visual Presentation Box -->
+  <g transform="translate(1300, 190)">
+    <rect x="20" y="40" width="270" height="340" rx="20" fill="#000000" opacity="0.45" filter="drop-shadow(0 20px 40px rgba(0,0,0,0.8))" />
+    <rect x="30" y="50" width="250" height="320" rx="16" fill="#1b0e1a" stroke="#dfb15b" stroke-width="2" />
+    <!-- 5 Miniature Flacons inside the box -->
+    <rect x="50" y="90" width="28" height="150" rx="8" fill="#dfb15b" opacity="0.85" />
+    <rect x="95" y="90" width="28" height="150" rx="8" fill="#810100" opacity="0.85" />
+    <rect x="140" y="90" width="28" height="150" rx="8" fill="#d4af37" opacity="0.85" />
+    <rect x="185" y="90" width="28" height="150" rx="8" fill="#630000" opacity="0.85" />
+    <rect x="230" y="90" width="28" height="150" rx="8" fill="#e8c688" opacity="0.85" />
+    <!-- Box Inscription -->
+    <text x="155" y="290" font-family="'Cinzel', sans-serif" font-size="14" font-weight="700" fill="#fdf4dc" text-anchor="middle" letter-spacing="3">MAISON ROVEN</text>
+    <text x="155" y="315" font-family="'Cinzel', sans-serif" font-size="10" fill="#dfb15b" text-anchor="middle" letter-spacing="2">THE DISCOVERY COFFRET</text>
+  </g>
+</svg>
+

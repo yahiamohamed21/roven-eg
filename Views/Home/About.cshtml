@@ -1,0 +1,273 @@
+@{
+    Layout = "_StoreLayout";
+    ViewData["Title"] = "About Us — Maison ROVEN Haute Parfumerie";
+    ViewData["MetaDescription"] = "Discover the story, heritage, and craftsmanship of Maison ROVEN. Handcrafted Extraits de Parfum, aged Assam oud, and Grasse botanical absolutes.";
+}
+
+@section Styles {
+    <style>
+        .about-hero {
+            background: linear-gradient(135deg, #1B1717 0%, #2b0b0b 50%, #1B1717 100%);
+            color: #EDEBDD;
+            padding: 5rem 0 4.5rem;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid rgba(129, 1, 0, 0.4);
+        }
+
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(129, 1, 0, 0.25) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .about-pillar-card {
+            background: #ffffff;
+            border: 1px solid #e8e3d5;
+            border-radius: 20px;
+            padding: 2.2rem 1.8rem;
+            height: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(27, 23, 23, 0.04);
+        }
+
+        .about-pillar-card:hover {
+            transform: translateY(-6px);
+            border-color: #630000;
+            box-shadow: 0 16px 36px rgba(99, 0, 0, 0.1);
+        }
+
+        .pillar-icon-box {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: #EDEBDD;
+            color: #630000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.65rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(99, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .about-pillar-card:hover .pillar-icon-box {
+            background: #630000;
+            color: #EDEBDD;
+            transform: scale(1.08) rotate(-3deg);
+        }
+
+        .quote-banner {
+            background: #EDEBDD;
+            border-left: 5px solid #630000;
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            position: relative;
+        }
+
+        .stat-badge-box {
+            background: rgba(237, 235, 221, 0.08);
+            border: 1px solid rgba(237, 235, 221, 0.2);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            backdrop-filter: blur(6px);
+        }
+    </style>
+}
+
+<!-- About Hero Section -->
+<section class="about-hero">
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center g-4">
+            <div class="col-12 col-lg-8">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(129, 1, 0, 0.3); border: 1px solid #810100; color: #EDEBDD; font-size: 0.8rem; letter-spacing: 1px;">
+                    <i class="fa-solid fa-crown" style="color: #EDEBDD;"></i>
+                    <span>MAISON ROVEN &bull; PARIS &bull; CAIRO</span>
+                </div>
+                <h1 class="display-4 fw-extrabold mb-3" style="font-family: 'Playfair Display', Georgia, serif; letter-spacing: -0.5px;">
+                    The Art of Haute Parfumerie & Timeless Sillage
+                </h1>
+                <p class="lead mb-4" style="color: #EDEBDD; opacity: 0.9; max-width: 680px; line-height: 1.7; font-size: 1.15rem;">
+                    Founded on the aesthetic synthesis of French botanical mastery and Middle Eastern olfactory opulence, Maison ROVEN crafts high-concentration Extraits for collectors who demand distinction.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a asp-controller="Store" asp-action="Index" class="btn btn-roven-wine btn-lg px-4 py-3 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-2">
+                        <span>Explore the Flacons</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <a asp-controller="OrderTracking" asp-action="Index" class="btn btn-lg px-4 py-3 rounded-pill fw-semibold d-inline-flex align-items-center gap-2" style="background: transparent; border: 1.5px solid #EDEBDD; color: #EDEBDD;">
+                        <i class="fa-solid fa-box-open"></i>
+                        <span>Track Existing Order</span>
+                    </a>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4 text-center">
+                <div class="stat-badge-box text-start">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #EDEBDD; font-family: 'Playfair Display', serif;">30%+</div>
+                        <div class="small" style="color: #EDEBDD; opacity: 0.85; line-height: 1.3;">Pure Extrait Oil Concentration</div>
+                    </div>
+                    <hr style="border-color: rgba(237, 235, 221, 0.15);" />
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #EDEBDD; font-family: 'Playfair Display', serif;">24h+</div>
+                        <div class="small" style="color: #EDEBDD; opacity: 0.85; line-height: 1.3;">Authentic Sillage & Longevity</div>
+                    </div>
+                    <hr style="border-color: rgba(237, 235, 221, 0.15);" />
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #EDEBDD; font-family: 'Playfair Display', serif;">100%</div>
+                        <div class="small" style="color: #EDEBDD; opacity: 0.85; line-height: 1.3;">Genuine Botanical & Artisanal Extracts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Heritage & Philosophy Section -->
+<section class="py-5" style="background-color: #FAF9F5;">
+    <div class="container py-4">
+        <div class="row align-items-center g-5 mb-5">
+            <div class="col-12 col-lg-6">
+                <span class="text-uppercase fw-bold small" style="color: #810100; letter-spacing: 1.5px;">Our Olfactory Vision</span>
+                <h2 class="display-6 fw-extrabold mb-3" style="color: #1B1717; font-family: 'Playfair Display', serif;">
+                    Where Grasse Florals Meet Rare Oriental Woods
+                </h2>
+                <p style="color: #4a453e; line-height: 1.8; font-size: 1.05rem;">
+                    At Maison ROVEN (المعروفة رسمياً باسم <strong>دار روڤين / روفين للعطور الفاخرة</strong>), fragrance is elevated from an accessory into an intimate signature. Every formula is conceived in collaboration with world-renowned noses in Grasse and Cairo, combining rare steam-distilled floral absolutes with wild Assam agarwood aged for over two decades.
+                </p>
+                <p style="color: #4a453e; line-height: 1.8;">
+                    We reject synthetic fillers and mass dilution. Each flacon rests in temperature-controlled maturation vaults for a minimum of ninety days, permitting the delicate base notes of ambergris, tonka, and Mysore sandalwood to coalesce into eternal harmony.
+                </p>
+                <div class="d-flex gap-4 mt-4">
+                    <div>
+                        <i class="fa-solid fa-droplet text-roven-wine fs-3 mb-2"></i>
+                        <h6 class="fw-bold mb-1">Cold Maceration</h6>
+                        <span class="small text-muted">90-day vault maturation</span>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-seedling text-roven-wine fs-3 mb-2"></i>
+                        <h6 class="fw-bold mb-1">Pure Botanicals</h6>
+                        <span class="small text-muted">Sustainably harvested</span>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-gem text-roven-wine fs-3 mb-2"></i>
+                        <h6 class="fw-bold mb-1">Bespoke Crystal</h6>
+                        <span class="small text-muted">Heavyweight flacon glass</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="quote-banner">
+                    <i class="fa-solid fa-quote-left fs-1 mb-3" style="color: #630000; opacity: 0.35;"></i>
+                    <blockquote class="fs-5 fst-italic mb-3" style="color: #1B1717; line-height: 1.6; font-family: 'Playfair Display', serif;">
+                        "A perfume must not merely announce an entrance; it must linger as an immortal memory long after one has departed the room."
+                    </blockquote>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="drawer-monogram-shield" style="width: 44px; height: 44px; font-size: 1.1rem;">R</div>
+                        <div>
+                            <div class="fw-bold" style="color: #630000;">Master Perfumer Atelier</div>
+                            <div class="small text-muted">Maison ROVEN Creative Direction</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 Pillars of Excellence -->
+        <div class="text-center mb-5">
+            <span class="text-uppercase fw-bold small" style="color: #810100; letter-spacing: 1.5px;">The Pillars of ROVEN</span>
+            <h2 class="display-6 fw-extrabold" style="color: #1B1717; font-family: 'Playfair Display', serif;">Uncompromising Standards</h2>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="about-pillar-card">
+                    <div class="pillar-icon-box">
+                        <i class="fa-solid fa-flask-vial"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color: #1B1717;">30%+ Extrait Power</h5>
+                    <p class="small text-muted mb-0" style="line-height: 1.6;">
+                        Highest industry concentration offering unmatched 24-hour persistent sillage with minimal spray application.
+                    </p>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="about-pillar-card">
+                    <div class="pillar-icon-box">
+                        <i class="fa-solid fa-fire-flame-simple"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color: #1B1717;">Artisanal Assam Oud</h5>
+                    <p class="small text-muted mb-0" style="line-height: 1.6;">
+                        Naturally aged, ethically sourced agarwood yielding deep, balsamic, leather, and smoked amber resonance.
+                    </p>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="about-pillar-card">
+                    <div class="pillar-icon-box">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color: #1B1717;">100% Tamper Sealed</h5>
+                    <p class="small text-muted mb-0" style="line-height: 1.6;">
+                        Every flacon is individually numbered with our embossed royal seal, guaranteeing pristine boutique origin.
+                    </p>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="about-pillar-card">
+                    <div class="pillar-icon-box">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2" style="color: #1B1717;">Inspection on Delivery</h5>
+                    <p class="small text-muted mb-0" style="line-height: 1.6;">
+                        Cash on Delivery across all Egyptian governorates with full right of inspection prior to handover.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Footer Strip -->
+<section class="py-5 text-center" style="background: #1B1717; color: #EDEBDD; border-top: 1px solid rgba(237, 235, 221, 0.15);">
+    <div class="container py-3">
+        <h3 class="fw-bold mb-3" style="font-family: 'Playfair Display', serif; color: #EDEBDD;">Ready to Experience Maison ROVEN?</h3>
+        <p class="mb-4 mx-auto" style="color: #EDEBDD; opacity: 0.88; max-width: 620px; font-size: 1.05rem; line-height: 1.6;">
+            Explore our curated flacons or reach out to our private fragrance concierges for tailored olfactory advisory.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a asp-controller="Store" asp-action="Index" class="btn btn-roven-wine btn-lg px-4 py-3 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-2">
+                <i class="fa-solid fa-bag-shopping me-1"></i>
+                <span>Browse Collections</span>
+            </a>
+            <a asp-controller="Home" asp-action="Contact" class="btn btn-lg px-4 py-3 rounded-pill fw-semibold d-inline-flex align-items-center gap-2" style="border: 1.5px solid #EDEBDD; color: #EDEBDD; background: transparent;">
+                <i class="fa-solid fa-headset me-1"></i>
+                <span>Concierge Contact</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+@section SeoStructuredData {
+    <!-- Google Rich Snippet: AboutPage Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "AboutPage",
+      "mainEntity": {
+        "@@type": "Organization",
+        "name": "ROVEN Haute Parfumerie",
+        "alternateName": ["Maison ROVEN", "دار روڤين", "دار روفين", "عطور روڤين", "عطور روفين", "براند روفين", "براند روڤين"],
+        "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/")",
+        "logo": "@($"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")"
+      }
+    }
+    </script>
+}
+

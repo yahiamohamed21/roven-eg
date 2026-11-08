@@ -1,0 +1,153 @@
+@model IEnumerable<Stockify.ViewModels.Inventory.InventoryTransactionViewModel>
+@using Stockify.Models.Enums
+@{
+    ViewData["Title"] = "Inventory History & Audit Trail";
+    var selectedType = ViewBag.SelectedType as TransactionType?;
+    var currentSearch = ViewBag.SearchTerm as string ?? "";
+    var currentProductId = ViewBag.ProductId as int?;
+    var products = ViewBag.Products as List<SelectListItem> ?? new List<SelectListItem>();
+}
+
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Stock Movement Audit Trail</h3>
+        <p class="text-muted mb-0 small">Chronological ledger of all inbound purchases, sales fulfillment, and warehouse adjustments.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Inventory
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <form method="get" asp-action="History" class="row g-2 align-items-center">
+            <div class="col-12 col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="search" value="@currentSearch" class="form-control border-start-0" placeholder="Search by product, SKU, or note..." />
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <select name="productId" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Products</option>
+                    @foreach (var p in products)
+                    {
+                        <option value="@p.Value" selected="@(currentProductId?.ToString() == p.Value ? "selected" : null)">@p.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <select name="type" class="form-select" onchange="this.form.submit()">
+                    <option value="" selected="@(!selectedType.HasValue ? "selected" : null)">All Movement Types</option>
+                    <option value="@TransactionType.StockIn" selected="@(selectedType == TransactionType.StockIn ? "selected" : null)">Stock In (Inbound)</option>
+                    <option value="@TransactionType.StockOut" selected="@(selectedType == TransactionType.StockOut ? "selected" : null)">Stock Out (Sales/Damage)</option>
+                    <option value="@TransactionType.Adjustment" selected="@(selectedType == TransactionType.Adjustment ? "selected" : null)">Adjustment (Audit)</option>
+                    <option value="@TransactionType.Return" selected="@(selectedType == TransactionType.Return ? "selected" : null)">Return (Customer)</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-2 text-md-end d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i> Filter
+                </button>
+                @if (!string.IsNullOrEmpty(currentSearch) || selectedType.HasValue || currentProductId.HasValue)
+                {
+                    <a asp-action="History" class="btn btn-outline-secondary" title="Clear filters">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Product & SKU</th>
+                    <th>Movement Type</th>
+                    <th>Quantity Change</th>
+                    <th>Performed By</th>
+                    <th>Notes & Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-journal-x fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                            <h6 class="fw-bold">No inventory movements found</h6>
+                            <p class="small mb-0">Try adjusting your filters or record a new stock movement.</p>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var tx in Model)
+                    {
+                        <tr>
+                            <td class="text-muted small">
+                                <i class="bi bi-calendar3 me-1"></i>@tx.TransactionDate.ToEgyptTimeString("dd MMM yyyy, hh:mm tt")
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">@tx.ProductName</div>
+                                <span class="font-monospace small text-muted">@tx.Sku</span>
+                            </td>
+                            <td>
+                                @switch (tx.TransactionType)
+                                {
+                                    case TransactionType.StockIn:
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                            <i class="bi bi-box-arrow-in-down me-1"></i>Stock In
+                                        </span>
+                                        break;
+                                    case TransactionType.StockOut:
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                            <i class="bi bi-box-arrow-up-right me-1"></i>Stock Out
+                                        </span>
+                                        break;
+                                    case TransactionType.Adjustment:
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                                            <i class="bi bi-sliders me-1"></i>Adjustment
+                                        </span>
+                                        break;
+                                    case TransactionType.Return:
+                                        <span class="badge bg-info-subtle text-info border border-info-subtle">
+                                            <i class="bi bi-arrow-return-left me-1"></i>Return
+                                        </span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">Other</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                @if (tx.TransactionType == TransactionType.StockIn || tx.TransactionType == TransactionType.Return)
+                                {
+                                    <span class="text-success fw-bold fs-6">+@tx.Quantity units</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger fw-bold fs-6">-@tx.Quantity units</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-person me-1"></i>@tx.PerformerName
+                                </span>
+                            </td>
+                            <td class="text-muted small" style="max-width: 300px;">
+                                @(string.IsNullOrWhiteSpace(tx.Notes) ? "—" : tx.Notes)
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

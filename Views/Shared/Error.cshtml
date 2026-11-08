@@ -1,0 +1,34 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="row justify-content-center py-5">
+    <div class="col-12 col-md-8 col-lg-6 text-center">
+        <div class="card shadow-sm border-0 p-5">
+            <div class="mb-3">
+                <div class="stat-icon warning mx-auto" style="width: 72px; height: 72px; font-size: 2.25rem;">
+                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                </div>
+            </div>
+            <h2 class="fw-bold text-dark mb-2">Something went wrong</h2>
+            <p class="text-muted mb-4">
+                An unexpected error occurred while processing your request. Our system administrators have been notified.
+            </p>
+
+            @if (Model?.ShowRequestId == true)
+            {
+                <div class="bg-light p-3 rounded mb-4 text-start small">
+                    <strong>Request ID:</strong> <code class="text-danger">@Model.RequestId</code>
+                </div>
+            }
+
+            <div class="d-flex justify-content-center gap-2">
+                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-house-door"></i>
+                    <span>Return to Dashboard</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

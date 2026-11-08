@@ -1,0 +1,169 @@
+@model Stockify.Models.Entities.Order
+@{
+    Layout = "_StoreLayout";
+    ViewData["Title"] = "Order Confirmation — Maison ROVEN";
+}
+
+<div class="container py-4 py-md-5">
+    <!-- Luxury Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <div class="roven-breadcrumb-nav">
+            <a asp-controller="Home" asp-action="Index">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+            <span class="breadcrumb-current">Order Confirmed</span>
+        </div>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-9 col-lg-8">
+            <div class="card border-0 shadow-sm p-3 p-md-5 rounded-4 text-center bg-white" style="border: 1px solid #e8e3d5 !important;">
+                
+                <!-- Success Badge -->
+                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3 shadow-xs" style="width: 76px; height: 76px; background-color: #f0fdf4; border: 2px solid #16a34a; color: #16a34a;">
+                    <i class="fa-solid fa-check fs-1"></i>
+                </div>
+
+                <h3 class="fw-bold mb-1" style="font-family: 'Playfair Display', Georgia, serif; color: #1B1717;">
+                    Thank You! Order Confirmed
+                </h3>
+                <p class="text-muted small mb-4">
+                    تم استلام طلبك بنجاح وجاري تجهيز باقتك العطرية في دار روفين للشحن الفوري.
+                </p>
+
+                <!-- Screenshot Reminder Alert (طلب المستخدم: يجب أخذ سكرين لمتابعة الأوردر) -->
+                <div class="alert rounded-4 p-3 mb-4 text-start border shadow-xs d-flex flex-column flex-sm-row align-items-sm-center gap-3" style="background: #fff8eb; border-color: #dfb15b !important; color: #7c4a03;">
+                    <div class="d-flex align-items-center gap-2.5">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: #dfb15b; color: #1B1717;">
+                            <i class="fa-solid fa-camera fs-5"></i>
+                        </div>
+                        <div class="d-sm-none">
+                            <span class="badge rounded-pill bg-danger text-white">تنبيه هام</span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <h6 class="fw-bold mb-1" style="color: #630000; font-size: 0.95rem;">
+                              يجب أخذ لقطة شاشة (Screenshot) لهذا الإيصال
+                        </h6>
+                        <p class="small mb-0 text-muted" style="color: #6c6358 !important; font-size: 0.82rem; line-height: 1.45;">
+                            احفظ صورة الإيصال ورقم طلبك <strong>(@Model.OrderNumber)</strong> في هاتفك لمتابعة شحنتك ومعاينتها قبل الاستلام.
+                        </p>
+                    </div>
+                    <button type="button" class="btn btn-sm rounded-pill px-3 py-2 fw-bold flex-shrink-0 d-inline-flex align-items-center justify-content-center gap-1 shadow-xs" style="background: #630000; color: #EDEBDD; border: 1px solid #810100;" onclick="copyOrderRefNumber('@Model.OrderNumber')">
+                        <i class="fa-regular fa-copy"></i>
+                        <span>نسخ رقم الطلب</span>
+                    </button>
+                </div>
+
+                <!-- Order Reference Details Receipt Card -->
+                <div class="card border-0 p-3 p-md-4 text-start mb-4 rounded-4" style="background-color: #FAF9F5; border: 1px solid #e8e3d5 !important;">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-3 pb-3 border-bottom gap-2" style="border-color: #e8e3d5 !important;">
+                        <div>
+                            <span class="text-muted small d-block">رقم الطلب المرجعي (Order Reference):</span>
+                            <span class="fw-extrabold font-monospace fs-5" style="color: #630000; letter-spacing: 0.5px;">@Model.OrderNumber</span>
+                        </div>
+                        <span class="badge px-3 py-2 rounded-pill fw-bold" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99, 0, 0, 0.2);">
+                            <i class="fa-solid fa-shield-halved me-1"></i> الدفع عند الاستلام (COD)
+                        </span>
+                    </div>
+
+                    <div class="row g-2 small mb-3">
+                        <div class="col-6 col-sm-5 text-muted">اسم المستلم (Client):</div>
+                        <div class="col-6 col-sm-7 text-end fw-semibold text-dark">@Model.CustomerName</div>
+
+                        <div class="col-6 col-sm-5 text-muted">رقم الهاتف (Mobile):</div>
+                        <div class="col-6 col-sm-7 text-end text-dark font-monospace" dir="ltr">@Model.CustomerPhone</div>
+
+                        <div class="col-6 col-sm-5 text-muted">عنوان التوصيل (Address):</div>
+                        <div class="col-6 col-sm-7 text-end text-dark">@Model.ShippingAddress, @Model.City</div>
+
+                        <div class="col-6 col-sm-5 text-muted">طريقة السداد (Payment):</div>
+                        <div class="col-6 col-sm-7 text-end text-success fw-bold">معاينة وفحص الطرد قبل الدفع نقداً</div>
+
+                        <div class="col-6 col-sm-5 text-muted">تاريخ الطلب (Date):</div>
+                        <div class="col-6 col-sm-7 text-end text-dark">@Model.OrderDate.ToEgyptTimeString("MMM dd, yyyy - hh:mm tt")</div>
+                    </div>
+
+                    <!-- Items Summary -->
+                    <div class="pt-3 border-top" style="border-color: #e8e3d5 !important;">
+                        <div class="small fw-bold text-dark mb-2">العطور المطلوبة (Fragrance Allocations):</div>
+                        <div class="d-flex flex-column gap-2 mb-3">
+                            @foreach (var item in Model.OrderItems)
+                            {
+                                <div class="d-flex justify-content-between align-items-center small p-2 rounded-3 bg-white border" style="border-color: #f0ece1 !important;">
+                                    <div>
+                                        <span class="fw-semibold text-dark">@(item.Product?.Name ?? "Flacon")</span>
+                                        <span class="badge bg-light text-muted border font-monospace ms-1">&times; @item.Quantity</span>
+                                    </div>
+                                    <span class="fw-bold font-monospace" style="color: #1B1717;">@(item.UnitPrice * item.Quantity).ToString("N2") EGP</span>
+                                </div>
+                            }
+                        </div>
+
+                        @if (Model.DiscountAmount > 0)
+                        {
+                            <div class="d-flex justify-content-between small text-danger mb-2">
+                                <span><i class="fa-solid fa-ticket me-1"></i>خصم الكوبون (@(Model.CouponCode ?? "PROMO")):</span>
+                                <span class="fw-bold font-monospace">- @Model.DiscountAmount.ToString("N2") EGP</span>
+                            </div>
+                        }
+
+                        <div class="d-flex justify-content-between small text-muted mb-2">
+                            <span>الشحن والتوصيل (@(string.IsNullOrEmpty(Model.City) ? "كافة المحافظات" : Model.City)):</span>
+                            <span class="@(Model.ShippingFee > 0 ? "fw-bold text-dark font-monospace" : "text-success fw-bold")">
+                                @(Model.ShippingFee > 0 ? Model.ShippingFee.ToString("N2") + " EGP" : "شحن مجاني (FREE)")
+                            </span>
+                        </div>
+
+                        <div class="d-flex justify-content-between pt-2 border-top align-items-center" style="border-color: #e8e3d5 !important;">
+                            <span class="fw-bold text-dark fs-6">الإجمالي المستحق عند الاستلام:</span>
+                            <span class="fw-extrabold fs-4 font-monospace" style="color: #630000;">@Model.TotalAmount.ToString("N2") EGP</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons (Responsive Column on Mobile, Row on Desktop) -->
+                <div class="d-flex flex-column flex-sm-row gap-2.5 justify-content-center">
+                    <a asp-controller="OrderTracking" asp-action="Index" asp-route-orderNumber="@Model.OrderNumber" class="btn px-4 py-2.5 fw-bold rounded-pill d-inline-flex align-items-center justify-content-center gap-2 shadow-xs" style="background-color: #630000; color: #EDEBDD; border: 1px solid #810100;">
+                        <i class="fa-solid fa-box-open"></i>
+                        <span>متابعة شحنة العطر (Track Delivery)</span>
+                    </a>
+
+                    <a asp-controller="Store" asp-action="Index" class="btn btn-outline-dark px-4 py-2.5 rounded-pill fw-semibold d-inline-flex align-items-center justify-content-center">
+                        العودة للمتجر
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function copyOrderRefNumber(num) {
+        if (!navigator.clipboard) {
+            const input = document.createElement('input');
+            input.value = num;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+        } else {
+            navigator.clipboard.writeText(num);
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: 'تم نسخ رقم الطلب!',
+            text: num,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+        });
+    }
+</script>
+}

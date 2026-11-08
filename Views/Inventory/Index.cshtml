@@ -1,0 +1,307 @@
+@model IEnumerable<Stockify.ViewModels.Inventory.InventoryItemViewModel>
+@using Stockify.Common.Constants
+@{
+    ViewData["Title"] = "Inventory Management";
+    var totalValue = (decimal)(ViewBag.TotalInventoryValue ?? 0m);
+    var totalUnits = (int)(ViewBag.TotalUnitsInStock ?? 0);
+    var lowStockCount = (int)(ViewBag.LowStockCount ?? 0);
+    var todayMovements = (int)(ViewBag.TodayMovementsCount ?? 0);
+    var currentSearch = ViewBag.CurrentSearch as string ?? "";
+    var currentStatus = ViewBag.CurrentStatus as string ?? "";
+    var currentCategory = ViewBag.CurrentCategory as int?;
+    var categories = ViewBag.Categories as List<SelectListItem> ?? new List<SelectListItem>();
+}
+
+<!-- Header -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Inventory Management</h3>
+        <p class="text-muted mb-0 small">Monitor warehouse stock balances, reorder thresholds, and inbound/outbound flow.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="History" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+            <i class="bi bi-clock-history"></i>
+            <span>Stock History</span>
+        </a>
+        <a asp-action="LowStock" class="btn btn-outline-danger d-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>Low Stock Alerts (@lowStockCount)</span>
+        </a>
+        @if (User.IsInRole(Roles.Admin))
+        {
+            <a asp-action="Adjust" class="btn btn-outline-warning d-flex align-items-center gap-2">
+                <i class="bi bi-sliders"></i>
+                <span>Adjust Stock</span>
+            </a>
+            <a asp-action="StockIn" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+                <i class="bi bi-box-arrow-in-down"></i>
+                <span>Stock In</span>
+            </a>
+        }
+    </div>
+</div>
+
+<!-- Quick Stats Strip -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-3 fs-4 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+                <div>
+                    <span class="text-muted small fw-medium">Total Inventory Value</span>
+                    <h5 class="fw-bold text-dark mb-0">@totalValue.ToString("N2") EGP</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 bg-success bg-opacity-10 text-success p-3 fs-4 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-boxes"></i>
+                </div>
+                <div>
+                    <span class="text-muted small fw-medium">Total Units In Stock</span>
+                    <h5 class="fw-bold text-dark mb-0">@totalUnits.ToString("N0")</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 bg-warning bg-opacity-10 text-warning p-3 fs-4 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-bell-fill"></i>
+                </div>
+                <div>
+                    <span class="text-muted small fw-medium">Reorder Thresholds</span>
+                    <h5 class="fw-bold @(lowStockCount > 0 ? "text-danger" : "text-dark") mb-0">@lowStockCount Items</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 bg-info bg-opacity-10 text-info p-3 fs-4 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-arrow-repeat"></i>
+                </div>
+                <div>
+                    <span class="text-muted small fw-medium">Stock Movements (Today)</span>
+                    <h5 class="fw-bold text-dark mb-0">@todayMovements Events</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Low Stock Immediate Replenishment Alerts (المخزون والنواقص) -->
+@{
+    var lowStockProducts = ViewBag.LowStockProducts as List<Stockify.ViewModels.Dashboard.LowStockDashboardViewModel> ?? new List<Stockify.ViewModels.Dashboard.LowStockDashboardViewModel>();
+}
+@if (lowStockProducts.Any())
+{
+    <div class="card border-0 shadow-sm mb-4 rounded-4" style="border-left: 5px solid #810100 !important;">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom" style="border-color: #e8e3d5 !important;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation fs-5" style="color: #810100;"></i>
+                <div>
+                    <h6 class="fw-extrabold mb-0" style="color: #1B1717;">قسم المخزون والنواقص — عطور تحتاج إعادة توريد فورية</h6>
+                    <span class="small text-muted">عطور وصلت أو انخفضت عن الحد الأدنى لإعادة الطلب في معمل العطور</span>
+                </div>
+            </div>
+            <a asp-action="LowStock" class="btn btn-sm rounded-pill fw-semibold px-3 py-1.5" style="background-color: #810100; color: #EDEBDD;">
+                <i class="fa-solid fa-list me-1"></i> عرض كافة النواقص (@lowStockCount)
+            </a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Perfume / Flacon</th>
+                        <th>Fragrance Line</th>
+                        <th>SKU</th>
+                        <th>Current Flacons</th>
+                        <th>Minimum Threshold</th>
+                        <th class="text-end pe-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var low in lowStockProducts)
+                    {
+                        <tr>
+                            <td class="fw-bold" style="color: #1B1717;">@low.ProductName</td>
+                            <td><span class="badge rounded-pill" style="background-color: #EDEBDD; color: #630000;">@low.CategoryName</span></td>
+                            <td><code style="color: #630000;">@low.Sku</code></td>
+                            <td>
+                                <span class="badge rounded-pill fs-7 @(low.CurrentStock <= 0 ? "bg-secondary text-white" : "border")" style="@(low.CurrentStock > 0 ? "background-color: #fbeae8; color: #810100; border-color: rgba(129,1,0,0.3) !important;" : "")">
+                                    @low.CurrentStock flacons
+                                </span>
+                            </td>
+                            <td class="text-muted small">@low.ReorderLevel flacons</td>
+                            <td class="text-end pe-3">
+                                <a asp-action="StockIn" asp-route-productId="@low.ProductId" class="btn btn-sm btn-primary rounded-pill px-3 py-1 shadow-xs">
+                                    <i class="fa-solid fa-plus me-1"></i> توريد فوري (Stock In)
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm mb-4 rounded-4 bg-white p-3" style="border-left: 5px solid #198754 !important;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-circle-check text-success fs-5"></i>
+                <div>
+                    <h6 class="fw-bold mb-0" style="color: #1B1717;">قسم المخزون والنواقص — المخزون آمن ومكتمل</h6>
+                    <span class="small text-muted">جميع خطوط العطور الحالية في حالة ممتازة وأعلى من حد إعادة الطلب.</span>
+                </div>
+            </div>
+            <a asp-action="LowStock" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1">
+                سجل تنبيهات النواقص
+            </a>
+        </div>
+    </div>
+}
+
+<!-- Inventory Table Card -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3">
+        <form method="get" asp-action="Index" class="row g-2 align-items-center">
+            <div class="col-12 col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="search" value="@currentSearch" class="form-control border-start-0" placeholder="Search by product name or SKU..." />
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <select name="categoryId" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    @foreach (var cat in categories)
+                    {
+                        <option value="@cat.Value" selected="@(currentCategory?.ToString() == cat.Value ? "selected" : null)">@cat.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="" selected="@(string.IsNullOrEmpty(currentStatus) ? "selected" : null)">All Stock Levels</option>
+                    <option value="sufficient" selected="@(currentStatus == "sufficient" ? "selected" : null)">Sufficient Stock</option>
+                    <option value="lowstock" selected="@(currentStatus == "lowstock" ? "selected" : null)">Low Stock Alert</option>
+                    <option value="outofstock" selected="@(currentStatus == "outofstock" ? "selected" : null)">Out of Stock</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-2 text-md-end d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i> Filter
+                </button>
+                @if (!string.IsNullOrEmpty(currentSearch) || !string.IsNullOrEmpty(currentStatus) || currentCategory.HasValue)
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary" title="Clear all filters">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Product</th>
+                    <th>SKU</th>
+                    <th>Current Stock</th>
+                    <th>Reorder Level</th>
+                    <th>Inventory Status</th>
+                    <th>Total Value</th>
+                    <th>Last Movement</th>
+                    @if (User.IsInRole(Roles.Admin))
+                    {
+                        <th class="text-end pe-3">Actions</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="@(User.IsInRole(Roles.Admin) ? 8 : 7)" class="text-center py-5 text-muted">
+                            <i class="bi bi-box fs-1 text-secondary opacity-50 mb-2 d-block"></i>
+                            <h6 class="fw-bold">No products match the selected criteria</h6>
+                            <p class="small mb-0">Try adjusting your search terms or filters.</p>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">@item.ProductName</div>
+                                <span class="text-muted small">@item.CategoryName</span>
+                            </td>
+                            <td><code>@item.Sku</code></td>
+                            <td>
+                                @if (item.IsOutOfStock)
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle fs-6">0 units</span>
+                                }
+                                else if (item.IsLowStock)
+                                {
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle fs-6">@item.CurrentStock units</span>
+                                }
+                                else
+                                {
+                                    <span class="fw-bold fs-6 text-dark">@item.CurrentStock units</span>
+                                }
+                            </td>
+                            <td class="text-muted small">@item.ReorderLevel units</td>
+                            <td>
+                                @if (item.IsOutOfStock)
+                                {
+                                    <span class="badge bg-danger text-white"><i class="bi bi-x-circle me-1"></i>Out of Stock</span>
+                                }
+                                else if (item.IsLowStock)
+                                {
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i>Low Stock</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-circle me-1"></i>Sufficient</span>
+                                }
+                            </td>
+                            <td class="fw-bold text-dark">@item.TotalValue.ToString("N2") EGP</td>
+                            <td class="text-muted small">
+                                @(item.LastMovementDate.HasValue ? item.LastMovementDate.Value.ToString("dd MMM yyyy, HH:mm") : "Initial Stock")
+                            </td>
+                            @if (User.IsInRole(Roles.Admin))
+                            {
+                                <td class="text-end pe-3">
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="StockIn" asp-route-productId="@item.ProductId" class="btn btn-light border text-primary" title="Stock In">
+                                            <i class="bi bi-plus-lg me-1"></i>In
+                                        </a>
+                                        <a asp-action="Adjust" asp-route-productId="@item.ProductId" class="btn btn-light border text-warning" title="Adjust or Deduct Stock">
+                                            <i class="bi bi-sliders"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

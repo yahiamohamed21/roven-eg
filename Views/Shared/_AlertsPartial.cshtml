@@ -1,0 +1,64 @@
+@* Reusable Dismissible Alerts Component with SweetAlert2 Integration *@
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill fs-5 me-2"></i>
+        <div>@TempData["SuccessMessage"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.StockifyAlert) {
+                StockifyAlert.toastSuccess('@Html.Raw(TempData["SuccessMessage"])');
+            }
+        });
+    </script>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+        <i class="bi bi-exclamation-octagon-fill fs-5 me-2"></i>
+        <div>@TempData["ErrorMessage"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.StockifyAlert) {
+                StockifyAlert.toastError('@Html.Raw(TempData["ErrorMessage"])');
+            }
+        });
+    </script>
+}
+
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
+        <div>@TempData["WarningMessage"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.StockifyAlert) {
+                StockifyAlert.toastWarning('@Html.Raw(TempData["WarningMessage"])');
+            }
+        });
+    </script>
+}
+
+@if (TempData["InfoMessage"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+        <i class="bi bi-info-circle-fill fs-5 me-2"></i>
+        <div>@TempData["InfoMessage"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.StockifyAlert) {
+                StockifyAlert.toastInfo('@Html.Raw(TempData["InfoMessage"])');
+            }
+        });
+    </script>
+}

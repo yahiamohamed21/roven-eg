@@ -1,0 +1,77 @@
+@model Stockify.ViewModels.Account.LoginViewModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Staff & Atelier Sign In";
+}
+
+<div class="auth-card">
+    <div class="auth-brand">
+        <img src="/images/roven-logo.png" alt="ROVEN" style="max-height: 48px; object-fit: contain;" />
+    </div>
+
+    <div class="text-center mb-4">
+        <span class="badge mb-3" style="background-color: #EDEBDD; color: #630000; font-size: 0.72rem; letter-spacing: 1px; font-weight: 700; padding: 0.4rem 0.85rem; border-radius: 50px;">
+            <i class="fa-solid fa-crown me-1" style="color: #630000;"></i> ATELIER BACK-OFFICE PORTAL
+        </span>
+        <h4 class="fw-extrabold mb-1" style="color: #1B1717;">Welcome to ROVEN</h4>
+        <p class="text-muted small mb-0">Enter your credentials to manage fragrance catalog, orders, and sales</p>
+    </div>
+
+    <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" novalidate>
+        <!-- Validation Summary -->
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small shadow-sm rounded-3" role="alert"></div>
+
+        <!-- Email Field -->
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label small fw-bold" style="color: #1B1717;">Atelier Email Address</label>
+            <div class="input-group">
+                <span class="input-group-text" style="background-color: #EDEBDD; border-color: #dcd7c7; color: #630000;">
+                    <i class="fa-regular fa-envelope"></i>
+                </span>
+                <input asp-for="Email" class="form-control" style="border-color: #dcd7c7;" placeholder="director@roven.eg" autocomplete="username" />
+            </div>
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+
+        <!-- Password Field with Show/Hide Toggle -->
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <label asp-for="Password" class="form-label small fw-bold mb-1" style="color: #1B1717;">Atelier Key (Password)</label>
+            </div>
+            <div class="input-group">
+                <span class="input-group-text" style="background-color: #EDEBDD; border-color: #dcd7c7; color: #630000;">
+                    <i class="fa-solid fa-lock"></i>
+                </span>
+                <input asp-for="Password" id="loginPasswordInput" class="form-control" style="border-color: #dcd7c7;" placeholder="••••••••" autocomplete="current-password" />
+                <button class="btn btn-outline-secondary border-start-0 bg-transparent password-toggle-btn" type="button" data-target="#loginPasswordInput" title="Toggle password visibility">
+                    <i class="fa-regular fa-eye text-muted"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+
+        <!-- Remember Me Checkbox -->
+        <div class="form-check mb-4">
+            <input class="form-check-input" asp-for="RememberMe" style="border-color: #630000;" />
+            <label class="form-check-label small text-secondary" asp-for="RememberMe">
+                Remember this device for 30 days
+            </label>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2 shadow-sm">
+            <span>Sign In to Atelier</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </button>
+    </form>
+
+    <div class="text-center mt-4 pt-3 border-top" style="border-color: #e8e3d5 !important;">
+        <p class="text-muted small mb-0">
+            Maison ROVEN Internal Systems &bull; <a asp-controller="Home" asp-action="Index" style="color: #630000; font-weight: 600; text-decoration: none;">Return to Customer Boutique</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

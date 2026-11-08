@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1000" width="100%" height="100%">
+  <defs>
+    <linearGradient id="mBg1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#140808" />
+      <stop offset="40%" stop-color="#3d0303" />
+      <stop offset="70%" stop-color="#630000" />
+      <stop offset="100%" stop-color="#140808" />
+    </linearGradient>
+    <radialGradient id="mGlow1" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#e8c688" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#140808" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="750" height="1000" fill="url(#mBg1)" />
+  <circle cx="375" cy="400" r="280" fill="url(#mGlow1)" />
+
+  <!-- Center Flacon Silhouette -->
+  <g transform="translate(250, 150)">
+    <rect x="35" y="40" width="180" height="280" rx="18" fill="#000000" opacity="0.45" />
+    <rect x="40" y="80" width="170" height="250" rx="16" fill="#2b0202" stroke="#dfb15b" stroke-width="2" />
+    <rect x="50" y="110" width="150" height="205" rx="12" fill="#630000" opacity="0.85" />
+    <path d="M 50 180 Q 125 165 200 180 L 200 315 L 50 315 Z" fill="#810100" opacity="0.9" />
+    <rect x="95" y="25" width="60" height="60" rx="6" fill="#140808" stroke="#dfb15b" stroke-width="2" />
+    <circle cx="125" cy="225" r="28" fill="#140808" stroke="#dfb15b" stroke-width="1.5" />
+    <text x="125" y="232" font-family="'Playfair Display', serif" font-size="18" font-weight="900" fill="#dfb15b" text-anchor="middle">R</text>
+    <text x="125" y="275" font-family="'Cinzel', sans-serif" font-size="10" font-weight="700" fill="#fdf4dc" text-anchor="middle" letter-spacing="2">ROUGE VELOURS</text>
+  </g>
+
+  <!-- Bottom Text Group -->
+  <g transform="translate(50, 560)">
+    <rect x="180" y="0" width="290" height="36" rx="18" fill="#630000" stroke="#dfb15b" stroke-width="1" />
+    <text x="325" y="23" font-family="'Cinzel', sans-serif" font-size="12" font-weight="700" fill="#fdf4dc" text-anchor="middle" letter-spacing="2">MAISON ROVEN • PARIS</text>
+
+    <text x="325" y="90" font-family="'Playfair Display', serif" font-size="44" font-weight="900" fill="#fdf4dc" text-anchor="middle">
+      L'Art de l'Extrait
+    </text>
+    <text x="325" y="140" font-family="'Playfair Display', serif" font-size="30" font-weight="700" fill="#dfb15b" text-anchor="middle">
+      30% Pure Concentration
+    </text>
+
+    <text x="325" y="195" font-family="'Cairo', sans-serif" font-size="18" fill="#EDEBDD" text-anchor="middle" opacity="0.85">
+      إصدار الروچ ڤيلور الفاخر بثبات يتخطى 24 ساعة
+    </text>
+
+    <!-- Mobile Button -->
+    <rect x="145" y="250" width="360" height="64" rx="32" fill="#810100" stroke="#dfb15b" stroke-width="2" />
+    <text x="325" y="290" font-family="'Cinzel', 'Cairo', sans-serif" font-size="18" font-weight="700" fill="#fdf4dc" text-anchor="middle" letter-spacing="2">SHOP NOW • تسوق الآن</text>
+  </g>
+</svg>
+

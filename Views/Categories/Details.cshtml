@@ -1,0 +1,118 @@
+@model Stockify.Models.Entities.Category
+@{
+    ViewData["Title"] = $"Category: {Model.Name}";
+    var products = Model.Products ?? new List<Stockify.Models.Entities.Product>();
+    var totalProducts = products.Count;
+    var totalStockValue = products.Sum(p => p.Price * p.StockQuantity);
+    var lowStockCount = products.Count(p => p.StockQuantity <= p.ReorderLevel);
+}
+
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1"><i class="bi bi-tag text-primary me-2"></i>@Model.Name</h3>
+        <p class="text-muted mb-0 small">@(string.IsNullOrWhiteSpace(Model.Description) ? "No category description." : Model.Description)</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+        @if (User.IsInRole(Stockify.Common.Constants.Roles.Admin))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary d-flex align-items-center gap-2">
+                <i class="bi bi-pencil"></i>
+                <span>Edit Category</span>
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm p-3">
+            <span class="text-muted small">Total Products</span>
+            <h4 class="fw-bold text-dark mb-0">@totalProducts Products</h4>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm p-3">
+            <span class="text-muted small">Total Stock Value</span>
+            <h4 class="fw-bold text-success mb-0">@totalStockValue.ToString("N2") EGP</h4>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm p-3">
+            <span class="text-muted small">Low Stock Items</span>
+            <h4 class="fw-bold text-warning mb-0">@lowStockCount Items</h4>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="fw-bold">Assigned Products</span>
+        @if (User.IsInRole(Stockify.Common.Constants.Roles.Admin))
+        {
+            <a asp-controller="Products" asp-action="Create" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-plus-lg me-1"></i>Add Product to this Category
+            </a>
+        }
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Product</th>
+                    <th>SKU</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (products.Any())
+                {
+                    foreach (var p in products)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-semibold text-dark">@p.Name</div>
+                            </td>
+                            <td><code>@p.Sku</code></td>
+                            <td class="fw-bold">@p.Price.ToString("N2") EGP</td>
+                            <td>@p.StockQuantity units</td>
+                            <td>
+                                @if (p.StockQuantity <= 0)
+                                {
+                                    <span class="badge bg-danger text-white">Out of Stock</span>
+                                }
+                                else if (p.StockQuantity <= p.ReorderLevel)
+                                {
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Low Stock</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">In Stock</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-controller="Products" asp-action="Details" asp-route-id="@p.Id" class="btn btn-sm btn-light border" title="View Product Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="bi bi-box-seam fs-3 d-block mb-2 text-secondary"></i>
+                            No products currently assigned to this category.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,1192 @@
+@model Stockify.ViewModels.Dashboard.DashboardViewModel
+@using System.Text.Json
+@using Stockify.Models.Enums
+@{
+    ViewData["Title"] = "Atelier & Executive Dashboard";
+
+    var chartLabelsJson = JsonSerializer.Serialize(Model.ChartLabels);
+    var chartRevenueJson = JsonSerializer.Serialize(Model.ChartRevenueData);
+    var chartOrdersJson = JsonSerializer.Serialize(Model.ChartOrderCountData);
+
+    var repLabels = Model.SalesRepsPerformance.Select(r => r.RepName).ToList();
+    var repRevenues = Model.SalesRepsPerformance.Select(r => r.TotalRevenue).ToList();
+    var repLabelsJson = JsonSerializer.Serialize(repLabels);
+    var repRevenuesJson = JsonSerializer.Serialize(repRevenues);
+}
+
+<style>
+    .custom-dashboard-pills .nav-link {
+        color: #1B1717;
+        background: transparent;
+        border: none;
+        transition: all 0.2s ease;
+        font-size: 0.88rem;
+    }
+    .custom-dashboard-pills .nav-link:hover {
+        background-color: #FAF9F5;
+        color: #630000;
+    }
+    .custom-dashboard-pills .nav-link.active {
+        background-color: #630000 !important;
+        color: #EDEBDD !important;
+        box-shadow: 0 4px 12px rgba(99, 0, 0, 0.25);
+    }
+    .custom-dashboard-pills .nav-link.active i {
+        color: #EDEBDD !important;
+    }
+    .show-all-tabs .tab-pane {
+        display: block !important;
+        opacity: 1 !important;
+        margin-bottom: 2rem;
+    }
+</style>
+
+<!-- Page Header / Action Bar -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-roven-cream px-3 py-1 rounded-pill fw-bold">
+                <i class="fa-solid fa-crown me-1" style="color: #630000;"></i> Maison ROVEN
+            </span>
+            <span class="small text-muted">Real-time Haute Parfumerie Intelligence</span>
+        </div>
+        <h3 class="fw-extrabold mb-1" style="color: #1B1717;">Atelier & Executive Dashboard</h3>
+        <p class="text-muted mb-0 small">Overview of perfume laboratory flacon reserves, e-commerce orders, and boutique counter sales.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-primary d-inline-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm">
+            <i class="fa-solid fa-store"></i>
+            <span>Visit Boutique</span>
+        </a>
+        <a asp-controller="Orders" asp-action="Create" class="btn btn-primary d-inline-flex align-items-center gap-2 rounded-pill px-3 py-2 shadow-sm">
+            <i class="fa-solid fa-plus"></i>
+            <span>New Flacon Sale (POS)</span>
+        </a>
+    </div>
+</div>
+
+<!-- ======================================================================== -->
+<!-- Dynamic Date Range Intelligence Filter Bar (Clean Date Filters Only)      -->
+<!-- ======================================================================== -->
+<div class="card border-0 shadow-sm rounded-4 mb-4" style="background: #ffffff; border: 1px solid #e8e3d5 !important;">
+    <div class="card-body p-3 p-md-4">
+        <form method="get" asp-controller="Dashboard" asp-action="Index" id="dashboardFilterForm">
+            @if (!string.IsNullOrEmpty(Model.SelectedSalesRepId) && Model.SelectedSalesRepId != "all")
+            {
+                <input type="hidden" name="salesRepId" value="@Model.SelectedSalesRepId" />
+            }
+
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 pb-3 mb-3 border-bottom" style="border-color: #f1ede3 !important;">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-bold fs-7">
+                        <i class="fa-solid fa-sliders me-1" style="color: #630000;"></i> فلترة وإحصائيات الداشبورد بالتاريخ
+                    </span>
+                    <span class="badge bg-light text-dark border px-3 py-1.5 rounded-pill small">
+                        <i class="fa-solid fa-calendar-check text-success me-1"></i> @Model.DateRangeDescription
+                    </span>
+                    @if (!string.IsNullOrEmpty(Model.SelectedSalesRepId) && Model.SelectedSalesRepDetails != null)
+                    {
+                        <span class="badge rounded-pill px-3 py-1.5 fw-semibold" style="background-color: #630000; color: #EDEBDD;">
+                            <i class="fa-solid fa-user-tie me-1"></i> مندوب المبيعات المحدد: @Model.SelectedSalesRepDetails.FullName
+                            <a asp-controller="Dashboard" asp-action="Index" asp-route-dateRange="@Model.DateRange" asp-route-startDate="@(Model.StartDate?.ToString("yyyy-MM-dd"))" asp-route-endDate="@(Model.EndDate?.ToString("yyyy-MM-dd"))" class="text-white text-decoration-none ms-1" title="إلغاء فلترة المندوب">&times;</a>
+                        </span>
+                    }
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5" title="إعادة تعيين كافة الفلاتر">
+                        <i class="fa-solid fa-rotate-left me-1"></i> إعادة ضبط التاريخ
+                    </a>
+                </div>
+            </div>
+
+            <!-- Presets Row -->
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <span class="small text-muted fw-bold me-1"><i class="fa-regular fa-clock me-1"></i> فترات سريعة:</span>
+                @{
+                    var presets = new (string Key, string Label)[]
+                    {
+                        ("all", "كل الأوقات (All Time)"),
+                        ("today", "اليوم (Today)"),
+                        ("yesterday", "أمس (Yesterday)"),
+                        ("last7days", "آخر 7 أيام"),
+                        ("thismonth", "هذا الشهر"),
+                        ("lastmonth", "الشهر الماضي"),
+                        ("thisyear", "هذا العام")
+                    };
+                }
+                @foreach (var p in presets)
+                {
+                    var isActive = Model.DateRange == p.Key;
+                    <button type="submit" name="dateRange" value="@p.Key" 
+                            class="btn btn-sm rounded-pill px-3 py-1 transition-all @(isActive ? "fw-bold shadow-xs text-white" : "btn-light border text-secondary")"
+                            style="@(isActive ? "background-color: #630000; border-color: #630000;" : "background-color: #FAF9F5;")">
+                        @p.Label
+                    </button>
+                }
+            </div>
+
+            <!-- Custom Date Inputs Row -->
+            <div class="row g-2 g-md-3 align-items-end pt-2 border-top" style="border-color: #f6f3eb !important;">
+                <div class="col-12 col-sm-5 col-md-4">
+                    <label class="form-label small fw-bold text-muted mb-1">
+                        <i class="fa-solid fa-calendar-day text-secondary me-1"></i> من تاريخ (Start Date)
+                    </label>
+                    <input type="date" name="startDate" class="form-control form-control-sm rounded-3 shadow-none border" 
+                           value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" style="background: #faf9f5;" />
+                </div>
+                <div class="col-12 col-sm-5 col-md-4">
+                    <label class="form-label small fw-bold text-muted mb-1">
+                        <i class="fa-solid fa-calendar-day text-secondary me-1"></i> إلى تاريخ (End Date)
+                    </label>
+                    <input type="date" name="endDate" class="form-control form-control-sm rounded-3 shadow-none border" 
+                           value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" style="background: #faf9f5;" />
+                </div>
+                <div class="col-12 col-sm-2 col-md-4">
+                    <button type="submit" name="dateRange" value="custom" class="btn btn-sm btn-primary w-100 rounded-pill py-1.5 fw-semibold shadow-sm d-flex align-items-center justify-content-center gap-1.5">
+                        <i class="fa-solid fa-filter"></i>
+                        <span>تطبيق فلترة التاريخ</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ======================================================================== -->
+<!-- Executive Dashboard Modular Tabs Navigation (3 Core Focused Tabs)         -->
+<!-- ======================================================================== -->
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    <ul class="nav nav-pills custom-dashboard-pills p-1.5 rounded-4 bg-white shadow-xs border flex-wrap" id="dashboardTabs" role="tablist" style="border-color: #e8e3d5 !important;">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2" id="tab-overview-btn" data-bs-toggle="pill" data-bs-target="#tab-overview" type="button" role="tab" aria-controls="tab-overview" aria-selected="true">
+                <i class="fa-solid fa-chart-pie" style="color: #630000;"></i>
+                <span>المبيعات والنظرة العامة</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2" id="tab-salesteam-btn" data-bs-toggle="pill" data-bs-target="#tab-salesteam" type="button" role="tab" aria-controls="tab-salesteam" aria-selected="false">
+                <i class="fa-solid fa-trophy" style="color: #810100;"></i>
+                <span>فريق المبيعات والعمولات</span>
+                @if (Model.SalesRepsPerformance.Any())
+                {
+                    <span class="badge rounded-pill bg-light text-dark border ms-1" style="font-size: 0.72rem;">@Model.SalesRepsPerformance.Count مندوب</span>
+                }
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2" id="tab-ecommerce-btn" data-bs-toggle="pill" data-bs-target="#tab-ecommerce" type="button" role="tab" aria-controls="tab-ecommerce" aria-selected="false">
+                <i class="fa-solid fa-globe" style="color: #0284c7;"></i>
+                <span>المتجر الإلكتروني والزيارات</span>
+                @if (Model.AbandonedCheckoutsCount > 0)
+                {
+                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle ms-1" style="font-size: 0.72rem;">@Model.AbandonedCheckoutsCount سلة</span>
+                }
+            </button>
+        </li>
+    </ul>
+
+    <div class="d-flex align-items-center gap-2">
+        <button type="button" id="toggleDashboardViewModeBtn" onclick="toggleDashboardFullView()" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5 shadow-xs d-inline-flex align-items-center gap-1.5" title="التبديل بين العرض المقسّم بالتبويبات والعرض الشامل لكافة الأقسام">
+            <i class="fa-solid fa-expand" id="toggleDashboardViewIcon"></i> 
+            <span id="toggleDashboardViewText">عرض كافة الأقسام معاً</span>
+        </button>
+    </div>
+</div>
+
+<!-- ======================================================================== -->
+<!-- TAB CONTENT CONTAINER                                                    -->
+<!-- ======================================================================== -->
+<div class="tab-content" id="dashboardTabContent">
+
+    <!-- ==================================================================== -->
+    <!-- TAB 1: EXECUTIVE OVERVIEW & SALES                                     -->
+    <!-- ==================================================================== -->
+    <div class="tab-pane fade show active" id="tab-overview" role="tabpanel" aria-labelledby="tab-overview-btn">
+        
+        <!-- 4 Key Metric Cards (Dynamic Live SQL Data) -->
+        <div class="row g-3 mb-4">
+            <!-- Total Perfumes -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Active Perfume Lines</span>
+                            <h3 class="fw-extrabold mt-2 mb-1" style="color: #1B1717;">@Model.TotalProducts</h3>
+                            <div class="d-flex align-items-center gap-1 mt-2">
+                                <span class="text-muted small">Master Flacons in Catalog</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon primary">
+                            <i class="fa-solid fa-spray-can-sparkles"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Sales in EGP -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Atelier Total Revenue</span>
+                            <h3 class="fw-extrabold mt-2 mb-1 font-monospace" style="color: #630000;">@Model.TotalSalesRevenue.ToString("N2") EGP</h3>
+                            <div class="d-flex align-items-center gap-1 mt-2">
+                                <span class="text-muted small">Today: <strong>@Model.TodaySalesRevenue.ToString("N2") EGP</strong></span>
+                            </div>
+                        </div>
+                        <div class="stat-icon success">
+                            <i class="fa-solid fa-gem"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Consignments / Orders -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Total Consignments</span>
+                            <h3 class="fw-extrabold mt-2 mb-1" style="color: #1B1717;">@Model.TotalOrders</h3>
+                            <div class="d-flex align-items-center gap-1 mt-2">
+                                <span class="text-muted small">Today: <strong>@Model.TodayOrdersCount</strong> order(s)</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon info">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registered Customers -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Registered Patrons</span>
+                            <h3 class="fw-extrabold mt-2 mb-1" style="color: #1B1717;">@Model.TotalCustomers</h3>
+                            <div class="d-flex align-items-center gap-1 mt-2">
+                                <span class="text-muted small">Loyalty & CRM Patrons</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon warning">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Omnichannel Sales Channel Performance Strip -->
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6">
+                <div class="card border-0 shadow-sm p-4 rounded-4" style="border-left: 5px solid #630000 !important; background: #ffffff;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge badge-roven-cream px-3 py-1 rounded-pill fw-bold">
+                                    <i class="fa-solid fa-globe me-1" style="color: #630000;"></i> E-Commerce Online Boutique
+                                </span>
+                                @if (Model.PendingWebsiteOrdersCount > 0)
+                                {
+                                    <span class="badge rounded-pill fw-semibold" style="background-color: #810100; color: #EDEBDD;">
+                                        @Model.PendingWebsiteOrdersCount pending fulfillment
+                                    </span>
+                                }
+                            </div>
+                            <h3 class="fw-extrabold mt-2 mb-1 font-monospace" style="color: #630000;">
+                                @Model.WebsiteSalesRevenue.ToString("N2") <span class="fs-6 fw-normal text-muted">EGP</span>
+                            </h3>
+                            <span class="text-muted small"><strong>@Model.WebsiteOrdersCount</strong> online consignment(s) placed by patrons</span>
+                        </div>
+                        <div class="stat-icon primary">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card border-0 shadow-sm p-4 rounded-4" style="border-left: 5px solid #1B1717 !important; background: #ffffff;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge px-3 py-1 rounded-pill fw-bold mb-2" style="background-color: #EDEBDD; color: #1B1717; border: 1px solid rgba(27,23,23,0.15);">
+                                <i class="fa-solid fa-cash-register me-1" style="color: #1B1717;"></i> Boutique Atelier Counter (POS)
+                            </span>
+                            <h3 class="fw-extrabold mt-2 mb-1 font-monospace" style="color: #1B1717;">
+                                @Model.ManualSalesRevenue.ToString("N2") <span class="fs-6 fw-normal text-muted">EGP</span>
+                            </h3>
+                            <span class="text-muted small"><strong>@Model.ManualOrdersCount</strong> in-store order(s) logged by associates</span>
+                        </div>
+                        <div class="stat-icon info">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Revenue Trend (Real Chart.js Chart) -->
+        <div class="row g-3 mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom" style="border-color: #e8e3d5 !important;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-arrow-trend-up" style="color: #630000;"></i>
+                            <span class="fw-extrabold" style="color: #1B1717;">Fragrance Revenue & Orders Trend (@Model.DateRangeDescription)</span>
+                        </div>
+                        <span class="badge badge-roven-cream px-3 py-1 rounded-pill">Daily Atelier Sales</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="salesOverviewChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables Row: Top Selling Perfumes & Recent Orders -->
+        <div class="row g-3 mb-4">
+            <!-- Top Selling Products -->
+            <div class="col-12 col-xl-6">
+                <div class="card shadow-sm border-0 h-100 rounded-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom" style="border-color: #e8e3d5 !important;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-fire" style="color: #810100;"></i>
+                            <span class="fw-extrabold" style="color: #1B1717;">Top Acclaimed Flacons (Best Sellers)</span>
+                        </div>
+                        <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-link text-decoration-none fw-semibold" style="color: #630000;">View Catalog</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Fragrance Name & SKU</th>
+                                    <th>Unit Price</th>
+                                    <th>Flacons Dispatched</th>
+                                    <th class="text-end pe-3">Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.TopSellingProducts.Any())
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">No sales orders recorded yet.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var prod in Model.TopSellingProducts)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold" style="color: #1B1717;">@prod.ProductName</div>
+                                                <span class="font-monospace small text-muted">@prod.Sku</span>
+                                            </td>
+                                            <td>@prod.UnitPrice.ToString("N2") EGP</td>
+                                            <td>
+                                                <span class="badge rounded-pill px-3 py-1" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99,0,0,0.2);">
+                                                    @prod.UnitsSold units
+                                                </span>
+                                            </td>
+                                            <td class="text-end pe-3 fw-bold font-monospace" style="color: #630000;">
+                                                @prod.TotalRevenue.ToString("N2") EGP
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Store Orders -->
+            <div class="col-12 col-xl-6">
+                <div class="card shadow-sm border-0 h-100 rounded-4">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom" style="border-color: #e8e3d5 !important;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-bag-shopping" style="color: #630000;"></i>
+                            <span class="fw-extrabold" style="color: #1B1717;">Recent Consignments & Orders</span>
+                        </div>
+                        <a asp-controller="Orders" asp-action="Index" class="btn btn-sm btn-link text-decoration-none fw-semibold" style="color: #630000;">All Consignments</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Consignment #</th>
+                                    <th>Channel</th>
+                                    <th>Patron</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-3">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.RecentOrders.Any())
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted">No orders placed yet.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var order in Model.RecentOrders)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="fw-bold font-monospace" style="color: #630000;">@order.OrderNumber</span>
+                                            </td>
+                                            <td>
+                                                @if (order.OrderSource == OrderSource.Website)
+                                                {
+                                                    <span class="badge rounded-pill small" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99,0,0,0.2);">
+                                                        <i class="fa-solid fa-globe me-1"></i>Web
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge rounded-pill small" style="background-color: #FAF9F5; color: #1B1717; border: 1px solid #dcd7c7;">
+                                                        <i class="fa-solid fa-cash-register me-1"></i>POS
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="fw-semibold" style="color: #1B1717;">@order.CustomerName</div>
+                                                <span class="text-muted small">@order.OrderDate.ToEgyptTimeString("dd MMM, hh:mm tt")</span>
+                                            </td>
+                                            <td class="fw-bold font-monospace" style="color: #1B1717;">@order.TotalAmount.ToString("N2") EGP</td>
+                                            <td>
+                                                @switch (order.Status)
+                                                {
+                                                    case OrderStatus.Completed:
+                                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">Completed</span>
+                                                        break;
+                                                    case OrderStatus.Shipped:
+                                                        <span class="badge rounded-pill" style="background-color: #630000; color: #EDEBDD;">Shipped</span>
+                                                        break;
+                                                    case OrderStatus.Processing:
+                                                        <span class="badge rounded-pill" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99,0,0,0.2);">Atelier Packing</span>
+                                                        break;
+                                                    case OrderStatus.Cancelled:
+                                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill">Cancelled</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge rounded-pill" style="background-color: #FAF9F5; color: #810100; border: 1px solid rgba(129,1,0,0.2);">Pending</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td class="text-end pe-3">
+                                                <a asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-sm btn-light border py-1 px-2 rounded-circle" title="View Order">
+                                                    <i class="fa-regular fa-eye" style="color: #630000;"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- TAB 2: SALES SPECIALISTS & PERFORMANCE (WITH DEDICATED SALES FILTER)  -->
+    <!-- ==================================================================== -->
+    <div class="tab-pane fade" id="tab-salesteam" role="tabpanel" aria-labelledby="tab-salesteam-btn">
+        
+        <!-- Dedicated Sales Representative Filter Strip -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: #ffffff; border: 1px solid #e8e3d5 !important;">
+            <div class="card-body p-3 p-md-4">
+                <form method="get" asp-controller="Dashboard" asp-action="Index">
+                    <input type="hidden" name="dateRange" value="@Model.DateRange" />
+                    @if (Model.StartDate.HasValue)
+                    {
+                        <input type="hidden" name="startDate" value="@(Model.StartDate.Value.ToString("yyyy-MM-dd"))" />
+                    }
+                    @if (Model.EndDate.HasValue)
+                    {
+                        <input type="hidden" name="endDate" value="@(Model.EndDate.Value.ToString("yyyy-MM-dd"))" />
+                    }
+
+                    <div class="row g-3 align-items-center">
+                        <div class="col-12 col-md-6">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: rgba(99,0,0,0.08); color: #630000;">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0" style="color: #1B1717;">فلترة واختيار مسؤول المبيعات (Sales Rep Filter)</h6>
+                                    <span class="small text-muted">اختر مندوباً لعرض مبيعاته التراكمية منذ إنشاء حسابه ومبيعاته في الفترة المحددة</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <select name="salesRepId" class="form-select rounded-3 shadow-none border" style="background: #faf9f5;">
+                                <option value="all">كل فريق المبيعات (All Sales Team)</option>
+                                @foreach (var rep in Model.AvailableSalesReps)
+                                {
+                                    <option value="@rep.Id" selected="@(Model.SelectedSalesRepId == rep.Id)">
+                                        @rep.FullName (@rep.Email)
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-2 d-flex gap-2">
+                            <button type="submit" class="btn btn-sm btn-primary w-100 rounded-pill py-2 fw-semibold shadow-xs">
+                                <i class="fa-solid fa-filter me-1"></i> فلترة
+                            </button>
+                            @if (!string.IsNullOrEmpty(Model.SelectedSalesRepId) && Model.SelectedSalesRepId != "all")
+                            {
+                                <a asp-action="Index" asp-route-salesRepId="all" asp-route-dateRange="@Model.DateRange" asp-route-startDate="@(Model.StartDate?.ToString("yyyy-MM-dd"))" asp-route-endDate="@(Model.EndDate?.ToString("yyyy-MM-dd"))" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2" title="عرض الفريق بالكامل">
+                                    <i class="fa-solid fa-users"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sales Representative In-Depth Performance Spotlight (When Rep Selected)  -->
+        @if (Model.SelectedSalesRepDetails != null)
+        {
+            var rep = Model.SelectedSalesRepDetails;
+            <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #FAF9F5 0%, #ffffff 100%); border: 1.5px solid #dcd7c7 !important;">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 mb-3 border-bottom" style="border-color: #e8e3d5 !important;">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle text-white fw-bold d-flex align-items-center justify-content-center shadow-sm" style="width: 52px; height: 52px; font-size: 1.15rem; background-color: #630000; color: #EDEBDD;">
+                                @rep.Initials
+                            </div>
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <h4 class="fw-extrabold mb-0" style="color: #1B1717;">@rep.FullName</h4>
+                                    <span class="badge rounded-pill fw-semibold" style="background-color: #630000; color: #EDEBDD;">
+                                        <i class="fa-solid fa-award me-1"></i> مندوب مبيعات معتمد
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mt-1 text-muted small flex-wrap">
+                                    <span><i class="fa-solid fa-envelope me-1"></i> @rep.Email</span>
+                                    <span>&bull;</span>
+                                    <span class="badge bg-light text-dark border px-2.5 py-1 rounded-pill">
+                                        <i class="fa-solid fa-id-card-clip text-primary me-1"></i> تاريخ إنشاء الحساب: <strong>@rep.AccountCreatedAt.ToEgyptTimeString("dd MMMM yyyy")</strong>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 align-items-center">
+                            <a asp-controller="Dashboard" asp-action="Index" asp-route-salesRepId="all" asp-route-dateRange="@Model.DateRange" asp-route-startDate="@(Model.StartDate?.ToString("yyyy-MM-dd"))" asp-route-endDate="@(Model.EndDate?.ToString("yyyy-MM-dd"))" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5">
+                                <i class="fa-solid fa-users me-1"></i> عرض إحصائيات الفريق بالكامل
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Inception Lifetime vs Selected Period Metrics Grid -->
+                    <div class="row g-3">
+                        <!-- 1. Lifetime Sales (From Account Creation to Date) -->
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="p-3 rounded-4 h-100 bg-white border shadow-xs" style="border-color: #e8e3d5 !important;">
+                                <span class="text-muted small fw-bold text-uppercase d-block mb-1" style="letter-spacing: 0.5px;">
+                                    <i class="fa-solid fa-hourglass-start me-1" style="color: #630000;"></i> المبيعات منذ إنشاء الحساب
+                                </span>
+                                <h4 class="fw-extrabold mb-1 font-monospace" style="color: #630000;">
+                                    @rep.LifetimeRevenue.ToString("N2") <span class="fs-7 fw-normal text-muted">EGP</span>
+                                </h4>
+                                <div class="small text-muted d-flex justify-content-between align-items-center pt-1 border-top mt-2" style="border-color: #f6f3eb !important;">
+                                    <span>إجمالي الطلبات:</span>
+                                    <strong class="text-dark">@rep.LifetimeOrdersCount طلب</strong>
+                                </div>
+                                <div class="small text-muted d-flex justify-content-between align-items-center pt-1">
+                                    <span>عمولة تراكمية (5%):</span>
+                                    <strong class="text-success font-monospace">@rep.LifetimeCommission.ToString("N2") EGP</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Filtered Period Sales -->
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="p-3 rounded-4 h-100 bg-white border shadow-xs" style="border-left: 4px solid #810100 !important; border-color: #e8e3d5;">
+                                <span class="text-muted small fw-bold text-uppercase d-block mb-1" style="letter-spacing: 0.5px;">
+                                    <i class="fa-solid fa-calendar-range me-1" style="color: #810100;"></i> مبيعات الفترة المحددة
+                                </span>
+                                <h4 class="fw-extrabold mb-1 font-monospace" style="color: #810100;">
+                                    @rep.PeriodRevenue.ToString("N2") <span class="fs-7 fw-normal text-muted">EGP</span>
+                                </h4>
+                                <div class="small text-muted d-flex justify-content-between align-items-center pt-1 border-top mt-2" style="border-color: #f6f3eb !important;">
+                                    <span>طلبات الفترة:</span>
+                                    <strong class="text-dark">@rep.PeriodOrdersCount طلب</strong>
+                                </div>
+                                <div class="small text-muted d-flex justify-content-between align-items-center pt-1">
+                                    <span>متوسط قيمة الطلب:</span>
+                                    <strong class="text-dark font-monospace">@rep.AverageOrderValue.ToString("N2") EGP</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Flacons Sold & Performance -->
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="p-3 rounded-4 h-100 bg-white border shadow-xs" style="border-left: 4px solid #1B1717 !important; border-color: #e8e3d5;">
+                                <span class="text-muted small fw-bold text-uppercase d-block mb-1" style="letter-spacing: 0.5px;">
+                                    <i class="fa-solid fa-spray-can-sparkles me-1" style="color: #1B1717;"></i> عطور مباعة بالفترة
+                                </span>
+                                <h4 class="fw-extrabold mb-1 font-monospace" style="color: #1B1717;">
+                                    @rep.PeriodFlaconsSold <span class="fs-7 fw-normal text-muted">زجاجة عطر</span>
+                                </h4>
+                                <div class="small text-muted d-flex justify-content-between align-items-center pt-1 border-top mt-2" style="border-color: #f6f3eb !important;">
+                                    <span>عمولة الفترة المستحقة:</span>
+                                    <strong class="text-success font-monospace">@rep.PeriodCommission.ToString("N2") EGP</strong>
+                                </div>
+                                <div class="small text-muted d-flex justify-content-between align-items-center pt-1">
+                                    <span>نسبة العمولة:</span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">5% أرباح حافز</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Target Attainment Quota Progress -->
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <div class="p-3 rounded-4 h-100 bg-white border shadow-xs" style="border-color: #e8e3d5 !important;">
+                                <span class="text-muted small fw-bold text-uppercase d-block mb-1" style="letter-spacing: 0.5px;">
+                                    <i class="fa-solid fa-bullseye me-1 text-danger"></i> تحقيق المستهدف (Target)
+                                </span>
+                                <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                    <h4 class="fw-extrabold mb-0 font-monospace text-dark">
+                                        @rep.TargetAttainment.ToString("F1")%
+                                    </h4>
+                                    <span class="small text-muted">الهدف: <strong>50,000 EGP</strong></span>
+                                </div>
+                                <div class="progress rounded-pill my-2" style="height: 8px; background-color: #e8e3d5;">
+                                    <div class="progress-bar rounded-pill" style="background: linear-gradient(90deg, #630000, #810100); width: @rep.TargetAttainment%;"></div>
+                                </div>
+                                <div class="small text-muted pt-1 text-truncate">
+                                    <span>المتبقي للمستهدف: </span>
+                                    <strong class="text-danger font-monospace">@((Math.Max(0m, rep.TargetQuota - rep.PeriodRevenue)).ToString("N2")) EGP</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Leaderboard & Contribution Chart Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white py-3 border-bottom" style="border-color: #e8e3d5 !important;">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-trophy" style="color: #810100; font-size: 1.25rem;"></i>
+                                    <h5 class="fw-extrabold mb-0" style="color: #1B1717;">Atelier Sales Specialists Leaderboard</h5>
+                                </div>
+                                <p class="text-muted small mb-0 mt-1">Track perfume consultant quota attainment, customer order conversions, and earned sales incentives.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <!-- Leaderboard Table -->
+                            <div class="col-12 col-xl-8">
+                                <div class="table-responsive rounded-3 border" style="border-color: #e8e3d5 !important;">
+                                    <table class="table align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 60px;">Rank</th>
+                                                <th>Perfume Specialist</th>
+                                                <th>Flacons Sold</th>
+                                                <th>Total Revenue</th>
+                                                <th>Monthly Target</th>
+                                                <th>Commission (5%)</th>
+                                                <th class="text-end pe-3">إجراء / فلترة</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (!Model.SalesRepsPerformance.Any())
+                                            {
+                                                <tr>
+                                                    <td colspan="7" class="text-center py-4 text-muted">
+                                                        No sales representatives logged in the system.
+                                                    </td>
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                var rank = 1;
+                                                @foreach (var rep in Model.SalesRepsPerformance.OrderByDescending(r => r.TotalRevenue))
+                                                {
+                                                    var isSelected = Model.SelectedSalesRepId == rep.UserId;
+                                                    <tr style="@(isSelected ? "background-color: rgba(99, 0, 0, 0.05) !important;" : "")">
+                                                        <td>
+                                                            @if (rank == 1)
+                                                            {
+                                                                <span class="badge px-2 py-1 rounded-pill fw-bold" style="background-color: #630000; color: #EDEBDD;">
+                                                                    <i class="fa-solid fa-medal me-1"></i>1st
+                                                                </span>
+                                                            }
+                                                            else if (rank == 2)
+                                                            {
+                                                                <span class="badge px-2 py-1 rounded-pill fw-bold" style="background-color: #810100; color: #EDEBDD;">
+                                                                    <i class="fa-solid fa-medal me-1"></i>2nd
+                                                                </span>
+                                                            }
+                                                            else if (rank == 3)
+                                                            {
+                                                                <span class="badge px-2 py-1 rounded-pill fw-bold" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99,0,0,0.2);">
+                                                                    <i class="fa-solid fa-award me-1"></i>3rd
+                                                                </span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-light text-dark border px-2 py-1 rounded-pill">
+                                                                    #@rank
+                                                                </span>
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                <div class="rounded-circle text-white fw-bold d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px; font-size: 0.85rem; background-color: #630000; color: #EDEBDD;">
+                                                                    @rep.Initials
+                                                                </div>
+                                                                <div>
+                                                                    <div class="fw-bold d-flex align-items-center gap-1.5" style="color: #1B1717;">
+                                                                        <span>@rep.RepName</span>
+                                                                        @if (isSelected)
+                                                                        {
+                                                                            <span class="badge rounded-pill px-2 py-0.5 fw-semibold" style="font-size: 0.7rem; background-color: #630000; color: #EDEBDD;">محدد</span>
+                                                                        }
+                                                                    </div>
+                                                                    <span class="text-muted small">@rep.Email</span>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td><span class="fw-semibold">@rep.OrdersCount orders</span></td>
+                                                        <td><span class="fw-bold font-monospace" style="color: #630000;">@rep.TotalRevenue.ToString("N2") EGP</span></td>
+                                                        <td style="min-width: 140px;">
+                                                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                                                <span>@rep.AttainmentPercentage.ToString("F1")%</span>
+                                                                <span class="fw-bold" style="color: #630000;">50,000 EGP</span>
+                                                            </div>
+                                                            <div class="progress rounded-pill" style="height: 6px; background-color: #e8e3d5;">
+                                                                <div class="progress-bar rounded-pill" style="background: linear-gradient(90deg, #630000, #810100); width: @rep.AttainmentPercentage%;"></div>
+                                                            </div>
+                                                        </td>
+                                                        <td><span class="fw-bold font-monospace text-success">@rep.Commission.ToString("N2") EGP</span></td>
+                                                        <td class="text-end pe-3">
+                                                            @if (isSelected)
+                                                            {
+                                                                <a asp-action="Index" 
+                                                                   asp-route-salesRepId="all" 
+                                                                   asp-route-dateRange="@Model.DateRange" 
+                                                                   asp-route-startDate="@(Model.StartDate?.ToString("yyyy-MM-dd"))" 
+                                                                   asp-route-endDate="@(Model.EndDate?.ToString("yyyy-MM-dd"))" 
+                                                                   class="btn btn-sm btn-primary rounded-pill px-3 py-1 shadow-xs" 
+                                                                   title="إلغاء الفلترة وعرض كافة الفريق">
+                                                                    <i class="fa-solid fa-circle-check me-1"></i> محدد (إلغاء)
+                                                                </a>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a asp-action="Index" 
+                                                                   asp-route-salesRepId="@rep.UserId" 
+                                                                   asp-route-dateRange="@Model.DateRange" 
+                                                                   asp-route-startDate="@(Model.StartDate?.ToString("yyyy-MM-dd"))" 
+                                                                   asp-route-endDate="@(Model.EndDate?.ToString("yyyy-MM-dd"))" 
+                                                                   class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" 
+                                                                   title="فلترة لوحة التحكم بالكامل لإحصائيات هذا المندوب">
+                                                                    <i class="fa-solid fa-filter me-1"></i> فلترة
+                                                                </a>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                    rank++;
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Visual Comparison Chart for Sales Reps -->
+                            <div class="col-12 col-xl-4">
+                                <div class="p-4 rounded-4 h-100 d-flex flex-column" style="background-color: #FAF9F5; border: 1px solid #e8e3d5;">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="fw-bold small" style="color: #1B1717;"><i class="fa-solid fa-chart-simple me-1" style="color: #630000;"></i> Revenue Contribution</span>
+                                        <span class="badge rounded-pill" style="background-color: #630000; color: #EDEBDD;">EGP Metrics</span>
+                                    </div>
+                                    <div style="height: 220px; position: relative;" class="my-auto">
+                                        <canvas id="salesRepsComparisonChart"></canvas>
+                                    </div>
+                                    <div class="border-top pt-3 mt-3 small text-muted d-flex justify-content-between" style="border-color: #e8e3d5 !important;">
+                                        <span>Total Revenue:</span>
+                                        <span class="fw-bold font-monospace" style="color: #630000; font-size: 1rem;">@Model.TotalSalesRevenue.ToString("N2") EGP</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================================================================== -->
+    <!-- TAB 3: E-COMMERCE INTELLIGENCE & TRAFFIC                              -->
+    <!-- ==================================================================== -->
+    <div class="tab-pane fade" id="tab-ecommerce" role="tabpanel" aria-labelledby="tab-ecommerce-btn">
+        
+        <!-- E-Commerce Live Intelligence: Website Visits & Abandoned Checkouts -->
+        <div class="row g-3 mb-4">
+            <!-- 1. Storefront Website Visits -->
+            <div class="col-12 col-md-6">
+                <div class="card border-0 shadow-sm p-4 rounded-4" style="border-left: 5px solid #0284c7 !important; background: #ffffff;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge px-3 py-1 rounded-pill fw-bold" style="background-color: #e0f2fe; color: #0369a1; border: 1px solid rgba(2,132,199,0.2);">
+                                    <i class="fa-solid fa-chart-line me-1"></i> حركة وزيارات المتجر (Storefront Traffic)
+                                </span>
+                                <span class="badge rounded-pill fw-semibold bg-light text-secondary border">
+                                    Live SQL Analytics
+                                </span>
+                            </div>
+                            <h3 class="fw-extrabold mt-2 mb-1 font-monospace text-dark">
+                                @Model.TotalWebsiteVisits.ToString("N0") <span class="fs-6 fw-normal text-muted">زيارة للعملاء</span>
+                            </h3>
+                            <div class="d-flex align-items-center gap-3 mt-1 small text-muted">
+                                <span><i class="fa-solid fa-calendar-day text-info me-1"></i> اليوم: <strong>+@Model.TodayWebsiteVisits.ToString("N0") زيارة</strong></span>
+                                <span><i class="fa-solid fa-users text-primary me-1"></i> زوار فريدون: <strong>@Model.UniqueVisitorsCount.ToString("N0")</strong></span>
+                            </div>
+                        </div>
+                        <div class="stat-icon info" style="background: rgba(2,132,199,0.1); color: #0284c7;">
+                            <i class="fa-solid fa-eye fs-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Abandoned Checkouts (Incomplete Orders) -->
+            <div class="col-12 col-md-6">
+                <a asp-controller="AbandonedCheckouts" asp-action="Index" class="text-decoration-none">
+                    <div class="card border-0 shadow-sm p-4 rounded-4 transition-hover" style="border-left: 5px solid #f59e0b !important; background: #ffffff;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge px-3 py-1 rounded-pill fw-bold" style="background-color: #fef3c7; color: #b45309; border: 1px solid rgba(245,158,11,0.3);">
+                                        <i class="fa-solid fa-cart-arrow-down me-1"></i> طلبات لم تكتمل (سلات متروكة)
+                                    </span>
+                                    @if (Model.AbandonedCheckoutsCount > 0)
+                                    {
+                                        <span class="badge rounded-pill fw-semibold" style="background-color: #810100; color: #EDEBDD;">
+                                            @Model.AbandonedCheckoutsCount معلق للاسترجاع
+                                        </span>
+                                    }
+                                </div>
+                                <h3 class="fw-extrabold mt-2 mb-1 font-monospace" style="color: #630000;">
+                                    @Model.AbandonedCheckoutsTotalValue.ToString("N2") <span class="fs-6 fw-normal text-muted">EGP مفقودة</span>
+                                </h3>
+                                <span class="text-muted small">
+                                    <strong>@Model.AbandonedCheckoutsCount</strong> عميل أدخل بياناته ولم يكمل الشراء &bull; <span class="text-primary fw-semibold">اضغط للتواصل واسترجاع الطلب &larr;</span>
+                                </span>
+                            </div>
+                            <div class="stat-icon warning" style="background: rgba(245,158,11,0.12); color: #d97706;">
+                                <i class="fa-solid fa-cart-arrow-down fs-3"></i>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Incomplete Orders & Abandoned Checkouts Table (Recovery Center) -->
+        <div class="card border-0 shadow-sm mb-4 rounded-4" style="border-left: 5px solid #f59e0b !important;">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom" style="border-color: #e8e3d5 !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-cart-arrow-down fs-5 text-warning"></i>
+                    <div>
+                        <h6 class="fw-extrabold mb-0" style="color: #1B1717;">الطلبات غير المكتملة والسلات المتروكة (Abandoned Checkouts)</h6>
+                        <span class="small text-muted">عملاء قاموا بملء بياناتهم في صفحة الدفع ولم ينفذوا الطلب — تواصل فوري عبر واتساب لاسترجاع البيعة</span>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a asp-controller="AbandonedCheckouts" asp-action="Index" class="btn btn-sm rounded-pill fw-semibold px-3 py-1.5" style="background-color: #fef3c7; color: #b45309; border: 1px solid rgba(245,158,11,0.3);">
+                        <i class="fa-solid fa-list me-1"></i> كافة السلات (@Model.AbandonedCheckoutsCount)
+                    </a>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>اسم العميل</th>
+                            <th>رقم الواتساب</th>
+                            <th>المنتجات المتروكة</th>
+                            <th>قيمة السلة</th>
+                            <th>المحافظة</th>
+                            <th>وقت ترك السلة</th>
+                            <th>الحالة</th>
+                            <th class="text-end pe-3">إجراء الاسترجاع</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.RecentAbandonedCheckouts.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    <i class="fa-solid fa-circle-check text-success me-1"></i> لا توجد سلات متروكة معلقة حالياً، جميع عمليات الدفع تمت بنجاح!
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var ab in Model.RecentAbandonedCheckouts)
+                            {
+                                var cleanPhone = ab.CustomerPhone.Replace("+", "").Replace(" ", "").Replace("-", "");
+                                var waPhone = cleanPhone.StartsWith("01") ? "20" + cleanPhone.Substring(1) : cleanPhone;
+                                
+                                var productsList = new List<string>();
+                                try
+                                {
+                                    using var doc = JsonDocument.Parse(ab.CartItemsJson);
+                                    foreach (var el in doc.RootElement.EnumerateArray())
+                                    {
+                                        var pName = el.GetProperty("ProductName").GetString() ?? "Fragrance";
+                                        var pQty = el.GetProperty("Quantity").GetInt32();
+                                        productsList.Add($"{pName} (×{pQty})");
+                                    }
+                                }
+                                catch
+                                {
+                                    productsList.Add($"{ab.ItemCount} منتجات");
+                                }
+
+                                var firstProductName = productsList.FirstOrDefault() ?? "عطور روڤين";
+                                var encodedWaMsg = Uri.EscapeDataString($"أهلاً بك أ/ {ab.CustomerName} في دار روڤين للعطور، لاحظنا أنك لم تتمكن من استكمال طلبك لـ ({firstProductName})، هل واجهتك أي مشكلة في إتمام الطلب؟ يسعدنا مساعدتك وتوفير كود خصم خاص لك!");
+
+                                <tr>
+                                    <td class="fw-bold text-dark">@ab.CustomerName</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-1.5">
+                                            <a href="tel:@ab.CustomerPhone" class="text-decoration-none small text-dark fw-semibold">
+                                                @ab.CustomerPhone
+                                            </a>
+                                            <a href="https://wa.me/@waPhone?text=@encodedWaMsg" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline-success rounded-circle p-1 d-inline-flex align-items-center justify-content-center" style="width: 22px; height: 22px;" title="مراسلة عبر واتساب">
+                                                <i class="fa-brands fa-whatsapp fs-7"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @foreach (var p in productsList.Take(2))
+                                        {
+                                            <div class="small text-dark fw-medium">
+                                                <i class="fa-solid fa-spray-can-sparkles text-muted me-1" style="font-size: 0.72rem;"></i>@p
+                                            </div>
+                                        }
+                                        @if (productsList.Count > 2)
+                                        {
+                                            <span class="badge bg-light text-muted border small mt-1">+@(productsList.Count - 2) إضافية</span>
+                                        }
+                                    </td>
+                                    <td class="fw-bold font-monospace" style="color: #630000;">
+                                        @ab.TotalAmount.ToString("N2") EGP
+                                    </td>
+                                    <td class="small text-muted">
+                                        @(string.IsNullOrWhiteSpace(ab.City) ? "—" : ab.City)
+                                    </td>
+                                    <td class="small text-muted">
+                                        @ab.LastUpdatedAt.ToEgyptTimeString("dd MMM, hh:mm tt")
+                                    </td>
+                                    <td>
+                                        @if (ab.IsRecovered)
+                                        {
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill">
+                                                تم الاسترجاع
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 rounded-pill">
+                                                معلق لم يكتمل
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-end pe-3">
+                                        <a href="https://wa.me/@waPhone?text=@encodedWaMsg" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-success rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1.5 shadow-xs" title="استرجاع الطلب عبر رسالة واتساب مباشرة">
+                                            <i class="fa-brands fa-whatsapp"></i>
+                                            <span style="font-size: 0.8rem;">استرجاع عبر واتساب</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Tab state persistence & URL Hash Handling
+            const hasSelectedRep = '@(Model.SelectedSalesRepDetails != null ? "true" : "false")' === 'true';
+            const savedTab = sessionStorage.getItem('roven_dashboard_active_tab');
+
+            if (hasSelectedRep) {
+                // If filtering by a sales rep, automatically activate sales team tab
+                const salesTabBtn = document.getElementById('tab-salesteam-btn');
+                if (salesTabBtn && typeof bootstrap !== 'undefined') {
+                    const tab = new bootstrap.Tab(salesTabBtn);
+                    tab.show();
+                }
+            } else if (savedTab) {
+                const btn = document.getElementById(savedTab);
+                if (btn && typeof bootstrap !== 'undefined') {
+                    const tab = new bootstrap.Tab(btn);
+                    tab.show();
+                }
+            }
+
+            // Save active tab on change & resize charts cleanly
+            const tabButtons = document.querySelectorAll('#dashboardTabs button[data-bs-toggle="pill"]');
+            tabButtons.forEach(btn => {
+                btn.addEventListener('shown.bs.tab', function (e) {
+                    sessionStorage.setItem('roven_dashboard_active_tab', e.target.id);
+                    setTimeout(() => {
+                        window.dispatchEvent(new Event('resize'));
+                    }, 80);
+                });
+            });
+
+            // Toggle Full View Mode vs Tabbed Mode
+            window.toggleDashboardFullView = function () {
+                const container = document.getElementById('dashboardTabContent');
+                const btnText = document.getElementById('toggleDashboardViewText');
+                const btnIcon = document.getElementById('toggleDashboardViewIcon');
+
+                if (container.classList.contains('show-all-tabs')) {
+                    container.classList.remove('show-all-tabs');
+                    btnText.textContent = 'عرض كافة الأقسام معاً';
+                    btnIcon.className = 'fa-solid fa-expand';
+                } else {
+                    container.classList.add('show-all-tabs');
+                    btnText.textContent = 'الرجوع للعرض المقسّم';
+                    btnIcon.className = 'fa-solid fa-compress';
+                    setTimeout(() => {
+                        window.dispatchEvent(new Event('resize'));
+                    }, 100);
+                }
+            };
+
+            // 1. Overall Sales Trend Chart (Maison ROVEN Burgundy & Crimson Palette)
+            const ctxSales = document.getElementById('salesOverviewChart');
+            if (ctxSales) {
+                const labels = @Html.Raw(chartLabelsJson);
+                const revenueData = @Html.Raw(chartRevenueJson);
+                const orderCountData = @Html.Raw(chartOrdersJson);
+
+                new Chart(ctxSales, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Daily Sales (EGP)',
+                                data: revenueData,
+                                borderColor: '#630000',
+                                backgroundColor: 'rgba(99, 0, 0, 0.08)',
+                                fill: true,
+                                tension: 0.35,
+                                borderWidth: 2.8,
+                                pointBackgroundColor: '#630000',
+                                pointBorderColor: '#EDEBDD',
+                                pointBorderWidth: 2,
+                                pointRadius: 4
+                            },
+                            {
+                                label: 'Flacon Orders',
+                                data: orderCountData,
+                                borderColor: '#810100',
+                                backgroundColor: 'transparent',
+                                borderDash: [5, 5],
+                                tension: 0.35,
+                                borderWidth: 2,
+                                pointBackgroundColor: '#810100',
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { callback: function(val) { return val.toLocaleString() + ' EGP'; } },
+                                grid: { color: 'rgba(232, 227, 213, 0.5)' }
+                            },
+                            y1: {
+                                beginAtZero: true,
+                                position: 'right',
+                                grid: { drawOnChartArea: false }
+                            },
+                            x: {
+                                grid: { color: 'rgba(232, 227, 213, 0.3)' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Sales Reps Contribution Bar Chart (ROVEN 4-Color Palette)
+            const ctxReps = document.getElementById('salesRepsComparisonChart');
+            if (ctxReps) {
+                const repLabels = @Html.Raw(repLabelsJson);
+                const repData = @Html.Raw(repRevenuesJson);
+
+                new Chart(ctxReps, {
+                    type: 'bar',
+                    data: {
+                        labels: repLabels,
+                        datasets: [{
+                            label: 'Revenue (EGP)',
+                            data: repData,
+                            backgroundColor: ['#630000', '#810100', '#1B1717', '#9e3232'],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(val) { return val.toLocaleString() + ' EGP'; }
+                                },
+                                grid: { color: 'rgba(232, 227, 213, 0.5)' }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

@@ -1,0 +1,202 @@
+@model Stockify.Models.Entities.Customer
+@using Stockify.Models.Enums
+@{
+    ViewData["Title"] = $"Customer Profile: {Model.FullName}";
+
+    var initials = "CU";
+    if (!string.IsNullOrWhiteSpace(Model.FullName))
+    {
+        var parts = Model.FullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        initials = parts.Length == 1 
+            ? (parts[0].Length >= 2 ? parts[0][..2].ToUpperInvariant() : parts[0].ToUpperInvariant())
+            : $"{char.ToUpperInvariant(parts[0][0])}{char.ToUpperInvariant(parts[1][0])}";
+    }
+
+    var validOrders = Model.Orders.Where(o => o.Status != OrderStatus.Cancelled).ToList();
+    var lifetimeSpend = validOrders.Sum(o => o.TotalAmount);
+    var averageOrderValue = validOrders.Any() ? lifetimeSpend / validOrders.Count : 0m;
+}
+
+<!-- Page Header -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Customer Profile</h3>
+        <p class="text-muted mb-0 small">Overview of contact credentials, purchase history, and commercial relationship.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Customers
+        </a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-light border d-flex align-items-center gap-2">
+            <i class="bi bi-pencil"></i>
+            <span>Edit Profile</span>
+        </a>
+        <a asp-controller="Orders" asp-action="Create" asp-route-customerId="@Model.Id" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+            <i class="bi bi-cart-plus-fill"></i>
+            <span>New Order for Customer</span>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Left Column: Customer Details Card -->
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm p-4 text-center h-100">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3 fw-bold shadow-sm" style="width: 72px; height: 72px; font-size: 1.6rem;">
+                @initials
+            </div>
+            <h5 class="fw-bold text-dark mb-1">@Model.FullName</h5>
+            <p class="text-muted small mb-2"><code>@Model.Email</code></p>
+
+            @if (lifetimeSpend > 5000m)
+            {
+                <div>
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1">
+                        <i class="bi bi-star-fill me-1"></i>VIP Customer
+                    </span>
+                </div>
+            }
+            else if (Model.Orders.Any())
+            {
+                <div>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">
+                        <i class="bi bi-check-circle-fill me-1"></i>Active Buyer
+                    </span>
+                </div>
+            }
+            else
+            {
+                <div>
+                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-1">
+                        <i class="bi bi-clock me-1"></i>Prospect (0 Orders)
+                    </span>
+                </div>
+            }
+
+            <hr class="my-4" />
+
+            <div class="text-start small">
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted"><i class="bi bi-telephone me-2"></i>Phone:</span>
+                    <span class="text-dark fw-semibold">
+                        @(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not specified" : Model.PhoneNumber)
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom">
+                    <span class="text-muted"><i class="bi bi-geo-alt me-2"></i>Address:</span>
+                    <span class="text-dark fw-semibold text-end" style="max-width: 60%;">
+                        @(string.IsNullOrWhiteSpace(Model.Address) ? "No address recorded" : Model.Address)
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between py-2">
+                    <span class="text-muted"><i class="bi bi-calendar3 me-2"></i>Registered:</span>
+                    <span class="text-dark fw-semibold">@Model.CreatedAt.ToEgyptTimeString("dd MMM yyyy")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Metrics & Orders History -->
+    <div class="col-12 col-lg-8">
+        <!-- Summary Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-4">
+                <div class="card border-0 shadow-sm p-3 h-100">
+                    <span class="text-muted small fw-medium">Total Orders</span>
+                    <h3 class="fw-bold text-dark mt-1 mb-0">@Model.Orders.Count</h3>
+                </div>
+            </div>
+            <div class="col-12 col-sm-4">
+                <div class="card border-0 shadow-sm p-3 h-100">
+                    <span class="text-muted small fw-medium">Lifetime Spend</span>
+                    <h3 class="fw-bold text-success mt-1 mb-0">@lifetimeSpend.ToString("N2") EGP</h3>
+                </div>
+            </div>
+            <div class="col-12 col-sm-4">
+                <div class="card border-0 shadow-sm p-3 h-100">
+                    <span class="text-muted small fw-medium">Average Order</span>
+                    <h3 class="fw-bold text-primary mt-1 mb-0">@averageOrderValue.ToString("N2") EGP</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Table Card -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-dark"><i class="bi bi-bag-check me-2 text-primary"></i>Customer Order History</span>
+                <span class="badge bg-light text-muted border">@Model.Orders.Count Records</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order #</th>
+                            <th>Order Date</th>
+                            <th>Items</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Orders.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox fs-2 text-secondary opacity-50 mb-2 d-block"></i>
+                                    <span>This customer has not placed any orders yet.</span>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var order in Model.Orders.OrderByDescending(o => o.OrderDate))
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold text-primary font-monospace">@order.OrderNumber</span>
+                                    </td>
+                                    <td class="text-muted small">
+                                        @order.OrderDate.ToEgyptTimeString("dd MMM yyyy, hh:mm tt")
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            @order.OrderItems.Count line(s)
+                                        </span>
+                                    </td>
+                                    <td class="fw-bold text-dark">
+                                        @order.TotalAmount.ToString("N2") EGP
+                                    </td>
+                                    <td>
+                                        @switch (order.Status)
+                                        {
+                                            case OrderStatus.Completed:
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                                    <i class="bi bi-check2-all me-1"></i>Completed
+                                                </span>
+                                                break;
+                                            case OrderStatus.Processing:
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                                    <i class="bi bi-arrow-repeat me-1"></i>Processing
+                                                </span>
+                                                break;
+                                            case OrderStatus.Cancelled:
+                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                                    <i class="bi bi-x-circle me-1"></i>Cancelled
+                                                </span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                                                    <i class="bi bi-clock-history me-1"></i>Pending
+                                                </span>
+                                                break;
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="rovenShieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#810100" />
+      <stop offset="60%" stop-color="#630000" />
+      <stop offset="100%" stop-color="#3b0000" />
+    </linearGradient>
+    <filter id="monogramDropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-color="#000000" flood-opacity="0.55" />
+    </filter>
+  </defs>
+
+  <!-- Luxury Rounded Flacon Shield Base -->
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#rovenShieldGrad)" stroke="#EDEBDD" stroke-opacity="0.75" stroke-width="1.8" />
+  
+  <!-- Subtle Inner Hairline Accent -->
+  <rect x="5.5" y="5.5" width="53" height="53" rx="11" fill="none" stroke="#810100" stroke-width="1" stroke-opacity="0.6" />
+
+  <!-- Regal Maison ROVEN Monogram "R" -->
+  <text x="32" y="45.5" 
+        font-family="'Playfair Display', 'Bodoni MT', 'Didot', 'Georgia', 'Times New Roman', serif" 
+        font-size="36" 
+        font-weight="700" 
+        font-style="italic" 
+        text-anchor="middle" 
+        fill="#EDEBDD" 
+        filter="url(#monogramDropShadow)">R</text>
+</svg>

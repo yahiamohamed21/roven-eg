@@ -1,0 +1,1989 @@
+@using Microsoft.AspNetCore.Identity
+@using Stockify.Models.Entities
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject Stockify.Data.ApplicationDbContext DbContext
+
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var siteSetting = DbContext.HomeSettings.FirstOrDefault() ?? new Stockify.Models.Entities.HomeSetting();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    @{
+        var rawTitle = ViewData["Title"]?.ToString() ?? "";
+        var tabTitle = string.IsNullOrWhiteSpace(rawTitle) || rawTitle == "Storefront" || rawTitle.Equals("ROVEN", StringComparison.OrdinalIgnoreCase)
+            ? "ROVEN Haute Parfumerie"
+            : (rawTitle.Contains("ROVEN") ? rawTitle : $"{rawTitle} | ROVEN");
+    }
+    <title>@tabTitle</title>
+    
+    <!-- ============================================================== -->
+    <!-- Brand Domination SEO & Metadata (ROVEN Haute Parfumerie)         -->
+    <!-- ============================================================== -->
+    <meta name="description" content="@(ViewData["MetaDescription"] ?? "الموقع الرسمي لدار روڤين / روفين للعطور الفاخرة — Official Maison ROVEN Haute Parfumerie. تسوق أرقى عطور النيش والـ Extraits de Parfum بتركيز 30% مع ثبات وفوحان يدوم 24 ساعة. شحن وتوصيل فوري لجميع محافظات مصر مع المعاينة قبل الاستلام والدفع عند الاستلام.")" />
+    <meta name="keywords" content="ROVEN, roven, Maison ROVEN, roven perfumes, roven perfume, roven egypt, roven fragrance, عطور roven, براند roven, ماركة roven, روڤين, روفين, روفن, روڤن, روفيين, روبن, عطور روڤين, عطور روفين, براند روڤين, براند روفين, ماركة روفين, ميزون روڤين, ميزون روفين, عطور روبن, موقع روفين, متجر روڤين, rovin, rowen, rovan, rouven, rovn, roveen, rovyn, rofen, haute parfumerie, extrait de parfum, luxury perfume egypt, niche perfumes egypt, عطور نيش مصر, تركيبات عطور فاخرة, عطور ثبات عالي, عود هندي, عنبر, مسك, شراء عطور اونلاين مصر, دفع عند الاستلام مع المعاينة" />
+    <meta name="author" content="Maison ROVEN" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="theme-color" content="#630000" />
+    
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:site_name" content="Maison ROVEN (روڤين / روفين)" />
+    <meta property="og:type" content="@(ViewData["OgType"] ?? "website")" />
+    <meta property="og:title" content="@(ViewData["Title"]?.ToString()?.Contains("ROVEN") == true ? ViewData["Title"] : $"{ViewData["Title"]} | ROVEN Haute Parfumerie")" />
+    <meta property="og:description" content="@(ViewData["MetaDescription"] ?? "Official Maison ROVEN Haute Parfumerie. Handcrafted luxury Extraits de Parfum, royal oud, and eternal sillage with Cash on Delivery in Egypt. دار روڤين للعطور.")" />
+    <meta property="og:image" content="@(ViewData["OgImage"] ?? $"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")" />
+    <meta property="og:url" content="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
+    <meta property="og:locale" content="ar_EG" />
+    <meta property="og:locale:alternate" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@(ViewData["Title"]?.ToString()?.Contains("ROVEN") == true ? ViewData["Title"] : $"{ViewData["Title"]} | ROVEN Haute Parfumerie")" />
+    <meta name="twitter:description" content="@(ViewData["MetaDescription"] ?? "Official Maison ROVEN Haute Parfumerie. Handcrafted luxury Extraits de Parfum with Cash on Delivery across Egypt.")" />
+    <meta name="twitter:image" content="@(ViewData["OgImage"] ?? $"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
+    
+    <!-- Favicon & Touch Icons (Crisp 1:1 ROVEN Monogram) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=roven3" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png?v=roven3" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/images/favicon-64.png?v=roven3" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=roven3" />
+    <link rel="shortcut icon" href="/favicon.ico?v=roven3" />
+
+    <!-- Global JSON-LD Structured Data (Google Brand Knowledge Graph & Sitelinks Search) -->
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@graph": [
+        {
+          "@@type": "Brand",
+          "@@id": "@($"{Context.Request.Scheme}://{Context.Request.Host}/#brand")",
+          "name": "ROVEN",
+          "alternateName": [
+            "Maison ROVEN",
+            "ROVEN Haute Parfumerie",
+            "ROVEN Perfumes",
+            "ROVEN Fragrance",
+            "ROVEN Egypt",
+            "روڤين",
+            "روفين",
+            "روفيين",
+            "روفن",
+            "روڤن",
+            "روبن",
+            "روفيان",
+            "عطور روڤين",
+            "عطور روفين",
+            "براند روڤين",
+            "براند روفين",
+            "ماركة روفين",
+            "ماركة روڤين",
+            "ميزون روڤين",
+            "ميزون روفين",
+            "عطور روبن",
+            "متجر روفين",
+            "موقع روفين",
+            "Rovin",
+            "Rovyn",
+            "Rowen",
+            "Rovan",
+            "Rouven",
+            "Rovn",
+            "Rofen",
+            "Roveen",
+            "Rovenn"
+          ],
+          "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/")",
+          "logo": "@($"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")",
+          "image": "@($"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")",
+          "description": "Maison ROVEN (روڤين / روفين) is an official luxury Haute Parfumerie brand specializing in handcrafted Extraits de Parfum, pure oils, royal oud, and signature long-lasting scents in Egypt.",
+          "slogan": "The Art of Eternal Sillage & Rare Extracts"
+        },
+        {
+          "@@type": ["Organization", "OnlineStore"],
+          "@@id": "@($"{Context.Request.Scheme}://{Context.Request.Host}/#organization")",
+          "name": "ROVEN Haute Parfumerie",
+          "alternateName": [
+            "Maison ROVEN",
+            "روڤين",
+            "روفين",
+            "عطور روڤين",
+            "عطور روفين",
+            "براند روفين",
+            "براند روڤين",
+            "Rovin",
+            "Rowen",
+            "Rovn"
+          ],
+          "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/")",
+          "logo": "@($"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")",
+          "brand": { "@@id": "@($"{Context.Request.Scheme}://{Context.Request.Host}/#brand")" },
+          "priceRange": "$$",
+          "currenciesAccepted": "EGP",
+          "paymentAccepted": ["Cash on Delivery", "COD", "Cash"],
+          "address": {
+            "@@type": "PostalAddress",
+            "streetAddress": "@(!string.IsNullOrWhiteSpace(siteSetting.AtelierAddress) ? siteSetting.AtelierAddress : "Zamalek & New Cairo Salons")",
+            "addressLocality": "Cairo",
+            "addressRegion": "Cairo & Giza",
+            "addressCountry": "EG"
+          },
+          "contactPoint": {
+            "@@type": "ContactPoint",
+            "telephone": "@(!string.IsNullOrWhiteSpace(siteSetting.ContactPhone) ? siteSetting.ContactPhone : "+20 (02) 19888")",
+            "email": "@(!string.IsNullOrWhiteSpace(siteSetting.ContactEmail) ? siteSetting.ContactEmail : "concierge@roven.local")",
+            "contactType": "Customer Concierge",
+            "areaServed": "EG",
+            "availableLanguage": ["Arabic", "English"]
+          }
+        },
+        {
+          "@@type": "WebSite",
+          "@@id": "@($"{Context.Request.Scheme}://{Context.Request.Host}/#website")",
+          "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/")",
+          "name": "ROVEN Official Store",
+          "alternateName": [
+            "Maison ROVEN Store",
+            "متجر روڤين الرسمي",
+            "موقع روفين للعطور",
+            "روڤين مصر",
+            "روفين مصر"
+          ],
+          "publisher": { "@@id": "@($"{Context.Request.Scheme}://{Context.Request.Host}/#organization")" },
+          "potentialAction": {
+            "@@type": "SearchAction",
+            "target": "@($"{Context.Request.Scheme}://{Context.Request.Host}/Store?search={{search_term_string}}")",
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+    </script>
+
+    @await RenderSectionAsync("SeoStructuredData", required: false)
+    
+    <!-- Google Fonts: Haute Parfumerie Typography (Playfair Display & Plus Jakarta Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Local FontAwesome 6 & Bootstrap Icons (Guaranteed Offline / TE Data Protection) -->
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" asp-append-version="true" />
+    <!-- CDN Fallbacks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <!-- Custom Theme CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <style>
+        :root {
+            /* User Brand Color Palette */
+            --roven-burgundy: #630000;
+            --roven-crimson: #810100;
+            --roven-charcoal: #1B1717;
+            --roven-cream: #EDEBDD;
+
+            --store-primary: #630000;
+            --store-primary-hover: #810100;
+            --store-accent: #810100;
+            --store-dark: #1B1717;
+            --store-cream: #EDEBDD;
+            --store-bg: #FAF9F5;
+        }
+
+        html {
+            overflow-x: clip;
+            width: 100% !important;
+            max-width: 100% !important;
+            -webkit-text-size-adjust: 100%;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: none;
+        }
+
+        body {
+            background-color: var(--store-bg);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: #1B1717;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: clip;
+            width: 100% !important;
+            max-width: 100% !important;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: none;
+        }
+
+        main {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: clip;
+        }
+
+        .store-topbar,
+        .store-navbar,
+        .store-footer {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: clip;
+        }
+
+        .store-topbar {
+            background: #1B1717;
+            color: #EDEBDD;
+            font-size: 0.8rem;
+            padding: 7px 0;
+            border-bottom: 1px solid rgba(237, 235, 221, 0.12);
+        }
+
+        .store-topbar a {
+            color: #EDEBDD !important;
+            transition: color 0.15s;
+        }
+
+        .store-topbar a:hover {
+            color: #EDEBDD !important;
+            text-decoration: underline !important;
+        }
+
+        .store-navbar {
+            background: #EDEBDD;
+            border-bottom: 2px solid #630000;
+            box-shadow: 0 4px 18px rgba(27, 23, 23, 0.08);
+            padding: 0.85rem 0;
+            position: -webkit-sticky !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1030 !important;
+            transition: box-shadow 0.25s ease, background-color 0.25s ease;
+        }
+
+        .store-navbar.navbar-scrolled {
+            box-shadow: 0 6px 25px rgba(27, 23, 23, 0.16) !important;
+            background-color: rgba(237, 235, 221, 0.98) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+        }
+
+        @@media (max-width: 991.98px) {
+            .store-navbar {
+                padding: 0.55rem 0 0.45rem 0;
+            }
+        }
+
+        .store-brand {
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            outline: none !important;
+        }
+
+        /* Pure, Static, Royalty Logo (Zero Hover Effect & Transparent Blend) */
+        .roven-nav-logo {
+            height: 44px;
+            max-width: 185px;
+            object-fit: contain;
+            display: block;
+            background: transparent !important;
+            transform: none !important;
+            filter: none !important;
+            transition: none !important;
+        }
+
+        @@media (max-width: 576px) {
+            .roven-nav-logo {
+                height: 32px;
+                max-width: 130px;
+            }
+        }
+
+        /* Completely disable hover/focus transforms on brand logo as requested */
+        .store-brand:hover,
+        .store-brand:focus,
+        .store-brand:active,
+        .store-brand:hover .roven-nav-logo,
+        .store-brand:focus .roven-nav-logo,
+        .store-brand:active .roven-nav-logo {
+            transform: none !important;
+            filter: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            opacity: 1 !important;
+        }
+
+        /* Unified Luxury Search Box (Seamless Floating Pill) */
+        .store-search-box {
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            border: 1.5px solid rgba(99, 0, 0, 0.22);
+            border-radius: 50px;
+            padding: 3px 4px 3px 14px;
+            box-shadow: 0 2px 8px rgba(27, 23, 23, 0.04);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            height: 42px;
+            width: 100%;
+        }
+
+        .store-search-box:focus-within {
+            border-color: #630000;
+            box-shadow: 0 3px 12px rgba(99, 0, 0, 0.16);
+        }
+
+        .search-leading-icon {
+            color: #810100;
+            font-size: 0.88rem;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .store-search-input {
+            border: none !important;
+            background: transparent !important;
+            padding: 0 6px !important;
+            font-size: 0.88rem !important;
+            color: #1B1717 !important;
+            box-shadow: none !important;
+            flex-grow: 1;
+            outline: none !important;
+        }
+
+        .store-search-input::placeholder {
+            color: #8a8275;
+            font-size: 0.84rem;
+        }
+
+        .btn-search-submit {
+            background: linear-gradient(135deg, #630000 0%, #810100 100%) !important;
+            color: #EDEBDD !important;
+            border: none !important;
+            border-radius: 50px !important;
+            font-size: 0.82rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.3px;
+            padding: 0.38rem 1rem !important;
+            height: 34px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.2s ease !important;
+            flex-shrink: 0;
+        }
+
+        .btn-search-submit:hover {
+            background: #810100 !important;
+            color: #ffffff !important;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(129, 1, 0, 0.3);
+        }
+
+        /* Mobile Utility Buttons (Hamburger & Track) */
+        .btn-mobile-menu {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background-color: #FAF9F5;
+            border: 1px solid rgba(99, 0, 0, 0.2);
+            color: #630000;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            padding: 0;
+        }
+
+        .btn-mobile-menu:hover,
+        .btn-mobile-menu:focus {
+            background-color: #630000;
+            color: #EDEBDD;
+            border-color: #630000;
+        }
+
+        .btn-mobile-track {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #FAF9F5;
+            border: 1px solid rgba(99, 0, 0, 0.2);
+            color: #630000;
+            font-size: 0.88rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .btn-mobile-track:hover {
+            background-color: #630000;
+            color: #EDEBDD;
+            border-color: #630000;
+        }
+
+        /* Mobile Quick Category Horizontal Strip */
+        .mobile-cat-strip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-x: contain;
+            white-space: nowrap;
+            padding: 6px 2px 4px 2px;
+            margin-top: 4px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .mobile-cat-strip::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mobile-cat-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0.28rem 0.72rem;
+            border-radius: 50px;
+            background-color: #FAF9F5;
+            border: 1px solid rgba(99, 0, 0, 0.16);
+            color: #1B1717;
+            font-size: 0.74rem;
+            font-weight: 600;
+            text-decoration: none;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-cat-pill:hover,
+        .mobile-cat-pill.active {
+            background-color: #630000;
+            color: #EDEBDD;
+            border-color: #630000;
+            box-shadow: 0 2px 5px rgba(99, 0, 0, 0.18);
+        }
+
+        .mobile-cat-pill i {
+            font-size: 0.68rem;
+        }
+
+        /* Luxury Mobile Offcanvas Drawer */
+        .roven-mobile-drawer {
+            width: 310px !important;
+            max-width: 85vw !important;
+            background-color: #FAF9F5;
+            border-right: 2px solid #630000;
+        }
+
+        .roven-mobile-drawer .offcanvas-header {
+            background-color: #1B1717;
+            color: #EDEBDD;
+            padding: 1rem 1.25rem;
+            border-bottom: 2px solid #630000;
+        }
+
+        .drawer-monogram-shield {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #810100 0%, #630000 100%);
+            border: 1px solid rgba(237, 235, 221, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #EDEBDD;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+            font-style: italic;
+            font-size: 1.25rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .drawer-brand-name {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            font-size: 1.15rem;
+            color: #EDEBDD;
+            line-height: 1;
+        }
+
+        .drawer-brand-subtitle {
+            font-size: 0.62rem;
+            letter-spacing: 1.2px;
+            color: #d5d0bf;
+            font-weight: 600;
+        }
+
+        .drawer-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            text-decoration: none;
+            color: #1B1717;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .drawer-nav-item:hover,
+        .drawer-nav-item.active {
+            background-color: #EDEBDD;
+            color: #630000;
+            border-left-color: #630000;
+        }
+
+        .drawer-item-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(99, 0, 0, 0.06);
+            color: #630000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .drawer-nav-item:hover .drawer-item-icon,
+        .drawer-nav-item.active .drawer-item-icon {
+            background-color: #630000;
+            color: #EDEBDD;
+        }
+
+        .drawer-item-arrow {
+            margin-left: auto;
+            font-size: 0.72rem;
+            color: #b0aaa0;
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .drawer-nav-item:hover .drawer-item-arrow {
+            transform: translateX(3px);
+            color: #630000;
+        }
+
+        .store-nav-link {
+            font-weight: 600;
+            color: #1B1717;
+            padding: 0.35rem 0.65rem;
+            text-decoration: none;
+            border-radius: 50px;
+            white-space: nowrap !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.84rem;
+            letter-spacing: 0.2px;
+            transition: all 0.2s ease-in-out;
+            flex-shrink: 0;
+        }
+
+        .store-nav-link:hover, .store-nav-link.active {
+            color: #630000;
+            background-color: rgba(99, 0, 0, 0.08);
+            box-shadow: 0 2px 6px rgba(99, 0, 0, 0.06);
+        }
+
+        /* Royal Roven Wine Button (Global Consistency Across All Views) */
+        .btn-roven-wine {
+            background: linear-gradient(135deg, #630000 0%, #810100 100%) !important;
+            border: 1px solid #810100 !important;
+            color: #EDEBDD !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 4px 12px rgba(99, 0, 0, 0.18);
+        }
+
+        .btn-roven-wine:hover,
+        .btn-roven-wine:focus {
+            background: #810100 !important;
+            border-color: #630000 !important;
+            color: #ffffff !important;
+            transform: translateY(-1.5px);
+            box-shadow: 0 6px 18px rgba(129, 1, 0, 0.35);
+        }
+
+        .btn-roven-wine i {
+            color: #EDEBDD !important;
+        }
+
+        .btn-roven-wine:hover i {
+            color: #ffffff !important;
+        }
+
+        .store-cart-btn {
+            position: relative;
+            background: linear-gradient(135deg, #630000 0%, #810100 100%);
+            color: #EDEBDD;
+            border: 1px solid #810100;
+            border-radius: 50px;
+            padding: 0.42rem 1.05rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 3px 10px rgba(99, 0, 0, 0.25);
+            flex-shrink: 0;
+        }
+
+        .store-cart-btn:hover {
+            background: #810100;
+            color: #ffffff;
+            border-color: #810100;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(129, 1, 0, 0.35);
+        }
+
+        .store-cart-badge {
+            background-color: #EDEBDD;
+            color: #630000;
+            font-size: 0.75rem;
+            border-radius: 50px;
+            padding: 0.18rem 0.55rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        @@media (max-width: 576px) {
+            .store-cart-btn {
+                padding: 0.36rem 0.85rem;
+                font-size: 0.84rem;
+            }
+            .store-cart-badge {
+                font-size: 0.72rem;
+                padding: 0.15rem 0.45rem;
+            }
+        }
+
+        .product-card {
+            background: #ffffff;
+            border: 1px solid #e8e3d5;
+            border-radius: 14px;
+            overflow: hidden;
+            transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 28px rgba(27, 23, 23, 0.09);
+            border-color: #630000;
+        }
+
+        .product-card[data-details-url] {
+            cursor: pointer;
+        }
+
+        /* Luxury Brand Breadcrumb (Maison ROVEN Pill) */
+        .roven-breadcrumb-nav {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 0.45rem 1rem;
+            background-color: #ffffff;
+            border: 1px solid #e8e3d5;
+            border-radius: 50px;
+            box-shadow: 0 2px 8px rgba(27, 23, 23, 0.03);
+            font-size: 0.8rem;
+            max-width: 100%;
+            margin-bottom: 1.25rem;
+        }
+
+        .roven-breadcrumb-nav a {
+            color: #630000;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .roven-breadcrumb-nav a:hover {
+            color: #810100;
+            text-decoration: underline;
+        }
+
+        .roven-breadcrumb-nav .breadcrumb-sep {
+            color: #b0aaa0;
+            font-size: 0.65rem;
+            margin: 0 2px;
+        }
+
+        .roven-breadcrumb-nav .breadcrumb-current {
+            color: #1B1717;
+            font-weight: 700;
+        }
+
+        /* Product Image Shimmer / Lazy Skeleton */
+        .product-image-container {
+            height: 220px;
+            background-color: #f7f4ed;
+            background-image: linear-gradient(90deg, #f7f4ed 0%, #ebe5d8 50%, #f7f4ed 100%);
+            background-size: 200% 100%;
+            animation: rovenImgShimmer 1.8s infinite ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @@keyframes rovenImgShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .product-image-container img {
+            max-height: 100%;
+            max-width: 100%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.35s ease-in-out, transform 0.4s ease;
+            opacity: 0;
+        }
+
+        .product-image-container img.loaded {
+            opacity: 1;
+        }
+
+        .product-card:hover .product-image-container img {
+            transform: scale(1.05);
+        }
+
+        .store-footer {
+            background-color: #1B1717;
+            color: #EDEBDD;
+            margin-top: auto;
+            padding-top: 3.5rem;
+            padding-bottom: 2rem;
+            border-top: 3px solid #630000;
+        }
+
+        .store-footer a {
+            color: #EDEBDD;
+            opacity: 0.85;
+            text-decoration: none;
+            transition: opacity 0.15s, color 0.15s;
+        }
+
+        .store-footer a:hover {
+            color: #EDEBDD;
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .category-pill {
+            display: inline-block;
+            background: #ffffff;
+            border: 1px solid #e8e3d5;
+            border-radius: 50px;
+            padding: 0.5rem 1.25rem;
+            color: #1B1717;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+
+        .category-pill:hover, .category-pill.active {
+            background-color: #630000;
+            color: #EDEBDD;
+            border-color: #630000;
+        }
+
+        /* Generic Brand Overrides */
+        .btn-roven-primary {
+            background-color: #630000;
+            border-color: #630000;
+            color: #EDEBDD;
+        }
+        .btn-roven-primary:hover {
+            background-color: #810100;
+            border-color: #810100;
+            color: #EDEBDD;
+        }
+        .btn-roven-outline {
+            border: 1px solid #630000;
+            color: #630000;
+            background-color: transparent;
+        }
+        .btn-roven-outline:hover {
+            background-color: #630000;
+            border-color: #630000;
+            color: #EDEBDD;
+        }
+
+        /* -------------------------------------------------------------
+           MAISON ROVEN — HAUTE PARFUMERIE LUXURY PRELOADER
+           ------------------------------------------------------------- */
+        #roven-preloader {
+            position: fixed;
+            inset: 0;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 100% !important;
+            z-index: 9999999;
+            background-color: #1B1717;
+            background: radial-gradient(circle at 50% 45%, rgba(129, 1, 0, 0.45) 0%, rgba(99, 0, 0, 0.22) 32%, rgba(27, 23, 23, 0.98) 72%),
+                        linear-gradient(135deg, #150f0f 0%, #240505 50%, #150f0f 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden !important;
+            transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #roven-preloader.preloader-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .preloader-content {
+            text-align: center;
+            color: #EDEBDD;
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+            max-width: 440px;
+            transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.65s ease;
+        }
+
+        #roven-preloader.preloader-hidden .preloader-content {
+            transform: scale(1.05) translateY(-8px);
+            opacity: 0;
+        }
+
+        /* Luxury Monogram Emblem */
+        .preloader-emblem-wrap {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preloader-gold-orbit {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 1px dashed rgba(232, 198, 136, 0.4);
+            animation: preloader-spin 20s linear infinite;
+        }
+
+        .preloader-gold-ring {
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(237, 235, 221, 0.25);
+            box-shadow: 0 0 25px rgba(129, 1, 0, 0.45);
+        }
+
+        .preloader-shield {
+            position: relative;
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #810100 0%, #630000 60%, #360000 100%);
+            border: 1.5px solid rgba(232, 198, 136, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), inset 0 0 15px rgba(232, 198, 136, 0.25);
+            animation: preloader-pulse 2.5s ease-in-out infinite;
+        }
+
+        .preloader-monogram-letter {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: #EDEBDD;
+            line-height: 1;
+            transform: translateY(-2px);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Brand Wordmark */
+        .preloader-brand-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 2.3rem;
+            font-weight: 700;
+            letter-spacing: 12px;
+            color: #EDEBDD;
+            margin-bottom: 0.35rem;
+            text-transform: uppercase;
+            text-shadow: 0 4px 20px rgba(129, 1, 0, 0.65);
+        }
+
+        .preloader-brand-subtitle {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 4px;
+            color: #EDEBDD;
+            opacity: 0.8;
+            text-transform: uppercase;
+            margin-bottom: 1.75rem;
+        }
+
+        /* Micro Luxury Progress Line */
+        .preloader-track {
+            width: 230px;
+            height: 2.5px;
+            background: rgba(237, 235, 221, 0.15);
+            border-radius: 4px;
+            margin: 0 auto 0.75rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .preloader-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #630000 0%, #810100 50%, #e8c688 100%);
+            box-shadow: 0 0 12px rgba(232, 198, 136, 0.9);
+            transition: width 0.15s ease-out;
+            border-radius: 4px;
+        }
+
+        /* Evocative Phrase & Percentage */
+        .preloader-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 230px;
+            margin: 0 auto;
+            font-size: 0.72rem;
+            color: #EDEBDD;
+            opacity: 0.75;
+        }
+
+        .preloader-phrase {
+            font-style: italic;
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 0.5px;
+            transition: opacity 0.25s ease;
+        }
+
+        .preloader-percent {
+            font-family: monospace;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* Shimmer Ambient Glow in Background */
+        .preloader-glow-orb {
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(129, 1, 0, 0.32) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: preloader-breathe 4s ease-in-out infinite alternate;
+        }
+
+        /* Keyframes Animations */
+        @@keyframes preloader-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @@keyframes preloader-pulse {
+            0%, 100% {
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), inset 0 0 15px rgba(232, 198, 136, 0.25);
+            }
+            50% {
+                box-shadow: 0 15px 40px rgba(129, 1, 0, 0.65), inset 0 0 25px rgba(232, 198, 136, 0.45);
+            }
+        }
+
+        @@keyframes preloader-breathe {
+            0% {
+                transform: translate(-50%, -50%) scale(0.9);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.15);
+                opacity: 0.95;
+            }
+        }
+
+        /* -------------------------------------------------------------
+           MAISON ROVEN — HAUTE PARFUMERIE VIP LEAD & WELCOME MODAL
+           ------------------------------------------------------------- */
+        .roven-lead-backdrop {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999998;
+            background: rgba(18, 14, 14, 0.84);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.45s ease;
+        }
+
+        .roven-lead-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .roven-lead-modal {
+            background: #181414;
+            border: 1px solid rgba(232, 198, 136, 0.35);
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 390px;
+            color: #EDEBDD;
+            position: relative;
+            padding: 2.2rem 1.8rem 1.6rem;
+            text-align: center;
+            transform: scale(0.94) translateY(12px);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+            overflow: hidden;
+        }
+
+        .roven-lead-backdrop.active .roven-lead-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .roven-lead-close {
+            position: absolute;
+            top: 14px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #c9c4b8;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 5;
+        }
+
+        .roven-lead-close:hover {
+            background: #810100;
+            color: #ffffff;
+            border-color: #810100;
+        }
+
+        .roven-lead-wa-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(37, 211, 102, 0.12);
+            color: #25D366;
+            font-size: 1.5rem;
+            border: 1px solid rgba(37, 211, 102, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.85rem;
+        }
+
+        .roven-lead-input-group {
+            position: relative;
+            margin-bottom: 0.85rem;
+        }
+
+        .roven-lead-input-group i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #25D366;
+            font-size: 1.2rem;
+        }
+
+        .roven-lead-input {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            border-radius: 12px !important;
+            padding: 0.7rem 1rem 0.7rem 2.7rem !important;
+            font-size: 0.95rem !important;
+            color: #EDEBDD !important;
+            font-weight: 500;
+            text-align: center;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .roven-lead-input::placeholder {
+            color: rgba(237, 235, 221, 0.45) !important;
+            font-weight: 400;
+        }
+
+        .roven-lead-input:focus {
+            background: rgba(255, 255, 255, 0.09) !important;
+            border-color: rgba(232, 198, 136, 0.6) !important;
+            box-shadow: 0 0 0 3px rgba(232, 198, 136, 0.15) !important;
+            outline: none;
+        }
+    </style>
+    
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <!-- ============================================================== -->
+    <!-- MAISON ROVEN — HAUTE PARFUMERIE LUXURY PRELOADER               -->
+    <!-- ============================================================== -->
+    <div id="roven-preloader" aria-hidden="false">
+        <div class="preloader-glow-orb"></div>
+        <div class="preloader-content">
+            <!-- Luxury Monogram Emblem -->
+            <div class="preloader-emblem-wrap">
+                <div class="preloader-gold-orbit"></div>
+                <div class="preloader-gold-ring"></div>
+                <div class="preloader-shield">
+                    <span class="preloader-monogram-letter">R</span>
+                </div>
+            </div>
+
+            <!-- Brand Wordmark & Subtitle -->
+            <h2 class="preloader-brand-title">ROVEN</h2>
+            <div class="preloader-brand-subtitle">HAUTE PARFUMERIE &bull; PARIS &bull; CAIRO</div>
+
+            <!-- Ultra-Fine Luxury Progress Meter -->
+            <div class="preloader-track">
+                <div class="preloader-bar" id="roven-preloader-bar"></div>
+            </div>
+
+            <!-- Status Phrase & Percentage Counter -->
+            <div class="preloader-footer">
+                <span class="preloader-phrase" id="roven-preloader-phrase">L'Art du Parfum...</span>
+                <span class="preloader-percent" id="roven-preloader-percent">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Announcement Bar -->
+    @if (siteSetting.AnnouncementActive)
+    {
+        <div class="store-topbar">
+            <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="d-inline-flex align-items-center gap-2">
+                        <i class="fa-solid fa-spray-can-sparkles" style="color: #810100;"></i>
+                        <span>@siteSetting.AnnouncementText</span>
+                    </span>
+                    <span class="opacity-50 d-none d-md-inline">|</span>
+                    <span class="d-none d-md-inline">
+                        <i class="fa-solid fa-shield-halved me-1" style="color: #810100;"></i>
+                        <span>Cash on Delivery Available</span>
+                    </span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a asp-controller="OrderTracking" asp-action="Index" class="text-decoration-none small" style="color: #EDEBDD;">
+                        <i class="fa-solid fa-box-open me-1" style="color: #810100;"></i>Track Your Order
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Main Store Navigation Header (ROVEN Haute Parfumerie) -->
+    <header class="store-navbar">
+        <div class="container">
+            <div class="row align-items-center g-2 g-xl-3 flex-nowrap">
+                <!-- Left: Mobile Menu Toggle & Brand Logo (Zero Hover Effect) -->
+                <div class="col-auto d-flex align-items-center gap-2">
+                    <button class="btn btn-mobile-menu d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#rovenMobileDrawer" aria-controls="rovenMobileDrawer" aria-label="Open Navigation Menu">
+                        <i class="fa-solid fa-bars-staggered"></i>
+                    </button>
+                    <a class="store-brand d-inline-flex align-items-center" asp-controller="Home" asp-action="Index" title="ROVEN Haute Parfumerie">
+                        <img src="~/images/roven-logo.png?v=roven_tp" alt="ROVEN" class="roven-nav-logo" />
+                    </a>
+                </div>
+
+                <!-- Center: Luxury Floating Search Box (Desktop Only) -->
+                <div class="col d-none d-lg-flex justify-content-center px-2 px-xl-4">
+                    <form asp-controller="Store" asp-action="Index" method="get" class="store-search-form" style="width: 100%; max-width: 360px;">
+                        <div class="store-search-box">
+                            <i class="fa-solid fa-magnifying-glass search-leading-icon"></i>
+                            <input type="text" name="search" class="form-control store-search-input" placeholder="Search fragrances, notes..." value="@Context.Request.Query["search"]" />
+                            <button class="btn btn-search-submit" type="submit">
+                                <span>Search</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right: Desktop Nav Links, Track Order & Luxury Cart -->
+                <div class="col-auto ms-auto d-flex justify-content-end align-items-center gap-1 gap-xl-2 flex-nowrap">
+                    <a asp-controller="Home" asp-action="Index" class="store-nav-link d-none d-xl-inline-flex @(currentController == "Home" && currentAction == "Index" ? "active" : "")">Home</a>
+                    <a asp-controller="Store" asp-action="Index" class="store-nav-link d-none d-lg-inline-flex @(currentController == "Store" ? "active" : "")">Collections</a>
+                    <a asp-controller="Home" asp-action="About" class="store-nav-link d-none d-xl-inline-flex @(currentAction == "About" ? "active" : "")">About Us</a>
+                    <a asp-controller="Home" asp-action="Contact" class="store-nav-link d-none d-xxl-inline-flex @(currentAction == "Contact" ? "active" : "")">Contact</a>
+
+                    <a asp-controller="Cart" asp-action="Index" class="store-cart-btn text-nowrap" id="header-cart-btn" title="View Shopping Bag">
+                        <i class="fa-solid fa-bag-shopping"></i>
+                        <span class="d-none d-sm-inline">Bag</span>
+                        <span class="store-cart-badge" id="cart-item-count">0</span>
+                    </a>
+                </div>
+            </div>
+
+
+
+            <!-- Desktop Department Quick Navigation Bar -->
+            <div class="d-none d-lg-flex align-items-center justify-content-center gap-4 pt-2 mt-2 border-top" style="border-color: rgba(99, 0, 0, 0.1) !important; font-size: 0.85rem; letter-spacing: 0.5px;">
+                <a asp-controller="Store" asp-action="Index" class="text-decoration-none fw-semibold" style="color: #630000;">
+                    ALL FRAGRANCES
+                </a>
+                <span class="opacity-25">&bull;</span>
+                <a asp-controller="Store" asp-action="Index" asp-route-categoryId="1" class="text-decoration-none fw-semibold" style="color: #1B1717;">
+                    EXTRAIT DE PARFUM
+                </a>
+                <span class="opacity-25">&bull;</span>
+                <a asp-controller="Store" asp-action="Index" asp-route-categoryId="2" class="text-decoration-none fw-semibold" style="color: #1B1717;">
+                    EAU DE PARFUM
+                </a>
+                <span class="opacity-25">&bull;</span>
+                <a asp-controller="Store" asp-action="Index" asp-route-categoryId="3" class="text-decoration-none fw-semibold" style="color: #1B1717;">
+                    PRIVATE OUD & ORIENTAL
+                </a>
+                <span class="opacity-25">&bull;</span>
+                <a asp-controller="Store" asp-action="Index" asp-route-categoryId="4" class="text-decoration-none fw-semibold" style="color: #1B1717;">
+                    DISCOVERY COFFRETS
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Maison ROVEN Luxury Mobile Navigation Drawer -->
+    <div class="offcanvas offcanvas-start roven-mobile-drawer" tabindex="-1" id="rovenMobileDrawer" aria-labelledby="rovenMobileDrawerLabel">
+        <div class="offcanvas-header">
+            <div class="d-flex align-items-center gap-2" id="rovenMobileDrawerLabel">
+                <div class="drawer-monogram-shield">R</div>
+                <div>
+                    <h5 class="drawer-brand-name mb-0">ROVEN</h5>
+                    <span class="drawer-brand-subtitle">HAUTE PARFUMERIE</span>
+                </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <!-- Integrated Luxury Drawer Search Bar -->
+        <div class="p-3 border-bottom" style="background-color: #FAF9F5; border-color: rgba(99, 0, 0, 0.08) !important;">
+            <form asp-controller="Store" asp-action="Index" method="get">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0" style="border-color: #e8e3d5; color: #810100;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" name="search" class="form-control border-start-0 border-end-0 ps-0" placeholder="Search fragrances, notes..." style="border-color: #e8e3d5; font-size: 0.88rem;" />
+                    <button class="btn btn-roven-wine px-3" type="submit" aria-label="Search">
+                        <span>Search</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="offcanvas-body p-0 d-flex flex-column">
+            <nav class="drawer-nav-list flex-grow-1 py-2">
+                <!-- Home -->
+                <a asp-controller="Home" asp-action="Index" class="drawer-nav-item @(currentController == "Home" && currentAction == "Index" ? "active" : "")">
+                    <div class="drawer-item-icon"><i class="fa-solid fa-house"></i></div>
+                    <span>Home &bull; Maison ROVEN</span>
+                    <i class="fa-solid fa-chevron-right drawer-item-arrow"></i>
+                </a>
+
+                <!-- Search Fragrances (زرار السيرش) -->
+                <a asp-controller="Store" asp-action="Index" class="drawer-nav-item @(currentController == "Store" ? "active" : "")">
+                    <div class="drawer-item-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <span>Search Fragrances & Catalog</span>
+                    <i class="fa-solid fa-chevron-right drawer-item-arrow"></i>
+                </a>
+
+                <!-- Track Your Order (متابعة الأوردر) -->
+                <a asp-controller="OrderTracking" asp-action="Index" class="drawer-nav-item @(currentController == "OrderTracking" ? "active" : "")">
+                    <div class="drawer-item-icon"><i class="fa-solid fa-box-open"></i></div>
+                    <span>Track Your Order</span>
+                    <i class="fa-solid fa-chevron-right drawer-item-arrow"></i>
+                </a>
+
+                <!-- About Us -->
+                <a asp-controller="Home" asp-action="About" class="drawer-nav-item @(currentAction == "About" ? "active" : "")">
+                    <div class="drawer-item-icon"><i class="fa-solid fa-feather-pointed"></i></div>
+                    <span>About Us & Heritage</span>
+                    <i class="fa-solid fa-chevron-right drawer-item-arrow"></i>
+                </a>
+
+                <!-- Contact Us -->
+                <a asp-controller="Home" asp-action="Contact" class="drawer-nav-item @(currentAction == "Contact" ? "active" : "")">
+                    <div class="drawer-item-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+                    <span>Contact Us & Concierge</span>
+                    <i class="fa-solid fa-chevron-right drawer-item-arrow"></i>
+                </a>
+            </nav>
+
+            <div class="drawer-footer p-3 border-top" style="background-color: #EDEBDD; border-color: rgba(99, 0, 0, 0.15) !important;">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="fa-solid fa-shield-halved" style="color: #810100;"></i>
+                    <span class="small fw-semibold" style="color: #1B1717;">100% Authentic &bull; Cash on Delivery</span>
+                </div>
+                <div class="small text-muted" style="font-size: 0.76rem;">
+                    Complimentary nationwide delivery across Egypt.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Store Content Body -->
+    <main class="flex-grow-1">
+        @RenderBody()
+    </main>
+
+    <!-- Store Footer -->
+    <footer class="store-footer">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-md-5">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="p-1 px-2 rounded-2" style="background-color: #EDEBDD;">
+                            <img src="~/images/roven-logo.png" alt="ROVEN" style="height: 32px; width: auto;" />
+                        </div>
+                    </div>
+                    <p class="small mb-3" style="color: #EDEBDD; opacity: 0.85; line-height: 1.6;">
+                        <strong>Maison ROVEN (دار روڤين / روفين للعطور الفاخرة)</strong> — The official Haute Parfumerie house dedicated to high-concentration Extraits de Parfum (30%+ pure oils) and rare Assam oud. Handcrafted with Grasse extracts, eternal sillage, and nationwide Cash on Delivery with full parcel inspection across Egypt.
+                    </p>
+                    <div class="d-flex gap-2 align-items-center" style="color: #EDEBDD; opacity: 0.9;">
+                        <i class="fa-solid fa-shield-halved" style="color: #810100;"></i>
+                        <span class="small">100% Authentic Luxury Parfums &bull; Cash on Delivery</span>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3 offset-md-1">
+                    <h6 class="fw-bold mb-3" style="color: #EDEBDD; letter-spacing: 0.5px;">MAISON</h6>
+                    <ul class="list-unstyled small d-flex flex-column gap-2">
+                        <li><a asp-controller="Home" asp-action="Index">Maison Home</a></li>
+                        <li><a asp-controller="Store" asp-action="Index">All Fragrances</a></li>
+                        <li><a asp-controller="OrderTracking" asp-action="Index">Track Your Order</a></li>
+                        <li><a asp-controller="Home" asp-action="About">About Maison</a></li>
+                        <li><a asp-controller="Home" asp-action="Contact">Contact Concierge</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <h6 class="fw-bold mb-3" style="color: #EDEBDD; letter-spacing: 0.5px;">CONCIERGE</h6>
+                    <ul class="list-unstyled small d-flex flex-column gap-2" style="color: #EDEBDD; opacity: 0.85;">
+                        <li><i class="fa-solid fa-phone me-2" style="color: #810100;"></i> @(!string.IsNullOrWhiteSpace(siteSetting.ContactPhone) ? siteSetting.ContactPhone : "+20 (02) 19888")</li>
+                        <li><i class="fa-solid fa-envelope me-2" style="color: #810100;"></i> @(!string.IsNullOrWhiteSpace(siteSetting.ContactEmail) ? siteSetting.ContactEmail : "concierge@roven.local")</li>
+                        <li><i class="fa-solid fa-location-dot me-2" style="color: #810100;"></i> @(!string.IsNullOrWhiteSpace(siteSetting.AtelierAddress) ? siteSetting.AtelierAddress : "Cairo & Giza, Arab Republic of Egypt")</li>
+                        <li><i class="fa-solid fa-clock me-2" style="color: #810100;"></i> @(!string.IsNullOrWhiteSpace(siteSetting.ContactWorkingHours) ? siteSetting.ContactWorkingHours : "Daily: 10:00 AM – 11:00 PM CLT")</li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr style="border-color: rgba(237, 235, 221, 0.15); margin: 2rem 0;" />
+
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center small gap-3" style="color: #EDEBDD; opacity: 0.88;">
+                <div>&copy; @DateTime.UtcNow.Year ROVEN Omnichannel System. All rights reserved.</div>
+                <div class="d-flex gap-3 align-items-center">
+                    <a href="@siteSetting.FacebookUrl" target="_blank" style="color: #EDEBDD; opacity: 0.8;" title="Facebook"><i class="fa-brands fa-facebook-f fs-6"></i></a>
+                    <a href="@siteSetting.InstagramUrl" target="_blank" style="color: #EDEBDD; opacity: 0.8;" title="Instagram"><i class="fa-brands fa-instagram fs-6"></i></a>
+                    @{
+                        var ftWa = siteSetting.WhatsAppNumber ?? "+201008889999";
+                        var ftWaLink = ftWa.StartsWith("http") ? ftWa : $"https://wa.me/{ftWa.Replace("+", "").Replace(" ", "").Replace("-", "")}";
+                    }
+                    <a href="@ftWaLink" target="_blank" style="color: #EDEBDD; opacity: 0.8;" title="WhatsApp Concierge"><i class="fa-brands fa-whatsapp fs-6"></i></a>
+                </div>
+            </div>
+
+            <div class="text-center mt-3 pt-2">
+                <div class="developer-box d-inline-flex align-items-center justify-content-center flex-wrap gap-2 px-3 py-1 rounded-pill shadow-sm" style="background: rgba(237, 235, 221, 0.08); border: 1px solid rgba(237, 235, 221, 0.22); max-width: 100%;">
+                    <span class="small" style="color: #EDEBDD;">Created by <strong style="color: #ffffff;">Yahia Mohamed</strong></span>
+                    <span class="vr mx-1" style="height: 16px; opacity: 0.35; background-color: #EDEBDD;"></span>
+                    <a href="https://www.linkedin.com/in/yahia-mohamed-b8b440372/" target="_blank" rel="noopener noreferrer" class="d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none shadow-sm" style="width: 24px; height: 24px; background-color: #0a66c2; color: #ffffff; font-size: 0.75rem;" title="LinkedIn Profile">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://wa.me/201090411612" target="_blank" rel="noopener noreferrer" class="d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none shadow-sm" style="width: 24px; height: 24px; background-color: #25d366; color: #ffffff; font-size: 0.85rem;" title="WhatsApp">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Hidden Anti-Forgery Token Form for Storefront AJAX Requests -->
+    <form id="storefrontCsrfForm" style="display:none;" aria-hidden="true">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 Library -->
+    <script src="~/lib/sweetalert2/sweetalert2.all.min.js"></script>
+    <!-- Global Site JS -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Store Cart Live Counter & Async Helper Script -->
+    <script>
+        (function() {
+            // Update live cart badge from server session
+            async function refreshStoreCartBadge() {
+                try {
+                    const response = await fetch('/Cart/GetCartSummary');
+                    if (response.ok) {
+                        const data = await response.json();
+                        const badge = document.getElementById('cart-item-count');
+                        if (badge) {
+                            badge.textContent = data.count || 0;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Unable to sync cart count:', e);
+                }
+            }
+
+            // Expose global helper for adding to cart with immediate visual loading state
+            window.addStoreItemToCart = async function(productId, qty = 1, triggerBtn = null) {
+                // Automatically identify trigger button if not passed
+                let btn = triggerBtn;
+                if (!btn && window.event && window.event.target) {
+                    btn = window.event.target.closest('button');
+                }
+                if (!btn) {
+                    btn = document.getElementById('btn-add-to-cart');
+                }
+
+                let origHtml = '';
+                if (btn) {
+                    origHtml = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span class="small">جاري الإضافة...</span>';
+                }
+
+                try {
+                    const formData = new FormData();
+                    formData.append('productId', productId);
+                    formData.append('quantity', qty);
+
+                    const csrfToken = document.querySelector('#storefrontCsrfForm input[name="__RequestVerificationToken"]')?.value 
+                                   || document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                    if (csrfToken) {
+                        formData.append('__RequestVerificationToken', csrfToken);
+                    }
+
+                    const reqHeaders = {};
+                    if (csrfToken) {
+                        reqHeaders['RequestVerificationToken'] = csrfToken;
+                    }
+
+                    const res = await fetch('/Cart/AddToCart', {
+                        method: 'POST',
+                        headers: reqHeaders,
+                        body: formData
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.success) {
+                            const badge = document.getElementById('cart-item-count');
+                            if (badge) badge.textContent = data.cartCount;
+                            
+                            // Visual success feedback on button
+                            if (btn) {
+                                btn.innerHTML = '<i class="fa-solid fa-check text-white me-1"></i><span class="small">تمت الإضافة!</span>';
+                                setTimeout(() => {
+                                    if (btn) {
+                                        btn.innerHTML = origHtml;
+                                        btn.disabled = false;
+                                    }
+                                }, 900);
+                            }
+
+                            Swal.fire({
+                                icon: 'success',
+                                iconColor: '#630000',
+                                title: '<i class="fa-solid fa-cart-shopping me-2" style="color: #630000;"></i>Added to Bag!',
+                                text: data.message,
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2500,
+                                timerProgressBar: true
+                            });
+                        } else {
+                            if (btn) {
+                                btn.innerHTML = origHtml;
+                                btn.disabled = false;
+                            }
+                            Swal.fire({
+                                icon: 'warning',
+                                iconColor: '#810100',
+                                title: 'Stock Limit',
+                                text: data.message,
+                                confirmButtonColor: '#630000'
+                            });
+                        }
+                    } else {
+                        if (btn) {
+                            btn.innerHTML = origHtml;
+                            btn.disabled = false;
+                        }
+                    }
+                } catch (err) {
+                    console.error('Add to cart error:', err);
+                    if (btn) {
+                        btn.innerHTML = origHtml;
+                        btn.disabled = false;
+                    }
+                }
+            };
+
+            window.addOfferToCart = async function(offerId, triggerBtn = null) {
+                let btn = triggerBtn;
+                if (!btn && window.event && window.event.target) {
+                    btn = window.event.target.closest('button');
+                }
+
+                let origHtml = '';
+                if (btn) {
+                    origHtml = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span class="small">جاري إضافة العرض...</span>';
+                }
+
+                try {
+                    const formData = new FormData();
+                    formData.append('offerId', offerId);
+
+                    const csrfToken = document.querySelector('#storefrontCsrfForm input[name="__RequestVerificationToken"]')?.value 
+                                   || document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                    if (csrfToken) {
+                        formData.append('__RequestVerificationToken', csrfToken);
+                    }
+
+                    const reqHeaders = {};
+                    if (csrfToken) {
+                        reqHeaders['RequestVerificationToken'] = csrfToken;
+                    }
+
+                    const res = await fetch('/Cart/AddOfferToCart', {
+                        method: 'POST',
+                        headers: reqHeaders,
+                        body: formData
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.success) {
+                            const badge = document.getElementById('cart-item-count');
+                            if (badge) badge.textContent = data.cartCount;
+                            
+                            if (btn) {
+                                btn.innerHTML = '<i class="fa-solid fa-check text-white me-1"></i><span class="small">تمت إضافة العرض!</span>';
+                                setTimeout(() => {
+                                    if (btn) {
+                                        btn.innerHTML = origHtml;
+                                        btn.disabled = false;
+                                    }
+                                }, 900);
+                            }
+
+                            Swal.fire({
+                                icon: 'success',
+                                iconColor: '#630000',
+                                title: '<i class="fa-solid fa-gift me-2" style="color: #630000;"></i>تمت إضافة العرض!',
+                                text: data.message,
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2800,
+                                timerProgressBar: true
+                            });
+                        } else {
+                            if (btn) {
+                                btn.innerHTML = origHtml;
+                                btn.disabled = false;
+                            }
+                            Swal.fire({
+                                icon: 'warning',
+                                iconColor: '#810100',
+                                title: 'تنبيه العرض',
+                                text: data.message,
+                                confirmButtonColor: '#630000'
+                            });
+                        }
+                    } else {
+                        if (btn) {
+                            btn.innerHTML = origHtml;
+                            btn.disabled = false;
+                        }
+                    }
+                } catch (err) {
+                    console.error('Add offer to cart error:', err);
+                    if (btn) {
+                        btn.innerHTML = origHtml;
+                        btn.disabled = false;
+                    }
+                }
+            };
+
+            // Run on initial load
+            refreshStoreCartBadge();
+        })();
+    </script>
+
+    <!-- Maison ROVEN Luxury Preloader Controller -->
+    <script>
+        (function() {
+            const preloader = document.getElementById('roven-preloader');
+            if (!preloader) return;
+
+            const bar = document.getElementById('roven-preloader-bar');
+            const percent = document.getElementById('roven-preloader-percent');
+            const phrase = document.getElementById('roven-preloader-phrase');
+
+            const phrases = [
+                "L'Art du Parfum...",
+                "Rare Damask Botanicals...",
+                "Aged Assam Oud...",
+                "Eternal Sillage...",
+                "Welcome to Maison ROVEN"
+            ];
+
+            let currentProgress = 0;
+            let isLoaded = false;
+            let phraseIndex = 0;
+
+            const timer = setInterval(() => {
+                if (isLoaded) {
+                    currentProgress += 10;
+                } else if (currentProgress < 85) {
+                    currentProgress += Math.random() * 5 + 2;
+                }
+
+                if (currentProgress > 100) currentProgress = 100;
+
+                if (bar) bar.style.width = currentProgress + '%';
+                if (percent) percent.textContent = Math.round(currentProgress) + '%';
+
+                const targetPhraseIndex = Math.min(
+                    Math.floor((currentProgress / 100) * phrases.length),
+                    phrases.length - 1
+                );
+
+                if (targetPhraseIndex !== phraseIndex && phrase) {
+                    phraseIndex = targetPhraseIndex;
+                    phrase.style.opacity = '0';
+                    setTimeout(() => {
+                        phrase.textContent = phrases[phraseIndex];
+                        phrase.style.opacity = '1';
+                    }, 140);
+                }
+
+                if (currentProgress >= 100) {
+                    clearInterval(timer);
+                    setTimeout(dismissPreloader, 320);
+                }
+            }, 32);
+
+            function dismissPreloader() {
+                preloader.classList.add('preloader-hidden');
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                    // Trigger VIP Welcome Lead Modal right after preloader dismisses
+                    window.dispatchEvent(new CustomEvent('rovenPreloaderDismissed'));
+                }, 800);
+            }
+
+            // Window load event
+            if (document.readyState === 'complete') {
+                isLoaded = true;
+            } else {
+                window.addEventListener('load', () => {
+                    isLoaded = true;
+                });
+            }
+
+            // Failsafe timeout to prevent any infinite stall
+            setTimeout(() => {
+                isLoaded = true;
+                if (currentProgress < 90) currentProgress = 92;
+            }, 2200);
+        })();
+    </script>
+
+    <!-- ============================================================== -->
+    <!-- MAISON ROVEN — HAUTE PARFUMERIE WHATSAPP VIP OFFERS MODAL       -->
+    <!-- ============================================================== -->
+    <div id="rovenLeadModal" class="roven-lead-backdrop" aria-hidden="true">
+        <div class="roven-lead-modal shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="rovenLeadTitle">
+            <button type="button" class="roven-lead-close" onclick="dismissRovenLeadModal()" aria-label="Close modal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Pre-Submit View: Clean & Minimalist WhatsApp Input -->
+            <div id="rovenLeadFormView">
+                <div class="roven-lead-wa-icon">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </div>
+
+                <h4 id="rovenLeadTitle" class="fw-bold mb-2" style="font-family: 'Playfair Display', Georgia, serif; color: #EDEBDD; font-size: 1.25rem;">
+                    عروض وإصدارات Roven الخاصة
+                </h4>
+
+                <p class="small mb-3" style="color: #c9c4b8; font-size: 0.85rem; line-height: 1.55;">
+                    سجّل رقم هاتفك ليصلك أحدث إصدارات العطور والعروض الخاصة مباشرة عبر تطبيق واتساب.
+                </p>
+
+                <form id="rovenLeadForm" onsubmit="submitRovenLeadForm(event)">
+                    <div class="roven-lead-input-group">
+                        <i class="fa-brands fa-whatsapp"></i>
+                        <input type="tel" id="rovenLeadPhone" class="roven-lead-input" placeholder="010xxxxxxxx (رقم الواتساب)" required dir="ltr" autocomplete="tel" />
+                    </div>
+
+                    <div id="rovenLeadError" class="alert alert-danger py-1.5 px-3 small mb-2 d-none" style="background-color: rgba(220, 53, 69, 0.25); border-color: rgba(220, 53, 69, 0.4); color: #ffc9c9; font-size: 0.82rem; border-radius: 10px;"></div>
+
+                    <button type="submit" id="rovenLeadSubmitBtn" class="btn w-100 py-2.5 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 mt-2" style="background: #630000; color: #EDEBDD; border: 1px solid rgba(232, 198, 136, 0.35); font-size: 0.92rem; transition: all 0.2s ease;">
+                        <span>إرسال</span>
+                        <i class="fa-solid fa-paper-plane" style="font-size: 0.85rem;"></i>
+                    </button>
+                </form>
+
+                <div class="mt-3">
+                    <button type="button" class="btn btn-link text-decoration-none p-0" style="color: #EDEBDD !important; opacity: 0.5; font-size: 0.78rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='0.5'" onclick="dismissRovenLeadModal()">
+                        تخطي ومتابعة تصفح المتجر
+                    </button>
+                </div>
+            </div>
+
+            <!-- Post-Submit Success View: Direct Notification Confirmation -->
+            <div id="rovenLeadSuccessView" class="d-none py-2">
+                <div class="roven-lead-wa-icon" style="background: rgba(37, 211, 102, 0.15); border-color: rgba(37, 211, 102, 0.4);">
+                    <i class="fa-solid fa-check" style="font-size: 1.3rem;"></i>
+                </div>
+
+                <h4 class="fw-bold mb-1" style="font-family: 'Playfair Display', Georgia, serif; color: #EDEBDD; font-size: 1.25rem;">
+                    تم تسجيلك بنجاح!
+                </h4>
+
+                <p class="small mb-1 text-muted" style="color: #c9c4b8 !important; font-size: 0.85rem;">
+                    سيتم إرسال كافة العروض والخصومات الحصرية لرقم الواتساب المسجل:
+                </p>
+
+                <div id="rovenSuccessPhone" class="fs-4 fw-extrabold font-monospace text-warning my-2" dir="ltr" style="letter-spacing: 1.5px;">
+                    010xxxxxxxx
+                </div>
+
+                <p class="small text-muted mb-3" style="color: #a8a29e !important; font-size: 0.78rem;">
+                    شكراً لانضمامك إلى دار Roven للعطور.
+                </p>
+
+                <button type="button" onclick="dismissRovenLeadModal()" class="btn w-100 py-2 rounded-3 fw-semibold shadow-sm" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #EDEBDD; font-size: 0.88rem;">
+                    متابعة تصفح المتجر
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIP Lead Modal Controller Script -->
+    <script>
+        (function() {
+            const modal = document.getElementById('rovenLeadModal');
+            if (!modal) return;
+
+            window.openRovenLeadModal = function() {
+                try {
+                    if (localStorage.getItem('roven_lead_dismissed') === 'true') {
+                        return;
+                    }
+                } catch (e) {}
+
+                modal.classList.add('active');
+                modal.setAttribute('aria-hidden', 'false');
+                setTimeout(() => {
+                    document.getElementById('rovenLeadPhone')?.focus();
+                }, 350);
+            };
+
+            window.dismissRovenLeadModal = function() {
+                modal.classList.remove('active');
+                modal.setAttribute('aria-hidden', 'true');
+                try {
+                    localStorage.setItem('roven_lead_dismissed', 'true');
+                } catch (e) {}
+            };
+
+            window.checkAndTriggerVipLeadModal = function() {
+                try {
+                    if (localStorage.getItem('roven_lead_dismissed') === 'true') {
+                        return;
+                    }
+                } catch (e) {}
+                // Triggered right after preloader finishes
+                setTimeout(openRovenLeadModal, 450);
+            };
+
+            window.submitRovenLeadForm = async function(e) {
+                e.preventDefault();
+                const phoneInput = document.getElementById('rovenLeadPhone');
+                const errorEl = document.getElementById('rovenLeadError');
+                const submitBtn = document.getElementById('rovenLeadSubmitBtn');
+
+                if (errorEl) {
+                    errorEl.classList.add('d-none');
+                    errorEl.textContent = '';
+                }
+
+                const phone = phoneInput ? phoneInput.value.trim() : '';
+
+                if (!phone) {
+                    if (errorEl) {
+                        errorEl.textContent = 'يرجى إدخال رقم الواتساب.';
+                        errorEl.classList.remove('d-none');
+                    }
+                    return;
+                }
+
+                const originalBtnHtml = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> جاري الإرسال...';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('phone', phone);
+
+                    const csrfToken = document.querySelector('#storefrontCsrfForm input[name="__RequestVerificationToken"]')?.value 
+                                   || document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                    if (csrfToken) {
+                        formData.append('__RequestVerificationToken', csrfToken);
+                    }
+
+                    const res = await fetch('/Home/SubscribeLead', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await res.json();
+
+                    if (data.success) {
+                        try {
+                            localStorage.setItem('roven_lead_dismissed', 'true');
+                        } catch (e) {}
+
+                        document.getElementById('rovenLeadFormView').classList.add('d-none');
+                        const successView = document.getElementById('rovenLeadSuccessView');
+                        if (successView) {
+                            successView.classList.remove('d-none');
+                        }
+
+                        const phoneEl = document.getElementById('rovenSuccessPhone');
+                        if (phoneEl) {
+                            phoneEl.textContent = data.phone || phone;
+                        }
+                    } else {
+                        if (errorEl) {
+                            errorEl.textContent = data.message || 'حدث خطأ أثناء التسجيل، يرجى المحاولة مرة أخرى.';
+                            errorEl.classList.remove('d-none');
+                        }
+                    }
+                } catch (err) {
+                    console.error('Lead subscription error:', err);
+                    if (errorEl) {
+                        errorEl.textContent = 'تعذر الاتصال بالسيرفر، يرجى التحقق من اتصال الإنترنت.';
+                        errorEl.classList.remove('d-none');
+                    }
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
+            };
+
+            // Click outside modal dialog to dismiss
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    dismissRovenLeadModal();
+                }
+            });
+
+            // Trigger on preloader dismiss event
+            window.addEventListener('rovenPreloaderDismissed', function() {
+                checkAndTriggerVipLeadModal();
+            });
+
+            // Failsafe trigger if preloader was hidden or completed
+            setTimeout(function() {
+                const preloader = document.getElementById('roven-preloader');
+                if (!preloader || preloader.classList.contains('preloader-hidden') || preloader.style.display === 'none') {
+                    checkAndTriggerVipLeadModal();
+                }
+            }, 2400);
+        })();
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        // Smooth Sticky Navbar Enhancement
+        window.addEventListener('scroll', function() {
+            var nav = document.querySelector('.store-navbar');
+            if (nav) {
+                if (window.scrollY > 15) {
+                    nav.classList.add('navbar-scrolled');
+                } else {
+                    nav.classList.remove('navbar-scrolled');
+                }
+            }
+        }, { passive: true });
+
+        // Global Product Card Direct Navigation (Flacon Click-to-Details)
+        document.addEventListener('click', function (e) {
+            const card = e.target.closest('.product-card[data-details-url]');
+            if (card && !e.target.closest('button, a, input, select, textarea, label, .btn, .bag-btn')) {
+                const url = card.getAttribute('data-details-url');
+                if (url) {
+                    window.location.href = url;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+

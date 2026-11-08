@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 1000" width="100%" height="100%">
+  <defs>
+    <linearGradient id="mBg2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0a0705" />
+      <stop offset="40%" stop-color="#241406" />
+      <stop offset="70%" stop-color="#3d2309" />
+      <stop offset="100%" stop-color="#0a0705" />
+    </linearGradient>
+    <radialGradient id="mGlow2" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#ffb300" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#0a0705" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="750" height="1000" fill="url(#mBg2)" />
+  <circle cx="375" cy="400" r="280" fill="url(#mGlow2)" />
+
+  <g transform="translate(250, 150)">
+    <rect x="35" y="40" width="180" height="280" rx="18" fill="#000000" opacity="0.45" />
+    <rect x="40" y="80" width="170" height="250" rx="16" fill="#1c1103" stroke="#ffd54f" stroke-width="2" />
+    <rect x="50" y="110" width="150" height="205" rx="12" fill="#3a2202" opacity="0.85" />
+    <path d="M 50 190 Q 125 175 200 190 L 200 315 L 50 315 Z" fill="#804d00" opacity="0.9" />
+    <rect x="95" y="25" width="60" height="60" rx="6" fill="#0d0801" stroke="#ffd54f" stroke-width="2" />
+    <circle cx="125" cy="225" r="28" fill="#0d0801" stroke="#ffd54f" stroke-width="1.5" />
+    <text x="125" y="232" font-family="'Playfair Display', serif" font-size="18" font-weight="900" fill="#ffd54f" text-anchor="middle">R</text>
+    <text x="125" y="275" font-family="'Cinzel', sans-serif" font-size="10" font-weight="700" fill="#ffecb3" text-anchor="middle" letter-spacing="2">ROYAL AMBER</text>
+  </g>
+
+  <g transform="translate(50, 560)">
+    <rect x="160" y="0" width="330" height="36" rx="18" fill="#2b1704" stroke="#ffb300" stroke-width="1" />
+    <text x="325" y="23" font-family="'Cinzel', sans-serif" font-size="12" font-weight="700" fill="#ffecb3" text-anchor="middle" letter-spacing="2">MAISON ROVEN • PRIVATE RESERVE</text>
+
+    <text x="325" y="90" font-family="'Playfair Display', serif" font-size="44" font-weight="900" fill="#ffffff" text-anchor="middle">
+      Aged Assam Oud
+    </text>
+    <text x="325" y="140" font-family="'Playfair Display', serif" font-size="30" font-weight="700" fill="#ffd54f" text-anchor="middle">
+      &amp; Golden Amber
+    </text>
+
+    <text x="325" y="195" font-family="'Cairo', sans-serif" font-size="18" fill="#EDEBDD" text-anchor="middle" opacity="0.85">
+      سيمفونية شرقية مهيبة من دهن العود المعتق والعنبر الملكي
+    </text>
+
+    <rect x="145" y="250" width="360" height="64" rx="32" fill="#b26a00" stroke="#ffd54f" stroke-width="2" />
+    <text x="325" y="290" font-family="'Cinzel', 'Cairo', sans-serif" font-size="18" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="2">EXPLORE OUD • اكتشف العود</text>
+  </g>
+</svg>
+

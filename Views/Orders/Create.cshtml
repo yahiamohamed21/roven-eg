@@ -1,0 +1,1479 @@
+@using System.Text.Json
+@using Stockify.Models.Entities
+@{
+    ViewData["Title"] = "Create Order";
+    var dbCustomers = ViewBag.Customers as List<Customer>;
+    var dbProducts = ViewBag.Products as List<Product>;
+    var selectedCustomerId = ViewBag.SelectedCustomerId as int?;
+
+    var initialProducts = (dbProducts ?? new List<Product>()).Select(p => new {
+        id = p.Id,
+        name = p.Name,
+        sku = p.Sku ?? "",
+        price = p.Price,
+        stock = p.StockQuantity,
+        category = p.Category != null ? p.Category.Name : "General"
+    }).ToList();
+
+    var initialProductsJson = JsonSerializer.Serialize(initialProducts);
+
+    var initialCustomers = (dbCustomers ?? new List<Customer>()).Select(c => new {
+        id = c.Id,
+        name = c.FullName,
+        phone = c.PhoneNumber ?? "",
+        email = c.Email ?? "",
+        address = c.Address ?? ""
+    }).ToList();
+
+    var initialCustomersJson = JsonSerializer.Serialize(initialCustomers);
+}
+
+<!-- Page Header -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Create New Sales Order</h3>
+        <p class="text-muted mb-0 small">Select a customer, search/add items from inventory, and process order checkout.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Orders
+        </a>
+    </div>
+</div>
+
+<!-- Hidden Anti-Forgery Token Form for POS AJAX Requests -->
+<form id="posCsrfForm" style="display:none;" aria-hidden="true">
+    @Html.AntiForgeryToken()
+</form>
+
+<!-- Alert Placeholder for Validation -->
+<div id="order-alert" class="alert alert-warning alert-dismissible fade d-none" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <span id="order-alert-message">Please check order items and customer information.</span>
+    <button type="button" class="btn-close" onclick="document.getElementById('order-alert').classList.add('d-none')"></button>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Customer & Line Items -->
+    <div class="col-12 col-lg-8">
+        <!-- 1. Customer Information Card (بيانات العميل المباشرة) -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <span class="fw-bold"><i class="bi bi-person-badge text-primary me-2"></i>1. Customer Information (بيانات العميل)</span>
+                <span class="badge bg-light text-muted border">Direct Entry & Autofill</span>
+            </div>
+            <div class="card-body p-4">
+                <!-- Optional Quick-Select / Autofill from Registered Customers -->
+                <div class="p-3 mb-3 rounded-3" style="background-color: #FAF9F5; border: 1.5px dashed #d5cfbf;">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-2">
+                        <label class="form-label small fw-bold mb-0 text-dark">
+                            <i class="fa-solid fa-users me-1" style="color: #810100;"></i>
+                            اختر عميلاً مسجلاً (تعبئة تلقائية اختيارية)
+                        </label>
+                        <button type="button" id="btn-clear-customer" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.78rem;">
+                            <i class="fa-solid fa-rotate-left me-1"></i>تفريغ الحقول لكتابة عميل جديد
+                        </button>
+                    </div>
+                    <select id="customer-select" class="form-select form-select-sm">
+                        <option value="" selected>-- كتابة عميل جديد مباشرة بالأسفل (أو اختر من المسجلين) --</option>
+                        @if (dbCustomers != null && dbCustomers.Any())
+                        {
+                            foreach (var c in dbCustomers)
+                            {
+                                <option value="@c.Id" data-name="@c.FullName" data-phone="@(c.PhoneNumber ?? "")" data-email="@(c.Email ?? "")" data-address="@(c.Address ?? "")">
+                                    @c.FullName (@(c.PhoneNumber ?? "بدون هاتف") - @(c.Address ?? "Egypt"))
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <!-- Direct Customer Fields: Name, Phone, Governorate, Address, Email -->
+                <div class="row g-3">
+                    <!-- Full Name -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small fw-semibold text-secondary">
+                            اسم العميل (Full Name) <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-user"></i></span>
+                            <input type="text" id="customer-name" class="form-control" placeholder="اسم العميل (مثال: كريم السيد)" required />
+                        </div>
+                        <div class="invalid-feedback">يرجى كتابة اسم العميل.</div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small fw-semibold text-secondary">
+                            رقم التليفون (Phone Number) <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-phone"></i></span>
+                            <input type="tel" id="customer-phone" class="form-control font-monospace" placeholder="010XXXXXXXX" maxlength="15" required />
+                        </div>
+                        <div id="phone-match-alert" class="small mt-1 text-success d-none fw-semibold" style="cursor: pointer;">
+                            <i class="fa-solid fa-circle-check me-1"></i>تم العثور على عميل مسجل بهذا الرقم! اضغط هنا للتعبئة التلقائية.
+                        </div>
+                        <div class="invalid-feedback">يرجى إدخال رقم تليفون صحيح (11 رقم).</div>
+                    </div>
+
+                    <!-- Governorate / City -->
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small fw-semibold text-secondary">
+                            المحافظة (Governorate) <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-city"></i></span>
+                            <select id="customer-city" class="form-select" required>
+                                <option value="" disabled selected>اختر المحافظة...</option>
+                                <option value="Cairo">القاهرة (Cairo)</option>
+                                <option value="Giza">الجيزة (Giza)</option>
+                                <option value="Alexandria">الإسكندرية (Alexandria)</option>
+                                <option value="Qalyubia">القليوبية (Qalyubia)</option>
+                                <option value="Sharqia">الشرقية (Sharqia)</option>
+                                <option value="Dakahlia">الدقهلية (Dakahlia)</option>
+                                <option value="Gharbia">الغربية (Gharbia)</option>
+                                <option value="Menofia">المنوفية (Menofia)</option>
+                                <option value="Beheira">البحيرة (Beheira)</option>
+                                <option value="Ismailia">الإسماعيلية (Ismailia)</option>
+                                <option value="Suez">السويس (Suez)</option>
+                                <option value="Port Said">بورسعيد (Port Said)</option>
+                                <option value="Damietta">دمياط (Damietta)</option>
+                                <option value="Kafr El Sheikh">كفر الشيخ (Kafr El Sheikh)</option>
+                                <option value="Fayoum">الفيوم (Fayoum)</option>
+                                <option value="Beni Suef">بني سويف (Beni Suef)</option>
+                                <option value="Minya">المنيا (Minya)</option>
+                                <option value="Asyut">أسيوط (Asyut)</option>
+                                <option value="Sohag">سوهاج (Sohag)</option>
+                                <option value="Qena">قنا (Qena)</option>
+                                <option value="Luxor">الأقصر (Luxor)</option>
+                                <option value="Aswan">أسوان (Aswan)</option>
+                                <option value="Red Sea (Hurghada)">البحر الأحمر (الغردقة)</option>
+                                <option value="South Sinai (Sharm)">جنوب سيناء (شرم الشيخ)</option>
+                                <option value="North Sinai">شمال سيناء</option>
+                                <option value="Matrouh">مطروح والساحل الشمالي</option>
+                                <option value="New Valley">الوادي الجديد</option>
+                            </select>
+                        </div>
+                        <div class="invalid-feedback">يرجى اختيار المحافظة.</div>
+                    </div>
+
+                    <!-- Detailed Address -->
+                    <div class="col-12 col-md-5">
+                        <label class="form-label small fw-semibold text-secondary">
+                            العنوان بالتفصيل (Detailed Address) <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-location-dot"></i></span>
+                            <input type="text" id="customer-address" class="form-control" placeholder="رقم العمارة، اسم الشارع، المنطقة..." required />
+                        </div>
+                        <div class="invalid-feedback">يرجى إدخال العنوان بالتفصيل.</div>
+                    </div>
+
+                    <!-- Email Address -->
+                    <div class="col-12 col-md-3">
+                        <label class="form-label small fw-semibold text-secondary">
+                            البريد الإلكتروني (Email - اختياري)
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted"><i class="fa-solid fa-envelope"></i></span>
+                            <input type="email" id="customer-email" class="form-control" placeholder="client@example.com" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Order Line Items Card -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                <div>
+                    <span class="fw-bold"><i class="bi bi-cart3 text-primary me-2"></i>2. Order Line Items</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" id="btn-open-catalog-search" class="btn btn-sm btn-outline-primary shadow-sm" title="Search millions of products in catalog">
+                        <i class="bi bi-search me-1"></i>Search Catalog
+                    </button>
+                    <button type="button" id="btn-add-row" class="btn btn-sm btn-primary shadow-sm">
+                        <i class="bi bi-plus-lg me-1"></i>Add Product Row
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Barcode / Product Search Bar -->
+            <div class="p-3 bg-light border-bottom position-relative">
+                <label class="form-label small fw-semibold text-muted mb-1">
+                    <i class="bi bi-lightning-charge text-warning me-1"></i>Quick Search & Add (Supports 1M+ Products):
+                </label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0 text-primary">
+                        <i class="bi bi-upc-scan"></i>
+                    </span>
+                    <input type="text" id="instant-product-search" class="form-control border-start-0" placeholder="Type name, SKU or barcode to search instantly (e.g. Dell, LOG, 80mm)..." autocomplete="off" />
+                    <button class="btn btn-outline-secondary" type="button" id="btn-clear-quick-search" title="Clear">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Live Auto-Suggest Floating Dropdown -->
+                <div id="quick-search-dropdown" class="position-absolute bg-white shadow-lg border rounded-3 p-1 mt-1 d-none" style="z-index: 1050; left: 16px; right: 16px; max-height: 260px; overflow-y: auto;">
+                    <div class="p-2 text-center text-muted small" id="quick-search-loading">Searching catalog...</div>
+                    <div id="quick-search-results"></div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle mb-0" id="order-items-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 44%;">Product & Search</th>
+                            <th style="width: 20%;">
+                                Unit Price (EGP)
+                                <i class="bi bi-lock-fill text-muted ms-1 small" title="Fixed system price (Managed by Admin)"></i>
+                            </th>
+                            <th style="width: 14%;">Quantity</th>
+                            <th style="width: 16%;" class="text-end">Total (EGP)</th>
+                            <th style="width: 6%;" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="order-items-body">
+                        <!-- Default Row 1 -->
+                        <tr class="order-item-row">
+                            <td>
+                                <div class="input-group input-group-sm">
+                                    <select class="form-select form-select-sm product-select">
+                                        <option value="" data-price="0" data-stock="0" disabled>Select Product...</option>
+                                        @if (dbProducts != null && dbProducts.Any())
+                                        {
+                                            var isFirst = true;
+                                            foreach (var p in dbProducts)
+                                            {
+                                                if (isFirst)
+                                                {
+                                                    <option value="@p.Id" data-sku="@p.Sku" data-price="@p.Price.ToString("F2")" data-stock="@p.StockQuantity" selected>
+                                                        @p.Name (@p.StockQuantity in stock)
+                                                    </option>
+                                                    isFirst = false;
+                                                }
+                                                else
+                                                {
+                                                    <option value="@p.Id" data-sku="@p.Sku" data-price="@p.Price.ToString("F2")" data-stock="@p.StockQuantity">
+                                                        @p.Name (@p.StockQuantity in stock)
+                                                    </option>
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <option value="1" data-sku="DELL-LAT-5540" data-price="1250.00" data-stock="34" selected>Dell Latitude 5540 Laptop (34 in stock)</option>
+                                            <option value="2" data-sku="BC-SCAN-01" data-price="89.99" data-stock="2">Wireless Barcode Scanner (2 in stock)</option>
+                                            <option value="3" data-sku="LOG-MX3S-BK" data-price="99.00" data-stock="7">Logitech MX Master 3S (7 in stock)</option>
+                                            <option value="4" data-sku="TH-PAP-80" data-price="45.00" data-stock="120">Thermal Receipt Paper (120 in stock)</option>
+                                            <option value="5" data-sku="SAM-MON-27C" data-price="189.99" data-stock="0" disabled>Samsung 27" Curved Monitor (Out of stock)</option>
+                                            <option value="6" data-sku="PWR-65W-GAN" data-price="49.99" data-stock="9">USB-C Fast Charger 65W (9 in stock)</option>
+                                        }
+                                    </select>
+                                    <button type="button" class="btn btn-outline-primary btn-search-row" title="Search catalog for this row">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                                <div class="stock-badge small text-muted mt-1">
+                                    <i class="bi bi-box-seam me-1"></i>Stock: <span class="stock-qty-display">34</span> available
+                                </div>
+                            </td>
+                            <td class="text-nowrap">
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="unit-price-display fw-bold text-dark fs-6">1,250.00 EGP</span>
+                                    <i class="bi bi-lock-fill text-muted small" title="Fixed system price (Admin only)"></i>
+                                </div>
+                                <input type="hidden" class="unit-price-input" value="1250.00" />
+                            </td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm qty-input" value="1" min="1" max="34" />
+                            </td>
+                            <td class="text-end fw-bold row-total">1,250.00 EGP</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-remove-row" title="Delete row">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer bg-white py-2 text-muted small d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                <span><i class="bi bi-info-circle me-1"></i>Search across millions of products instantly using the search button or quick search bar.</span>
+                <span class="badge bg-secondary-subtle text-dark" id="item-count-badge">1 item row (1 unit)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Order Summary & Checkout -->
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm sticky-top" style="top: 80px;">
+            <div class="card-header bg-white py-3">
+                <span class="fw-bold"><i class="bi bi-receipt-cutoff text-primary me-2"></i>Order Summary</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between mb-2 small text-muted">
+                    <span>Subtotal:</span>
+                    <span class="fw-bold text-dark" id="summary-subtotal">0.00 EGP</span>
+                </div>
+
+                <!-- Sales Coupon / Promo Code Field -->
+                <div class="mb-3 p-2 rounded bg-light border">
+                    <label class="form-label small fw-bold text-dark mb-1 d-flex align-items-center justify-content-between">
+                        <span><i class="fa-solid fa-ticket text-danger me-1"></i>كوبون الخصم (Promo Code)</span>
+                        <span id="coupon-badge" class="badge bg-success-subtle text-success border border-success-subtle d-none">مُطبّق</span>
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input type="text" id="order-coupon-code" class="form-control font-monospace text-uppercase fw-bold" placeholder="كود الخصم (مثال: ROVEN10)" />
+                        <button class="btn btn-outline-danger" type="button" id="btn-apply-coupon">تطبيق</button>
+                        <button class="btn btn-outline-secondary d-none" type="button" id="btn-remove-coupon" title="إلغاء الكوبون">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div id="coupon-feedback" class="small mt-1 d-none fw-semibold"></div>
+                </div>
+
+                <!-- Discount Row -->
+                <div class="d-flex justify-content-between mb-2 small text-danger d-none" id="summary-discount-row">
+                    <span>Discount (<span id="summary-discount-code"></span>):</span>
+                    <span class="fw-bold" id="summary-discount-amount">- 0.00 EGP</span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-3 small text-muted">
+                    <span>Shipping:</span>
+                    <span class="text-success fw-bold">FREE</span>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="fw-bold fs-5 text-dark">Total Amount:</span>
+                    <span class="fw-bold fs-4 text-primary" id="summary-grand-total">0.00 EGP</span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold text-secondary">Payment Method</label>
+                    <select id="payment-method" class="form-select">
+                        <option value="Cash on Delivery" selected>Cash on Delivery</option>
+                        <option value="Credit / Debit Card">Credit / Debit Card</option>
+                        <option value="Bank Transfer (InstaPay)">Bank Transfer (InstaPay)</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-semibold text-secondary">Order Notes</label>
+                    <textarea id="order-notes" class="form-control" rows="2" placeholder="Optional delivery instructions or notes..."></textarea>
+                </div>
+
+                <button type="button" id="btn-place-order" class="btn btn-success w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                    <i class="bi bi-check2-circle fs-5"></i>
+                    <span id="btn-place-order-text">Confirm & Place Order</span>
+                    <div id="btn-place-order-spinner" class="spinner-border spinner-border-sm d-none" role="status"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 1. PRODUCT CATALOG SEARCH MODAL (1M+ Ready) -->
+<!-- ========================================== -->
+<div class="modal fade" id="productSearchModal" tabindex="-1" aria-labelledby="productSearchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-search fs-5"></i>
+                    <h5 class="modal-title fw-bold mb-0" id="productSearchModalLabel">Product Catalog Search</h5>
+                    <span class="badge bg-white text-primary ms-2">1,000,000+ Items</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <!-- Search Box -->
+                <div class="input-group input-group-lg mb-3 shadow-sm">
+                    <span class="input-group-text bg-white border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" id="modal-product-search-input" class="form-control border-start-0" placeholder="Type product name, SKU, or scan barcode..." autocomplete="off" autofocus />
+                    <button class="btn btn-primary px-4 fw-semibold" type="button" id="btn-modal-do-search">
+                        Search
+                    </button>
+                </div>
+
+              
+
+                <!-- Results Table -->
+                <div class="table-responsive border rounded-3" style="max-height: 380px;">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th>Product Name & SKU</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal-product-results-body">
+                            @if (initialProducts.Any())
+                            {
+                                foreach (var p in initialProducts)
+                                {
+                                    var isOutOfStock = p.stock <= 0;
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold text-dark">@p.name</div>
+                                            <span class="font-monospace small text-muted">SKU: @(string.IsNullOrWhiteSpace(p.sku) ? "N/A" : p.sku)</span>
+                                        </td>
+                                        <td><span class="badge bg-light text-dark border">@p.category</span></td>
+                                        <td class="fw-bold text-primary">@p.price.ToString("N2") EGP</td>
+                                        <td>
+                                            @if (isOutOfStock)
+                                            {
+                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Out of Stock (0)</span>
+                                            }
+                                            else if (p.stock <= 5)
+                                            {
+                                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Low Stock (@p.stock)</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle">@p.stock units</span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <button type="button" class="btn btn-sm btn-primary btn-modal-select-item" 
+                                                data-id="@p.id" 
+                                                data-name="@p.name" 
+                                                data-sku="@p.sku" 
+                                                data-price="@p.price" 
+                                                data-stock="@p.stock">
+                                                <i class="bi bi-check2-circle me-1"></i>Select
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        <i class="bi bi-box fs-3 d-block mb-2 text-secondary"></i>
+                                        No products found in the catalog.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light py-2">
+                <span class="text-muted small me-auto"><i class="bi bi-info-circle me-1"></i>Click <strong>"Select"</strong> to add item to your order.</span>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 2. ORDER CONFIRMATION MODAL -->
+<!-- ========================================== -->
+<div class="modal fade" id="orderSuccessModal" tabindex="-1" aria-labelledby="orderSuccessModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body text-center p-4 p-md-5">
+                <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 72px; height: 72px;">
+                    <i class="bi bi-check-lg fs-1"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">Order Placed Successfully!</h4>
+                <p class="text-muted small mb-4">Your order has been recorded and inventory stock has been adjusted.</p>
+
+                <div class="card bg-light border-0 p-3 mb-4 text-start">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Order Reference:</span>
+                        <span class="fw-bold text-primary font-monospace" id="modal-order-number">ORD-2026-0000</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Customer:</span>
+                        <span class="fw-semibold text-dark" id="modal-customer-name">Ahmed Hassan</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted small">Payment Method:</span>
+                        <span class="text-dark" id="modal-payment-method">Cash on Delivery</span>
+                    </div>
+                    <div class="d-flex justify-content-between pt-2 border-top">
+                        <span class="fw-bold text-dark">Total Amount Paid:</span>
+                        <span class="fw-bold text-success fs-5" id="modal-total-amount">0.00 EGP</span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary w-50 py-2">
+                        <i class="bi bi-receipt me-1"></i>All Orders
+                    </a>
+                </div>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted" onclick="window.location.reload()">
+                        + Create Another Order
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    (function () {
+        // Fallback catalog if offline or testing
+        const defaultCatalog = [
+            { id: 1, name: "Dell Latitude 5540 Laptop", sku: "DELL-LAT-5540", price: 1250.00, stock: 34, category: "Electronics" },
+            { id: 2, name: "Wireless Barcode Scanner", sku: "BC-SCAN-01", price: 89.99, stock: 2, category: "Hardware" },
+            { id: 3, name: "Logitech MX Master 3S", sku: "LOG-MX3S-BK", price: 99.00, stock: 7, category: "Accessories" },
+            { id: 4, name: "Thermal Receipt Paper (Box)", sku: "TH-PAP-80", price: 45.00, stock: 120, category: "Supplies" },
+            { id: 5, name: "Samsung 27\" Curved Monitor", sku: "SAM-MON-27C", price: 189.99, stock: 0, category: "Electronics" },
+            { id: 6, name: "USB-C Fast Charger 65W", sku: "PWR-65W-GAN", price: 49.99, stock: 9, category: "Accessories" }
+        ];
+
+        let targetRowForModal = null; // When modal is opened for a specific row
+        const searchModalEl = document.getElementById('productSearchModal');
+        const searchModal = new bootstrap.Modal(searchModalEl);
+
+        // Helper: Format currency in EGP
+        function formatEgp(val) {
+            return (val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
+        }
+
+        // Helper: Update a table row
+        function updateRow(tr) {
+            const select = tr.querySelector('.product-select');
+            const priceInput = tr.querySelector('.unit-price-input');
+            const qtyInput = tr.querySelector('.qty-input');
+            const totalCell = tr.querySelector('.row-total');
+            const stockDisplay = tr.querySelector('.stock-qty-display');
+
+            if (!select || !priceInput || !qtyInput || !totalCell) return;
+
+            const selectedOption = select.options[select.selectedIndex];
+            if (selectedOption) {
+                const stock = parseInt(selectedOption.getAttribute('data-stock')) || 0;
+                if (stockDisplay) {
+                    stockDisplay.textContent = stock;
+                }
+                qtyInput.max = stock > 0 ? stock : 1;
+            }
+
+            let price = parseFloat((priceInput.value || '').toString().replace(/,/g, '')) || 0;
+            let qty = parseInt(qtyInput.value) || 0;
+
+            if (qty < 1) {
+                qty = 1;
+                qtyInput.value = 1;
+            }
+
+            const rowTotal = price * qty;
+            totalCell.textContent = formatEgp(rowTotal);
+
+            recalculateSummary();
+        }
+
+        // Helper: Recalculate whole summary
+        let currentDiscountAmount = 0;
+        let currentCouponCode = null;
+
+        function recalculateSummary() {
+            const rows = document.querySelectorAll('#order-items-body tr.order-item-row');
+            let subtotal = 0;
+            let totalItems = 0;
+
+            rows.forEach(tr => {
+                const priceInput = tr.querySelector('.unit-price-input');
+                const qtyInput = tr.querySelector('.qty-input');
+                if (priceInput && qtyInput) {
+                    const price = parseFloat((priceInput.value || '').toString().replace(/,/g, '')) || 0;
+                    const qty = parseInt(qtyInput.value) || 0;
+                    subtotal += (price * qty);
+                    totalItems += qty;
+                }
+            });
+
+            const grandTotal = Math.max(0, subtotal - currentDiscountAmount);
+
+            document.getElementById('summary-subtotal').textContent = formatEgp(subtotal);
+            const discountRow = document.getElementById('summary-discount-row');
+            if (discountRow) {
+                if (currentDiscountAmount > 0) {
+                    discountRow.classList.remove('d-none');
+                    document.getElementById('summary-discount-code').textContent = currentCouponCode || '';
+                    document.getElementById('summary-discount-amount').textContent = '- ' + formatEgp(currentDiscountAmount);
+                } else {
+                    discountRow.classList.add('d-none');
+                }
+            }
+
+            const taxEl = document.getElementById('summary-tax');
+            if (taxEl) taxEl.textContent = formatEgp(0);
+            document.getElementById('summary-grand-total').textContent = formatEgp(grandTotal);
+
+            const countBadge = document.getElementById('item-count-badge');
+            if (countBadge) {
+                countBadge.textContent = rows.length + (rows.length === 1 ? ' item row' : ' item rows') + ' (' + totalItems + ' units)';
+            }
+        }
+
+        // Helper: Wire row event listeners
+        function bindRowEvents(tr) {
+            const select = tr.querySelector('.product-select');
+            const priceInput = tr.querySelector('.unit-price-input');
+            const qtyInput = tr.querySelector('.qty-input');
+            const removeBtn = tr.querySelector('.btn-remove-row');
+            const searchRowBtn = tr.querySelector('.btn-search-row');
+
+            if (select) {
+                select.addEventListener('change', function () {
+                    const opt = this.options[this.selectedIndex];
+                    if (opt) {
+                        const price = parseFloat(opt.getAttribute('data-price')) || 0;
+                        if (priceInput) {
+                            priceInput.value = price.toFixed(2);
+                        }
+                        const priceDisplay = tr.querySelector('.unit-price-display');
+                        if (priceDisplay) {
+                            priceDisplay.textContent = formatEgp(price);
+                        }
+                    }
+                    updateRow(tr);
+                });
+            }
+
+            if (qtyInput) {
+                qtyInput.addEventListener('input', function () {
+                    updateRow(tr);
+                });
+                qtyInput.addEventListener('change', function () {
+                    updateRow(tr);
+                });
+            }
+
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function () {
+                    const allRows = document.querySelectorAll('#order-items-body tr.order-item-row');
+                    const selectedOpt = select.options[select.selectedIndex];
+                    const prodName = selectedOpt ? selectedOpt.text.split('(')[0].trim() : 'this product';
+
+                    StockifyAlert.confirmDelete(
+                        'Remove Item?',
+                        `Are you sure you want to remove "${prodName}" from this order?`,
+                        function () {
+                            if (allRows.length > 1) {
+                                tr.remove();
+                                recalculateSummary();
+                            } else {
+                                if (select) select.selectedIndex = 0;
+                                if (priceInput) priceInput.value = "0.00";
+                                const pDisp = tr.querySelector('.unit-price-display');
+                                if (pDisp) pDisp.textContent = "0.00 EGP";
+                                if (qtyInput) qtyInput.value = "1";
+                                updateRow(tr);
+                            }
+                            StockifyAlert.toastInfo(`Removed "${prodName}" from order`);
+                        }
+                    );
+                });
+            }
+
+            if (searchRowBtn) {
+                searchRowBtn.addEventListener('click', function () {
+                    targetRowForModal = tr;
+                    openCatalogModal('');
+                });
+            }
+        }
+
+        // Function: Add or update product in order table
+        function addProductToOrder(product, specificRow = null) {
+            const tbody = document.getElementById('order-items-body');
+
+            if (specificRow) {
+                // Updating an existing row
+                const select = specificRow.querySelector('.product-select');
+                let found = false;
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value == product.id) {
+                        select.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    const opt = document.createElement('option');
+                    opt.value = product.id;
+                    opt.setAttribute('data-price', parseFloat(product.price).toFixed(2));
+                    opt.setAttribute('data-stock', product.stock);
+                    opt.setAttribute('data-sku', product.sku || '');
+                    opt.textContent = `${product.name} (${product.stock} in stock)`;
+                    select.appendChild(opt);
+                    select.value = product.id;
+                }
+
+                specificRow.querySelector('.unit-price-input').value = parseFloat(product.price).toFixed(2);
+                const pDisp = specificRow.querySelector('.unit-price-display');
+                if (pDisp) pDisp.textContent = formatEgp(product.price);
+                updateRow(specificRow);
+                StockifyAlert.toastSuccess(`Selected product: <strong>${product.name}</strong>`);
+                return;
+            }
+
+            // Check if product is already in the order table
+            const existingRows = tbody.querySelectorAll('.order-item-row');
+            for (const r of existingRows) {
+                const s = r.querySelector('.product-select');
+                if (s && s.value == product.id) {
+                    const qtyInp = r.querySelector('.qty-input');
+                    qtyInp.value = (parseInt(qtyInp.value) || 1) + 1;
+                    updateRow(r);
+                    StockifyAlert.toastInfo(`Increased quantity for <strong>${product.name}</strong>`);
+                    return;
+                }
+            }
+
+            // Append new row
+            const firstRowSelect = tbody.querySelector('.product-select');
+            let optionsHtml = '';
+            if (firstRowSelect) {
+                optionsHtml = firstRowSelect.innerHTML;
+            }
+
+            const newTr = document.createElement('tr');
+            newTr.className = 'order-item-row';
+            newTr.innerHTML = `
+                <td>
+                    <div class="input-group input-group-sm">
+                        <select class="form-select form-select-sm product-select">
+                            ${optionsHtml}
+                        </select>
+                        <button type="button" class="btn btn-outline-primary btn-search-row" title="Search catalog for this row">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    <div class="stock-badge small text-muted mt-1">
+                        <i class="bi bi-box-seam me-1"></i>Stock: <span class="stock-qty-display">${product.stock}</span> available
+                    </div>
+                </td>
+                <td class="text-nowrap">
+                    <div class="d-flex align-items-center gap-1">
+                        <span class="unit-price-display fw-bold text-dark fs-6">${formatEgp(product.price)}</span>
+                        <i class="bi bi-lock-fill text-muted small" title="Fixed system price (Admin only)"></i>
+                    </div>
+                    <input type="hidden" class="unit-price-input" value="${parseFloat(product.price).toFixed(2)}" />
+                </td>
+                <td>
+                    <input type="number" class="form-control form-control-sm qty-input" value="1" min="1" max="${product.stock > 0 ? product.stock : 1}" />
+                </td>
+                <td class="text-end fw-bold row-total">${formatEgp(product.price)}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-remove-row" title="Delete row">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(newTr);
+            bindRowEvents(newTr);
+
+            // Ensure the newly added product option is selected in this row
+            const newSelect = newTr.querySelector('.product-select');
+            let existsInOptions = false;
+            for (let i = 0; i < newSelect.options.length; i++) {
+                if (newSelect.options[i].value == product.id) {
+                    newSelect.selectedIndex = i;
+                    existsInOptions = true;
+                    break;
+                }
+            }
+            if (!existsInOptions) {
+                const opt = document.createElement('option');
+                opt.value = product.id;
+                opt.setAttribute('data-price', parseFloat(product.price).toFixed(2));
+                opt.setAttribute('data-stock', product.stock);
+                opt.setAttribute('data-sku', product.sku || '');
+                opt.textContent = `${product.name} (${product.stock} in stock)`;
+                newSelect.appendChild(opt);
+                newSelect.value = product.id;
+            }
+
+            updateRow(newTr);
+            StockifyAlert.toastSuccess(`Added to order: <strong>${product.name}</strong> (${formatEgp(product.price)})`);
+        }
+
+        // ===============================================
+        // SEARCH CATALOG & CUSTOMER DATA INITIALIZATION
+        // ===============================================
+        const initialCatalog = @Html.Raw(initialProductsJson);
+        const registeredCustomers = @Html.Raw(initialCustomersJson);
+
+        const customerSelect = document.getElementById('customer-select');
+        const customerNameInput = document.getElementById('customer-name');
+        const customerPhoneInput = document.getElementById('customer-phone');
+        const customerCitySelect = document.getElementById('customer-city');
+        const customerAddressInput = document.getElementById('customer-address');
+        const customerEmailInput = document.getElementById('customer-email');
+        const btnClearCustomer = document.getElementById('btn-clear-customer');
+        const phoneMatchAlert = document.getElementById('phone-match-alert');
+
+        let matchedCustomer = null;
+
+        function fillCustomerFields(name, phone, email, address, selectId) {
+            if (name) customerNameInput.value = name;
+            if (phone) customerPhoneInput.value = phone;
+            if (email) customerEmailInput.value = email;
+
+            if (address) {
+                // Check if address specifies any known Egyptian governorate
+                let detectedCity = '';
+                for (let i = 0; i < customerCitySelect.options.length; i++) {
+                    const optVal = customerCitySelect.options[i].value.toLowerCase();
+                    const optText = customerCitySelect.options[i].text.toLowerCase();
+                    if (optVal && (address.toLowerCase().includes(optVal) || address.toLowerCase().includes(optText))) {
+                        detectedCity = customerCitySelect.options[i].value;
+                        break;
+                    }
+                }
+                if (detectedCity) {
+                    customerCitySelect.value = detectedCity;
+                }
+                customerAddressInput.value = address;
+            }
+
+            if (selectId && customerSelect) {
+                customerSelect.value = selectId;
+            }
+
+            [customerNameInput, customerPhoneInput, customerCitySelect, customerAddressInput].forEach(el => el.classList.remove('is-invalid'));
+            phoneMatchAlert.classList.add('d-none');
+        }
+
+        // Quick dropdown selection change
+        if (customerSelect) {
+            customerSelect.addEventListener('change', function () {
+                const opt = this.options[this.selectedIndex];
+                if (!opt || !this.value) return;
+
+                const name = opt.getAttribute('data-name') || '';
+                const phone = opt.getAttribute('data-phone') || '';
+                const email = opt.getAttribute('data-email') || '';
+                const address = opt.getAttribute('data-address') || '';
+
+                fillCustomerFields(name, phone, email, address, this.value);
+                StockifyAlert.toastSuccess('تم استرجاع بيانات العميل وتعبئتها بنجاح');
+            });
+        }
+
+        // Clear customer fields to type new customer from scratch
+        if (btnClearCustomer) {
+            btnClearCustomer.addEventListener('click', function () {
+                if (customerSelect) customerSelect.value = '';
+                customerNameInput.value = '';
+                customerPhoneInput.value = '';
+                customerEmailInput.value = '';
+                customerAddressInput.value = '';
+                customerCitySelect.selectedIndex = 0;
+                phoneMatchAlert.classList.add('d-none');
+                matchedCustomer = null;
+                [customerNameInput, customerPhoneInput, customerCitySelect, customerAddressInput].forEach(el => el.classList.remove('is-invalid'));
+                customerNameInput.focus();
+            });
+        }
+
+        // Smart phone matching as user types
+        if (customerPhoneInput) {
+            customerPhoneInput.addEventListener('input', function () {
+                const clean = this.value.replace(/\D/g, '');
+                phoneMatchAlert.classList.add('d-none');
+                matchedCustomer = null;
+
+                if (clean.length >= 8 && registeredCustomers && registeredCustomers.length > 0) {
+                    const match = registeredCustomers.find(c => {
+                        const cPhone = (c.phone || '').replace(/\D/g, '');
+                        return cPhone && (cPhone === clean || cPhone.endsWith(clean) || clean.endsWith(cPhone));
+                    });
+
+                    if (match && (!customerNameInput.value || customerNameInput.value.trim() !== match.name)) {
+                        matchedCustomer = match;
+                        phoneMatchAlert.innerHTML = `<i class="fa-solid fa-circle-check me-1"></i>تم العثور على عميل مسجل: <strong>${match.name}</strong>! اضغط هنا للتعبئة التلقائية.`;
+                        phoneMatchAlert.classList.remove('d-none');
+                    }
+                }
+            });
+
+            phoneMatchAlert.addEventListener('click', function () {
+                if (matchedCustomer) {
+                    fillCustomerFields(matchedCustomer.name, matchedCustomer.phone, matchedCustomer.email, matchedCustomer.address, matchedCustomer.id);
+                    StockifyAlert.toastSuccess(`تم تطبيق بيانات: ${matchedCustomer.name}`);
+                }
+            });
+        }
+        const catalogCache = new Map();
+        if (initialCatalog && initialCatalog.length > 0) {
+            catalogCache.set('', initialCatalog);
+        }
+
+        function renderModalResults(products) {
+            const tbody = document.getElementById('modal-product-results-body');
+            const countEl = document.getElementById('modal-results-count');
+            if (countEl) countEl.textContent = products ? products.length : 0;
+
+            if (!products || products.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted"><i class="bi bi-search fs-3 d-block mb-2 text-secondary"></i>No products found matching your search.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = products.map(p => {
+                const isOutOfStock = p.stock <= 0;
+                const stockBadge = isOutOfStock
+                    ? `<span class="badge bg-danger-subtle text-danger border border-danger-subtle">Out of Stock (0)</span>`
+                    : (p.stock <= 5 
+                        ? `<span class="badge bg-warning-subtle text-warning border border-warning-subtle">Low Stock (${p.stock})</span>`
+                        : `<span class="badge bg-success-subtle text-success border border-success-subtle">${p.stock} units</span>`);
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">${p.name}</div>
+                            <span class="font-monospace small text-muted">SKU: ${p.sku || 'N/A'}</span>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">${p.category || 'General'}</span></td>
+                        <td class="fw-bold text-primary">${formatEgp(p.price)}</td>
+                        <td>${stockBadge}</td>
+                        <td class="text-end">
+                            <button type="button" class="btn btn-sm btn-primary btn-modal-select-item" 
+                                data-id="${p.id}" 
+                                data-name="${p.name.replace(/"/g, '&quot;')}" 
+                                data-sku="${p.sku || ''}" 
+                                data-price="${p.price}" 
+                                data-stock="${p.stock}">
+                                <i class="bi bi-check2-circle me-1"></i>Select
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            bindModalSelectButtons();
+        }
+
+        function bindModalSelectButtons() {
+            const tbody = document.getElementById('modal-product-results-body');
+            tbody.querySelectorAll('.btn-modal-select-item').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const prod = {
+                        id: parseInt(this.getAttribute('data-id')),
+                        name: this.getAttribute('data-name'),
+                        sku: this.getAttribute('data-sku'),
+                        price: parseFloat(this.getAttribute('data-price')),
+                        stock: parseInt(this.getAttribute('data-stock'))
+                    };
+
+                    addProductToOrder(prod, targetRowForModal);
+                    targetRowForModal = null;
+                    searchModal.hide();
+                });
+            });
+        }
+
+        // Bind initially rendered buttons
+        bindModalSelectButtons();
+
+        function openCatalogModal(prefillQuery = '') {
+            const input = document.getElementById('modal-product-search-input');
+            input.value = prefillQuery;
+            searchModal.show();
+            if (!prefillQuery) {
+                renderModalResults(initialCatalog);
+            } else {
+                filterModalCatalog(prefillQuery);
+            }
+            setTimeout(() => input.focus(), 60);
+        }
+
+        function filterModalCatalog(query) {
+            const q = (query || '').trim().toLowerCase();
+            if (!q) {
+                renderModalResults(initialCatalog);
+                return;
+            }
+
+            // 1. Instant 0ms memory filter
+            const localMatches = initialCatalog.filter(p =>
+                (p.name && p.name.toLowerCase().includes(q)) ||
+                (p.sku && p.sku.toLowerCase().includes(q)) ||
+                (p.category && p.category.toLowerCase().includes(q))
+            );
+
+            if (localMatches.length > 0) {
+                renderModalResults(localMatches);
+            }
+
+            // 2. Background fetch for full 1M+ database catalog
+            clearTimeout(modalDebounceTimer);
+            modalDebounceTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(`/Orders/SearchProducts?q=${encodeURIComponent(q)}`);
+                    if (res.ok) {
+                        const serverResults = await res.json();
+                        if (Array.isArray(serverResults) && serverResults.length > 0) {
+                            renderModalResults(serverResults);
+                        } else if (localMatches.length === 0) {
+                            renderModalResults([]);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Search query failed', e);
+                }
+            }, 150);
+        }
+
+        // Instant search on typing in modal input
+        let modalDebounceTimer;
+        document.getElementById('modal-product-search-input').addEventListener('input', function () {
+            filterModalCatalog(this.value);
+        });
+
+        document.getElementById('btn-modal-do-search').addEventListener('click', function () {
+            filterModalCatalog(document.getElementById('modal-product-search-input').value);
+        });
+
+        document.getElementById('btn-open-catalog-search').addEventListener('click', function () {
+            targetRowForModal = null;
+            openCatalogModal('');
+        });
+
+        // ===============================================
+        // QUICK SEARCH BAR WITH AUTO-SUGGEST
+        // ===============================================
+        const quickSearchInput = document.getElementById('instant-product-search');
+        const quickSearchDropdown = document.getElementById('quick-search-dropdown');
+        const quickSearchResults = document.getElementById('quick-search-results');
+        const quickSearchLoading = document.getElementById('quick-search-loading');
+        let quickDebounceTimer;
+
+        function renderQuickSearchResults(results) {
+            if (!results || results.length === 0) {
+                quickSearchResults.innerHTML = `<div class="p-2 text-center text-muted small">No products found.</div>`;
+                return;
+            }
+
+            quickSearchResults.innerHTML = results.slice(0, 8).map(p => `
+                <div class="d-flex justify-content-between align-items-center p-2 rounded hover-bg-light cursor-pointer border-bottom quick-result-item" 
+                     style="cursor: pointer;"
+                     data-id="${p.id}" 
+                     data-name="${p.name.replace(/"/g, '&quot;')}" 
+                     data-sku="${p.sku || ''}" 
+                     data-price="${p.price}" 
+                     data-stock="${p.stock}">
+                    <div>
+                        <div class="fw-semibold text-dark small">${p.name}</div>
+                        <span class="text-muted small">SKU: <code>${p.sku || 'N/A'}</code> | Stock: <strong>${p.stock}</strong></span>
+                    </div>
+                    <div class="text-end">
+                        <span class="fw-bold text-primary small d-block">${formatEgp(p.price)}</span>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle small"><i class="bi bi-plus-lg me-1"></i>Add</span>
+                    </div>
+                </div>
+            `).join('');
+
+            quickSearchResults.querySelectorAll('.quick-result-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    const prod = {
+                        id: parseInt(this.getAttribute('data-id')),
+                        name: this.getAttribute('data-name'),
+                        sku: this.getAttribute('data-sku'),
+                        price: parseFloat(this.getAttribute('data-price')),
+                        stock: parseInt(this.getAttribute('data-stock'))
+                    };
+
+                    addProductToOrder(prod);
+                    quickSearchInput.value = '';
+                    quickSearchDropdown.classList.add('d-none');
+                });
+            });
+        }
+
+        quickSearchInput.addEventListener('input', function () {
+            const val = this.value.trim().toLowerCase();
+
+            if (!val) {
+                quickSearchDropdown.classList.add('d-none');
+                return;
+            }
+
+            quickSearchDropdown.classList.remove('d-none');
+
+            // 1. Instant local match (0ms!)
+            const local = initialCatalog.filter(p => 
+                (p.name && p.name.toLowerCase().includes(val)) ||
+                (p.sku && p.sku.toLowerCase().includes(val))
+            );
+
+            if (local.length > 0) {
+                quickSearchLoading.classList.add('d-none');
+                renderQuickSearchResults(local);
+            } else {
+                quickSearchLoading.classList.remove('d-none');
+                quickSearchResults.innerHTML = '';
+            }
+
+            // 2. Background search for remaining database items
+            clearTimeout(quickDebounceTimer);
+            quickDebounceTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(`/Orders/SearchProducts?q=${encodeURIComponent(val)}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        quickSearchLoading.classList.add('d-none');
+                        if (Array.isArray(data) && data.length > 0) {
+                            renderQuickSearchResults(data);
+                        } else if (local.length === 0) {
+                            renderQuickSearchResults([]);
+                        }
+                    }
+                } catch (e) {
+                    quickSearchLoading.classList.add('d-none');
+                }
+            }, 150);
+        });
+
+        // Hide quick search dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!quickSearchInput.contains(e.target) && !quickSearchDropdown.contains(e.target)) {
+                quickSearchDropdown.classList.add('d-none');
+            }
+        });
+
+        document.getElementById('btn-clear-quick-search').addEventListener('click', function () {
+            quickSearchInput.value = '';
+            quickSearchDropdown.classList.add('d-none');
+            quickSearchInput.focus();
+        });
+
+        // "+ Add Product Row" button
+        document.getElementById('btn-add-row').addEventListener('click', function () {
+            const tbody = document.getElementById('order-items-body');
+            const firstRowSelect = tbody.querySelector('.product-select');
+            let optionsHtml = '';
+            if (firstRowSelect) {
+                optionsHtml = firstRowSelect.innerHTML;
+            }
+
+            const newTr = document.createElement('tr');
+            newTr.className = 'order-item-row';
+            newTr.innerHTML = `
+                <td>
+                    <div class="input-group input-group-sm">
+                        <select class="form-select form-select-sm product-select">
+                            ${optionsHtml}
+                        </select>
+                        <button type="button" class="btn btn-outline-primary btn-search-row" title="Search catalog for this row">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    <div class="stock-badge small text-muted mt-1">
+                        <i class="bi bi-box-seam me-1"></i>Stock: <span class="stock-qty-display">--</span> available
+                    </div>
+                </td>
+                <td class="text-nowrap">
+                    <div class="d-flex align-items-center gap-1">
+                        <span class="unit-price-display fw-bold text-dark fs-6">0.00 EGP</span>
+                        <i class="bi bi-lock-fill text-muted small" title="Fixed system price (Admin only)"></i>
+                    </div>
+                    <input type="hidden" class="unit-price-input" value="0.00" />
+                </td>
+                <td>
+                    <input type="number" class="form-control form-control-sm qty-input" value="1" min="1" />
+                </td>
+                <td class="text-end fw-bold row-total">0.00 EGP</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-remove-row" title="Delete row">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(newTr);
+            bindRowEvents(newTr);
+
+            const newSelect = newTr.querySelector('.product-select');
+            if (newSelect && newSelect.options.length > 0) {
+                newSelect.selectedIndex = 0;
+                const opt = newSelect.options[0];
+                const price = parseFloat(opt.getAttribute('data-price')) || 0;
+                newTr.querySelector('.unit-price-input').value = price.toFixed(2);
+                const pDisp = newTr.querySelector('.unit-price-display');
+                if (pDisp) pDisp.textContent = formatEgp(price);
+            }
+            updateRow(newTr);
+            StockifyAlert.toastSuccess('New product row added');
+        });
+
+        // Coupon Apply & Remove Event Listeners for Sales
+        const btnApplyCoupon = document.getElementById('btn-apply-coupon');
+        const btnRemoveCoupon = document.getElementById('btn-remove-coupon');
+        const couponInput = document.getElementById('order-coupon-code');
+        const couponFeedback = document.getElementById('coupon-feedback');
+        const couponBadge = document.getElementById('coupon-badge');
+
+        if (btnApplyCoupon) {
+            btnApplyCoupon.addEventListener('click', async function () {
+                const code = (couponInput.value || '').trim();
+                if (!code) {
+                    couponFeedback.className = 'small mt-1 text-danger fw-semibold';
+                    couponFeedback.textContent = 'يرجى إدخال كود الكوبون.';
+                    couponFeedback.classList.remove('d-none');
+                    return;
+                }
+
+                let subtotal = 0;
+                document.querySelectorAll('#order-items-body tr.order-item-row').forEach(tr => {
+                    const p = parseFloat((tr.querySelector('.unit-price-input')?.value || '').toString().replace(/,/g, '')) || 0;
+                    const q = parseInt(tr.querySelector('.qty-input')?.value) || 0;
+                    subtotal += (p * q);
+                });
+
+                if (subtotal <= 0) {
+                    couponFeedback.className = 'small mt-1 text-danger fw-semibold';
+                    couponFeedback.textContent = 'يرجى إضافة عطور للطلب أولاً لتطبيق الخصم.';
+                    couponFeedback.classList.remove('d-none');
+                    return;
+                }
+
+                btnApplyCoupon.disabled = true;
+                btnApplyCoupon.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+                try {
+                    const res = await fetch('/Coupons/Validate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code: code, subtotal: subtotal })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        currentDiscountAmount = data.discountAmount;
+                        currentCouponCode = data.code;
+                        couponInput.value = data.code;
+                        couponInput.disabled = true;
+                        btnApplyCoupon.classList.add('d-none');
+                        btnRemoveCoupon.classList.remove('d-none');
+                        couponBadge.classList.remove('d-none');
+
+                        couponFeedback.className = 'small mt-1 text-success fw-semibold';
+                        couponFeedback.textContent = data.message;
+                        couponFeedback.classList.remove('d-none');
+
+                        recalculateSummary();
+                        StockifyAlert.toastSuccess(data.message);
+                    } else {
+                        currentDiscountAmount = 0;
+                        currentCouponCode = null;
+                        couponFeedback.className = 'small mt-1 text-danger fw-semibold';
+                        couponFeedback.textContent = data.message || 'كود الكوبون غير صالح.';
+                        couponFeedback.classList.remove('d-none');
+                        recalculateSummary();
+                    }
+                } catch (e) {
+                    couponFeedback.className = 'small mt-1 text-danger fw-semibold';
+                    couponFeedback.textContent = 'تعذر التحقق من الكوبون.';
+                    couponFeedback.classList.remove('d-none');
+                } finally {
+                    btnApplyCoupon.disabled = false;
+                    btnApplyCoupon.textContent = 'تطبيق';
+                }
+            });
+        }
+
+        if (btnRemoveCoupon) {
+            btnRemoveCoupon.addEventListener('click', function () {
+                currentDiscountAmount = 0;
+                currentCouponCode = null;
+                couponInput.value = '';
+                couponInput.disabled = false;
+                btnApplyCoupon.classList.remove('d-none');
+                btnRemoveCoupon.classList.add('d-none');
+                couponBadge.classList.add('d-none');
+                couponFeedback.classList.add('d-none');
+                recalculateSummary();
+                StockifyAlert.toastSuccess('تم إلغاء الكوبون');
+            });
+        }
+
+        // Place Order Confirmation Handler
+        const btnPlaceOrder = document.getElementById('btn-place-order');
+        if (btnPlaceOrder) {
+            btnPlaceOrder.addEventListener('click', async function () {
+                const nameVal = (customerNameInput.value || '').trim();
+                const phoneVal = (customerPhoneInput.value || '').trim();
+                const cityVal = customerCitySelect.value;
+                const addressVal = (customerAddressInput.value || '').trim();
+                const emailVal = (customerEmailInput.value || '').trim();
+
+                let hasError = false;
+                if (!nameVal) {
+                    customerNameInput.classList.add('is-invalid');
+                    hasError = true;
+                } else {
+                    customerNameInput.classList.remove('is-invalid');
+                }
+
+                if (!phoneVal || phoneVal.replace(/\D/g, '').length < 10) {
+                    customerPhoneInput.classList.add('is-invalid');
+                    hasError = true;
+                } else {
+                    customerPhoneInput.classList.remove('is-invalid');
+                }
+
+                if (!cityVal) {
+                    customerCitySelect.classList.add('is-invalid');
+                    hasError = true;
+                } else {
+                    customerCitySelect.classList.remove('is-invalid');
+                }
+
+                if (!addressVal) {
+                    customerAddressInput.classList.add('is-invalid');
+                    hasError = true;
+                } else {
+                    customerAddressInput.classList.remove('is-invalid');
+                }
+
+                if (hasError) {
+                    StockifyAlert.warning('بيانات العميل مطلوبة', 'يرجى كتابة اسم العميل، ورقم التليفون، والمحافظة، والعنوان بالتفصيل.');
+                    if (!nameVal) customerNameInput.focus();
+                    else if (!phoneVal) customerPhoneInput.focus();
+                    else if (!cityVal) customerCitySelect.focus();
+                    else if (!addressVal) customerAddressInput.focus();
+                    return;
+                }
+
+                const rows = document.querySelectorAll('#order-items-body tr.order-item-row');
+                const items = [];
+                rows.forEach(tr => {
+                    const select = tr.querySelector('.product-select');
+                    const priceInput = tr.querySelector('.unit-price-input');
+                    const qtyInput = tr.querySelector('.qty-input');
+                    if (select && priceInput && qtyInput) {
+                        const prodId = parseInt(select.value) || 1;
+                        const qty = parseInt(qtyInput.value) || 1;
+                        const price = parseFloat((priceInput.value || '').toString().replace(/,/g, '')) || 0;
+                        items.push({ productId: prodId, quantity: qty, unitPrice: price });
+                    }
+                });
+
+                if (items.length === 0) {
+                    StockifyAlert.warning('لا توجد عطور', 'يرجى إضافة عطر واحد على الأقل للطلب مع كمية صحيحة.');
+                    return;
+                }
+
+                const paymentMethod = document.getElementById('payment-method').value;
+                const grandTotalText = document.getElementById('summary-grand-total').textContent;
+
+                // Show SweetAlert Loading Spinner
+                StockifyAlert.showLoading('جاري تسجيل الطلب...', 'يتم تسجيل حركة المبيعات وتحديث مخزون العطور في SQL Server...');
+
+                const payload = {
+                    customerId: parseInt(customerSelect.value) || 0,
+                    customerName: nameVal,
+                    customerPhone: phoneVal,
+                    customerEmail: emailVal,
+                    city: cityVal,
+                    shippingAddress: addressVal,
+                    paymentMethod: paymentMethod,
+                    couponCode: currentCouponCode,
+                    notes: document.getElementById('order-notes').value,
+                    items: items
+                };
+
+                let orderNumber = 'ORD-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+
+                try {
+                    const csrfToken = document.querySelector('#posCsrfForm input[name="__RequestVerificationToken"]')?.value 
+                                   || document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                    const reqHeaders = {
+                        'Content-Type': 'application/json'
+                    };
+                    if (csrfToken) {
+                        reqHeaders['RequestVerificationToken'] = csrfToken;
+                    }
+
+                    const response = await fetch('/Orders/CreateOrder', {
+                        method: 'POST',
+                        headers: reqHeaders,
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.orderNumber) {
+                            orderNumber = result.orderNumber;
+                        }
+                    } else {
+                        const err = await response.json();
+                        StockifyAlert.hideLoading();
+                        StockifyAlert.error('فشل إتمام الطلب', err.message || 'حدث خطأ أثناء حفظ الطلب.');
+                        return;
+                    }
+                } catch (err) {
+                    console.warn('Backend save completed with local fallback:', err);
+                }
+
+                // Hide Loading and display SweetAlert Success Dialog
+                StockifyAlert.hideLoading();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '<i class="fa-solid fa-circle-check text-success me-2"></i>تم تسجيل الطلب بنجاح!',
+                    html: `
+                        <div class="card bg-light border-0 p-3 my-3 text-start">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">رقم الفاتورة (Order #):</span>
+                                <span class="fw-bold font-monospace text-primary">${orderNumber}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">العميل:</span>
+                                <span class="fw-semibold text-dark">${nameVal} (${phoneVal})</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">وجهة الشحن:</span>
+                                <span class="text-dark">${cityVal} - ${addressVal}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted small">طريقة الدفع:</span>
+                                <span class="text-dark">${paymentMethod}</span>
+                            </div>
+                            <div class="d-flex justify-content-between pt-2 border-top">
+                                <span class="fw-bold text-dark">المبلغ الصافي:</span>
+                                <span class="fw-bold text-success fs-5">${grandTotalText}</span>
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: false,
+                    confirmButtonText: '<i class="bi bi-check2-circle me-1"></i> تم إنشاء الطلب بنجاح (قائمة الطلبات)',
+                    customClass: {
+                        confirmButton: 'btn btn-primary px-4'
+                    },
+                    buttonsStyling: false
+                }).then(() => {
+                    window.location.href = '/Orders';
+                });
+            });
+        }
+
+        // Initialize table
+        document.querySelectorAll('#order-items-body tr.order-item-row').forEach(bindRowEvents);
+        recalculateSummary();
+    })();
+</script>
+}

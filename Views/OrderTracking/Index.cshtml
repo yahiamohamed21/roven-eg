@@ -1,0 +1,1001 @@
+@using Stockify.Models.Enums
+@model Stockify.ViewModels.Store.OrderTrackingViewModel
+@{
+    Layout = "_StoreLayout";
+    ViewData["Title"] = "Track Flacon Delivery & Shipment | ROVEN";
+    ViewData["MetaDescription"] = "Track your Maison ROVEN luxury fragrance shipment in real-time. Enter your order reference number to monitor packaging, dispatch, and courier delivery.";
+}
+
+@section Styles {
+    <style>
+        /* ==========================================================================
+           ROVEN Haute Parfumerie - Order & Flacon Tracking Luxury Responsive Styling
+           Strict Palette: #630000, #810100, #1B1717, #EDEBDD, #FAF9F5, #dfb15b
+           ========================================================================== */
+
+        /* Scoped Page Container - Zero Horizontal Scroll */
+        .roven-track-page {
+            background-color: #FAF9F5;
+            min-height: 80vh;
+            overflow-x: hidden !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+        }
+
+        .roven-track-page .container {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        /* Prevent any badge or card text overflow */
+        .roven-track-page .badge {
+            white-space: normal !important;
+            text-align: center;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        /* Top Hero Header */
+        .roven-track-hero {
+            background: linear-gradient(135deg, #1B1717 0%, #291818 50%, #1B1717 100%);
+            border: 1px solid rgba(237, 235, 221, 0.15);
+            border-radius: 24px;
+            padding: 2.25rem 1.75rem;
+            color: #EDEBDD;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(27, 23, 23, 0.15);
+        }
+
+        .roven-track-hero::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(129, 1, 0, 0.35) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        @@media (max-width: 768px) {
+            .roven-track-hero {
+                padding: 1.5rem 1rem !important;
+                border-radius: 18px !important;
+            }
+            .roven-track-hero h2 {
+                font-size: 1.35rem !important;
+                line-height: 1.3;
+            }
+            .roven-track-hero p {
+                font-size: 0.85rem !important;
+            }
+        }
+
+        /* Main Search Tracking Card */
+        .roven-search-card,
+        .roven-order-card {
+            background: #ffffff;
+            border: 1px solid #e8e3d5;
+            border-radius: 24px;
+            box-shadow: 0 12px 35px rgba(27, 23, 23, 0.06);
+            overflow: hidden;
+            max-width: 100% !important;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        @@media (max-width: 768px) {
+            .roven-search-card,
+            .roven-order-card {
+                padding: 1.25rem 1rem !important;
+                border-radius: 18px !important;
+            }
+        }
+
+        /* Emblem Icon Circle */
+        .roven-emblem-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: #EDEBDD;
+            border: 2px solid #630000;
+            color: #630000;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 18px rgba(99, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        /* Luxury Form Inputs */
+        .roven-input-group .input-group-text {
+            background-color: #EDEBDD;
+            border: 1.5px solid #dcd7c7;
+            border-right: none;
+            color: #630000;
+            font-size: 1.05rem;
+            border-top-left-radius: 14px;
+            border-bottom-left-radius: 14px;
+            padding-left: 1.15rem;
+            padding-right: 1.15rem;
+        }
+
+        .roven-input-group .form-control {
+            border: 1.5px solid #dcd7c7;
+            border-left: none;
+            border-top-right-radius: 14px;
+            border-bottom-right-radius: 14px;
+            height: 52px;
+            font-size: 0.96rem;
+            background-color: #FAF9F5;
+            color: #1B1717;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .roven-input-group .form-control:focus {
+            background-color: #ffffff;
+            border-color: #630000 !important;
+            box-shadow: 0 0 0 4px rgba(99, 0, 0, 0.12) !important;
+            color: #1B1717;
+            outline: none !important;
+        }
+
+        .roven-input-group:focus-within .input-group-text {
+            border-color: #630000 !important;
+        }
+
+        /* Submit Button */
+        .btn-roven-track {
+            background: linear-gradient(135deg, #630000 0%, #810100 100%);
+            color: #EDEBDD !important;
+            border: 1px solid #810100;
+            border-radius: 50px;
+            padding: 0.85rem 2.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+            box-shadow: 0 6px 20px rgba(99, 0, 0, 0.25);
+            transition: all 0.25s ease;
+        }
+
+        .btn-roven-track:hover {
+            background: linear-gradient(135deg, #810100 0%, #630000 100%);
+            color: #EDEBDD !important;
+            box-shadow: 0 8px 25px rgba(129, 1, 0, 0.35);
+            transform: translateY(-2px);
+        }
+
+        /* Sample Quick Pill */
+        .sample-ref-pill {
+            cursor: pointer;
+            background-color: #EDEBDD;
+            color: #630000;
+            border: 1px dashed #630000;
+            border-radius: 50px;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 100%;
+        }
+
+        .sample-ref-pill:hover {
+            background-color: #630000;
+            color: #EDEBDD;
+            border-style: solid;
+        }
+
+        /* Feature Reassurance Badges */
+        .roven-feature-badge {
+            background: #FAF9F5;
+            border: 1px solid #e8e3d5;
+            border-radius: 12px;
+            padding: 0.65rem 0.85rem;
+            font-size: 0.82rem;
+            color: #1B1717;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            word-break: break-word;
+        }
+
+        /* Timeline Milestone Stepper - 100% Contained & Zero Overflow */
+        .roven-stepper-track {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            padding: 0.5rem 0.25rem 1rem 0.25rem;
+        }
+
+        .roven-stepper-progress-bg {
+            position: absolute;
+            top: 24px;
+            left: 12.5%;
+            width: 75%;
+            height: 4px;
+            background-color: #e8e3d5;
+            z-index: 1;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        .roven-stepper-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #630000, #810100);
+            z-index: 2;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        .roven-step-item {
+            position: relative;
+            z-index: 3;
+            width: 25%;
+            max-width: 25%;
+            text-align: center;
+            padding: 0 2px;
+        }
+
+        .roven-step-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            transition: all 0.3s ease;
+        }
+
+        .roven-step-circle.active {
+            background: linear-gradient(135deg, #630000 0%, #810100 100%);
+            color: #EDEBDD;
+            box-shadow: 0 4px 15px rgba(99, 0, 0, 0.35);
+            border: 2px solid #EDEBDD;
+        }
+
+        .roven-step-circle.inactive {
+            background: #FAF9F5;
+            color: #a39c94;
+            border: 2px solid #e8e3d5;
+        }
+
+        .roven-step-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.25;
+        }
+
+        .roven-step-desc {
+            font-size: 0.72rem;
+            color: #6c6358;
+            margin-top: 2px;
+        }
+
+        @@media (max-width: 768px) {
+            .roven-stepper-progress-bg {
+                top: 18px;
+                left: 12.5%;
+                width: 75%;
+            }
+            .roven-step-circle {
+                width: 36px;
+                height: 36px;
+                font-size: 0.85rem;
+            }
+            .roven-step-title {
+                font-size: 0.7rem !important;
+                margin-top: 0.35rem !important;
+                line-height: 1.2;
+                padding: 0 2px;
+            }
+            .roven-step-desc {
+                display: none !important;
+            }
+        }
+
+        /* Luxury Flexible Key-Value Info Rows (No cramped fixed grid) */
+        .roven-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0.55rem 0;
+            border-bottom: 1px dashed rgba(27, 23, 23, 0.08);
+            gap: 0.5rem;
+            font-size: 0.88rem;
+        }
+
+        .roven-info-row:last-child {
+            border-bottom: none;
+        }
+
+        .roven-info-label {
+            color: #6c6358;
+            font-weight: 500;
+            flex-shrink: 0;
+            max-width: 45%;
+        }
+
+        .roven-info-value {
+            color: #1B1717;
+            text-align: end;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 55%;
+        }
+
+        .roven-info-value .badge {
+            display: inline-block;
+            max-width: 100%;
+            text-align: end;
+        }
+
+        @@media (max-width: 480px) {
+            .roven-info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.2rem;
+                padding: 0.45rem 0;
+            }
+            .roven-info-label {
+                max-width: 100%;
+                font-size: 0.78rem;
+            }
+            .roven-info-value {
+                max-width: 100%;
+                text-align: start;
+                width: 100%;
+                font-size: 0.85rem;
+            }
+            .roven-info-value .badge {
+                text-align: start;
+            }
+        }
+
+        /* Luxury Table Styling for Desktop */
+        .roven-table {
+            border: 1px solid #e8e3d5;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .roven-table thead {
+            background-color: #EDEBDD;
+            color: #630000;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .roven-table th, .roven-table td {
+            padding: 0.9rem 1.1rem;
+            vertical-align: middle;
+            border-color: #f0ece1;
+        }
+
+        /* Pulse Animation for Current Dispatch Step */
+        @@keyframes pulse-roven {
+            0% {
+                box-shadow: 0 0 0 0 rgba(129, 1, 0, 0.45);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(129, 1, 0, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(129, 1, 0, 0);
+            }
+        }
+
+        .step-pulse {
+            animation: pulse-roven 2s infinite;
+        }
+    </style>
+}
+
+<div class="roven-track-page py-3 py-md-5">
+    <div class="container" style="max-width: 920px;">
+
+        <!-- 1. Luxury Pill Breadcrumb -->
+        <nav aria-label="breadcrumb" class="roven-breadcrumb-nav mb-3 mb-md-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index">
+                        <i class="fa-solid fa-house me-1"></i> الرئيسية
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">متابعة شحنة الطلب (Track Flacon)</li>
+            </ol>
+        </nav>
+
+        <!-- 2. Hero Header Banner -->
+        <div class="roven-track-hero mb-4 text-center">
+            <span class="badge badge-roven-cream px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm d-inline-flex align-items-center gap-2">
+                <i class="fa-solid fa-crown" style="color: #630000;"></i>
+                <span>Maison ROVEN Concierge</span>
+            </span>
+            <h2 class="display-6 fw-extrabold mb-2 tracking-tight" style="color: #EDEBDD;">
+                متابعة خط سير الشحنة وتجهيز الطلب
+            </h2>
+            <p class="mb-0 mx-auto" style="max-width: 620px; color: #EDEBDD; opacity: 0.88; font-size: 0.95rem; line-height: 1.6;">
+                تابع رحلة تحضير وتغليف عطور دار روفين من المعمل العطري وحتى وصولها إلى باب منزلك مع ضمان حق المعاينـة قبل الدفع.
+            </p>
+        </div>
+
+        <!-- 3. Search Tracking Card -->
+        <div class="roven-search-card p-3 p-md-5 mb-4 mb-md-5 position-relative">
+            <div class="text-center mb-4">
+                <div class="roven-emblem-circle mb-3">
+                    <i class="fa-solid fa-compass fs-2"></i>
+                </div>
+                <h4 class="fw-bold mb-1" style="color: #1B1717; font-size: clamp(1.15rem, 3.5vw, 1.45rem);">
+                    أدخل كود أو رقم الطلب
+                </h4>
+                <p class="small mb-0" style="color: #6c6358; font-size: 0.85rem;">
+                    سجّل رقم الطلب المرجعي الخاص بك (الموجود في رسالة التأكيد أو الإيصال)
+                </p>
+            </div>
+
+            <form method="get" asp-action="Index" id="rovenTrackingForm" class="row g-3">
+                <div class="col-12 col-md-7">
+                    <label class="form-label small fw-bold" style="color: #1B1717;">
+                        رقم الطلب / Order Reference # <span style="color: #810100;">*</span>
+                    </label>
+                    <div class="input-group roven-input-group">
+                        <span class="input-group-text">
+                            <i class="fa-solid fa-hashtag"></i>
+                        </span>
+                        <input type="text" 
+                               name="orderNumber" 
+                               id="orderNumberInput" 
+                               class="form-control" 
+                               placeholder="e.g. ORD-20261105-6525" 
+                               value="@Model.QueryOrderNumber" 
+                               required 
+                               autocomplete="off" />
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-5">
+                    <label class="form-label small fw-bold" style="color: #1B1717;">
+                        رقم الهاتف <span class="text-muted fw-normal">(اختياري للتحقق)</span>
+                    </label>
+                    <div class="input-group roven-input-group">
+                        <span class="input-group-text">
+                            <i class="fa-solid fa-phone"></i>
+                        </span>
+                        <input type="text" 
+                               name="phone" 
+                               class="form-control" 
+                               placeholder="010XXXXXXXX" 
+                               value="@Model.QueryPhone" 
+                               autocomplete="off" />
+                    </div>
+                </div>
+
+                <!-- Interactive Sample Reference Pill Helper -->
+                <div class="col-12 d-flex flex-wrap align-items-center justify-content-between gap-2 pt-1">
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                        <span class="text-muted" style="font-size: 0.82rem;">رقم تجريبي:</span>
+                        <button type="button" class="sample-ref-pill text-break" onclick="fillSampleOrder('ORD-20261105-6525')">
+                            <i class="fa-solid fa-sparkles"></i> تجربة: <code>ORD-20261105-6525</code>
+                        </button>
+                    </div>
+                    <span class="text-muted small" style="font-size: 0.8rem;">
+                        <i class="fa-solid fa-shield-halved me-1" style="color: #630000;"></i>تتبع مشفر وآمن SSL
+                    </span>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-12 text-center mt-4">
+                    <button type="submit" class="btn btn-roven-track w-100 w-sm-auto d-inline-flex align-items-center justify-content-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <span>تتبع شحنة الطلب (Track Flacon)</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Reassurance Feature Badges -->
+            <div class="row g-2 mt-4 pt-3 border-top" style="border-color: #f0ece1 !important;">
+                <div class="col-12 col-md-4">
+                    <div class="roven-feature-badge">
+                        <i class="fa-solid fa-box-open" style="color: #630000; font-size: 1.1rem;"></i>
+                        <span>معاينة الطرد وفحصه قبل الدفع</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="roven-feature-badge">
+                        <i class="fa-solid fa-money-bill-wave" style="color: #810100; font-size: 1.1rem;"></i>
+                        <span>الدفع نقداً عند الاستلام (COD)</span>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="roven-feature-badge">
+                        <i class="fa-solid fa-truck-fast" style="color: #630000; font-size: 1.1rem;"></i>
+                        <span>شحن سريع لكافة المحافظات خلال 24-48 ساعة</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Not Found Alert (If query failed) -->
+        @if (Model.NotFound)
+        {
+            <div class="card border-0 shadow-sm p-4 p-md-5 mb-5 rounded-4 text-center" style="background-color: #EDEBDD; border: 1.5px solid rgba(129, 1, 0, 0.25) !important;">
+                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto shadow-sm" style="width: 64px; height: 64px; background-color: #ffffff; color: #810100;">
+                    <i class="fa-solid fa-magnifying-glass-chart fs-3"></i>
+                </div>
+                <h4 class="fw-bold mb-2" style="color: #630000;">لم يتم العثور على شحنة بهذا الرقم</h4>
+                <p class="small mb-3 mx-auto" style="color: #1B1717; max-width: 540px; line-height: 1.6;">
+                    لم نتمكن من العثور على طلب برقم <strong>"@Model.QueryOrderNumber"</strong>. 
+                    يرجى التأكد من كتابة الرقم بشكل صحيح كما هو موضح في رسالة التأكيد أو الإيصال.
+                </p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="tel:01001234567" class="btn btn-sm px-3 py-2 rounded-pill fw-semibold" style="background-color: #630000; color: #EDEBDD;">
+                        <i class="fa-solid fa-phone me-1"></i> الاتصال بخدمة العملاء
+                    </a>
+                    <a asp-controller="Store" asp-action="Index" class="btn btn-sm px-3 py-2 rounded-pill fw-semibold" style="background: transparent; border: 1px solid #630000; color: #630000;">
+                        <i class="fa-solid fa-spray-can me-1"></i> تصفح عطور الدار
+                    </a>
+                </div>
+            </div>
+        }
+
+        <!-- 5. Order Result View (When an order is successfully retrieved) -->
+        @if (Model.Order != null)
+        {
+            var ord = Model.Order;
+            var isCancelled = ord.Status == OrderStatus.Cancelled;
+
+            var step = ord.Status switch
+            {
+                OrderStatus.Pending => 1,
+                OrderStatus.Processing => 2,
+                OrderStatus.Shipped => 3,
+                OrderStatus.Completed => 4,
+                _ => 1
+            };
+
+            var fillWidth = step switch
+            {
+                1 => "0%",
+                2 => "33.3%",
+                3 => "66.6%",
+                4 => "100%",
+                _ => "0%"
+            };
+
+            <div class="card border-0 shadow-lg p-3 p-md-5 mb-5 rounded-4 roven-order-card">
+                
+                <!-- Consignment Header Bar -->
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center pb-3 pb-md-4 mb-4 gap-3 border-bottom" style="border-color: #f0ece1 !important;">
+                    <div class="w-100 min-w-0">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                            <span class="badge badge-roven-cream px-3 py-1 rounded-pill fw-bold">
+                                <i class="fa-solid fa-circle-check text-success me-1"></i> Verified Consignment
+                            </span>
+                            <span class="small text-muted" style="font-size: 0.8rem;">بتاريخ: @ord.OrderDate.ToEgyptTimeString("dd MMM yyyy, hh:mm tt")</span>
+                        </div>
+                        <h4 class="fw-extrabold font-monospace mb-0 text-break" style="color: #630000; letter-spacing: 0.5px; font-size: clamp(1.2rem, 4vw, 1.6rem);">
+                            @ord.OrderNumber
+                        </h4>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 flex-wrap w-100 w-md-auto justify-content-start justify-content-md-end">
+                        <button type="button" class="btn btn-sm rounded-pill fw-semibold px-3.5 py-2" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99, 0, 0, 0.2);" onclick="copyOrderRef('@ord.OrderNumber')">
+                            <i class="fa-regular fa-copy me-1"></i> نسخ الكود
+                        </button>
+
+                    </div>
+                </div>
+
+                @if (isCancelled)
+                {
+                    <div class="alert p-4 rounded-4 mb-4 d-flex align-items-center gap-3" style="background-color: #fbeae8; border: 1.5px solid #810100; color: #630000;">
+                        <i class="fa-solid fa-ban fs-1 flex-shrink-0" style="color: #810100;"></i>
+                        <div>
+                            <h5 class="fw-bold mb-1">الطلب ملغي (Consignment Cancelled)</h5>
+                            <p class="small mb-0">تم إلغاء حجز هذا الطلب وإرجاع العطور إلى المخزون. يرجى التواصل مع خدمة العملاء إذا كان هذا غير مقصود.</p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <!-- Screenshot Notice Alert (طلب المستخدم: يجب أخذ سكرين لمتابعة الأوردر) -->
+                    <div class="alert rounded-4 p-3 mb-4 text-start border shadow-xs d-flex flex-column flex-sm-row align-items-sm-center gap-3" style="background: #fff8eb; border-color: #dfb15b !important; color: #7c4a03;">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; background: #dfb15b; color: #1B1717;">
+                                <i class="fa-solid fa-camera fs-5"></i>
+                            </div>
+                            <div class="d-sm-none">
+                                <span class="badge rounded-pill bg-danger text-white">تنبيه مهم</span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 min-w-0">
+                            <h6 class="fw-bold mb-1" style="color: #630000; font-size: 0.92rem;">
+                                  تنبيه: يجب أخذ لقطة شاشة (Screenshot) لرقم الطلب والريسيت
+                            </h6>
+                            <p class="small mb-0 text-muted" style="color: #6c6358 !important; font-size: 0.8rem; line-height: 1.4;">
+                                يرجى حفظ سكرين شوت لتفاصيل الشحنة ورقم طلبك <strong>(@ord.OrderNumber)</strong> في هاتفك لتسهيل استلام وفحص الطرد مع مندوب الشحن.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Multi-Step Interactive Timeline Stepper (100% Boundary Constrained & Zero Mobile Spill) -->
+                    <div class="roven-stepper-track mb-4 mb-md-5">
+                        <div class="roven-stepper-progress-bg">
+                            <div class="roven-stepper-progress-fill" style="width: @fillWidth;"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between position-relative">
+                            
+                            <!-- Milestone 1: Placed -->
+                            <div class="roven-step-item">
+                                <div class="roven-step-circle @(step >= 1 ? "active" : "inactive") @(step == 1 ? "step-pulse" : "")">
+                                    <i class="fa-solid fa-file-invoice"></i>
+                                </div>
+                                <div class="roven-step-title" style="color: @(step >= 1 ? "#630000" : "#a39c94");">
+                                    تم استلام الطلب
+                                </div>
+                                <div class="roven-step-desc">Order Received</div>
+                            </div>
+
+                            <!-- Milestone 2: Processing -->
+                            <div class="roven-step-item">
+                                <div class="roven-step-circle @(step >= 2 ? "active" : "inactive") @(step == 2 ? "step-pulse" : "")">
+                                    <i class="fa-solid fa-spray-can-sparkles"></i>
+                                </div>
+                                <div class="roven-step-title" style="color: @(step >= 2 ? "#630000" : "#a39c94");">
+                                    تجهيز وتغليف
+                                </div>
+                                <div class="roven-step-desc">Atelier Packing</div>
+                            </div>
+
+                            <!-- Milestone 3: Shipped -->
+                            <div class="roven-step-item">
+                                <div class="roven-step-circle @(step >= 3 ? "active" : "inactive") @(step == 3 ? "step-pulse" : "")">
+                                    <i class="fa-solid fa-truck-fast"></i>
+                                </div>
+                                <div class="roven-step-title" style="color: @(step >= 3 ? "#630000" : "#a39c94");">
+                                    خرج مع المندوب
+                                </div>
+                                <div class="roven-step-desc">Dispatched</div>
+                            </div>
+
+                            <!-- Milestone 4: Completed -->
+                            <div class="roven-step-item">
+                                <div class="roven-step-circle @(step >= 4 ? "active" : "inactive") @(step == 4 ? "step-pulse" : "")">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="roven-step-title" style="color: @(step >= 4 ? "#630000" : "#a39c94");">
+                                    تم التسليم
+                                </div>
+                                <div class="roven-step-desc">Delivered</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Delivery & Payment Information (Ultra Responsive Key-Value Cards) -->
+                <div class="row g-3 mb-4">
+                    <!-- Card 1: Customer & Address -->
+                    <div class="col-12 col-md-6">
+                        <div class="p-3 p-md-4 rounded-4 h-100" style="background-color: #FAF9F5; border: 1px solid #e8e3d5;">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i class="fa-solid fa-location-dot" style="color: #630000; font-size: 1.1rem;"></i>
+                                <h6 class="fw-bold mb-0" style="color: #1B1717; font-size: 0.95rem;">بيانات المستلم والشحن (Destination)</h6>
+                            </div>
+                            
+                            <div class="roven-info-row">
+                                <span class="roven-info-label">اسم المستلم:</span>
+                                <span class="roven-info-value fw-bold">@(ord.CustomerName ?? ord.Customer?.FullName ?? "عميل دار روفين")</span>
+                            </div>
+
+                            <div class="roven-info-row">
+                                <span class="roven-info-label">رقم الهاتف:</span>
+                                <span class="roven-info-value font-monospace fw-semibold">@(ord.CustomerPhone ?? ord.Customer?.PhoneNumber ?? "غير متوفر")</span>
+                            </div>
+
+                            <div class="roven-info-row">
+                                <span class="roven-info-label">المحافظة / المدينة:</span>
+                                <span class="roven-info-value fw-semibold">@(string.IsNullOrWhiteSpace(ord.City) ? "القاهرة / الجيزة" : ord.City)</span>
+                            </div>
+
+                            <div class="roven-info-row">
+                                <span class="roven-info-label">عنوان التوصيل:</span>
+                                <span class="roven-info-value">@(ord.ShippingAddress ?? ord.Customer?.Address ?? "تسليم عبر المندوب")</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Settlement & Inspection -->
+                    <div class="col-12 col-md-6">
+                        <div class="p-3 p-md-4 rounded-4 h-100" style="background-color: #FAF9F5; border: 1px solid #e8e3d5;">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i class="fa-solid fa-shield-halved" style="color: #810100; font-size: 1.1rem;"></i>
+                                <h6 class="fw-bold mb-0" style="color: #1B1717; font-size: 0.95rem;">الدفع وحق المعاينة (Settlement)</h6>
+                            </div>
+
+                            <div class="roven-info-row">
+                                <span class="roven-info-label">طريقة السداد:</span>
+                                <span class="roven-info-value fw-bold" style="color: #630000;">
+                                    <i class="fa-solid fa-money-bill-wave me-1"></i>@(ord.PaymentMethod ?? "الدفع عند الاستلام (COD)")
+                                </span>
+                            </div>
+
+                            <div class="roven-info-row">
+                                <span class="roven-info-label">ختم الأمان الملكي:</span>
+                                <span class="roven-info-value">
+                                    <span class="badge" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99,0,0,0.2);">
+                                        شمع أحمر روفين غير قابل للتلاعب
+                                    </span>
+                                </span>
+                            </div>
+
+                            <div class="roven-info-row">
+                                <span class="roven-info-label">حق المعاينة:</span>
+                                <span class="roven-info-value text-success fw-bold">
+                                    <i class="fa-solid fa-circle-check me-1"></i>متاح فتح وفحص الطرد قبل الاستلام والدفع
+                                </span>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(ord.OrderNotes))
+                            {
+                                <div class="roven-info-row">
+                                    <span class="roven-info-label">ملاحظات التوصيل:</span>
+                                    <span class="roven-info-value fst-italic text-dark">"@ord.OrderNotes"</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flacons in this Consignment Section Header (Zero RTL Bidi Collision) -->
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: rgba(99, 0, 0, 0.08); color: #630000;">
+                            <i class="fa-solid fa-spray-can-sparkles" style="font-size: 0.9rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-extrabold mb-0" style="color: #1B1717; font-size: 0.96rem;">عطور ومحتويات الشحنة</h6>
+                            <span class="font-monospace text-muted" style="font-size: 0.72rem; letter-spacing: 0.5px;">CONSIGNMENT FLACONS</span>
+                        </div>
+                    </div>
+                    <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background-color: #EDEBDD; color: #630000; font-size: 0.78rem;">
+                        @(ord.OrderItems.Count) @(ord.OrderItems.Count == 1 ? "عطر" : "عطور")
+                    </span>
+                </div>
+
+                <!-- Desktop Table View (>= 768px) -->
+                <div class="table-responsive roven-table mb-4 d-none d-md-block">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>العطر / المنتج</th>
+                                <th class="text-center">السعة</th>
+                                <th class="text-center">الكمية</th>
+                                <th class="text-end">سعر الوحدة</th>
+                                <th class="text-end">الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var oi in ord.OrderItems)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3">
+                                            @if (!string.IsNullOrEmpty(oi.Product?.ImageUrl))
+                                            {
+                                                <img src="@oi.Product.ImageUrl" alt="@oi.Product.Name" class="rounded-3 shadow-sm flex-shrink-0" style="width: 52px; height: 52px; object-fit: cover; background: #000;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px; background: #EDEBDD; color: #630000;">
+                                                    <i class="fa-solid fa-gem"></i>
+                                                </div>
+                                            }
+                                            <div class="min-w-0">
+                                                <div class="fw-bold" style="color: #1B1717;">@(oi.Product?.Name ?? "ROVEN Fragrance")</div>
+                                                <span class="font-monospace text-muted" style="font-size: 0.72rem;">SKU: @(oi.Product?.Sku ?? "ROV-FLACON")</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge" style="background-color: #EDEBDD; color: #630000;">100ml Flacon</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge rounded-pill px-3 py-1 fw-bold" style="background-color: #1B1717; color: #EDEBDD;">
+                                            @oi.Quantity
+                                        </span>
+                                    </td>
+                                    <td class="text-end font-monospace" style="color: #595252;">
+                                        <bdi dir="ltr">@oi.UnitPrice.ToString("N2") EGP</bdi>
+                                    </td>
+                                    <td class="text-end font-monospace fw-bold" style="color: #630000;">
+                                        <bdi dir="ltr">@((oi.UnitPrice * oi.Quantity).ToString("N2")) EGP</bdi>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot style="background-color: #FAF9F5; border-top: 2px solid #e8e3d5;">
+                            <tr>
+                                <td colspan="4" class="text-end fw-semibold" style="color: #6c6358;">تكلفة الشحن لكافة المحافظات:</td>
+                                <td class="text-end fw-bold text-success">مجاناً (Complimentary)</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end fw-extrabold fs-6" style="color: #1B1717;">إجمالي المبلغ المستحق عند الاستلام (COD):</td>
+                                <td class="text-end fw-extrabold fs-5 font-monospace" style="color: #630000;">
+                                    <bdi dir="ltr">@ord.TotalAmount.ToString("N2") EGP</bdi>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Mobile Card Stack View (< 768px) - High-End Luxury App Aesthetic -->
+                <div class="d-md-none mb-4">
+                    <div class="d-flex flex-column gap-3">
+                        @foreach (var oi in ord.OrderItems)
+                        {
+                            var lineTotal = oi.UnitPrice * oi.Quantity;
+                            <div class="p-3 rounded-4" style="background: #ffffff; border: 1.5px solid #e8e3d5; box-shadow: 0 4px 14px rgba(27, 23, 23, 0.04);">
+                                <div class="d-flex gap-3 align-items-start">
+                                    <!-- Flacon Image Thumbnail -->
+                                    <div class="flex-shrink-0">
+                                        @if (!string.IsNullOrEmpty(oi.Product?.ImageUrl))
+                                        {
+                                            <img src="@oi.Product.ImageUrl" 
+                                                 alt="@oi.Product.Name" 
+                                                 class="rounded-3 shadow-xs" 
+                                                 style="width: 68px; height: 68px; object-fit: cover; background: #FAF9F5; border: 1px solid #e8e3d5;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded-3 d-flex align-items-center justify-content-center" 
+                                                 style="width: 68px; height: 68px; background: #EDEBDD; color: #630000; border: 1px solid #e8e3d5;">
+                                                <i class="fa-solid fa-gem fs-4"></i>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <!-- Flacon Title & Metadata -->
+                                    <div class="flex-grow-1 min-w-0">
+                                        <h6 class="fw-bold mb-1" style="color: #1B1717; font-size: 0.94rem; line-height: 1.35; word-break: break-word;">
+                                            @(oi.Product?.Name ?? "ROVEN Fragrance")
+                                        </h6>
+                                        
+                                        <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                                            <span class="text-muted font-monospace" style="font-size: 0.72rem;">
+                                                SKU: @(oi.Product?.Sku ?? "ROV-FLACON")
+                                            </span>
+                                            <span class="text-muted" style="font-size: 0.7rem;">&bull;</span>
+                                            <span class="badge" style="background-color: #EDEBDD; color: #630000; font-size: 0.7rem; font-weight: 600;">
+                                                100ml Flacon
+                                            </span>
+                                        </div>
+
+                                        <!-- Quantity & Single Line Total (Zero RTL Number Flipping) -->
+                                        <div class="d-flex align-items-center justify-content-between pt-2 border-top flex-wrap gap-2" style="border-color: #f0ece1 !important;">
+                                            <div class="d-flex align-items-center gap-1.5">
+                                                <span class="badge rounded-pill px-2.5 py-1 fw-bold" style="background-color: #1B1717; color: #EDEBDD; font-size: 0.75rem;">
+                                                    الكمية: @oi.Quantity
+                                                </span>
+                                                @if (oi.Quantity > 1)
+                                                {
+                                                    <span class="text-muted small" style="font-size: 0.78rem;">
+                                                        &times; <bdi dir="ltr"><bdi dir="ltr">@oi.UnitPrice.ToString("N2") EGP</bdi></bdi>
+                                                    </span>
+                                                }
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="fw-extrabold font-monospace" style="color: #630000; font-size: 1.05rem;">
+                                                    <bdi dir="ltr">@lineTotal.ToString("N2") EGP</bdi>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Settlement Summary Box for Mobile -->
+                    <div class="p-3.5 p-sm-4 rounded-4 mt-3" style="background: #ffffff; border: 1.5px solid #e8e3d5; box-shadow: 0 4px 14px rgba(27, 23, 23, 0.04);">
+                        <div class="d-flex justify-content-between align-items-center py-1">
+                            <span class="text-muted small fw-medium">الشحن لكافة المحافظات:</span>
+                            <span class="fw-bold text-success small d-inline-flex align-items-center gap-1">
+                                <i class="fa-solid fa-circle-check"></i> مجاناً (Complimentary)
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2.5 mt-2 border-top" style="border-color: #f0ece1 !important;">
+                            <div>
+                                <span class="fw-extrabold" style="color: #1B1717; font-size: 0.95rem;">المبلغ المطلوب عند الاستلام:</span>
+                                <div class="text-muted" style="font-size: 0.72rem;">الدفع نقداً بعد فحص الطرد (COD)</div>
+                            </div>
+                            <span class="fw-extrabold font-monospace" style="color: #630000; font-size: 1.25rem;">
+                                <bdi dir="ltr"><bdi dir="ltr">@ord.TotalAmount.ToString("N2") EGP</bdi></bdi>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concierge Direct Helpline -->
+                <div class="p-3 rounded-4 d-flex flex-column flex-md-row align-items-center justify-content-between gap-3" style="background-color: #EDEBDD; border: 1px solid rgba(99, 0, 0, 0.15);">
+                    <div class="d-flex align-items-center gap-3 w-100">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: #630000; color: #EDEBDD;">
+                            <i class="fa-solid fa-headset fs-5"></i>
+                        </div>
+                        <div class="min-w-0 flex-grow-1">
+                            <div class="fw-bold small" style="color: #1B1717;">هل ترغب بتعديل موعد أو تفاصيل عنوان التوصيل؟</div>
+                            <span class="text-muted" style="font-size: 0.78rem;">فريق خدمة عملاء دار روفين متاح لمساعدتك على مدار الساعة.</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 w-100 w-md-auto">
+                        <a href="https://wa.me/201012345678" target="_blank" class="btn btn-sm rounded-pill fw-bold px-3 py-2 text-white flex-fill text-center" style="background-color: #25D366;">
+                            <i class="fa-brands fa-whatsapp me-1"></i> واتساب
+                        </a>
+                        <a href="tel:01012345678" class="btn btn-sm rounded-pill fw-bold px-3 py-2 flex-fill text-center" style="background-color: #630000; color: #EDEBDD;">
+                            <i class="fa-solid fa-phone me-1"></i> اتصال 19XXX
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        }
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Copy reference number to clipboard with SweetAlert2 toast
+        function copyOrderRef(ref) {
+            navigator.clipboard.writeText(ref).then(function() {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        iconColor: '#630000',
+                        title: 'تم نسخ رقم الطلب بنجاح',
+                        text: ref,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                } else {
+                    alert('تم نسخ رقم الطلب: ' + ref);
+                }
+            }).catch(function() {
+                alert('كود الطلب: ' + ref);
+            });
+        }
+
+        // Fill sample reference and auto-submit
+        function fillSampleOrder(ref) {
+            const input = document.getElementById('orderNumberInput');
+            if (input) {
+                input.value = ref;
+                input.focus();
+                
+                const form = document.getElementById('rovenTrackingForm');
+                if (form) {
+                    form.submit();
+                }
+            }
+        }
+    </script>
+}

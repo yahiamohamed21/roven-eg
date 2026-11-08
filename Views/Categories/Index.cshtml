@@ -1,0 +1,116 @@
+@model IEnumerable<Stockify.ViewModels.Categories.CategoryViewModel>
+@{
+    ViewData["Title"] = "Categories";
+    var totalCount = Model?.Count() ?? 0;
+}
+
+<!-- Header -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Categories Management</h3>
+        <p class="text-muted mb-0 small">Organize your products into structured inventory categories.</p>
+    </div>
+    @if (User.IsInRole(Stockify.Common.Constants.Roles.Admin))
+    {
+        <div>
+            <a asp-controller="Categories" asp-action="Create" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+                <i class="bi bi-plus-lg"></i>
+                <span>Add Category</span>
+            </a>
+        </div>
+    }
+</div>
+
+<!-- Table Card -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3">
+        <div class="row g-2 align-items-center">
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" placeholder="Search categories..." />
+                </div>
+            </div>
+            <div class="col-12 col-md-6 text-md-end">
+                <span class="text-muted small">Total <strong class="text-dark">@totalCount</strong> Categories</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Category Name</th>
+                    <th style="width: 35%;">Description</th>
+                    <th style="width: 15%;">Products Count</th>
+                    <th style="width: 10%;">Created Date</th>
+                    <th style="width: 10%;" class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var cat in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="stat-icon primary" style="width: 38px; height: 38px; font-size: 1.1rem;">
+                                        <i class="bi bi-tag-fill"></i>
+                                    </div>
+                                    <a asp-action="Details" asp-route-id="@cat.Id" class="fw-bold text-dark text-decoration-none hover-primary">
+                                        @cat.Name
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="text-muted small">
+                                @(string.IsNullOrWhiteSpace(cat.Description) ? "No description provided." : cat.Description)
+                            </td>
+                            <td>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                    @cat.ProductsCount Products
+                                </span>
+                            </td>
+                            <td class="text-muted small">@cat.CreatedAt.ToEgyptTimeString("MMM dd, yyyy")</td>
+                            <td class="text-end">
+                                <div class="roven-table-actions">
+                                    <a asp-action="Details" asp-route-id="@cat.Id" class="roven-action-btn roven-action-view" title="View Details">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                    @if (User.IsInRole(Stockify.Common.Constants.Roles.Admin))
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@cat.Id" class="roven-action-btn roven-action-edit" title="Edit">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
+                                        <form asp-action="Delete" asp-route-id="@cat.Id" method="post" class="d-inline">
+                                            <button type="button" class="roven-action-btn roven-action-delete btn-delete" data-name="Category '@cat.Name'" title="Delete">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                            No categories found in the database.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="card-footer bg-white py-3">
+        <partial name="_PaginationPartial" />
+    </div>
+</div>

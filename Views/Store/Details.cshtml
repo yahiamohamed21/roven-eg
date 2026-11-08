@@ -1,0 +1,545 @@
+@model Stockify.ViewModels.Store.StoreProductDetailsViewModel
+@{
+    Layout = "_StoreLayout";
+    var p = Model.Product;
+    ViewData["Title"] = $"{p.Name} | ROVEN Haute Parfumerie";
+    ViewData["MetaDescription"] = $"Buy authentic {p.Name} ({p.CategoryName}) handcrafted by Maison ROVEN. Price: {p.Price:N2} EGP. Cash on Delivery with full parcel inspection available across Egypt.";
+    ViewData["OgType"] = "product";
+    ViewData["OgImage"] = !string.IsNullOrWhiteSpace(p.ImageUrl) ? (p.ImageUrl.StartsWith("http") ? p.ImageUrl : $"{Context.Request.Scheme}://{Context.Request.Host}{p.ImageUrl}") : $"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png";
+}
+
+<div class="container py-4">
+    <!-- Luxury Maison ROVEN Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <div class="roven-breadcrumb-nav">
+            <a asp-controller="Home" asp-action="Index">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+            <a asp-controller="Store" asp-action="Index">Catalog</a>
+            <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+            <a asp-controller="Store" asp-action="Index" asp-route-categoryId="@p.CategoryId">@p.CategoryName</a>
+            <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+            <span class="breadcrumb-current text-truncate" style="max-width: 260px;">@p.Name</span>
+        </div>
+    </nav>
+
+    <!-- Product Overview Card -->
+    <div class="card border-0 shadow-sm p-4 mb-5">
+        <div class="row g-5">
+            <!-- Left: Product Image -->
+            <div class="col-12 col-md-6 text-center">
+                <div class="rounded-4 p-4 d-flex align-items-center justify-content-center shadow-sm" style="min-height: 420px; background-color: #000000;">
+                    @if (!string.IsNullOrWhiteSpace(p.ImageUrl))
+                    {
+                        <img src="@p.ImageUrl" alt="@p.Name" class="img-fluid rounded-3" style="max-height: 390px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-spray-can-sparkles display-1" style="color: #EDEBDD;"></i>
+                    }
+                </div>
+            </div>
+
+            <!-- Right: Details & Purchase Actions -->
+            <div class="col-12 col-md-6 d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge px-3 py-1 rounded-pill" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99, 0, 0, 0.2);">
+                        @p.CategoryName
+                    </span>
+                    <span class="small font-monospace" style="color: #8c8374;">SKU: @p.Sku</span>
+                    @if (p.IsFeatured)
+                    {
+                        <span class="badge px-2 py-1 rounded-pill" style="background-color: #630000; color: #EDEBDD;">
+                            <i class="fa-solid fa-gem me-1" style="color: #EDEBDD;"></i>Featured
+                        </span>
+                    }
+                </div>
+
+                <h2 class="fw-extrabold mb-1" style="color: #1B1717;">@p.Name</h2>
+
+                <!-- Rating badge link to reviews -->
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="text-warning small">
+                        @for (int s = 1; s <= 5; s++)
+                        {
+                            <i class="fa-solid fa-star @(s <= Math.Round(Model.AverageRating) ? "" : "text-muted opacity-25")"></i>
+                        }
+                    </div>
+                    <span class="fw-bold small" style="color: #1B1717;">@Model.AverageRating.ToString("0.0")</span>
+                    <span class="text-muted small">(@(Model.ReviewsCount > 0 ? $"{Model.ReviewsCount} تقييمات معتمدة" : "كن أول من يقيّم"))</span>
+                    <a href="#reviewsSection" class="small text-decoration-none ms-2" style="color: #810100; font-weight: 600;">
+                        <i class="fa-solid fa-arrow-down small me-1"></i>قراءة التقييمات
+                    </a>
+                </div>
+
+                <!-- Price and Availability -->
+                <div class="p-3 rounded-3 mb-4 d-flex align-items-center justify-content-between" style="background-color: #FAF9F5; border: 1px solid #e8e3d5;">
+                    <div>
+                        <div class="small mb-1" style="color: #6c6358;">Flacon Price</div>
+                        <div class="display-6 fw-bold mb-0" style="color: #630000;">
+                            @p.Price.ToString("N2") <span class="fs-5 fw-normal" style="color: #6c6358;">EGP</span>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        @if (p.IsOutOfStock)
+                        {
+                            <span class="badge px-3 py-2 fs-6" style="background-color: #EDEBDD; color: #810100; border: 1px solid #810100;">
+                                <i class="fa-solid fa-circle-xmark me-1"></i>Allocated
+                            </span>
+                        }
+                        else if (p.IsLowStock)
+                        {
+                            <span class="badge px-3 py-2 fs-6" style="background-color: #810100; color: #EDEBDD;">
+                                <i class="fa-solid fa-fire me-1"></i>Only @p.StockQuantity Flacons Left!
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge px-3 py-2 fs-6" style="background-color: #630000; color: #EDEBDD;">
+                                <i class="fa-solid fa-circle-check me-1"></i>Available (@p.StockQuantity in vault)
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Product Description -->
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2" style="color: #1B1717;">Olfactory Profile & Description</h6>
+                    <p class="leading-relaxed" style="color: #595252; line-height: 1.7;">
+                        @(string.IsNullOrWhiteSpace(p.Description) 
+                            ? "Maison ROVEN masterpiece formulated with pure Grasse essences, aged botanicals, and high-concentration oils for an extraordinary sillage." 
+                            : p.Description)
+                    </p>
+                </div>
+
+                <!-- Purchase Controls -->
+                @if (!p.IsOutOfStock)
+                {
+                    <div class="mt-auto pt-3 border-top" style="border-color: #e8e3d5 !important;">
+                        <div class="row g-3 align-items-center mb-3">
+                            <div class="col-12 col-sm-4">
+                                <label class="form-label small fw-semibold mb-1" style="color: #6c6358;">Flacons</label>
+                                <div class="input-group">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="adjustQty(-1)">-</button>
+                                    <input type="number" id="purchase-qty" class="form-control text-center fw-bold" value="1" min="1" max="@p.StockQuantity" />
+                                    <button class="btn btn-outline-secondary" type="button" onclick="adjustQty(1)">+</button>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-8 d-flex align-items-end">
+                                <button type="button" class="btn w-100 py-3 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color: #630000; color: #EDEBDD; border: 1px solid #810100;" onclick="handleAddToCart()">
+                                    <i class="fa-solid fa-bag-shopping fs-5"></i>
+                                    <span>Add Flacon to Bag</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-4 small mt-2" style="color: #6c6358;">
+                            <span><i class="fa-solid fa-truck-fast me-1" style="color: #630000;"></i> 24h Nationwide Shipping</span>
+                            <span><i class="fa-solid fa-money-bill-wave me-1" style="color: #810100;"></i> Cash on Delivery</span>
+                            <span><i class="fa-solid fa-shield-halved me-1" style="color: #630000;"></i> 100% Guaranteed Authentic</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="mt-auto pt-3 border-top" style="border-color: #e8e3d5 !important;">
+                        <div class="alert alert-secondary mb-0 d-flex align-items-center gap-2" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99, 0, 0, 0.2);">
+                            <i class="fa-solid fa-circle-info fs-5"></i>
+                            <div>
+                                <strong>Currently Reserved:</strong> This bespoke fragrance is temporarily allocated. Check back soon for the next private maceration release.
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- CLIENT REVIEWS & OLFACTORY IMPRESSIONS SECTION                 -->
+    <!-- ============================================================== -->
+    <div id="reviewsSection" class="card border-0 shadow-sm p-4 p-md-5 mb-5 rounded-4" style="background: #ffffff; border: 1px solid #e8e3d5 !important;">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-3 border-bottom" style="border-color: #e8e3d5 !important;">
+            <div>
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style="background-color: #EDEBDD; color: #630000; font-size: 0.8rem; font-weight: 700;">
+                    <i class="fa-solid fa-star text-warning"></i>
+                    <span>CLIENT EXPERIENCES & REVIEWS</span>
+                </div>
+                <h3 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif;">آراء وتقييمات العملاء</h3>
+                <p class="small text-muted mb-0">تجارب حقيقية لعملاء دار روڤين مع عطر <strong>@p.Name</strong> وثباته وفوحانه.</p>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="text-md-end">
+                    <div class="d-flex align-items-center gap-1 justify-content-md-end text-warning fs-5">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="fa-solid fa-star @(i <= Math.Round(Model.AverageRating) ? "" : "text-muted opacity-25")"></i>
+                        }
+                    </div>
+                    <div class="small text-muted mt-1">
+                        متوسط التقييم <strong class="text-dark">@Model.AverageRating.ToString("0.0")</strong> من 5 (@Model.ReviewsCount تقييم معتمد)
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-roven-wine px-3 py-2 rounded-pill fw-bold" onclick="document.getElementById('addReviewCard').scrollIntoView({ behavior: 'smooth' });">
+                    <i class="fa-solid fa-pen-nib me-1"></i> أضف تقييمك
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Review Form Column -->
+            <div class="col-12 col-lg-5 order-lg-2">
+                <div class="card border-0 rounded-4 p-4 shadow-xs" style="background: #FAF9F5; border: 1.5px solid rgba(99, 0, 0, 0.12) !important;" id="addReviewCard">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="fa-solid fa-award" style="color: #630000;"></i>
+                        <h5 class="fw-bold mb-0" style="color: #1B1717;">شاركنا رأيك في العطر</h5>
+                    </div>
+                    <p class="small text-muted mb-3">تقييمك يساعد عملاء دار روڤين في اختيار العطر المناسب لذوقهم.</p>
+
+                    <form id="productReviewForm" asp-controller="Store" asp-action="SubmitReview" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="productId" value="@p.Id" />
+                        
+                        <!-- Star Selection -->
+                        <div class="mb-3 text-center p-3 bg-white rounded-3 border">
+                            <label class="form-label small fw-bold d-block mb-1 text-dark">تقييمك للعطر بالنجوم</label>
+                            <div class="star-rating-box d-inline-flex flex-row-reverse gap-2 fs-2" id="starRatingBox">
+                                <input type="radio" id="star5" name="rating" value="5" checked class="d-none star-radio" />
+                                <label for="star5" class="star-label cursor-pointer text-warning" data-val="5" title="5 نجوم - ممتاز جداً"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star4" name="rating" value="4" class="d-none star-radio" />
+                                <label for="star4" class="star-label cursor-pointer text-warning" data-val="4" title="4 نجوم - رائع"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star3" name="rating" value="3" class="d-none star-radio" />
+                                <label for="star3" class="star-label cursor-pointer text-warning" data-val="3" title="3 نجوم - جيد"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star2" name="rating" value="2" class="d-none star-radio" />
+                                <label for="star2" class="star-label cursor-pointer text-warning" data-val="2" title="نجمتان - متوسط"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star1" name="rating" value="1" class="d-none star-radio" />
+                                <label for="star1" class="star-label cursor-pointer text-warning" data-val="1" title="نجمة واحدة - غير راضٍ"><i class="fa-solid fa-star"></i></label>
+                            </div>
+                            <div id="starRatingLabel" class="small fw-bold text-muted mt-1">5 نجوم — ثبات وفوحان استثنائي</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-dark">الاسم الكامل *</label>
+                            <input type="text" name="customerName" class="form-control rounded-3" placeholder="مثال: أحمد عبد الله" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-dark">رقم الهاتف (اختياري)</label>
+                            <input type="tel" name="customerPhone" class="form-control rounded-3 font-monospace" placeholder="مثال: 01001234567" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-dark">البريد الإلكتروني (اختياري)</label>
+                            <input type="email" name="customerEmail" class="form-control rounded-3" placeholder="name@domain.com" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-dark">رأيك وتجربتك مع العطر *</label>
+                            <textarea name="comment" rows="4" class="form-control rounded-3" placeholder="حدثنا عن تجاربك مع فوحان العطر، ثباته، والمناسبات المفضلة لاستخدامه..." required></textarea>
+                        </div>
+
+                        <div class="alert alert-light border small text-muted py-2 mb-3">
+                            <i class="fa-solid fa-shield-halved text-success me-1"></i> يتم فحص واعتماد التقييمات من إدارة المتجر قبل ظهورها علناً حفاظاً على جودة التعليقات.
+                        </div>
+
+                        <button type="submit" id="btnSubmitReview" class="btn btn-roven-wine w-100 py-2.5 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>إرسال التقييم للاعتماد</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Approved Reviews List Column -->
+            <div class="col-12 col-lg-7 order-lg-1">
+                @if (!Model.Reviews.Any())
+                {
+                    <div class="text-center py-5 p-4 rounded-4 bg-light border border-dashed">
+                        <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background: #EDEBDD; color: #630000; font-size: 1.5rem;">
+                            <i class="fa-regular fa-comment-dots"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1" style="color: #1B1717;">كن أول من يقيّم هذا العطر!</h6>
+                        <p class="small text-muted mb-0">لم يقم أحد بتقييم عطر <strong>@p.Name</strong> حتى الآن. شاركنا تجربتك ورأيك وكن أول المراجعين.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex flex-column gap-3">
+                        @foreach (var rev in Model.Reviews)
+                        {
+                            <div class="p-3.5 p-md-4 rounded-4 bg-light border shadow-2xs">
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                    <div class="d-flex align-items-center gap-2.5">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-xs" style="width: 42px; height: 42px; background: #630000; font-size: 1rem;">
+                                            @(rev.CustomerName.Length > 0 ? rev.CustomerName.Substring(0, 1).ToUpper() : "R")
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark mb-0">@rev.CustomerName</div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle py-0.5 px-2 rounded-pill" style="font-size: 0.72rem;">
+                                                    <i class="fa-solid fa-circle-check me-1"></i> عميل موثّق
+                                                </span>
+                                                <span class="small text-muted" style="font-size: 0.75rem;">@rev.CreatedAt.ToEgyptTimeString("dd MMM yyyy")</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-warning text-nowrap">
+                                        @for (int s = 1; s <= 5; s++)
+                                        {
+                                            <i class="fa-solid fa-star @(s <= rev.Rating ? "" : "text-muted opacity-25")"></i>
+                                        }
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-secondary" style="line-height: 1.6; font-size: 0.92rem;">
+                                    "@rev.Comment"
+                                </p>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    @if (Model.RelatedProducts.Any())
+    {
+        <div class="mb-5">
+            <h4 class="fw-bold text-dark mb-4">Related Products from @p.CategoryName</h4>
+            <div class="row g-4">
+                @foreach (var related in Model.RelatedProducts)
+                {
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="product-card" data-details-url="@Url.Action("Details", "Store", new { id = related.Id })">
+                            <a asp-action="Details" asp-route-id="@related.Id" class="product-image-container d-block position-relative text-decoration-none" title="عرض تفاصيل عطر @related.Name">
+                                @if (!string.IsNullOrWhiteSpace(related.ImageUrl))
+                                {
+                                    <img src="@related.ImageUrl" alt="@related.Name" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <i class="bi bi-box-seam text-muted display-4"></i>
+                                }
+                            </a>
+                            <div class="p-3 d-flex flex-column flex-grow-1">
+                                <h6 class="fw-bold text-dark mb-1 text-truncate">
+                                    <a asp-action="Details" asp-route-id="@related.Id" class="text-dark text-decoration-none">
+                                        @related.Name
+                                    </a>
+                                </h6>
+                                <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between">
+                                    <div class="fw-bold text-primary">@related.Price.ToString("N2") EGP</div>
+                                    <a asp-action="Details" asp-route-id="@related.Id" class="btn btn-sm btn-outline-secondary">
+                                        View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    const maxStock = @p.StockQuantity;
+
+    function adjustQty(delta) {
+        const input = document.getElementById('purchase-qty');
+        let current = parseInt(input.value) || 1;
+        current += delta;
+        if (current < 1) current = 1;
+        if (current > maxStock) current = maxStock;
+        input.value = current;
+    }
+
+    function handleAddToCart() {
+        const input = document.getElementById('purchase-qty');
+        const qty = parseInt(input.value) || 1;
+        window.addStoreItemToCart(@p.Id, qty);
+    }
+
+    // Star Rating interactive selection
+    document.addEventListener('DOMContentLoaded', function() {
+        const starRadios = document.querySelectorAll('#starRatingBox input[type="radio"]');
+        const starLabels = document.querySelectorAll('#starRatingBox .star-label');
+        const labelText = document.getElementById('starRatingLabel');
+
+        const ratingDescriptions = {
+            1: 'نجمة واحدة — تقييم غير راضٍ',
+            2: 'نجمتان — تقييم متوسط',
+            3: '3 نجوم — عطر جيد',
+            4: '4 نجوم — عطر رائع ومميز',
+            5: '5 نجوم — ثبات وفوحان استثنائي'
+        };
+
+        function updateStars(val) {
+            starLabels.forEach(lbl => {
+                const starVal = parseInt(lbl.getAttribute('data-val') || lbl.htmlFor.replace('star', ''));
+                const icon = lbl.querySelector('i');
+                if (starVal <= val) {
+                    lbl.classList.add('text-warning');
+                    lbl.classList.remove('text-muted', 'opacity-25');
+                    if (icon) icon.className = 'fa-solid fa-star';
+                } else {
+                    lbl.classList.remove('text-warning');
+                    lbl.classList.add('text-muted', 'opacity-25');
+                    if (icon) icon.className = 'fa-regular fa-star';
+                }
+            });
+            if (labelText && ratingDescriptions[val]) {
+                labelText.textContent = ratingDescriptions[val];
+            }
+        }
+
+        starRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                updateStars(parseInt(this.value));
+            });
+        });
+
+        // Hover effect on star labels
+        starLabels.forEach(lbl => {
+            lbl.addEventListener('mouseenter', function() {
+                const val = parseInt(this.getAttribute('data-val') || this.htmlFor.replace('star', ''));
+                updateStars(val);
+            });
+        });
+
+        const starBox = document.getElementById('starRatingBox');
+        if (starBox) {
+            starBox.addEventListener('mouseleave', function() {
+                const checkedRadio = document.querySelector('#starRatingBox input[type="radio"]:checked');
+                const val = checkedRadio ? parseInt(checkedRadio.value) : 5;
+                updateStars(val);
+            });
+        }
+
+        // Review form submit via AJAX
+        const reviewForm = document.getElementById('productReviewForm');
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const btn = document.getElementById('btnSubmitReview');
+                const originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> جاري إرسال التقييم...';
+
+                try {
+                    const formData = new FormData(this);
+                    const res = await fetch(this.action, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '<i class="fa-solid fa-circle-check text-success me-2"></i>تم استلام تقييمك بنجاح!',
+                                html: `<p class="mb-0 text-muted">${data.message}</p>`,
+                                confirmButtonText: 'حسناً، شكراً لكم',
+                                customClass: {
+                                    confirmButton: 'btn btn-primary px-4 py-2 fw-bold'
+                                },
+                                buttonsStyling: false
+                            });
+                        } else {
+                            alert(data.message);
+                        }
+                        reviewForm.reset();
+                        updateStars(5);
+                    } else {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'تنبيه',
+                                text: data.message || 'حدث خطأ أثناء إرسال التقييم.',
+                                confirmButtonText: 'حسناً',
+                                customClass: {
+                                    confirmButton: 'btn btn-warning px-4 py-2 fw-bold'
+                                },
+                                buttonsStyling: false
+                            });
+                        } else {
+                            alert(data.message);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Review submit error:', err);
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'تعذر الاتصال',
+                            text: 'تعذر إرسال التقييم، يرجى التحقق من اتصال الإنترنت.',
+                            confirmButtonText: 'إغلاق',
+                            customClass: {
+                                confirmButton: 'btn btn-secondary px-4 py-2'
+                            },
+                            buttonsStyling: false
+                        });
+                    } else {
+                        alert('تعذر إرسال التقييم، يرجى المحاولة مرة أخرى.');
+                    }
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            });
+        }
+    });
+</script>
+}
+
+@section SeoStructuredData {
+    <!-- Google Rich Product Snippet JSON-LD Structured Data with Reviews & Brand Knowledge Graph -->
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org/",
+      "@@type": "Product",
+      "name": "@p.Name",
+      "image": [
+        "@(!string.IsNullOrWhiteSpace(p.ImageUrl) ? (p.ImageUrl.StartsWith("http") ? p.ImageUrl : $"{Context.Request.Scheme}://{Context.Request.Host}{p.ImageUrl}") : $"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")"
+      ],
+      "description": "@(string.IsNullOrWhiteSpace(p.Description) ? $"{p.Name} luxury perfume by ROVEN Haute Parfumerie" : p.Description.Replace("\"", "\\\"").Replace("\r", "").Replace("\n", " "))",
+      "sku": "@p.Sku",
+      "brand": {
+        "@@type": "Brand",
+        "name": "ROVEN",
+        "alternateName": ["Maison ROVEN", "ROVEN Haute Parfumerie", "روڤين", "روفين", "عطور روڤين", "عطور روفين"]
+      },
+      "category": "@p.CategoryName",
+      @if (Model.ReviewsCount > 0)
+      {
+        <text>
+        "aggregateRating": {
+          "@@type": "AggregateRating",
+          "ratingValue": "@Model.AverageRating.ToString("0.0")",
+          "reviewCount": "@Model.ReviewsCount",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        </text>
+      }
+      "offers": {
+        "@@type": "Offer",
+        "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/Store/Details/{p.Id}")",
+        "priceCurrency": "EGP",
+        "price": "@p.Price.ToString("F2")",
+        "priceValidUntil": "@(DateTime.UtcNow.AddYears(1).ToString("yyyy-MM-dd"))",
+        "itemCondition": "https://schema.org/NewCondition",
+        "availability": "@(p.StockQuantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock")",
+        "seller": {
+          "@@type": "Organization",
+          "name": "ROVEN Haute Parfumerie",
+          "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/")"
+        }
+      }
+    }
+    </script>
+}
+

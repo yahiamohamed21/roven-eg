@@ -1,0 +1,653 @@
+@model List<Stockify.Models.Entities.ContactMessage>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "الرسائل واستفسارات العملاء والتقييمات — Maison ROVEN";
+    var settings = ViewBag.Settings as Stockify.Models.Entities.HomeSetting ?? new();
+    int totalCount = ViewBag.TotalCount ?? 0;
+    int unreadCount = ViewBag.UnreadCount ?? 0;
+    string currentStatus = ViewBag.CurrentStatus as string ?? "";
+
+    var reviews = ViewBag.Reviews as List<Stockify.Models.Entities.ProductReview> ?? new();
+    int totalReviewsCount = ViewBag.TotalReviewsCount ?? 0;
+    int pendingReviewsCount = ViewBag.PendingReviewsCount ?? 0;
+    int approvedReviewsCount = ViewBag.ApprovedReviewsCount ?? 0;
+    string currentReviewStatus = ViewBag.CurrentReviewStatus as string ?? "all";
+    string activeTab = ViewBag.ActiveTab as string ?? "messages";
+}
+
+<div class="container-fluid py-3">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style="background: rgba(99, 0, 0, 0.08); border: 1px solid rgba(99, 0, 0, 0.2); color: #630000; font-size: 0.78rem; font-weight: 700;">
+                <i class="fa-solid fa-envelope-open-text"></i>
+                <span>CONCIERGE INQUIRIES & PRODUCT REVIEWS</span>
+            </div>
+            <h2 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif;">الرسائل واستفسارات العملاء والتقييمات</h2>
+            <p class="text-muted small mb-0">متابعة رسائل Contact Us مع اعتماد تقييمات وآراء العملاء (النجوم) على العطور قبل ظهورها بالمتجر.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2" type="button" data-bs-toggle="collapse" data-bs-target="#socialSettingsCollapse">
+                <i class="fa-solid fa-share-nodes text-roven-wine"></i>
+                <span>التحكم في لينكات السوشيال وأرقام التواصل</span>
+            </button>
+            <a asp-controller="Home" asp-action="Contact" target="_blank" class="btn btn-roven-wine btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2 fw-semibold">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>معاينة صفحة Contact Us</span>
+            </a>
+            <a asp-controller="Store" asp-action="Index" target="_blank" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2">
+                <i class="fa-solid fa-store"></i>
+                <span>كتالوج المتجر</span>
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert" style="background-color: #f0fdf4; border-left: 5px solid #16a34a !important;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-circle-check text-success fs-5"></i>
+                <span class="fw-semibold text-dark">@TempData["SuccessMessage"]</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Social Media Settings Panel (Collapsible / Accordion) -->
+    <div class="collapse mb-4" id="socialSettingsCollapse">
+        <div class="card border-0 shadow-sm rounded-4" style="background: #FAF9F5; border: 1.5px solid rgba(99, 0, 0, 0.15) !important;">
+            <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center justify-content-between">
+                <span class="fw-bold" style="color: #630000;">
+                    <i class="fa-solid fa-share-nodes me-2"></i> إدارة وتعديل لينكات السوشيال ميديا وأرقام التواصل
+                </span>
+                <span class="badge rounded-pill" style="background-color: #EDEBDD; color: #630000;">Live Storefront Sync</span>
+            </div>
+            <div class="card-body p-4">
+                <form asp-controller="Messages" asp-action="UpdateSocialLinks" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold"><i class="fa-brands fa-facebook text-primary me-1"></i> رابط صفحة الفيسبوك (Facebook)</label>
+                            <input type="url" name="facebookUrl" value="@settings.FacebookUrl" class="form-control rounded-3" placeholder="https://facebook.com/..." required />
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold"><i class="fa-brands fa-instagram text-danger me-1"></i> رابط حساب الإنستجرام (Instagram)</label>
+                            <input type="url" name="instagramUrl" value="@settings.InstagramUrl" class="form-control rounded-3" placeholder="https://instagram.com/..." required />
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold"><i class="fa-brands fa-whatsapp text-success me-1"></i> رقم الواتساب الرسمي (WhatsApp)</label>
+                            <input type="text" name="whatsAppNumber" value="@settings.WhatsAppNumber" class="form-control rounded-3" placeholder="+201008889999" required />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold"><i class="fa-solid fa-phone text-muted me-1"></i> الخط الساخن / هاتف الدار (Contact Phone)</label>
+                            <input type="text" name="contactPhone" value="@settings.ContactPhone" class="form-control rounded-3 font-monospace" placeholder="+20 (02) 19888" />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold"><i class="fa-solid fa-envelope text-muted me-1"></i> البريد الإلكتروني للاستفسارات (Contact Email)</label>
+                            <input type="email" name="contactEmail" value="@settings.ContactEmail" class="form-control rounded-3 font-monospace" placeholder="concierge@roven.local" />
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold"><i class="fa-solid fa-clock text-muted me-1"></i> مواعيد العمل (Working Hours)</label>
+                            <input type="text" name="contactWorkingHours" value="@settings.ContactWorkingHours" class="form-control rounded-3" placeholder="Daily: 10:00 AM – 11:00 PM CLT" />
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold"><i class="fa-solid fa-building text-muted me-1"></i> اسم المعرض / الصالون (Atelier)</label>
+                            <input type="text" name="atelierName" value="@settings.AtelierName" class="form-control rounded-3" placeholder="Zamalek & New Cairo Salons" />
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold"><i class="fa-solid fa-location-dot text-muted me-1"></i> المدينة / العنوان (Address)</label>
+                            <input type="text" name="atelierAddress" value="@settings.AtelierAddress" class="form-control rounded-3" placeholder="Cairo & Giza, Arab Republic of Egypt" />
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="submit" class="btn btn-roven-wine btn-sm px-4 py-2 rounded-pill fw-bold">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> حفظ وتحديث بيانات التواصل
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Pills / Tabs -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div class="btn-group p-1 bg-white rounded-pill border shadow-xs" role="group">
+            <a asp-action="Index" asp-route-tab="messages" class="btn btn-sm rounded-pill px-4 py-2 fw-bold d-inline-flex align-items-center gap-2 @(activeTab == "messages" ? "btn-roven-wine text-white shadow-sm" : "btn-light text-secondary border-0")">
+                <i class="fa-solid fa-envelope-open-text"></i>
+                <span>استفسارات الكونسيرج (Contact Messages)</span>
+                <span class="badge @(unreadCount > 0 ? "bg-danger text-white" : "bg-dark-subtle text-dark") rounded-pill">@totalCount</span>
+            </a>
+            <a asp-action="Index" asp-route-tab="reviews" class="btn btn-sm rounded-pill px-4 py-2 fw-bold d-inline-flex align-items-center gap-2 @(activeTab == "reviews" ? "btn-roven-wine text-white shadow-sm" : "btn-light text-secondary border-0")">
+                <i class="fa-solid fa-star text-warning"></i>
+                <span>تقييمات المنتجات والنجوم (Product Reviews)</span>
+                @if (pendingReviewsCount > 0)
+                {
+                    <span class="badge bg-warning text-dark rounded-pill shadow-xs">@pendingReviewsCount بانتظار الاعتماد</span>
+                }
+                else
+                {
+                    <span class="badge bg-dark-subtle text-dark rounded-pill">@totalReviewsCount</span>
+                }
+            </a>
+        </div>
+    </div>
+
+    @if (activeTab == "messages")
+    {
+        <!-- Metrics Row for Messages -->
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">إجمالي الرسائل الواردة</div>
+                            <div class="fs-3 fw-extrabold" style="color: #1B1717;">@totalCount</div>
+                        </div>
+                        <div class="drawer-item-icon" style="width: 48px; height: 48px; background: #EDEBDD; color: #630000; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                            <i class="fa-solid fa-inbox"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">رسائل جديدة بانتظار الرد</div>
+                            <div class="fs-3 fw-extrabold text-danger">@unreadCount</div>
+                        </div>
+                        <div class="drawer-item-icon" style="width: 48px; height: 48px; background: #fee2e2; color: #dc2626; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">رسائل تمت مراجعتها</div>
+                            <div class="fs-3 fw-extrabold text-success">@(totalCount - unreadCount)</div>
+                        </div>
+                        <div class="drawer-item-icon" style="width: 48px; height: 48px; background: #dcfce7; color: #16a34a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters & Messages Table Card -->
+        <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+            <div class="card-header bg-white py-3 px-4 border-bottom">
+                <div class="row align-items-center g-3">
+                    <div class="col-12 col-md-6">
+                        <form asp-controller="Messages" asp-action="Index" method="get" class="d-flex gap-2">
+                            <input type="hidden" name="tab" value="messages" />
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0" style="color: #630000;"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" name="search" value="@ViewBag.CurrentSearch" class="form-control border-start-0 ps-0" placeholder="بحث بالاسم، رقم الهاتف، أو نص الرسالة..." />
+                            </div>
+                            <button type="submit" class="btn btn-dark px-3 rounded-2">بحث</button>
+                        </form>
+                    </div>
+                    <div class="col-12 col-md-6 d-flex justify-content-md-end gap-2">
+                        <a asp-controller="Messages" asp-action="Index" asp-route-tab="messages" class="btn btn-sm @(string.IsNullOrEmpty(currentStatus) ? "btn-dark" : "btn-outline-dark") rounded-pill">الكل (@totalCount)</a>
+                        <a asp-controller="Messages" asp-action="Index" asp-route-tab="messages" asp-route-status="unread" class="btn btn-sm @(currentStatus == "unread" ? "btn-danger" : "btn-outline-danger") rounded-pill">جديدة فقط (@unreadCount)</a>
+                        <a asp-controller="Messages" asp-action="Index" asp-route-tab="messages" asp-route-status="read" class="btn btn-sm @(currentStatus == "read" ? "btn-success" : "btn-outline-success") rounded-pill">المقروءة (@(totalCount - unreadCount))</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                @if (!Model.Any())
+                {
+                    <div class="text-center py-5">
+                        <div class="drawer-item-icon mx-auto mb-3" style="width: 64px; height: 64px; background: #FAF9F5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #8a8275;">
+                            <i class="fa-solid fa-inbox"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1" style="color: #1B1717;">لا توجد رسائل مطابقة حالياً</h5>
+                        <p class="text-muted small mb-0">كافة الرسائل الواردة من صفحة Contact Us ستظهر هنا فور إرسالها من العملاء.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-uppercase small" style="font-size: 0.76rem; letter-spacing: 0.5px;">
+                                <tr>
+                                    <th class="ps-4">الحالة</th>
+                                    <th>تاريخ الإرسال</th>
+                                    <th>العميل</th>
+                                    <th>تصنيف الاستفسار</th>
+                                    <th>نص الرسالة</th>
+                                    <th class="text-end pe-4">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var msg in Model)
+                                {
+                                    var cleanPhone = msg.PhoneNumber.Replace("+", "").Replace(" ", "").Replace("-", "");
+                                    if (!cleanPhone.StartsWith("2") && cleanPhone.Length == 11)
+                                    {
+                                        cleanPhone = "2" + cleanPhone;
+                                    }
+
+                                    <tr class="@(!msg.IsRead ? "table-light fw-bold" : "")">
+                                        <td class="ps-4">
+                                            @if (!msg.IsRead)
+                                            {
+                                                <span class="badge rounded-pill bg-danger">جديدة</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge rounded-pill bg-light text-muted border">تمت المراجعة</span>
+                                            }
+                                        </td>
+                                        <td class="small text-muted text-nowrap">
+                                            @msg.CreatedAt.ToEgyptTimeString("yyyy-MM-dd hh:mm tt")
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold" style="color: #1B1717;">@msg.FullName</div>
+                                            <div class="small text-muted font-monospace"><i class="fa-solid fa-phone me-1 small"></i>@msg.PhoneNumber</div>
+                                            @if (!string.IsNullOrEmpty(msg.Email))
+                                            {
+                                                <div class="small text-muted"><i class="fa-solid fa-envelope me-1 small"></i>@msg.Email</div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-pill" style="background-color: #EDEBDD; color: #630000; font-weight: 600;">
+                                                @msg.Subject
+                                            </span>
+                                        </td>
+                                        <td style="max-width: 320px;">
+                                            <div class="text-truncate small" title="@msg.Message">
+                                                @msg.Message
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-4 text-nowrap">
+                                            <div class="d-inline-flex gap-1 align-items-center">
+                                                <!-- WhatsApp Direct Reply -->
+                                                <a href="https://wa.me/@cleanPhone?text=@Uri.EscapeDataString($"مرحباً {msg.FullName}، نرحب بك من دار روڤين للعطور (Maison ROVEN). بخصوص استفسارك: {msg.Subject}")" target="_blank" class="btn btn-sm btn-outline-success rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="رد سريع عبر الواتساب">
+                                                    <i class="fa-brands fa-whatsapp"></i>
+                                                </a>
+
+                                                <!-- Phone Direct Call -->
+                                                <a href="tel:@msg.PhoneNumber" class="btn btn-sm btn-outline-dark rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="اتصال هاتفي">
+                                                    <i class="fa-solid fa-phone"></i>
+                                                </a>
+
+                                                <!-- Toggle Read Form -->
+                                                <form asp-controller="Messages" asp-action="ToggleRead" asp-route-id="@msg.Id" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="@(msg.IsRead ? "تحديد كغير مقروء" : "تحديد كمقروء")">
+                                                        <i class="fa-solid @(msg.IsRead ? "fa-envelope" : "fa-envelope-open")"></i>
+                                                    </button>
+                                                </form>
+
+                                                <!-- View Modal Trigger -->
+                                                <button type="button" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" data-bs-toggle="modal" data-bs-target="#msgModal-@msg.Id" title="عرض التفاصيل كاملة">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </button>
+
+                                                <!-- Delete Form -->
+                                                <form asp-controller="Messages" asp-action="Delete" asp-route-id="@msg.Id" method="post" class="d-inline" id="delete-form-@msg.Id">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-circle btn-delete-msg" data-form-id="delete-form-@msg.Id" data-name="@msg.FullName" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="حذف الرسالة">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+
+                                            <!-- Message Details Modal -->
+                                            <div class="modal fade" id="msgModal-@msg.Id" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content border-0 shadow-lg rounded-4 text-start">
+                                                        <div class="modal-header border-bottom py-3 px-4">
+                                                            <h5 class="modal-title fw-bold" style="color: #630000; font-family: 'Playfair Display', serif;">
+                                                                <i class="fa-solid fa-envelope-open me-2"></i> تفاصيل استفسار العميل
+                                                            </h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body p-4">
+                                                            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                                                <div>
+                                                                    <h6 class="fw-bold mb-0" style="color: #1B1717;">@msg.FullName</h6>
+                                                                    <span class="small text-muted font-monospace">@msg.PhoneNumber</span>
+                                                                </div>
+                                                                <span class="badge rounded-pill" style="background-color: #EDEBDD; color: #630000;">@msg.Subject</span>
+                                                            </div>
+
+                                                            @if (!string.IsNullOrEmpty(msg.Email))
+                                                            {
+                                                                <div class="mb-3 small">
+                                                                    <span class="text-muted">البريد الإلكتروني:</span>
+                                                                    <a href="mailto:@msg.Email" class="fw-semibold text-dark text-decoration-none">@msg.Email</a>
+                                                                </div>
+                                                            }
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label small fw-bold text-muted">نص الرسالة:</label>
+                                                                <div class="p-3 rounded-3" style="background-color: #FAF9F5; border: 1px solid #e8e3d5; font-size: 0.95rem; line-height: 1.7; white-space: pre-wrap;">@msg.Message</div>
+                                                            </div>
+
+                                                            <div class="small text-muted">
+                                                                <i class="fa-regular fa-clock me-1"></i> تاريخ ووقت الاستلام: @msg.CreatedAt.ToEgyptTimeString("dd MMMM yyyy - hh:mm tt")
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-top py-2 px-4 bg-light">
+                                                            <a href="https://wa.me/@cleanPhone" target="_blank" class="btn btn-success btn-sm rounded-pill px-3">
+                                                                <i class="fa-brands fa-whatsapp me-1"></i> واتساب العميل
+                                                            </a>
+                                                            <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">إغلاق</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Reviews Tab Content -->
+        <!-- Metrics Row for Product Reviews -->
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">إجمالي تقييمات العملاء</div>
+                            <div class="fs-3 fw-extrabold" style="color: #1B1717;">@totalReviewsCount</div>
+                        </div>
+                        <div class="drawer-item-icon" style="width: 48px; height: 48px; background: #EDEBDD; color: #630000; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                            <i class="fa-solid fa-comments"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">تقييمات جديدة بانتظار الاعتماد</div>
+                            <div class="fs-3 fw-extrabold text-warning">@pendingReviewsCount</div>
+                        </div>
+                        <div class="drawer-item-icon" style="width: 48px; height: 48px; background: #fef3c7; color: #d97706; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">تقييمات معتمدة وظاهرة بالمتجر</div>
+                            <div class="fs-3 fw-extrabold text-success">@approvedReviewsCount</div>
+                        </div>
+                        <div class="drawer-item-icon" style="width: 48px; height: 48px; background: #dcfce7; color: #16a34a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                            <i class="fa-solid fa-star text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters & Product Reviews Table Card -->
+        <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+            <div class="card-header bg-white py-3 px-4 border-bottom">
+                <div class="row align-items-center g-3">
+                    <div class="col-12 col-md-6">
+                        <form asp-controller="Messages" asp-action="Index" method="get" class="d-flex gap-2">
+                            <input type="hidden" name="tab" value="reviews" />
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0" style="color: #630000;"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" name="search" value="@ViewBag.CurrentSearch" class="form-control border-start-0 ps-0" placeholder="بحث باسم العميل، المنتج، أو نص التقييم..." />
+                            </div>
+                            <button type="submit" class="btn btn-dark px-3 rounded-2">بحث</button>
+                        </form>
+                    </div>
+                    <div class="col-12 col-md-6 d-flex justify-content-md-end gap-2 flex-wrap">
+                        <a asp-controller="Messages" asp-action="Index" asp-route-tab="reviews" class="btn btn-sm @(currentReviewStatus == "all" ? "btn-dark" : "btn-outline-dark") rounded-pill">الكل (@totalReviewsCount)</a>
+                        <a asp-controller="Messages" asp-action="Index" asp-route-tab="reviews" asp-route-reviewStatus="pending" class="btn btn-sm @(currentReviewStatus == "pending" ? "btn-warning text-dark fw-bold" : "btn-outline-warning text-dark") rounded-pill">بانتظار الاعتماد (@pendingReviewsCount)</a>
+                        <a asp-controller="Messages" asp-action="Index" asp-route-tab="reviews" asp-route-reviewStatus="approved" class="btn btn-sm @(currentReviewStatus == "approved" ? "btn-success" : "btn-outline-success") rounded-pill">معتمدة بالمتجر (@approvedReviewsCount)</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                @if (!reviews.Any())
+                {
+                    <div class="text-center py-5">
+                        <div class="drawer-item-icon mx-auto mb-3" style="width: 64px; height: 64px; background: #FAF9F5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #8a8275;">
+                            <i class="fa-solid fa-star text-warning"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1" style="color: #1B1717;">لا توجد تقييمات مطابقة حالياً</h5>
+                        <p class="text-muted small mb-0">عندما يقوم العملاء بكتابة تقييمات وإعطاء نجوم للمنتجات، ستظهر هنا فورياً للاعتماد.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-uppercase small" style="font-size: 0.76rem; letter-spacing: 0.5px;">
+                                <tr>
+                                    <th class="ps-4">الحالة والظهور</th>
+                                    <th>تاريخ التقييم</th>
+                                    <th>المنتج</th>
+                                    <th>العميل</th>
+                                    <th>التقييم (النجوم)</th>
+                                    <th>رأي العميل / التعليق</th>
+                                    <th class="text-end pe-4">الإجراء والاعتماد</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var rev in reviews)
+                                {
+                                    <tr class="@(!rev.IsApproved ? "table-warning bg-opacity-10" : "")">
+                                        <td class="ps-4">
+                                            @if (rev.IsApproved)
+                                            {
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1.5 d-inline-flex align-items-center gap-1">
+                                                    <i class="fa-solid fa-circle-check"></i>
+                                                    <span>معتمد وظاهر بالمتجر</span>
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1.5 d-inline-flex align-items-center gap-1">
+                                                    <i class="fa-solid fa-hourglass-half"></i>
+                                                    <span>معلق بانتظار الاعتماد</span>
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="small text-muted text-nowrap">
+                                            @rev.CreatedAt.ToEgyptTimeString("yyyy-MM-dd hh:mm tt")
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if (!string.IsNullOrWhiteSpace(rev.Product?.ImageUrl))
+                                                {
+                                                    <img src="@rev.Product.ImageUrl" alt="@rev.Product?.Name" style="width: 44px; height: 44px; object-fit: cover;" class="rounded-3 border shadow-2xs" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="rounded-3 border d-flex align-items-center justify-content-center bg-light" style="width: 44px; height: 44px;">
+                                                        <i class="fa-solid fa-spray-can-sparkles text-muted"></i>
+                                                    </div>
+                                                }
+                                                <div>
+                                                    <a asp-controller="Store" asp-action="Details" asp-route-id="@rev.ProductId" target="_blank" class="fw-bold text-dark text-decoration-none d-inline-flex align-items-center gap-1" title="معاينة صفحة المنتج بالمتجر">
+                                                        <span>@(rev.Product?.Name ?? $"منتج #{rev.ProductId}")</span>
+                                                        <i class="fa-solid fa-arrow-up-right-from-square small text-muted" style="font-size: 0.72rem;"></i>
+                                                    </a>
+                                                    <div class="small text-muted font-monospace" style="font-size: 0.75rem;">SKU: @(rev.Product?.Sku ?? "—")</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-dark">@rev.CustomerName</div>
+                                            @if (!string.IsNullOrEmpty(rev.CustomerPhone))
+                                            {
+                                                <div class="small text-muted font-monospace"><i class="fa-solid fa-phone me-1 small"></i>@rev.CustomerPhone</div>
+                                            }
+                                            @if (!string.IsNullOrEmpty(rev.CustomerEmail))
+                                            {
+                                                <div class="small text-muted"><i class="fa-solid fa-envelope me-1 small"></i>@rev.CustomerEmail</div>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="text-warning text-nowrap">
+                                                @for (int s = 1; s <= 5; s++)
+                                                {
+                                                    <i class="fa-solid fa-star @(s <= rev.Rating ? "" : "text-muted opacity-25")"></i>
+                                                }
+                                                <span class="text-dark small fw-bold ms-1">(@rev.Rating/5)</span>
+                                            </div>
+                                        </td>
+                                        <td style="max-width: 320px;">
+                                            <div class="small text-secondary p-2 rounded-3 bg-light border" style="line-height: 1.5; font-style: italic;" title="@rev.Comment">
+                                                "@rev.Comment"
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-4 text-nowrap">
+                                            <div class="d-inline-flex gap-1.5 align-items-center">
+                                                <!-- Toggle Approve/Hide Form -->
+                                                <form asp-controller="Messages" asp-action="ToggleApproveReview" asp-route-id="@rev.Id" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    @if (!rev.IsApproved)
+                                                    {
+                                                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1 shadow-xs" title="اعتماد التقييم ليظهر للعملاء في صفحة المنتج">
+                                                            <i class="fa-solid fa-check"></i>
+                                                            <span>اعتماد للظهور</span>
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button type="submit" class="btn btn-sm btn-outline-warning text-dark rounded-pill px-2.5 py-1.5 d-inline-flex align-items-center gap-1" title="إلغاء الاعتماد وإخفاء التقييم من المتجر">
+                                                            <i class="fa-solid fa-eye-slash"></i>
+                                                            <span>إخفاء</span>
+                                                        </button>
+                                                    }
+                                                </form>
+
+                                                <!-- Delete Review Form -->
+                                                <form asp-controller="Messages" asp-action="DeleteReview" asp-route-id="@rev.Id" method="post" class="d-inline" id="delete-rev-@rev.Id">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-circle btn-delete-review" data-form-id="delete-rev-@rev.Id" data-name="@rev.CustomerName" data-product="@(rev.Product?.Name ?? "المنتج")" style="width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="حذف التقييم نهائياً">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const swalApi = window.Swal || window.Sweetalert2;
+
+        // Delete message confirmation with SweetAlert2
+        document.querySelectorAll('.btn-delete-msg').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const formId = this.getAttribute('data-form-id');
+                const senderName = this.getAttribute('data-name') || 'هذه الرسالة';
+                const form = document.getElementById(formId);
+
+                if (swalApi) {
+                    swalApi.fire({
+                        title: '<span style="font-family: \'Playfair Display\', serif; color: #630000;">حذف استفسار العميل نهائياً؟</span>',
+                        html: `
+                            <div class="text-center my-2">
+                                <p class="mb-3 text-secondary fs-6">هل أنت متأكد من رغبتك في حذف استفسار العميل <strong>${senderName}</strong>؟</p>
+                                <div class="badge bg-danger-subtle text-danger border border-danger-subtle py-1.5 px-3 rounded-pill">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i> لا يمكن التراجع عن هذا الإجراء بعد الحذف.
+                                </div>
+                            </div>
+                        `,
+                        icon: 'warning',
+                        iconColor: '#630000',
+                        showCancelButton: true,
+                        confirmButtonText: '<i class="fa-solid fa-trash-can me-1"></i> نعم، حذف الرسالة',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#630000',
+                        cancelButtonColor: '#6c757d',
+                        customClass: {
+                            confirmButton: 'btn btn-danger px-4 py-2 fw-bold me-2 rounded-pill shadow-sm',
+                            cancelButton: 'btn btn-outline-secondary px-4 py-2 rounded-pill'
+                        },
+                        buttonsStyling: false
+                    }).then(function (result) {
+                        if (result.isConfirmed && form) {
+                            form.submit();
+                        }
+                    });
+                } else if (form) {
+                    form.submit();
+                }
+            });
+        });
+
+        // Delete product review confirmation with SweetAlert2
+        document.querySelectorAll('.btn-delete-review').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const formId = this.getAttribute('data-form-id');
+                const senderName = this.getAttribute('data-name') || 'هذا التقييم';
+                const productName = this.getAttribute('data-product') || 'المنتج';
+                const form = document.getElementById(formId);
+
+                if (swalApi) {
+                    swalApi.fire({
+                        title: '<span style="font-family: \'Playfair Display\', serif; color: #630000;">حذف تقييم العميل نهائياً؟</span>',
+                        html: `
+                            <div class="text-center my-2">
+                                <p class="mb-3 text-secondary fs-6">هل أنت متأكد من حذف تقييم العميل <strong>${senderName}</strong> على عطر <strong>${productName}</strong>؟</p>
+                                <div class="badge bg-danger-subtle text-danger border border-danger-subtle py-1.5 px-3 rounded-pill">
+                                    <i class="fa-solid fa-trash-can me-1"></i> سيتم حذف هذا التقييم وإزالته من المتجر تماماً.
+                                </div>
+                            </div>
+                        `,
+                        icon: 'warning',
+                        iconColor: '#630000',
+                        showCancelButton: true,
+                        confirmButtonText: '<i class="fa-solid fa-trash-can me-1"></i> نعم، حذف التقييم',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#630000',
+                        cancelButtonColor: '#6c757d',
+                        customClass: {
+                            confirmButton: 'btn btn-danger px-4 py-2 fw-bold me-2 rounded-pill shadow-sm',
+                            cancelButton: 'btn btn-outline-secondary px-4 py-2 rounded-pill'
+                        },
+                        buttonsStyling: false
+                    }).then(function (result) {
+                        if (result.isConfirmed && form) {
+                            form.submit();
+                        }
+                    });
+                } else if (form) {
+                    form.submit();
+                }
+            });
+        });
+    });
+</script>
+}
+

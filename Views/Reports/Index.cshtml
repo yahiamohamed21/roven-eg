@@ -1,0 +1,223 @@
+@model Stockify.ViewModels.Reports.ReportsViewModel
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Reports & Business Intelligence";
+
+    var monthLabelsJson = JsonSerializer.Serialize(Model.ChartMonthLabels);
+    var actualRevenueJson = JsonSerializer.Serialize(Model.ChartActualRevenue);
+    var targetRevenueJson = JsonSerializer.Serialize(Model.ChartTargetRevenue);
+}
+
+<!-- Header -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-roven-cream px-3 py-1 rounded-pill fw-bold">
+                <i class="fa-solid fa-crown me-1" style="color: #630000;"></i> Maison ROVEN
+            </span>
+            <span class="small text-muted">Audited Haute Parfumerie Intelligence</span>
+        </div>
+        <h3 class="fw-bold text-dark mb-1">Reports & Business Intelligence</h3>
+        <p class="text-muted mb-0 small">Gain live data-backed business insights across sales revenue, warehouse flacon reserves, and patron lifetime value.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a asp-action="ExportStatement" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm" title="Download Complete 4-Tab Audited Statement (.xlsx)">
+            <i class="fa-solid fa-file-excel text-light fs-6"></i>
+            <span>Export Statement (Excel)</span>
+        </a>
+    </div>
+</div>
+
+<!-- 3 Detailed Live Report Cards -->
+<div class="row g-4 mb-4">
+    <!-- 1. Sales & Revenue Report -->
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="stat-icon success mb-3" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                    <i class="fa-solid fa-chart-line" style="color: #630000;"></i>
+                </div>
+                <h5 class="fw-bold text-dark">Sales & Revenue Report</h5>
+                <p class="text-muted small mb-4">
+                    Audited ledger of omnichannel transactions across the online e-commerce boutique and counter POS sales.
+                </p>
+                <div class="bg-light p-3 rounded-3 mb-4 small mt-auto border" style="border-color: #f0ece3 !important;">
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Monthly Gross:</span>
+                        <span class="fw-bold text-dark font-monospace">@Model.MonthlyGrossRevenue.ToString("N2") EGP</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Avg. Order Value (AOV):</span>
+                        <span class="fw-bold text-dark font-monospace">@Model.AverageOrderValue.ToString("N2") EGP</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-muted">All-Time Revenue:</span>
+                        <span class="fw-bold text-dark font-monospace" style="color: #630000 !important;">@Model.TotalRevenueAllTime.ToString("N2") EGP</span>
+                    </div>
+                </div>
+                <a asp-controller="Orders" asp-action="ExportToExcel" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm" title="Download Sales Ledger Sheet">
+                    <i class="fa-solid fa-file-excel text-success"></i>
+                    <span>Generate Sales Report</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Inventory Valuation Report -->
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="stat-icon primary mb-3" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                    <i class="fa-solid fa-boxes-stacked" style="color: #630000;"></i>
+                </div>
+                <h5 class="fw-bold text-dark">Inventory Valuation Report</h5>
+                <p class="text-muted small mb-4">
+                    Current laboratory flacon assets, wholesale cost valuations, low-threshold alarms, and warehouse capacity.
+                </p>
+                <div class="bg-light p-3 rounded-3 mb-4 small mt-auto border" style="border-color: #f0ece3 !important;">
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Total Stock Value:</span>
+                        <span class="fw-bold text-dark font-monospace" style="color: #630000 !important;">@Model.TotalStockValuation.ToString("N2") EGP</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Flacon Reserves:</span>
+                        <span class="fw-bold text-dark font-monospace">@Model.TotalInventoryUnits Units</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-muted">Active References:</span>
+                        <span class="fw-semibold text-muted">@Model.ActiveProductsCount SKUs (Alerts: <span class="text-danger fw-bold">@Model.LowStockCount</span>)</span>
+                    </div>
+                </div>
+                <a asp-action="ExportStatement" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm" title="Download Complete Inventory Asset Sheet">
+                    <i class="fa-solid fa-file-excel text-success"></i>
+                    <span>Generate Inventory Report</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Customer Lifetime Value (Patron Insights) -->
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4 d-flex flex-column">
+                <div class="stat-icon info mb-3" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                    <i class="fa-solid fa-users" style="color: #630000;"></i>
+                </div>
+                <h5 class="fw-bold text-dark">Patron Lifetime Value</h5>
+                <p class="text-muted small mb-4">
+                    Analyze repeat connoisseur clientele, fragrance retention rates, average basket sizes, and buying velocity.
+                </p>
+                <div class="bg-light p-3 rounded-3 mb-4 small mt-auto border" style="border-color: #f0ece3 !important;">
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Active Patrons:</span>
+                        <span class="fw-bold text-dark font-monospace">@Model.ActiveCustomersWithOrders of @Model.TotalCustomersCount</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Repeat Purchase Rate:</span>
+                        <span class="fw-bold text-dark font-monospace">@Model.RepeatPurchaseRate%</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-muted">Avg. Patron Spend:</span>
+                        <span class="fw-bold text-dark font-monospace" style="color: #630000 !important;">@Model.AverageCustomerSpend.ToString("N2") EGP</span>
+                    </div>
+                </div>
+                <a asp-controller="Customers" asp-action="ExportToExcel" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm" title="Download Patrons Directory Sheet">
+                    <i class="fa-solid fa-file-excel text-success"></i>
+                    <span>Generate Customer Insights</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Sales Target Chart (ROVEN 4-Color Luxury Palette) -->
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom" style="border-color: #f0ece3 !important;">
+        <div>
+            <span class="fw-bold" style="color: #1B1717;">Monthly Sales Performance vs Benchmark Target</span>
+            <span class="text-muted small ms-2 d-none d-sm-inline">(Live monthly aggregation from database)</span>
+        </div>
+        <span class="badge badge-roven-cream px-3 py-1 rounded-pill fw-semibold">Last 6 Months</span>
+    </div>
+    <div class="card-body p-4">
+        <div style="height: 320px; position: relative;">
+            <canvas id="reportsMonthlyChart"></canvas>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('reportsMonthlyChart');
+            if (ctx) {
+                const labels = @Html.Raw(monthLabelsJson);
+                const actualData = @Html.Raw(actualRevenueJson);
+                const targetData = @Html.Raw(targetRevenueJson);
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Actual Revenue (EGP)',
+                                data: actualData,
+                                backgroundColor: '#630000',
+                                hoverBackgroundColor: '#810100',
+                                borderRadius: 6,
+                                maxBarThickness: 45
+                            },
+                            {
+                                label: 'Benchmark Target (EGP)',
+                                data: targetData,
+                                backgroundColor: 'rgba(237, 235, 221, 0.75)',
+                                borderColor: '#dcd7c7',
+                                borderWidth: 1,
+                                borderRadius: 6,
+                                maxBarThickness: 45
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    boxWidth: 14,
+                                    font: { family: 'system-ui', weight: '600', size: 12 },
+                                    color: '#1B1717'
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.dataset.label + ': ' + Number(context.raw).toLocaleString() + ' EGP';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (val) { return val.toLocaleString() + ' EGP'; },
+                                    color: '#6c6358',
+                                    font: { size: 11 }
+                                },
+                                grid: { color: 'rgba(232, 227, 213, 0.5)' }
+                            },
+                            x: {
+                                ticks: { color: '#1B1717', font: { weight: '600' } },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

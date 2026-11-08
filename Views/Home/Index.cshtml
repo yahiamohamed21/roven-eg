@@ -1,0 +1,2136 @@
+@model Stockify.ViewModels.Store.StoreHomeViewModel
+@{
+    Layout = "_StoreLayout";
+    ViewData["Title"] = "ROVEN — Haute Parfumerie";
+    ViewData["MetaDescription"] = "Welcome to the official Maison ROVEN. Handcrafted luxury perfumes, Extraits de Parfum (30% pure oil concentration), royal ambergris, and eternal sillage. Free delivery with Cash on Delivery inspection across Egypt. دار روڤين للعطور الفاخرة.";
+}
+
+<!-- Custom Styles for ROVEN Luxury Perfumery -->
+<style>
+    /* -------------------------------------------------------------
+       ROVEN 4-Color Luxury Perfume Palette:
+       1. #630000 (Deep Burgundy / Wine)
+       2. #810100 (Rich Crimson / Ruby Carmine)
+       3. #1B1717 (Deep Charcoal Jet / Off-Black)
+       4. #EDEBDD (Warm Linen / Cream / Ivory)
+       ------------------------------------------------------------- */
+
+    /* Global Mobile Scroll & Overflow Protection */
+    section {
+        overflow-x: clip;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    #heroHomeCarousel,
+    .carousel,
+    .carousel-inner {
+        overflow: hidden !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Hero Carousel Luxury Styling */
+    .hero-carousel-item {
+        min-height: 580px;
+        display: flex;
+        align-items: center;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        overflow: hidden !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .hero-slide-1 {
+        background: radial-gradient(circle at 75% 35%, rgba(129, 1, 0, 0.55) 0%, rgba(27, 23, 23, 0.98) 65%),
+                    linear-gradient(135deg, #150f0f 0%, #2b0404 45%, #630000 100%);
+    }
+
+    .hero-slide-2 {
+        background: radial-gradient(circle at 75% 35%, rgba(184, 115, 51, 0.38) 0%, rgba(99, 0, 0, 0.6) 45%, rgba(27, 23, 23, 0.98) 75%),
+                    linear-gradient(135deg, #150f0f 0%, #300c02 50%, #810100 100%);
+    }
+
+    .hero-slide-3 {
+        background: radial-gradient(circle at 75% 35%, rgba(129, 1, 0, 0.5) 0%, rgba(27, 23, 23, 0.98) 65%),
+                    linear-gradient(135deg, #1a0a0a 0%, #3a0808 45%, #630000 100%);
+    }
+
+    .hero-pill-eyebrow {
+        background: rgba(237, 235, 221, 0.12);
+        border: 1px solid rgba(237, 235, 221, 0.3);
+        color: #EDEBDD;
+        backdrop-filter: blur(8px);
+        letter-spacing: 1.5px;
+        font-size: 0.78rem;
+    }
+
+    .hero-sparkle-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #810100;
+        box-shadow: 0 0 8px #810100, 0 0 12px #810100;
+        display: inline-block;
+    }
+
+    .hero-title {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-weight: 700;
+        font-size: clamp(2.1rem, 4.4vw, 3.5rem);
+        line-height: 1.15;
+        letter-spacing: -0.5px;
+        color: #EDEBDD;
+    }
+
+    .hero-title-accent {
+        background: linear-gradient(135deg, #EDEBDD 0%, #e8c688 50%, #EDEBDD 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-style: italic;
+    }
+
+    .hero-spec-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(237, 235, 221, 0.1);
+        border: 1px solid rgba(237, 235, 221, 0.22);
+        color: #EDEBDD;
+        padding: 0.5rem 0.85rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        backdrop-filter: blur(6px);
+        transition: all 0.2s ease;
+    }
+
+    .hero-spec-pill:hover {
+        background: rgba(237, 235, 221, 0.18);
+        border-color: rgba(237, 235, 221, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .btn-roven-hero-primary {
+        background: linear-gradient(135deg, #810100 0%, #630000 100%);
+        border: 1px solid rgba(232, 198, 136, 0.45);
+        color: #EDEBDD !important;
+        box-shadow: 0 10px 25px rgba(99, 0, 0, 0.45);
+        transition: all 0.25s ease;
+    }
+
+    .btn-roven-hero-primary:hover {
+        background: linear-gradient(135deg, #630000 0%, #810100 100%);
+        color: #EDEBDD !important;
+        transform: translateY(-2px);
+        box-shadow: 0 14px 30px rgba(129, 1, 0, 0.6);
+        border-color: rgba(232, 198, 136, 0.7);
+    }
+
+    .btn-roven-hero-secondary {
+        background: rgba(237, 235, 221, 0.08);
+        border: 1.5px solid rgba(237, 235, 221, 0.5);
+        color: #EDEBDD !important;
+        backdrop-filter: blur(8px);
+        transition: all 0.25s ease;
+    }
+
+    .btn-roven-hero-secondary:hover {
+        background: #EDEBDD;
+        color: #1B1717 !important;
+        border-color: #EDEBDD;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    }
+
+    .hero-glass-card {
+        background: linear-gradient(145deg, rgba(32, 24, 24, 0.82) 0%, rgba(18, 14, 14, 0.92) 100%);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(237, 235, 221, 0.2);
+        border-radius: 24px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.65);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+    }
+
+    .hero-glass-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 36px 70px rgba(99, 0, 0, 0.4);
+    }
+
+    .flacon-presentation-frame {
+        position: relative;
+        max-width: 250px;
+        height: 220px;
+        margin: 0 auto 1rem;
+        border-radius: 18px;
+        overflow: hidden;
+        background: radial-gradient(circle, rgba(129, 1, 0, 0.35) 0%, rgba(0, 0, 0, 0.85) 80%);
+        border: 1px solid rgba(237, 235, 221, 0.15);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .flacon-presentation-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .hero-glass-card:hover .flacon-presentation-frame img {
+        transform: scale(1.05);
+    }
+
+    .hero-note-tag {
+        display: inline-block;
+        background: rgba(237, 235, 221, 0.08);
+        border: 1px solid rgba(237, 235, 221, 0.18);
+        color: #EDEBDD;
+        font-size: 0.72rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 50px;
+        margin: 2px;
+    }
+
+    .hero-lead-text {
+        color: #EDEBDD;
+        opacity: 0.92;
+        max-width: 580px;
+        line-height: 1.65;
+        font-size: clamp(0.92rem, 1.8vw, 1.1rem);
+    }
+
+    .carousel-indicators {
+        margin-bottom: 0.85rem !important;
+        gap: 6px !important;
+        z-index: 5;
+    }
+
+    .carousel-indicators [data-bs-target] {
+        width: 28px !important;
+        height: 5px !important;
+        border-radius: 4px !important;
+        background-color: rgba(237, 235, 221, 0.35) !important;
+        border: none !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .carousel-indicators .active {
+        width: 46px !important;
+        background-color: #810100 !important;
+        box-shadow: 0 0 10px rgba(129, 1, 0, 0.8) !important;
+    }
+
+    .carousel-control-prev, .carousel-control-next {
+        width: 50px;
+        height: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(27, 23, 23, 0.75);
+        border-radius: 50%;
+        border: 1px solid rgba(237, 235, 221, 0.25);
+        backdrop-filter: blur(8px);
+        margin: 0 20px;
+        opacity: 0.85;
+        color: #EDEBDD;
+        transition: all 0.2s;
+    }
+
+    .carousel-control-prev:hover, .carousel-control-next:hover {
+        background: #630000;
+        border-color: #810100;
+        opacity: 1;
+        box-shadow: 0 0 20px rgba(99, 0, 0, 0.6);
+        color: #EDEBDD;
+    }
+
+    /* Trust Feature Badges */
+    .trust-card {
+        background: #ffffff;
+        border: 1px solid #e8e3d5;
+        border-radius: 16px;
+        padding: 1.35rem 1.25rem;
+        transition: all 0.25s ease;
+    }
+
+    .trust-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(27, 23, 23, 0.08);
+        border-color: #630000;
+    }
+
+    .trust-icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        flex-shrink: 0;
+    }
+
+    /* Category Showcase Cards */
+    .cat-showcase-card {
+        background: #ffffff;
+        border: 1px solid #e8e3d5;
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(27, 23, 23, 0.03);
+    }
+
+    .cat-showcase-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #630000, #810100);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+
+    .cat-showcase-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(129, 1, 0, 0.35);
+        box-shadow: 0 18px 36px rgba(99, 0, 0, 0.1);
+    }
+
+    .cat-showcase-card:hover::before {
+        opacity: 1;
+    }
+
+    .cat-icon-container {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background-color: #EDEBDD;
+        color: #630000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        border: 1px solid rgba(99, 0, 0, 0.12);
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .cat-showcase-card:hover .cat-icon-container {
+        background-color: #630000;
+        color: #EDEBDD;
+        border-color: #810100;
+        transform: scale(1.08) rotate(-3deg);
+    }
+
+    .cat-count-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        background-color: #FAF9F5;
+        color: #630000;
+        border: 1px solid #e8e3d5;
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    .cat-card-title {
+        color: #1B1717;
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+        margin-top: 0.75rem;
+        transition: color 0.2s ease;
+    }
+
+    .cat-showcase-card:hover .cat-card-title {
+        color: #630000;
+    }
+
+    .cat-card-desc {
+        color: #6c6358;
+        font-size: 0.85rem;
+        line-height: 1.55;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .cat-card-footer {
+        border-top: 1px solid #f0ecdf;
+        padding-top: 0.85rem;
+    }
+
+    .cat-explore-text {
+        color: #630000;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .cat-arrow-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #EDEBDD;
+        color: #630000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        transition: all 0.25s ease;
+        border: 1px solid rgba(99, 0, 0, 0.1);
+    }
+
+    .cat-showcase-card:hover .cat-arrow-circle {
+        background-color: #630000;
+        color: #EDEBDD;
+        border-color: #810100;
+        transform: translateX(4px);
+    }
+
+    /* Flash Deal Timer Box */
+    .timer-unit-box {
+        background: #1B1717;
+        color: #EDEBDD;
+        border-radius: 10px;
+        padding: 0.5rem 0.6rem;
+        text-align: center;
+        min-width: 52px;
+        flex: 1 1 0;
+        box-shadow: 0 4px 10px rgba(27, 23, 23, 0.2);
+        border: 1px solid rgba(237, 235, 221, 0.15);
+    }
+
+    .timer-unit-num {
+        font-size: 1.35rem;
+        font-weight: 800;
+        font-family: monospace;
+        line-height: 1;
+        color: #EDEBDD;
+    }
+
+    .timer-unit-lbl {
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        color: #EDEBDD;
+        opacity: 0.75;
+        margin-top: 3px;
+        letter-spacing: 0.5px;
+    }
+
+    @@media (max-width: 991.98px) {
+        .hero-carousel-item {
+            min-height: auto !important;
+            padding: 1.5rem 0 2.5rem !important;
+        }
+        .hero-title {
+            font-size: clamp(1.55rem, 5.2vw, 2.2rem) !important;
+            line-height: 1.18 !important;
+            letter-spacing: -0.3px !important;
+        }
+        .hero-pill-eyebrow {
+            font-size: 0.7rem !important;
+            padding: 0.25rem 0.65rem !important;
+            letter-spacing: 0.8px !important;
+        }
+        .hero-lead-text {
+            font-size: 0.86rem !important;
+            line-height: 1.5 !important;
+            max-width: min(480px, 100%) !important;
+            width: 100% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+        .hero-spec-pill {
+            font-size: 0.72rem !important;
+            padding: 0.35rem 0.65rem !important;
+        }
+        .hero-glass-card {
+            padding: 1.1rem 0.95rem !important;
+            border-radius: 18px !important;
+            max-width: min(390px, 100%) !important;
+            width: 100% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6) !important;
+            overflow: hidden !important;
+        }
+        .flacon-presentation-frame {
+            height: 145px !important;
+            max-width: 160px !important;
+            border-radius: 14px !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .hero-card-title {
+            font-size: 1.05rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+        .hero-note-tag {
+            font-size: 0.66rem !important;
+            padding: 0.15rem 0.45rem !important;
+        }
+        .hero-card-price {
+            font-size: 1.2rem !important;
+        }
+        .carousel-control-prev, .carousel-control-next {
+            display: none !important;
+        }
+
+        .trust-title {
+            font-size: 0.82rem !important;
+            word-break: break-word;
+        }
+        .trust-subtitle {
+            font-size: 0.7rem !important;
+            line-height: 1.25 !important;
+            word-break: break-word;
+        }
+        .trust-icon-box {
+            width: 36px !important;
+            height: 36px !important;
+            font-size: 1.05rem !important;
+            border-radius: 10px !important;
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        /* Category Showcase 2x2 Grid Optimization for Mobile */
+        .cat-showcase-card {
+            padding: 0.95rem 0.85rem !important;
+            border-radius: 16px !important;
+            min-height: 220px !important;
+            overflow: hidden !important;
+            word-break: break-word;
+        }
+        .cat-icon-container {
+            width: 38px !important;
+            height: 38px !important;
+            font-size: 1.05rem !important;
+            border-radius: 10px !important;
+        }
+        .cat-count-badge {
+            font-size: 0.68rem !important;
+            padding: 0.22rem 0.5rem !important;
+            font-weight: 700 !important;
+        }
+        .cat-card-title {
+            font-size: 0.92rem !important;
+            line-height: 1.25 !important;
+            margin-top: 0.55rem !important;
+            min-height: 2.35rem !important;
+            display: flex !important;
+            align-items: center !important;
+            word-break: break-word;
+        }
+        .cat-card-desc {
+            font-size: 0.74rem !important;
+            line-height: 1.35 !important;
+            margin-bottom: 0.6rem !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            word-break: break-word;
+        }
+        .cat-card-footer {
+            margin-top: auto !important;
+        }
+        .cat-explore-text {
+            font-size: 0.75rem !important;
+            font-weight: 700 !important;
+        }
+        .cat-arrow-circle {
+            width: 26px !important;
+            height: 26px !important;
+            font-size: 0.7rem !important;
+        }
+
+        /* Spotlight Deal Mobile Refinement */
+        .spotlight-deal-card {
+            border-radius: 18px !important;
+            overflow: hidden !important;
+            max-width: 100% !important;
+        }
+        .spotlight-actions {
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 10px !important;
+        }
+        .spotlight-actions .btn {
+            width: 100% !important;
+            justify-content: center !important;
+            font-size: clamp(0.82rem, 3.6vw, 0.95rem) !important;
+            padding: 0.8rem 1rem !important;
+            white-space: normal !important;
+            border-radius: 50px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            word-break: break-word !important;
+        }
+        .spotlight-actions .btn span {
+            white-space: normal !important;
+        }
+        .spotlight-timer-boxes {
+            display: flex !important;
+            gap: 8px !important;
+            justify-content: flex-start !important;
+        }
+        .timer-unit-box {
+            width: 58px !important;
+            height: 54px !important;
+            border-radius: 12px !important;
+        }
+        .timer-unit-num {
+            font-size: 1.2rem !important;
+        }
+        .timer-unit-lbl {
+            font-size: 0.62rem !important;
+        }
+        .spotlight-meter-header {
+            flex-wrap: wrap !important;
+            gap: 6px !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+        }
+        .spotlight-meter-header span {
+            font-size: 0.78rem !important;
+            white-space: normal !important;
+        }
+
+        /* Luxury VIP Newsletter Mobile Refinement */
+        .newsletter-card {
+            padding: 2.5rem 1.15rem !important;
+            border-radius: 20px !important;
+            overflow: hidden !important;
+        }
+        .newsletter-pill-form {
+            flex-direction: column !important;
+            padding: 8px !important;
+            border-radius: 20px !important;
+            gap: 8px !important;
+            background: #EDEBDD !important;
+        }
+        .newsletter-pill-form .form-control {
+            text-align: center !important;
+            font-size: 0.88rem !important;
+            padding: 0.5rem !important;
+            width: 100% !important;
+        }
+        .newsletter-btn {
+            width: 100% !important;
+            justify-content: center !important;
+            padding: 0.65rem 1rem !important;
+            font-size: 0.9rem !important;
+        }
+
+        /* Luxury FAQ Mobile Refinement */
+        .roven-faq-btn {
+            padding: 0.95rem 1rem !important;
+            font-size: 0.92rem !important;
+        }
+        .roven-faq-body {
+            padding: 0.95rem 1rem !important;
+            font-size: 0.88rem !important;
+        }
+    }
+
+    /* Star Rating */
+    .star-rating {
+        color: #810100;
+        font-size: 0.85rem;
+    }
+
+    /* Luxury VIP Newsletter Card */
+    .newsletter-card {
+        background: radial-gradient(circle at 15% 20%, rgba(129, 1, 0, 0.45) 0%, transparent 45%),
+                    radial-gradient(circle at 85% 80%, rgba(99, 0, 0, 0.5) 0%, transparent 45%),
+                    linear-gradient(135deg, #1B1717 0%, #2e0606 50%, #1B1717 100%);
+        border-radius: 28px;
+        padding: 4.5rem 2rem;
+        color: #EDEBDD;
+        border: 1px solid rgba(237, 235, 221, 0.2);
+        box-shadow: 0 25px 50px -12px rgba(27, 23, 23, 0.55);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .newsletter-pill-form {
+        background: #EDEBDD;
+        padding: 6px 6px 6px 18px;
+        border-radius: 50px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        border: 2px solid rgba(237, 235, 221, 0.9);
+        transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .newsletter-pill-form:focus-within {
+        box-shadow: 0 12px 30px rgba(99, 0, 0, 0.45);
+        border-color: #810100;
+    }
+
+    .newsletter-pill-form .form-control {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        color: #1B1717;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .newsletter-pill-form .form-control::placeholder {
+        color: #78716c;
+    }
+
+    .newsletter-btn {
+        background-color: #630000;
+        color: #EDEBDD;
+        border: 1px solid #810100;
+        border-radius: 50px;
+        padding: 0.75rem 1.85rem;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(99, 0, 0, 0.35);
+    }
+
+    .newsletter-btn:hover {
+        background-color: #810100;
+        border-color: #810100;
+        transform: scale(1.02);
+        box-shadow: 0 6px 16px rgba(129, 1, 0, 0.5);
+        color: #EDEBDD;
+    }
+
+    /* Roven Styled Badges & Buttons */
+    .badge-roven-cream {
+        background-color: #EDEBDD;
+        color: #630000;
+        border: 1px solid rgba(99, 0, 0, 0.2);
+    }
+
+    .badge-roven-burgundy {
+        background-color: #630000;
+        color: #EDEBDD;
+    }
+
+    .badge-roven-crimson {
+        background-color: #810100;
+        color: #EDEBDD;
+    }
+
+    .btn-roven-wine {
+        background-color: #630000;
+        border: 1px solid #810100;
+        color: #EDEBDD;
+        transition: all 0.2s;
+    }
+
+    .btn-roven-wine:hover {
+        background-color: #810100;
+        border-color: #810100;
+        color: #EDEBDD;
+        transform: translateY(-1px);
+    }
+
+    .fragrance-note-pill {
+        display: inline-block;
+        background: rgba(237, 235, 221, 0.12);
+        border: 1px solid rgba(237, 235, 221, 0.25);
+        color: #EDEBDD;
+        font-size: 0.75rem;
+        border-radius: 50px;
+        padding: 0.35rem 0.8rem;
+    }
+
+    /* Luxury Accordion Styling (Zero Blue, 100% ROVEN Luxury Palette) */
+    .roven-faq-card {
+        border: 1px solid #e8e3d5 !important;
+        border-radius: 16px !important;
+        background: #ffffff;
+        margin-bottom: 14px;
+        overflow: hidden;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 12px rgba(27, 23, 23, 0.03);
+    }
+
+    .roven-faq-card:hover {
+        border-color: rgba(99, 0, 0, 0.35) !important;
+        box-shadow: 0 8px 24px rgba(99, 0, 0, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .roven-faq-btn {
+        background-color: #ffffff !important;
+        color: #1B1717 !important;
+        font-weight: 700 !important;
+        font-size: 1.05rem;
+        padding: 1.25rem 1.6rem !important;
+        border: none !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .roven-faq-btn:not(.collapsed) {
+        background-color: #EDEBDD !important;
+        color: #630000 !important;
+        box-shadow: none !important;
+        border-bottom: 1px solid rgba(99, 0, 0, 0.12) !important;
+    }
+
+    .roven-faq-btn:focus {
+        box-shadow: none !important;
+        border-color: transparent !important;
+    }
+
+    .roven-faq-btn::after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23630000'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E") !important;
+        transition: transform 0.25s ease;
+        flex-shrink: 0;
+    }
+
+    .roven-faq-btn:not(.collapsed)::after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23810100'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E") !important;
+        transform: rotate(-180deg);
+    }
+
+    .roven-faq-body {
+        background-color: #FAF9F5;
+        color: #595252;
+        padding: 1.25rem 1.6rem;
+        line-height: 1.7;
+        font-size: 0.95rem;
+    }
+    /* Dynamic Hero Banners (Admin Managed Container with Border Radius & Smooth Scroll) */
+    .hero-banner-section {
+        background-color: #FAF9F5;
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .hero-banner-frame {
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+        background-color: #140808;
+        border: 1px solid rgba(223, 177, 91, 0.24);
+        box-shadow: 0 10px 32px rgba(27, 23, 23, 0.08);
+        transition: box-shadow 0.35s ease, border-color 0.35s ease;
+        touch-action: pan-y pinch-zoom;
+        user-select: none;
+        -webkit-user-select: none;
+        cursor: grab;
+    }
+
+    .hero-banner-frame:active {
+        cursor: grabbing;
+    }
+
+    .hero-banner-frame:hover {
+        border-color: rgba(223, 177, 91, 0.45);
+        box-shadow: 0 16px 42px rgba(27, 23, 23, 0.14);
+    }
+
+    .hero-banner-link {
+        display: block;
+        width: 100%;
+        line-height: 0;
+        text-decoration: none;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    .hero-banner-responsive-img {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+        max-height: 520px;
+        transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+        border-radius: inherit;
+        -webkit-user-drag: none;
+        user-drag: none;
+        user-select: none;
+        -webkit-user-select: none;
+        pointer-events: none;
+    }
+
+    .hero-banner-link:hover .hero-banner-responsive-img {
+        transform: scale(1.008);
+    }
+
+    /* Silky-Smooth Carousel Transition */
+    #heroHomeCarousel .carousel-item {
+        transition: transform 0.65s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    }
+
+    #heroHomeCarousel .carousel-indicators {
+        bottom: 14px !important;
+        margin-bottom: 0 !important;
+        z-index: 10;
+    }
+
+    #heroHomeCarousel .carousel-indicators [data-bs-target] {
+        width: 28px !important;
+        height: 4px !important;
+        border-radius: 4px !important;
+        background-color: rgba(237, 235, 221, 0.45) !important;
+        border: none !important;
+        margin: 0 4px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+
+    #heroHomeCarousel .carousel-indicators .active {
+        width: 48px !important;
+        background-color: #dfb15b !important;
+        box-shadow: 0 0 12px rgba(223, 177, 91, 0.8) !important;
+    }
+
+    /* Navigation Arrows: Always accessible, visible & touch-friendly on both Desktop & Mobile */
+    #heroHomeCarousel .carousel-control-prev,
+    #heroHomeCarousel .carousel-control-next {
+        display: flex !important;
+        width: 44px;
+        height: 44px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(20, 8, 8, 0.72) !important;
+        border-radius: 50%;
+        border: 1px solid rgba(223, 177, 91, 0.35);
+        backdrop-filter: blur(8px);
+        margin: 0 16px;
+        opacity: 0.85;
+        transition: all 0.25s ease;
+        color: #fdf4dc !important;
+        z-index: 10;
+    }
+
+    #heroHomeCarousel:hover .carousel-control-prev,
+    #heroHomeCarousel:hover .carousel-control-next {
+        opacity: 1;
+    }
+
+    #heroHomeCarousel .carousel-control-prev:hover,
+    #heroHomeCarousel .carousel-control-next:hover {
+        background: #810100 !important;
+        border-color: #dfb15b;
+        box-shadow: 0 0 16px rgba(129, 1, 0, 0.7);
+        color: #ffffff !important;
+    }
+
+    @@media (max-width: 768px) {
+        .hero-banner-section {
+            padding-top: 0.85rem !important;
+            padding-bottom: 0.85rem !important;
+        }
+
+        .hero-banner-frame {
+            border-radius: 14px;
+        }
+
+        .hero-banner-responsive-img {
+            max-height: none;
+            border-radius: 14px;
+        }
+
+        #heroHomeCarousel .carousel-control-prev,
+        #heroHomeCarousel .carousel-control-next {
+            display: flex !important;
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 0.75rem !important;
+            margin: 0 6px !important;
+            background: rgba(20, 8, 8, 0.65) !important;
+            opacity: 0.85 !important;
+        }
+
+        #heroHomeCarousel .carousel-indicators [data-bs-target] {
+            width: 18px !important;
+            height: 3px !important;
+            margin: 0 3px !important;
+        }
+
+        #heroHomeCarousel .carousel-indicators .active {
+            width: 32px !important;
+        }
+    }
+</style>
+
+<!-- ======================================================================== -->
+<!-- 1. HERO BANNERS CAROUSEL (Admin-Managed Dynamic Luxury Banners)           -->
+<!-- ======================================================================== -->
+@if (Model.HeroBanners != null && Model.HeroBanners.Any())
+{
+    <section class="hero-banner-section py-3 py-md-4">
+        <div class="container">
+            <div class="hero-banner-frame shadow-sm position-relative overflow-hidden">
+                @if (Model.HeroBanners.Count > 1)
+                {
+                    <div id="heroHomeCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4500" data-bs-pause="false" data-bs-touch="true">
+                        <!-- Carousel Indicators -->
+                        <div class="carousel-indicators mb-2 mb-md-3">
+                            @for (int i = 0; i < Model.HeroBanners.Count; i++)
+                            {
+                                <button type="button" data-bs-target="#heroHomeCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)"></button>
+                            }
+                        </div>
+
+                        <!-- Carousel Slides -->
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < Model.HeroBanners.Count; i++)
+                            {
+                                var banner = Model.HeroBanners[i];
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <a href="@(string.IsNullOrWhiteSpace(banner.RedirectLink) ? "/Store" : banner.RedirectLink)" class="hero-banner-link" title="@banner.Title">
+                                        <picture>
+                                            @if (!string.IsNullOrWhiteSpace(banner.MobileImageUrl))
+                                            {
+                                                <source media="(max-width: 768px)" srcset="@banner.MobileImageUrl">
+                                            }
+                                            <img src="@banner.DesktopImageUrl" alt="@(string.IsNullOrWhiteSpace(banner.AltText) ? banner.Title : banner.AltText)" class="hero-banner-responsive-img d-block w-100" loading="@(i == 0 ? "eager" : "lazy")" draggable="false" onerror="this.src='/images/banners/hero_slide_1.svg'" />
+                                        </picture>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Carousel Navigation Controls (Click / Tap to slide) -->
+                        <button class="carousel-control-prev" type="button" data-bs-target="#heroHomeCarousel" data-bs-slide="prev" aria-label="Previous Banner">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#heroHomeCarousel" data-bs-slide="next" aria-label="Next Banner">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    var singleBanner = Model.HeroBanners[0];
+                    <div class="w-100 p-0 m-0">
+                        <a href="@(string.IsNullOrWhiteSpace(singleBanner.RedirectLink) ? "/Store" : singleBanner.RedirectLink)" class="hero-banner-link" title="@singleBanner.Title">
+                            <picture>
+                                @if (!string.IsNullOrWhiteSpace(singleBanner.MobileImageUrl))
+                                {
+                                    <source media="(max-width: 768px)" srcset="@singleBanner.MobileImageUrl">
+                                }
+                                <img src="@singleBanner.DesktopImageUrl" alt="@(string.IsNullOrWhiteSpace(singleBanner.AltText) ? singleBanner.Title : singleBanner.AltText)" class="hero-banner-responsive-img d-block w-100" loading="eager" onerror="this.src='/images/banners/hero_slide_1.svg'" />
+                            </picture>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- ======================================================================== -->
+<!-- 2. TRUST & VALUE STRIP (Luxury Fragrance Standards)                     -->
+<!-- ======================================================================== -->
+@if (Model.Settings?.ShowTrustBadges != false)
+{
+<section class="py-3 py-lg-4 border-bottom shadow-sm overflow-hidden w-100" style="background-color: #FAF9F5; border-color: #e8e3d5 !important;">
+    <div class="container">
+        <div class="row g-2 g-lg-3">
+            <div class="col-6 col-lg-3">
+                <div class="trust-card h-100 d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-2 gap-sm-3 p-2.5 p-sm-3">
+                    <div class="trust-icon-box" style="background-color: rgba(99, 0, 0, 0.08); color: #630000;">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 mb-sm-1 trust-title" style="color: #1B1717;">Complimentary Shipping</h6>
+                        <p class="small mb-0 trust-subtitle" style="color: #6c6358;">Cairo & Giza in 24h &bull; All in 48h</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="trust-card h-100 d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-2 gap-sm-3 p-2.5 p-sm-3">
+                    <div class="trust-icon-box" style="background-color: rgba(129, 1, 0, 0.08); color: #810100;">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 mb-sm-1 trust-title" style="color: #1B1717;">COD Inspection</h6>
+                        <p class="small mb-0 trust-subtitle" style="color: #6c6358;">Verify parcel before payment</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="trust-card h-100 d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-2 gap-sm-3 p-2.5 p-sm-3">
+                    <div class="trust-icon-box" style="background-color: rgba(99, 0, 0, 0.08); color: #630000;">
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 mb-sm-1 trust-title" style="color: #1B1717;">30% Pure Essences</h6>
+                        <p class="small mb-0 trust-subtitle" style="color: #6c6358;">Highest perfume concentration</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="trust-card h-100 d-flex flex-column flex-sm-row align-items-center text-center text-sm-start gap-2 gap-sm-3 p-2.5 p-sm-3">
+                    <div class="trust-icon-box" style="background-color: rgba(27, 23, 23, 0.08); color: #1B1717;">
+                        <i class="fa-solid fa-gem"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0 mb-sm-1 trust-title" style="color: #1B1717;">Fragrance Concierge</h6>
+                        <p class="small mb-0 trust-subtitle" style="color: #6c6358;">Direct phone & WhatsApp styling</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+}
+
+<!-- ======================================================================== -->
+<!-- 3. INTERACTIVE CATEGORY SHOWCASE (Fragrance Departments)                -->
+<!-- ======================================================================== -->
+@if (Model.Settings?.ShowCategoriesShowcase != false)
+{
+<section class="py-5 overflow-hidden w-100" style="background-color: #FAF9F5;">
+    <div class="container">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-4">
+            <div>
+                <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-semibold mb-2 d-inline-flex align-items-center gap-2">
+                    <i class="fa-solid fa-spray-can-sparkles" style="color: #630000;"></i>
+                    <span>ROVEN Haute Parfumerie</span>
+                </span>
+                <h3 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.4rem, 2.8vw, 1.95rem);">
+                    Explore Olfactory Departments
+                </h3>
+                <p class="mb-0 small" style="color: #6c6358;">From concentrated Extraits to majestic Oud and discovery coffrets</p>
+            </div>
+            <a asp-controller="Store" asp-action="Index" class="btn btn-sm fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2" style="border: 1px solid #630000; color: #630000; background: transparent;">
+                <span>View All Fragrances</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="row g-3 g-lg-4">
+            @foreach (var cat in Model.Categories)
+            {
+                var faIcon = cat.Name.ToLower() switch
+                {
+                    var n when n.Contains("extrait") => "fa-solid fa-droplet",
+                    var n when n.Contains("oud") || n.Contains("orient") => "fa-solid fa-fire-flame-simple",
+                    var n when n.Contains("eau") => "fa-solid fa-spray-can-sparkles",
+                    var n when n.Contains("gift") || n.Contains("discov") => "fa-solid fa-gift",
+                    _ => "fa-solid fa-gem"
+                };
+
+                <div class="col-6 col-lg-3">
+                    <a asp-controller="Store" asp-action="Index" asp-route-categoryId="@cat.Id" class="cat-showcase-card">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                            <div class="cat-icon-container">
+                                <i class="@faIcon"></i>
+                            </div>
+                            <span class="cat-count-badge">
+                                <i class="fa-solid fa-spray-can-sparkles me-1" style="color: #810100;"></i>@(cat.ProductsCount == 1 ? "1 Parfum" : $"{cat.ProductsCount} Parfums")
+                            </span>
+                        </div>
+                        <h5 class="cat-card-title">@cat.Name</h5>
+                        <p class="cat-card-desc flex-grow-1">@(cat.Description ?? "Discover the haute perfumerie collection")</p>
+                        <div class="cat-card-footer mt-auto d-flex align-items-center justify-content-between">
+                            <span class="cat-explore-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 32px);">Explore Department</span>
+                            <div class="cat-arrow-circle">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+}
+
+<!-- ======================================================================== -->
+<!-- 4. FLASH DEAL / SPOTLIGHT FRAGRANCES (Multi-Product Special Offers)      -->
+<!-- ======================================================================== -->
+@if (Model.Settings?.SpotlightActive != false && (Model.SpecialOffers.Any() || Model.DealOfTheDay != null))
+{
+    @if (Model.SpecialOffers.Count > 1)
+    {
+        <!-- Multi-Product Offers Grid -->
+        <section class="py-5 bg-white border-top border-bottom overflow-hidden w-100" style="border-color: #e8e3d5 !important;">
+            <div class="container">
+                <!-- Section Header -->
+                <div class="text-center mb-5">
+                    <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-bold mb-2 d-inline-flex align-items-center gap-2">
+                        <i class="fa-solid fa-bolt text-warning"></i>
+                        <span>EXCLUSIVE ATELIER OFFERS & DEALS</span>
+                    </span>
+                    <h2 class="fw-extrabold mb-2" style="font-family: 'Playfair Display', serif; color: #1B1717;">
+                        عروض وتخفيضات دار روفين الحصرية
+                    </h2>
+                    <p class="text-muted small mx-auto mb-0" style="max-width: 620px;">
+                        إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.
+                    </p>
+                </div>
+
+                <div class="row g-4 justify-content-center">
+                    @foreach (var offer in Model.SpecialOffers)
+                    {
+                        var isDuo = offer.IsDuoOffer;
+                        <div class="col-12 col-md-6 @(Model.SpecialOffers.Count == 2 ? "col-lg-6" : "col-lg-4")">
+                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative d-flex flex-column" style="background-color: #FAF9F5; border: 1px solid rgba(99, 0, 0, 0.12) !important; transition: transform 0.25s ease, box-shadow 0.25s ease;">
+                                <!-- Top Badges -->
+                                <div class="position-absolute top-0 start-0 m-3 z-2 d-flex flex-column gap-1">
+                                    <span class="badge badge-roven-crimson px-2.5 py-1.5 rounded-pill fw-bold shadow-xs small d-inline-flex align-items-center gap-1">
+                                        <i class="fa-solid @(isDuo ? "fa-layer-group" : "fa-crown") text-warning"></i>
+                                        <span>@(string.IsNullOrWhiteSpace(offer.BadgeText) ? (isDuo ? "DUO BUNDLE • عرض عطرين" : "OFFER") : offer.BadgeText)</span>
+                                    </span>
+                                    @if (offer.DiscountPercent > 0)
+                                    {
+                                        <span class="badge bg-danger rounded-pill px-2.5 py-1 fw-bold shadow-xs small" style="width: fit-content;">
+                                            وفر @offer.DiscountPercent%
+                                        </span>
+                                    }
+                                </div>
+
+                                <!-- Perfume Image Box -->
+                                <div class="text-center p-3 position-relative overflow-hidden" style="background-color: #EDEBDD; min-height: 250px; display: flex; align-items: center; justify-content: center;">
+                                    @if (isDuo)
+                                    {
+                                        <!-- Duo Perfumes Visual Presentation (2 Flacons side-by-side with + divider) -->
+                                        <div class="d-flex align-items-center justify-content-center gap-1.5 w-100 py-2">
+                                            <!-- Flacon 1 -->
+                                            <div class="text-center position-relative flex-fill" style="max-width: 48%;">
+                                                <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-block" title="@offer.ProductName">
+                                                    @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
+                                                    {
+                                                        <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid rounded-3 shadow-xs" style="max-height: 185px; object-fit: contain; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fa-solid fa-spray-can-sparkles display-4" style="color: #630000;"></i>
+                                                    }
+                                                </a>
+                                                <span class="badge position-absolute bottom-0 start-50 translate-middle-x rounded-pill font-monospace small px-2 py-0.5" style="background: rgba(20, 8, 8, 0.82); color: #dfb15b; font-size: 0.65rem; white-space: nowrap;">
+                                                    العطر 1
+                                                </span>
+                                            </div>
+
+                                            <!-- Gold Plus Separator Badge -->
+                                            <div class="d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 32px; height: 32px; background: #630000; color: #EDEBDD; font-weight: bold; font-size: 1.1rem; flex-shrink: 0; z-index: 2; border: 2px solid #dfb15b;">
+                                                +
+                                            </div>
+
+                                            <!-- Flacon 2 -->
+                                            <div class="text-center position-relative flex-fill" style="max-width: 48%;">
+                                                <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.SecondProductId" class="d-block" title="@offer.SecondProductName">
+                                                    @if (!string.IsNullOrWhiteSpace(offer.SecondProductImageUrl))
+                                                    {
+                                                        <img src="@offer.SecondProductImageUrl" alt="@offer.SecondProductName" class="img-fluid rounded-3 shadow-xs" style="max-height: 185px; object-fit: contain; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fa-solid fa-spray-can-sparkles display-4" style="color: #630000;"></i>
+                                                    }
+                                                </a>
+                                                <span class="badge position-absolute bottom-0 start-50 translate-middle-x rounded-pill font-monospace small px-2 py-0.5" style="background: rgba(20, 8, 8, 0.82); color: #dfb15b; font-size: 0.65rem; white-space: nowrap;">
+                                                    العطر 2
+                                                </span>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <!-- Single Perfume Image Box -->
+                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-block">
+                                            @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
+                                            {
+                                                <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid rounded-3 shadow-xs" style="max-height: 210px; object-fit: contain; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" />
+                                            }
+                                            else
+                                            {
+                                                <i class="fa-solid fa-spray-can-sparkles display-3" style="color: #630000;"></i>
+                                            }
+                                        </a>
+                                    }
+                                </div>
+
+                                <!-- Card Body -->
+                                <div class="card-body p-3 p-md-4 d-flex flex-column flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center small mb-1.5 text-muted">
+                                        @if (isDuo)
+                                        {
+                                            <span class="badge rounded-pill fw-bold" style="background-color: #630000; color: #fdf4dc; font-size: 0.72rem;">
+                                                <i class="fa-solid fa-layer-group me-1"></i>باقة ثنائية (عطرين معاً)
+                                            </span>
+                                            <span class="font-monospace small text-muted">2x 100ml Flacons</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-roven-cream px-2 py-0.5 rounded-pill">@offer.CategoryName</span>
+                                            <span class="font-monospace small">SKU: @offer.Sku</span>
+                                        }
+                                    </div>
+
+                                    <h5 class="fw-bold mb-2 text-dark" style="font-size: 1.05rem; line-height: 1.4;">
+                                        @offer.DisplayTitle
+                                    </h5>
+
+                                    @if (isDuo)
+                                    {
+                                        <!-- Itemized fragrance list in Duo Offer -->
+                                        <div class="d-flex flex-column gap-1 mb-3 p-2 rounded-3" style="background: rgba(232, 227, 213, 0.4); border: 1px dashed rgba(99,0,0,0.2);">
+                                            <div class="small text-dark d-flex align-items-center gap-1.5">
+                                                <i class="fa-solid fa-check-circle text-success" style="font-size: 0.75rem;"></i>
+                                                <span class="fw-semibold">1.</span> @offer.ProductName
+                                            </div>
+                                            <div class="small text-dark d-flex align-items-center gap-1.5">
+                                                <i class="fa-solid fa-check-circle text-success" style="font-size: 0.75rem;"></i>
+                                                <span class="fw-semibold">2.</span> @offer.SecondProductName
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <!-- Price Comparison Box -->
+                                    <div class="p-2.5 rounded-3 mb-3 d-flex justify-content-between align-items-center mt-auto" style="background-color: #ffffff; border: 1px solid #e8e3d5;">
+                                        <div>
+                                            @if (offer.OriginalPrice > offer.OfferPrice)
+                                            {
+                                                <div class="text-muted small text-decoration-line-through font-monospace">
+                                                    @offer.OriginalPrice.ToString("N0") EGP
+                                                </div>
+                                            }
+                                            <div class="fw-extrabold fs-5 font-monospace" style="color: #630000;">
+                                                @offer.OfferPrice.ToString("N0") <span class="fs-7 fw-normal text-muted">EGP</span>
+                                            </div>
+                                        </div>
+                                        @if (offer.DiscountPercent > 0)
+                                        {
+                                            <div class="text-end">
+                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1 font-monospace fw-bold">
+                                                    خصم @offer.DiscountPercent%
+                                                </span>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <!-- Progress Meter -->
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center small mb-1" style="font-size: 0.76rem; color: #6c6358;">
+                                            <span>نسبة الحجز: <strong>@offer.AllocatedPercent%</strong></span>
+                                            <span class="fw-bold" style="color: #810100;">
+                                                <i class="fa-solid fa-fire me-1"></i>متبقي @offer.RemainingCount @(isDuo ? "باقة" : "فقط")!
+                                            </span>
+                                        </div>
+                                        <div class="progress" style="height: 6px; background-color: #e8e3d5;">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: @(offer.AllocatedPercent)%; background-color: #810100;"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-roven-wine btn-sm py-2 px-3 fw-bold rounded-pill flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 shadow-xs" onclick="window.addOfferToCart(@offer.Id, this)">
+                                            <i class="fa-solid @(isDuo ? "fa-gift" : "fa-bag-shopping")"></i>
+                                            <span>@(isDuo ? "أضف باقة العطرين للحقيبة" : "أضف للحقيبة")</span>
+                                        </button>
+                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="btn btn-outline-dark btn-sm py-2 px-3 rounded-pill fw-semibold" title="عرض التفاصيل">
+                                            <i class="fa-solid fa-arrow-left"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <!-- Single Product Hero Spotlight (If only 1 offer is configured) -->
+        var singleOffer = Model.SpecialOffers.FirstOrDefault();
+        var deal = singleOffer != null ? new Stockify.ViewModels.Store.StoreProductCardViewModel
+        {
+            Id = singleOffer.ProductId,
+            Name = singleOffer.ProductName,
+            Sku = singleOffer.Sku,
+            CategoryName = singleOffer.CategoryName,
+            ImageUrl = singleOffer.ImageUrl,
+            Description = singleOffer.Description,
+            Price = singleOffer.OfferPrice,
+            StockQuantity = singleOffer.RemainingCount
+        } : Model.DealOfTheDay!;
+
+        var spotPrice = (singleOffer != null && singleOffer.OfferPrice > 0) ? singleOffer.OfferPrice : ((Model.Settings != null && Model.Settings.SpotlightPrice > 0) ? Model.Settings.SpotlightPrice : deal.Price);
+        var spotAlloc = singleOffer?.AllocatedPercent ?? Model.Settings?.SpotlightAllocatedPercent ?? 82;
+        var spotRemaining = singleOffer?.RemainingCount ?? ((Model.Settings != null && Model.Settings.SpotlightRemainingCount > 0) ? Model.Settings.SpotlightRemainingCount : Math.Max(1, deal.StockQuantity));
+        var badgeText = singleOffer?.BadgeText ?? "EXCLUSIVE SPOTLIGHT";
+
+        <section class="py-5 bg-white border-top border-bottom overflow-hidden w-100" style="border-color: #e8e3d5 !important;">
+            <div class="container">
+                <div class="card border-0 shadow-lg overflow-hidden spotlight-deal-card" style="border-radius: 20px; border: 1px solid rgba(99, 0, 0, 0.12) !important;">
+                    <div class="row g-0 align-items-center">
+                        <!-- Left Promo Image -->
+                        <div class="col-12 col-lg-5 p-4 p-md-5 text-center position-relative" style="background-color: #EDEBDD;">
+                            <span class="badge badge-roven-crimson px-3 py-2 rounded-pill fw-bold position-absolute top-0 start-0 m-3 shadow-sm d-inline-flex align-items-center gap-1">
+                                <i class="fa-solid fa-crown"></i>
+                                <span>@badgeText</span>
+                            </span>
+                            <div class="py-3">
+                                <a asp-controller="Store" asp-action="Details" asp-route-id="@deal.Id" class="d-inline-block text-decoration-none" title="عرض تفاصيل عطر @deal.Name">
+                                    @if (!string.IsNullOrWhiteSpace(deal.ImageUrl))
+                                    {
+                                        <img src="@deal.ImageUrl" alt="@deal.Name" class="img-fluid rounded-4 shadow-sm" style="max-height: 320px; object-fit: cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'" />
+                                    }
+                                    else
+                                    {
+                                        <i class="fa-solid fa-spray-can-sparkles display-1" style="color: #630000;"></i>
+                                    }
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Right Deal Details & Live Countdown -->
+                        <div class="col-12 col-lg-7 p-3 p-sm-4 p-md-5">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="badge badge-roven-cream px-3 py-1 rounded-pill">
+                                    @deal.CategoryName
+                                </span>
+                                <span class="font-monospace small" style="color: #6c6358;">SKU: @deal.Sku</span>
+                            </div>
+
+                            <h3 class="fw-extrabold mb-2" style="color: #1B1717;">@deal.Name</h3>
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <div class="star-rating">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                </div>
+                                <span class="small" style="color: #6c6358;">5.0 (Connoisseur Verified Favorite)</span>
+                            </div>
+
+                            <p class="small mb-4" style="color: #595252; max-width: 520px; line-height: 1.6;">
+                                @(deal.Description ?? "Limited daily allocation of this masterwork fragrance. Sealed flacon in luxury presentation box, backed by Cash on Delivery parcel inspection.")
+                            </p>
+
+                            <!-- Price & Live Countdown Box -->
+                            <div class="p-3 rounded-3 mb-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3" style="background-color: #FAF9F5; border: 1px solid #e8e3d5;">
+                                <div>
+                                    <span class="small d-block" style="color: #6c6358;">Spotlight Price</span>
+                                    <h3 class="fw-extrabold mb-0" style="color: #630000;">
+                                        @spotPrice.ToString("N2") <span class="fs-6 fw-normal" style="color: #6c6358;">EGP</span>
+                                    </h3>
+                                </div>
+
+                                <!-- Live Countdown Display -->
+                                <div class="w-100 w-sm-auto">
+                                    <div class="small fw-semibold mb-1 text-sm-end d-flex align-items-center justify-content-start justify-content-sm-end gap-1" style="color: #6c6358;">
+                                        <i class="fa-solid fa-clock" style="color: #810100;"></i>
+                                        <span>Spotlight Ends In:</span>
+                                    </div>
+                                    <div class="d-flex gap-2 spotlight-timer-boxes">
+                                        <div class="timer-unit-box">
+                                            <div class="timer-unit-num" id="countdown-hours">09</div>
+                                            <div class="timer-unit-lbl">Hours</div>
+                                        </div>
+                                        <div class="timer-unit-box">
+                                            <div class="timer-unit-num" id="countdown-mins">34</div>
+                                            <div class="timer-unit-lbl">Mins</div>
+                                        </div>
+                                        <div class="timer-unit-box">
+                                            <div class="timer-unit-num" id="countdown-secs">50</div>
+                                            <div class="timer-unit-lbl">Secs</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stock Progress Meter -->
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center small mb-2 spotlight-meter-header" style="color: #6c6358;">
+                                    <span class="d-inline-flex align-items-center gap-1.5 fw-semibold">
+                                        <i class="fa-solid fa-box-open" style="color: #810100;"></i>
+                                        <span>Allocated: <strong style="color: #1B1717;">@spotAlloc% Claimed</strong></span>
+                                    </span>
+                                    <span class="fw-bold" style="color: #810100;">
+                                        <i class="fa-solid fa-fire me-1"></i>Only @spotRemaining flacons remaining!
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 8px; background-color: #e8e3d5;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: @(spotAlloc)%; background-color: #810100;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Actions (Responsive Stacked Pills on Mobile, Inline on Desktop) -->
+                            <div class="d-flex flex-column flex-sm-row gap-2 gap-sm-3 spotlight-actions">
+                                <button type="button" class="btn btn-roven-wine btn-lg px-3 px-sm-4 py-3 fw-bold rounded-pill shadow-sm d-inline-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto" onclick="window.addStoreItemToCart(@deal.Id, 1, this)">
+                                    <i class="fa-solid fa-bag-shopping"></i>
+                                    <span>Claim Flacon &bull; Add to Bag</span>
+                                </button>
+                                <a asp-controller="Store" asp-action="Details" asp-route-id="@deal.Id" class="btn btn-lg px-3 px-sm-4 py-3 fw-semibold rounded-pill d-inline-flex align-items-center justify-content-center w-100 w-sm-auto" style="border: 1.5px solid #1B1717; color: #1B1717; background: transparent;">
+                                    Full Olfactory Pyramid
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+}
+
+<!-- ======================================================================== -->
+<!-- 5. FEATURED LUXURY FRAGRANCES (Editor's Choice)                         -->
+<!-- ======================================================================== -->
+@if (Model.Settings?.ShowFeaturedSection != false)
+{
+<section class="py-5 overflow-hidden w-100" style="background-color: #FAF9F5;">
+    <div class="container">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-4">
+            <div>
+                <span class="badge badge-roven-cream px-3 py-1 rounded-pill fw-semibold mb-2 d-inline-flex align-items-center gap-2">
+                    <i class="fa-solid fa-crown" style="color: #630000;"></i>
+                    <span>Master Distillations</span>
+                </span>
+                <h3 class="fw-extrabold mb-1" style="color: #1B1717;">Featured ROVEN Parfums</h3>
+                <p class="mb-0 small" style="color: #6c6358;">Our most acclaimed fragrant creations formulated with precious Grasse and oriental oils</p>
+            </div>
+            <a asp-controller="Store" asp-action="Index" class="btn btn-sm fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2" style="border: 1px solid #630000; color: #630000; background: transparent;">
+                <span>Explore Full Collection</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var product in Model.FeaturedProducts)
+            {
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="product-card shadow-sm" data-details-url="@Url.Action("Details", "Store", new { id = product.Id })">
+                        <a asp-controller="Store" asp-action="Details" asp-route-id="@product.Id" class="product-image-container d-block position-relative text-decoration-none" style="background: #000;" title="عرض تفاصيل عطر @product.Name">
+                            @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                            {
+                                <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" style="object-fit: cover; width: 100%; height: 100%;" />
+                            }
+                            else
+                            {
+                                <i class="fa-solid fa-spray-can-sparkles display-4" style="color: #EDEBDD;"></i>
+                            }
+
+                            <!-- Badges -->
+                            <div class="position-absolute top-0 end-0 m-2 d-flex flex-column gap-1">
+                                <span class="badge badge-roven-burgundy shadow-sm"><i class="fa-solid fa-gem me-1" style="color: #EDEBDD;"></i>Featured</span>
+                                @if (product.IsLowStock)
+                                {
+                                    <span class="badge badge-roven-cream">Only @product.StockQuantity flacons</span>
+                                }
+                            </div>
+                        </a>
+
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small" style="color: #6c6358;">@product.CategoryName</span>
+                                <div class="star-rating">
+                                    <i class="fa-solid fa-star"></i>
+                                    <span class="small ms-1" style="color: #6c6358;">4.9</span>
+                                </div>
+                            </div>
+
+                            <h6 class="fw-bold mb-1 line-clamp-2">
+                                <a asp-controller="Store" asp-action="Details" asp-route-id="@product.Id" class="text-decoration-none" style="color: #1B1717;">
+                                    @product.Name
+                                </a>
+                            </h6>
+                            <div class="font-monospace small mb-3" style="color: #8c8374;">SKU: @product.Sku</div>
+
+                            <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between" style="border-color: #e8e3d5 !important;">
+                                <div>
+                                    <div class="small" style="font-size: 0.75rem; color: #6c6358;">Price</div>
+                                    <div class="fw-bold fs-5" style="color: #630000;">
+                                        @product.Price.ToString("N2") <span class="fs-6 fw-normal" style="color: #6c6358;">EGP</span>
+                                    </div>
+                                </div>
+
+                                @if (product.IsOutOfStock)
+                                {
+                                    <button class="btn btn-sm btn-secondary" disabled>Allocated</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-roven-wine btn-sm px-3 py-1 rounded-pill d-flex align-items-center gap-1 shadow-sm" onclick="window.addStoreItemToCart(@product.Id, 1, this)" title="Add to Bag">
+                                        <i class="fa-solid fa-bag-shopping"></i> Add
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+}
+
+<!-- ======================================================================== -->
+<!-- 6. BEST SELLERS & ACCLAIMED FLACONS                                     -->
+<!-- ======================================================================== -->
+@if ((Model.Settings?.ShowBestSellersSection != false) && Model.BestSellers.Any())
+{
+    <section class="py-5 bg-white border-top border-bottom overflow-hidden w-100" style="border-color: #e8e3d5 !important;">
+        <div class="container">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-4">
+                <div>
+                    <span class="badge badge-roven-crimson px-3 py-1 rounded-pill fw-semibold mb-2 d-inline-flex align-items-center gap-2">
+                        <i class="fa-solid fa-fire"></i>
+                        <span>Most Requested</span>
+                    </span>
+                    <h3 class="fw-extrabold mb-1" style="color: #1B1717;">Top Acclaimed ROVEN Parfums</h3>
+                    <p class="mb-0 small" style="color: #6c6358;">The fragrances most cherished by our clientele across Egypt this month</p>
+                </div>
+                <a asp-controller="Store" asp-action="Index" class="btn btn-sm fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2" style="border: 1px solid #1B1717; color: #1B1717; background: transparent;">
+                    <span>View All Best Sellers</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="row g-4">
+                @foreach (var product in Model.BestSellers)
+                {
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="product-card shadow-sm" style="border-top: 3px solid #810100 !important;" data-details-url="@Url.Action("Details", "Store", new { id = product.Id })">
+                            <a asp-controller="Store" asp-action="Details" asp-route-id="@product.Id" class="product-image-container d-block position-relative text-decoration-none" style="background: #000;" title="عرض تفاصيل عطر @product.Name">
+                                @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                                {
+                                    <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" style="object-fit: cover; width: 100%; height: 100%;" />
+                                }
+                                else
+                                {
+                                    <i class="fa-solid fa-spray-can-sparkles display-4" style="color: #EDEBDD;"></i>
+                                }
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    <span class="badge badge-roven-crimson shadow-sm">Best Seller</span>
+                                </div>
+                            </a>
+
+                            <div class="p-3 d-flex flex-column flex-grow-1">
+                                <span class="small mb-1" style="color: #6c6358;">@product.CategoryName</span>
+                                <h6 class="fw-bold mb-1 line-clamp-2">
+                                    <a asp-controller="Store" asp-action="Details" asp-route-id="@product.Id" class="text-decoration-none" style="color: #1B1717;">
+                                        @product.Name
+                                    </a>
+                                </h6>
+                                <div class="font-monospace small mb-3" style="color: #8c8374;">SKU: @product.Sku</div>
+
+                                <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between" style="border-color: #e8e3d5 !important;">
+                                    <div class="fw-bold fs-5" style="color: #630000;">
+                                        @product.Price.ToString("N2") <span class="fs-6 fw-normal" style="color: #6c6358;">EGP</span>
+                                    </div>
+                                    <button type="button" class="btn btn-sm px-3 py-1 rounded-pill d-inline-flex align-items-center gap-1" style="border: 1px solid #630000; color: #630000; background: transparent;" onclick="window.addStoreItemToCart(@product.Id, 1, this)">
+                                        <i class="fa-solid fa-bag-shopping"></i> Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- ======================================================================== -->
+<!-- 7. CLIENT TESTIMONIALS (Olfactory Reviews & Social Proof)                -->
+<!-- ======================================================================== -->
+<section class="py-5 overflow-hidden w-100" style="background-color: #FAF9F5;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge badge-roven-cream px-3 py-1 rounded-pill fw-semibold mb-2">
+                Cherished Across Egypt
+            </span>
+            <h3 class="fw-extrabold mb-1" style="color: #1B1717;">Words From ROVEN Patrons</h3>
+            <p class="small mb-0" style="color: #6c6358;">Over @Model.TotalCustomersCount+ discerning fragrance collectors rely on ROVEN Parfums</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
+                    <div class="star-rating mb-3">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.6;">
+                        "Rouge Velours Extrait is simply hypnotic. The dark cherry and ambergris trail lasts well past 24 hours on wool coats. Delivery to New Cairo was immaculate and paying Cash on Delivery was seamless."
+                    </p>
+                    <div class="d-flex align-items-center gap-3 pt-3 border-top" style="border-color: #e8e3d5 !important;">
+                        <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: #630000; color: #EDEBDD;">
+                            AM
+                        </div>
+                        <div>
+                            <div class="fw-bold small" style="color: #1B1717;">Ahmed Mansour</div>
+                            <span class="small" style="font-size: 0.75rem; color: #6c6358;">Fragrance Connoisseur &bull; Cairo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
+                    <div class="star-rating mb-3">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.6;">
+                        "Royal Amber & Oud possesses the depth of genuine aged Assam wood without harsh synthetic sharpness. The presentation box and atomizers are true works of art. ROVEN is in a class of its own."
+                    </p>
+                    <div class="d-flex align-items-center gap-3 pt-3 border-top" style="border-color: #e8e3d5 !important;">
+                        <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: #810100; color: #EDEBDD;">
+                            ME
+                        </div>
+                        <div>
+                            <div class="fw-bold small" style="color: #1B1717;">Mona El-Shennawy</div>
+                            <span class="small" style="font-size: 0.75rem; color: #6c6358;">Art Collector &bull; Alexandria</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
+                    <div class="star-rating mb-3">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.6;">
+                        "The Grand Discovery Coffret allowed me to test all five fragrances over several weeks before selecting Santal Impérial. The order arrived the very next afternoon in Sheikh Zayed."
+                    </p>
+                    <div class="d-flex align-items-center gap-3 pt-3 border-top" style="border-color: #e8e3d5 !important;">
+                        <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: #1B1717; color: #EDEBDD;">
+                            TZ
+                        </div>
+                        <div>
+                            <div class="fw-bold small" style="color: #1B1717;">Tarek Zaki</div>
+                            <span class="small" style="font-size: 0.75rem; color: #6c6358;">Architect &bull; Giza</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======================================================================== -->
+<!-- 8. FREQUENTLY ASKED QUESTIONS (Accordion)                                -->
+<!-- ======================================================================== -->
+@if (Model.Settings?.ShowFaqSection != false)
+{
+<section class="py-5 bg-white border-top border-bottom overflow-hidden w-100" style="border-color: #e8e3d5 !important;">
+    <div class="container" style="max-width: 860px;">
+        <div class="text-center mb-5">
+            <span class="badge badge-roven-cream px-3 py-2 rounded-pill fw-bold mb-2 shadow-sm d-inline-flex align-items-center gap-2">
+                <i class="fa-solid fa-gem" style="color: #630000;"></i>
+                <span>Maison ROVEN Clarifications</span>
+            </span>
+            <h3 class="fw-extrabold mb-1" style="color: #1B1717;">Frequently Asked Questions</h3>
+            <p class="small mb-0" style="color: #6c6358;">Everything you need to know about concentrations, parcel inspection, and authenticity</p>
+        </div>
+
+        <div class="accordion" id="homeFaqAccordion">
+            <!-- FAQ 1 -->
+            <div class="roven-faq-card">
+                <h2 class="accordion-header" id="faq-heading-1">
+                    <button class="accordion-button roven-faq-btn" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-1" aria-expanded="true" aria-controls="faq-collapse-1">
+                        <span class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-droplet" style="color: #810100;"></i>
+                            <span>What distinguishes an Extrait de Parfum from Eau de Parfum?</span>
+                        </span>
+                    </button>
+                </h2>
+                <div id="faq-collapse-1" class="accordion-collapse collapse show" aria-labelledby="faq-heading-1" data-bs-parent="#homeFaqAccordion">
+                    <div class="accordion-body roven-faq-body">
+                        ROVEN Extraits de Parfum contain <strong>30% or higher</strong> concentrations of pure perfume oil essences, offering an exceptionally rich and intimate sillage that endures for 24+ hours on fabrics and skin. Our Eaux de Parfum are concentrated at 20%, engineered for vibrant projection and refined daytime versatility.
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ 2 -->
+            <div class="roven-faq-card">
+                <h2 class="accordion-header" id="faq-heading-2">
+                    <button class="accordion-button roven-faq-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-2" aria-expanded="false" aria-controls="faq-collapse-2">
+                        <span class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-shield-halved" style="color: #630000;"></i>
+                            <span>How does Cash on Delivery (COD) inspection work?</span>
+                        </span>
+                    </button>
+                </h2>
+                <div id="faq-collapse-2" class="accordion-collapse collapse" aria-labelledby="faq-heading-2" data-bs-parent="#homeFaqAccordion">
+                    <div class="accordion-body roven-faq-body">
+                        No online credit card is required. You can complete your order instantly as a guest without creating an account. When the courier arrives, you have the right to inspect the parcel seal and external luxury packaging condition before handing over the payment in Egyptian Pounds (EGP).
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ 3 -->
+            <div class="roven-faq-card">
+                <h2 class="accordion-header" id="faq-heading-3">
+                    <button class="accordion-button roven-faq-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-3" aria-expanded="false" aria-controls="faq-collapse-3">
+                        <span class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-truck-fast" style="color: #810100;"></i>
+                            <span>What is the expected delivery timeframe?</span>
+                        </span>
+                    </button>
+                </h2>
+                <div id="faq-collapse-3" class="accordion-collapse collapse" aria-labelledby="faq-heading-3" data-bs-parent="#homeFaqAccordion">
+                    <div class="accordion-body roven-faq-body">
+                        Orders placed for Cairo and Giza are fulfilled within <strong>24 to 48 hours</strong>. Shipments to Alexandria, Delta, and Upper Egypt governorates are fulfilled within <strong>48 to 72 hours</strong> with real-time status updates and SMS notification.
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ 4 -->
+            <div class="roven-faq-card">
+                <h2 class="accordion-header" id="faq-heading-4">
+                    <button class="accordion-button roven-faq-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-4" aria-expanded="false" aria-controls="faq-collapse-4">
+                        <span class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-box-open" style="color: #630000;"></i>
+                            <span>How can I track my fragrance delivery?</span>
+                        </span>
+                    </button>
+                </h2>
+                <div id="faq-collapse-4" class="accordion-collapse collapse" aria-labelledby="faq-heading-4" data-bs-parent="#homeFaqAccordion">
+                    <div class="accordion-body roven-faq-body">
+                        Upon order confirmation, you receive a distinct tracking reference number (e.g. <code>ORD-20261105-XXXX</code>). Visit the <a asp-controller="OrderTracking" asp-action="Index" style="color: #630000; font-weight: 700; text-decoration: underline;">Track Order</a> page anytime to view the live multi-stage dispatch timeline of your flacon.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+}
+
+<!-- ======================================================================== -->
+<!-- 9. VIP NEWSLETTER & DISCOUNT SUBSCRIPTION BANNER                         -->
+<!-- ======================================================================== -->
+@if (Model.Settings?.ShowNewsletterSection != false)
+{
+<section class="py-5 overflow-hidden w-100" style="background-color: #FAF9F5;">
+    <div class="container">
+        <div class="newsletter-card text-center">
+            <!-- Decorative Accent Badge -->
+            <span class="badge px-3 py-2 rounded-pill fw-semibold mb-3 shadow-sm d-inline-flex align-items-center gap-2" style="background-color: rgba(99, 0, 0, 0.45); color: #EDEBDD; border: 1px solid rgba(237, 235, 221, 0.25);">
+                <i class="fa-solid fa-gem" style="color: #EDEBDD;"></i>
+                <span>Exclusive ROVEN Privileges</span>
+            </span>
+
+            <h2 class="display-6 fw-extrabold mb-2 tracking-tight" style="color: #EDEBDD;">Unlock 10% Off Your First Flacon</h2>
+            <p class="small mb-4 mx-auto leading-relaxed" style="color: #EDEBDD; opacity: 0.85; max-width: 520px;">
+                Join the circle of ROVEN fragrance connoisseurs across Egypt. Receive private batch releases, private salon invitations, and exclusive discovery vouchers.
+            </p>
+
+            <!-- Sleek Unified Pill Input Bar -->
+            <div class="mx-auto" style="max-width: 540px;">
+                <form class="newsletter-pill-form" onsubmit="handleNewsletterSubmit(event)">
+                    <i class="fa-solid fa-envelope fs-5 ms-1 me-2" style="color: #630000;"></i>
+                    <input type="email" id="newsletter-email" class="form-control" placeholder="Enter your email for private salon access..." required autocomplete="email" />
+                    <button type="submit" class="newsletter-btn d-flex align-items-center gap-2">
+                        <span>Get 10% Off</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Trust Features List -->
+            <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 mt-4 small" style="color: #EDEBDD; opacity: 0.85;">
+                <span class="d-flex align-items-center gap-1"><i class="fa-solid fa-circle-check fs-6" style="color: #EDEBDD;"></i> Zero spam guarantee</span>
+                <span class="d-flex align-items-center gap-1"><i class="fa-solid fa-bolt fs-6" style="color: #810100;"></i> Instant bespoke voucher</span>
+                <span class="d-flex align-items-center gap-1"><i class="fa-solid fa-circle-xmark fs-6" style="color: #EDEBDD;"></i> Unsubscribe anytime</span>
+            </div>
+        </div>
+    </div>
+</section>
+}
+
+@section Scripts {
+<script>
+    // ========================================================================
+    // HERO BANNERS SCROLL & SWIPE CONTROLLER (Touch + Mouse Drag + Autoplay)
+    // ========================================================================
+    (function () {
+        const heroEl = document.getElementById('heroHomeCarousel');
+        if (!heroEl) return;
+
+        let carouselInstance = null;
+
+        function getCarousel() {
+            if (!carouselInstance && window.bootstrap && window.bootstrap.Carousel) {
+                carouselInstance = window.bootstrap.Carousel.getOrCreateInstance(heroEl, {
+                    interval: 4500,
+                    ride: 'carousel',
+                    pause: false, // Prevents mobile touch from freezing the carousel
+                    wrap: true,
+                    touch: true
+                });
+            }
+            return carouselInstance;
+        }
+
+        // Start cycling immediately and on load
+        function startCycle() {
+            const inst = getCarousel();
+            if (inst) {
+                inst.cycle();
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startCycle);
+        } else {
+            startCycle();
+        }
+
+        window.addEventListener('load', startCycle);
+        window.addEventListener('rovenPreloaderDismissed', startCycle);
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) startCycle();
+        });
+
+        // --------------------------------------------------------------------
+        // Gesture Engine: Seamless Touch Swipe (Mobile) & Mouse Drag (Desktop)
+        // --------------------------------------------------------------------
+        let startX = 0;
+        let startY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        let isPointerDown = false;
+        let isDragging = false;
+        let movedDistance = 0;
+
+        function slideNext() {
+            const inst = getCarousel();
+            if (inst) inst.next();
+            else heroEl.querySelector('.carousel-control-next')?.click();
+        }
+
+        function slidePrev() {
+            const inst = getCarousel();
+            if (inst) inst.prev();
+            else heroEl.querySelector('.carousel-control-prev')?.click();
+        }
+
+        // Touch Listeners (Mobile / Tablets)
+        heroEl.addEventListener('touchstart', function (e) {
+            if (!e.touches || e.touches.length === 0) return;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            currentX = startX;
+            currentY = startY;
+            isDragging = true;
+            movedDistance = 0;
+        }, { passive: true });
+
+        heroEl.addEventListener('touchmove', function (e) {
+            if (!isDragging || !e.touches || e.touches.length === 0) return;
+            currentX = e.touches[0].clientX;
+            currentY = e.touches[0].clientY;
+            movedDistance = Math.abs(currentX - startX);
+        }, { passive: true });
+
+        heroEl.addEventListener('touchend', function () {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const deltaX = currentX - startX;
+            const deltaY = currentY - startY;
+
+            // Horizontal swipe threshold: 30px & horizontal intent > vertical
+            if (Math.abs(deltaX) > 30 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX < 0) {
+                    slideNext(); // Swiped left -> next
+                } else {
+                    slidePrev(); // Swiped right -> prev
+                }
+            }
+        }, { passive: true });
+
+        // Mouse Drag Listeners (Desktop / Mouse Emulation)
+        heroEl.addEventListener('mousedown', function (e) {
+            // Ignore button/dot clicks
+            if (e.target.closest('.carousel-indicators') || e.target.closest('.carousel-control-prev') || e.target.closest('.carousel-control-next')) {
+                return;
+            }
+            isPointerDown = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            currentX = startX;
+            currentY = startY;
+            movedDistance = 0;
+            heroEl.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mousemove', function (e) {
+            if (!isPointerDown) return;
+            currentX = e.clientX;
+            currentY = e.clientY;
+            movedDistance = Math.abs(currentX - startX);
+        });
+
+        window.addEventListener('mouseup', function () {
+            if (!isPointerDown) return;
+            isPointerDown = false;
+            heroEl.style.cursor = '';
+
+            const deltaX = currentX - startX;
+            const deltaY = currentY - startY;
+
+            if (Math.abs(deltaX) > 35 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX < 0) {
+                    slideNext();
+                } else {
+                    slidePrev();
+                }
+            }
+        });
+
+        // Trackpad Horizontal Wheel Scroll
+        let wheelLocked = false;
+        heroEl.addEventListener('wheel', function (e) {
+            if (Math.abs(e.deltaX) > 25) {
+                if (wheelLocked) return;
+                wheelLocked = true;
+                if (e.deltaX > 0) {
+                    slideNext();
+                } else {
+                    slidePrev();
+                }
+                setTimeout(() => { wheelLocked = false; }, 500);
+            }
+        }, { passive: true });
+
+        // Prevent accidental link clicking during a drag or swipe gesture
+        heroEl.querySelectorAll('a.hero-banner-link').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                if (movedDistance > 12) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    movedDistance = 0;
+                }
+            });
+        });
+    })();
+
+    // Live Countdown Timer for Spotlight Fragrance
+    (function () {
+        let totalSeconds = (9 * 3600) + (34 * 60) + 50;
+
+        function updateCountdown() {
+            if (totalSeconds <= 0) {
+                totalSeconds = 24 * 3600; // Reset for daily loop
+            }
+
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const hEl = document.getElementById('countdown-hours');
+            const mEl = document.getElementById('countdown-mins');
+            const sEl = document.getElementById('countdown-secs');
+
+            if (hEl && mEl && sEl) {
+                hEl.textContent = hours.toString().padStart(2, '0');
+                mEl.textContent = minutes.toString().padStart(2, '0');
+                sEl.textContent = seconds.toString().padStart(2, '0');
+            }
+
+            totalSeconds--;
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+    })();
+
+    // Newsletter handler
+    function handleNewsletterSubmit(e) {
+        e.preventDefault();
+        const email = document.getElementById('newsletter-email').value;
+        if (!email) return;
+
+        Swal.fire({
+            icon: 'success',
+            iconColor: '#630000',
+            title: '<i class="fa-solid fa-gem me-2" style="color: #630000;"></i>Welcome to ROVEN Circle!',
+            text: `We've dispatched an exclusive 10% voucher code to ${email}. Apply it at checkout!`,
+            confirmButtonColor: '#630000'
+        });
+
+        document.getElementById('newsletter-email').value = '';
+    }
+</script>
+}
+
+@section SeoStructuredData {
+    <!-- Google Rich Snippets: FAQPage Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@@type": "Question",
+          "name": "What distinguishes an Extrait de Parfum from Eau de Parfum?",
+          "acceptedAnswer": {
+            "@@type": "Answer",
+            "text": "ROVEN Extraits de Parfum contain 30% or higher concentrations of pure perfume oil essences, offering an exceptionally rich and intimate sillage that endures for 24+ hours on fabrics and skin. Our Eaux de Parfum are concentrated at 20%, engineered for vibrant projection and refined daytime versatility."
+          }
+        },
+        {
+          "@@type": "Question",
+          "name": "How does Cash on Delivery (COD) inspection work?",
+          "acceptedAnswer": {
+            "@@type": "Answer",
+            "text": "No online credit card is required. You can complete your order instantly as a guest without creating an account. When the courier arrives, you have the right to inspect the parcel seal and external box condition before handing over the payment in Egyptian Pounds (EGP)."
+          }
+        },
+        {
+          "@@type": "Question",
+          "name": "What is the expected delivery timeframe?",
+          "acceptedAnswer": {
+            "@@type": "Answer",
+            "text": "Orders within Greater Cairo and Giza are delivered within 24 to 48 business hours. For Alexandria and other governorates across Egypt, courier delivery typically takes 2 to 4 business days."
+          }
+        },
+        {
+          "@@type": "Question",
+          "name": "How can I track my fragrance delivery?",
+          "acceptedAnswer": {
+            "@@type": "Answer",
+            "text": "Every order generated through our boutique is assigned a unique reference code (e.g. ORD-2026...). You can navigate to our Track Order page at any time to monitor your shipment's dispatch and courier transit."
+          }
+        }
+      ]
+    }
+    </script>
+}

@@ -1,0 +1,316 @@
+@model IEnumerable<Stockify.ViewModels.Customers.CustomerViewModel>
+@using Stockify.Common.Constants
+@{
+    ViewData["Title"] = "Customers & Leads Management";
+    var totalCustomers = (int)(ViewBag.TotalCustomers ?? 0);
+    var activeCustomers = (int)(ViewBag.ActiveCustomers ?? 0);
+    var leadsOnly = (int)(ViewBag.LeadsOnly ?? 0);
+    var totalRevenue = (decimal)(ViewBag.TotalRevenue ?? 0m);
+    var currentSearch = ViewBag.CurrentSearch as string ?? "";
+    var currentFilter = ViewBag.CurrentFilter as string ?? "all";
+}
+
+<!-- Header -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Customers & Leads Management</h3>
+        <p class="text-muted mb-0 small">Manage customer contact details, purchasing history, VIP leads, and promotional offer subscriptions.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a asp-action="ExportToExcel" asp-route-search="@currentSearch" asp-route-filter="@currentFilter" class="btn btn-outline-primary d-flex align-items-center gap-2 shadow-sm" title="Export Patrons & Customers to Excel (.xlsx)">
+            <i class="fa-solid fa-file-excel text-success fs-6"></i>
+            <span>Export to Excel</span>
+        </a>
+        <a asp-action="Create" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+            <i class="bi bi-person-plus-fill"></i>
+            <span>Add Customer</span>
+        </a>
+    </div>
+</div>
+
+<!-- KPI Summary Strip (4 Cards) -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a asp-action="Index" asp-route-filter="all" asp-route-search="@currentSearch" class="text-decoration-none">
+            <div class="card border-0 shadow-sm p-3 h-100 transition-hover @(currentFilter == "all" ? "border-primary border-2" : "")">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-3 fs-4 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-medium">All Registered Patrons</span>
+                        <h4 class="fw-bold text-dark mb-0">@totalCustomers</h4>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a asp-action="Index" asp-route-filter="purchased" asp-route-search="@currentSearch" class="text-decoration-none">
+            <div class="card border-0 shadow-sm p-3 h-100 transition-hover @(currentFilter == "purchased" ? "border-success border-2" : "")">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-success bg-opacity-10 text-success p-3 fs-4 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-cart-check-fill"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-medium">Purchased / With Orders</span>
+                        <h4 class="fw-bold text-success mb-0">@activeCustomers</h4>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <a asp-action="Index" asp-route-filter="leads" asp-route-search="@currentSearch" class="text-decoration-none">
+            <div class="card border-0 shadow-sm p-3 h-100 transition-hover @(currentFilter == "leads" ? "border-warning border-2" : "")">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-warning bg-opacity-10 text-warning-emphasis p-3 fs-4 d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-medium">Leads / No Orders Yet</span>
+                        <h4 class="fw-bold text-warning-emphasis mb-0">@leadsOnly</h4>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 bg-info bg-opacity-10 text-info p-3 fs-4 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+                <div>
+                    <span class="text-muted small fw-medium">Total Customer Revenue</span>
+                    <h4 class="fw-bold text-dark mb-0">@totalRevenue.ToString("N2") EGP</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Category Filter Pills -->
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div class="btn-group shadow-sm p-1 bg-white rounded-pill border" role="group" aria-label="Customer Filter">
+        <a asp-action="Index" asp-route-filter="all" asp-route-search="@currentSearch" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold @(currentFilter == "all" ? "btn-primary shadow-sm" : "btn-light text-secondary")">
+            <i class="fa-solid fa-users me-1"></i> All Customers (@totalCustomers)
+        </a>
+        <a asp-action="Index" asp-route-filter="purchased" asp-route-search="@currentSearch" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold @(currentFilter == "purchased" ? "btn-success shadow-sm text-white" : "btn-light text-secondary")">
+            <i class="fa-solid fa-bag-shopping me-1"></i> Purchased / With Orders (@activeCustomers)
+        </a>
+        <a asp-action="Index" asp-route-filter="leads" asp-route-search="@currentSearch" class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold @(currentFilter == "leads" ? "btn-warning shadow-sm text-dark" : "btn-light text-secondary")">
+            <i class="fa-solid fa-envelope-open-text me-1"></i> Leads / Offers Only (@leadsOnly)
+        </a>
+    </div>
+
+    @if (currentFilter != "all" || !string.IsNullOrWhiteSpace(currentSearch))
+    {
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filters
+        </a>
+    }
+</div>
+
+<!-- Customers Table Card -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3">
+        <form method="get" asp-action="Index" class="row g-2 align-items-center">
+            <input type="hidden" name="filter" value="@currentFilter" />
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="search" value="@currentSearch" class="form-control border-start-0" placeholder="Search customer by name, email, phone, or address..." />
+                    @if (!string.IsNullOrWhiteSpace(currentSearch))
+                    {
+                        <a asp-action="Index" asp-route-filter="@currentFilter" class="btn btn-outline-secondary" title="Clear search">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    }
+                    <button type="submit" class="btn btn-primary px-3">Search</button>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 text-md-end">
+                <span class="text-muted small">
+                    Showing @Model.Count() customer(s)
+                    @if (currentFilter == "purchased") { <span class="badge bg-success-subtle text-success ms-1">Active Buyers</span> }
+                    else if (currentFilter == "leads") { <span class="badge bg-warning-subtle text-warning-emphasis ms-1">Leads (No Orders)</span> }
+                </span>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Customer Type</th>
+                    <th>Email Address</th>
+                    <th>Phone / WhatsApp</th>
+                    <th>Address</th>
+                    <th>Orders</th>
+                    <th>Total Spent</th>
+                    <th class="text-end pe-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="bi bi-person-x fs-1 text-secondary opacity-50 mb-3 d-block"></i>
+                                <h6 class="fw-bold">No customers found</h6>
+                                <p class="small mb-3">
+                                    @(currentFilter == "leads" 
+                                        ? "No leads without purchases found." 
+                                        : currentFilter == "purchased" 
+                                            ? "No customers with completed purchases found." 
+                                            : string.IsNullOrWhiteSpace(currentSearch) 
+                                                ? "No customers registered in the system yet." 
+                                                : $"No customers match '{currentSearch}'.")
+                                </p>
+                                <a asp-action="Create" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-person-plus-fill me-1"></i>Add New Customer
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var customer in Model)
+                    {
+                        var isBuyer = customer.OrdersCount > 0;
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-circle @(isBuyer ? "bg-primary" : "bg-secondary") text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 38px; height: 38px; font-size: 0.85rem; flex-shrink: 0;">
+                                        @customer.Initials
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark">
+                                            <a asp-action="Details" asp-route-id="@customer.Id" class="text-decoration-none text-dark hover-primary">
+                                                @customer.FullName
+                                            </a>
+                                        </div>
+                                        <span class="text-muted small">Joined @customer.CreatedAt.ToEgyptTimeString("MMM yyyy")</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @if (isBuyer)
+                                {
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1.5 d-inline-flex align-items-center gap-1 shadow-xs">
+                                        <i class="fa-solid fa-bag-shopping"></i>
+                                        <span>مشتري لديه طلبات</span>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2.5 py-1.5 d-inline-flex align-items-center gap-1 shadow-xs">
+                                        <i class="fa-brands fa-whatsapp text-success"></i>
+                                        <span>مشترك عروض فقط</span>
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                @if (customer.Email.StartsWith("whatsapp_") && customer.Email.EndsWith("@roven.vip"))
+                                {
+                                    <span class="badge bg-light text-secondary border border-dashed px-2 py-1 small">
+                                        <i class="fa-brands fa-whatsapp text-success me-1"></i>عبر الواتساب
+                                    </span>
+                                }
+                                else
+                                {
+                                    <code>@customer.Email</code>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(customer.PhoneNumber))
+                                {
+                                    var cleanPhone = customer.PhoneNumber.Replace("+", "").Replace(" ", "").Replace("-", "");
+                                    <div class="d-flex align-items-center gap-2">
+                                        <a href="tel:@customer.PhoneNumber" class="text-decoration-none text-secondary">
+                                            <i class="bi bi-telephone me-1 text-muted"></i>@customer.PhoneNumber
+                                        </a>
+                                        <a href="https://wa.me/@(cleanPhone.StartsWith("01") ? "20" + cleanPhone.Substring(1) : cleanPhone)" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline-success rounded-circle p-1 d-inline-flex align-items-center justify-content-center" style="width: 24px; height: 24px;" title="Chat via WhatsApp">
+                                            <i class="fa-brands fa-whatsapp fs-7"></i>
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">—</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="text-muted small">@(string.IsNullOrWhiteSpace(customer.Address) ? "—" : customer.Address)</span>
+                            </td>
+                            <td>
+                                <span class="badge @(customer.OrdersCount > 0 ? "bg-primary-subtle text-primary border border-primary-subtle" : "bg-light text-muted border")">
+                                    @customer.OrdersCount Orders
+                                </span>
+                            </td>
+                            <td class="fw-bold @(customer.TotalSpent > 0 ? "text-success" : "text-muted")">
+                                @customer.TotalSpent.ToString("N2") EGP
+                            </td>
+                            <td class="text-end pe-3">
+                                <div class="roven-table-actions">
+                                    <a asp-action="Details" asp-route-id="@customer.Id" class="roven-action-btn roven-action-view" title="View Details">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@customer.Id" class="roven-action-btn roven-action-edit" title="Edit Profile">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    @if (User.IsInRole(Roles.Admin))
+                                    {
+                                        <form asp-action="Delete" asp-route-id="@customer.Id" method="post" class="d-inline customer-delete-form" data-customer-name="@customer.FullName" data-has-orders="@(customer.OrdersCount > 0 ? "true" : "false")">
+                                            @Html.AntiForgeryToken()
+                                            <button type="button" class="roven-action-btn roven-action-delete btn-delete-customer" title="Delete Customer">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.btn-delete-customer').forEach(button => {
+                button.addEventListener('click', function () {
+                    const form = this.closest('form');
+                    const customerName = form.getAttribute('data-customer-name');
+                    const hasOrders = form.getAttribute('data-has-orders') === 'true';
+
+                    if (hasOrders) {
+                        StockifyAlert.warning(
+                            'Action Blocked',
+                            `Customer '${customerName}' has active order history. You cannot delete customers with associated sales orders for financial audit integrity.`
+                        );
+                        return;
+                    }
+
+                    StockifyAlert.confirmDelete(
+                        `Are you sure you want to delete customer '${customerName}'? This action cannot be undone.`,
+                        () => {
+                            StockifyAlert.showLoading('Deleting customer...');
+                            form.submit();
+                        }
+                    );
+                });
+            });
+        });
+    </script>
+}

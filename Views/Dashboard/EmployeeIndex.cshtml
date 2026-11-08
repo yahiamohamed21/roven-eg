@@ -1,0 +1,240 @@
+@model Stockify.ViewModels.Dashboard.DashboardViewModel
+@using Stockify.Models.Enums
+@{
+    ViewData["Title"] = "Sales Representative Dashboard";
+    var quotaTarget = 50000m;
+    var attainment = quotaTarget > 0 ? Math.Min(100m, (Model.TotalSalesRevenue / quotaTarget) * 100m) : 0m;
+}
+
+<!-- Sales Rep Welcome & Action Bar -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                <i class="bi bi-person-badge me-1"></i>Sales Operator Terminal
+            </span>
+            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                <i class="bi bi-circle-fill fs-8 me-1"></i>POS Terminal #01 Online
+            </span>
+        </div>
+        <h3 class="fw-bold text-dark mt-2 mb-1">
+            Welcome, @(User.Identity?.IsAuthenticated == true ? User.GetUserFullName() : "Sales Representative")
+        </h3>
+        <p class="text-muted mb-0 small">Process customer checkout transactions, view daily sales performance, and track receipts.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Orders" asp-action="Create" class="btn btn-success d-flex align-items-center gap-2 px-3 shadow-sm">
+            <i class="bi bi-cart-plus-fill fs-5"></i>
+            <span class="fw-bold">Start New Sale (POS)</span>
+        </a>
+    </div>
+</div>
+
+<!-- 4 Key Sales Performance Cards (in EGP) -->
+<div class="row g-3 mb-4">
+    <!-- Today's Sales -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Today's Sales Revenue</span>
+                    <h3 class="fw-bold text-dark mt-2 mb-1">@Model.TodaySalesRevenue.ToString("N2") EGP</h3>
+                    <div class="d-flex align-items-center gap-1 mt-2">
+                        <span class="text-muted small">Live daily volume</span>
+                    </div>
+                </div>
+                <div class="stat-icon success">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoices Issued -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Invoices Issued Today</span>
+                    <h3 class="fw-bold text-dark mt-2 mb-1">@Model.TodayOrdersCount Orders</h3>
+                    <div class="d-flex align-items-center gap-1 mt-2">
+                        <span class="text-muted small">Lifetime: <strong>@Model.TotalOrders</strong></span>
+                    </div>
+                </div>
+                <div class="stat-icon primary">
+                    <i class="bi bi-receipt-cutoff"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estimated Commission -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Today's Commission</span>
+                    <h3 class="fw-bold text-primary mt-2 mb-1">@((Model.TodaySalesRevenue * 0.05m).ToString("N2")) EGP</h3>
+                    <div class="d-flex align-items-center gap-1 mt-2">
+                        <span class="badge bg-primary-subtle text-primary border">5% Sales Commission</span>
+                    </div>
+                </div>
+                <div class="stat-icon info">
+                    <i class="bi bi-trophy"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Catalog Items -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Active Catalog Items</span>
+                    <h3 class="fw-bold text-dark mt-2 mb-1">@Model.TotalProducts</h3>
+                    <div class="d-flex align-items-center gap-1 mt-2">
+                        <span class="text-muted small">Ready for checkout</span>
+                    </div>
+                </div>
+                <div class="stat-icon warning">
+                    <i class="bi bi-boxes"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Target Progress Banner -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-2">
+            <div>
+                <h5 class="fw-bold text-dark mb-1">Monthly Sales Quota Attainment</h5>
+                <p class="text-muted small mb-0">Achieved <strong>@Model.TotalSalesRevenue.ToString("N2") EGP</strong> out of <strong>@quotaTarget.ToString("N2") EGP</strong> target quota.</p>
+            </div>
+            <div class="text-md-end">
+                <span class="fs-4 fw-bold @(attainment >= 100 ? "text-success" : "text-primary")">@attainment.ToString("F1")%</span>
+                <span class="text-muted small d-block">Quota Tracking</span>
+            </div>
+        </div>
+        <div class="progress mt-2" style="height: 10px;">
+            <div class="progress-bar @(attainment >= 100 ? "bg-success" : "bg-primary") progress-bar-striped progress-bar-animated" role="progressbar" style="width: @attainment%;" aria-valuenow="@attainment" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Transactions Handled -->
+    <div class="col-12 col-xl-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-clock-history text-primary"></i>
+                    <span class="fw-bold">Recent Customer Transactions</span>
+                </div>
+                <a asp-controller="Orders" asp-action="Create" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>New Sale
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Customer</th>
+                            <th>Total (EGP)</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                            <th class="text-end pe-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.RecentOrders.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    No sales transactions recorded yet. Click "Start New Sale" to process your first customer order.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var order in Model.RecentOrders)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold text-primary font-monospace">@order.OrderNumber</span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold text-dark">@order.CustomerName</div>
+                                    </td>
+                                    <td class="fw-bold text-dark">@order.TotalAmount.ToString("N2") EGP</td>
+                                    <td>
+                                        @switch (order.Status)
+                                        {
+                                            case OrderStatus.Completed:
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle">Completed</span>
+                                                break;
+                                            case OrderStatus.Processing:
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Processing</span>
+                                                break;
+                                            case OrderStatus.Cancelled:
+                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Cancelled</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Pending</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-muted small">@order.OrderDate.ToEgyptTimeString("dd MMM, hh:mm tt")</td>
+                                    <td class="text-end pe-3">
+                                        <a asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-sm btn-light border py-1 px-2" title="View details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fast POS Quick Actions -->
+    <div class="col-12 col-xl-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-lightning-charge-fill text-warning"></i>
+                    <span class="fw-bold">Fast POS Shortcuts</span>
+                </div>
+            </div>
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <h6 class="fw-bold text-dark mb-2">Ready to checkout a customer?</h6>
+                    <p class="text-muted small mb-4">Search products from our database, scan barcodes, and confirm sales orders with live inventory verification.</p>
+
+                    <div class="p-3 bg-light rounded mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small">Registered Customers:</span>
+                            <span class="fw-bold text-dark">@Model.TotalCustomers</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Available Products:</span>
+                            <span class="fw-bold text-dark">@Model.TotalProducts</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <a asp-controller="Orders" asp-action="Create" class="btn btn-success w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                        <i class="bi bi-cart-plus-fill fs-5"></i>
+                        <span>Open POS Cashier Screen</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

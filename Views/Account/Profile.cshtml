@@ -1,0 +1,143 @@
+@model Stockify.ViewModels.Account.ProfileViewModel
+@{
+    ViewData["Title"] = "User Profile";
+    var activeTab = (ViewBag.ActiveTab as string) ?? "overview";
+}
+
+<div class="row g-4">
+    <!-- User Overview Card -->
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm text-center p-4 rounded-4" style="border: 1px solid #e8e3d5 !important;">
+            <div class="rounded-circle text-white d-flex align-items-center justify-content-center mx-auto mb-3 shadow-sm fw-bold" style="width: 80px; height: 80px; font-size: 2rem; background: linear-gradient(135deg, #630000 0%, #810100 100%); color: #EDEBDD;">
+                @(string.IsNullOrWhiteSpace(Model.FullName) ? "U" : Model.FullName[0].ToString().ToUpper())
+            </div>
+            <h5 class="fw-bold text-dark mb-1">@Model.FullName</h5>
+            <p class="text-muted small mb-2">@Model.Email</p>
+            <div>
+                <span class="badge px-3 py-1 rounded-pill" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99,0,0,0.2);">
+                    @Model.Role
+                </span>
+            </div>
+
+            <hr class="my-4 text-muted" />
+
+            <div class="text-start small text-muted">
+                <div class="d-flex justify-content-between py-1">
+                    <span>Account Status:</span>
+                    <span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Active</span>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span>Access Level:</span>
+                    <span class="text-dark fw-semibold">@Model.Role</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile & Change Password Tabs -->
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4" style="border: 1px solid #e8e3d5 !important;">
+            <div class="card-header bg-white py-3 border-bottom">
+                <ul class="nav nav-tabs card-header-tabs" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link @(activeTab == "overview" ? "active" : "") fw-semibold" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" style="@(activeTab == "overview" ? "color: #630000; border-bottom: 2px solid #630000;" : "")">
+                            <i class="bi bi-person me-1"></i> Account Details
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link @(activeTab == "security" ? "active" : "") fw-semibold" id="security-tab" data-bs-toggle="tab" data-bs-target="#security" type="button" role="tab" style="@(activeTab == "security" ? "color: #630000; border-bottom: 2px solid #630000;" : "")">
+                            <i class="bi bi-shield-lock me-1"></i> Security & Password
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body p-4">
+                <div class="tab-content" id="profileTabContent">
+                    <!-- Account Details Tab -->
+                    <div class="tab-pane fade @(activeTab == "overview" ? "show active" : "")" id="overview" role="tabpanel">
+                        <form asp-controller="Account" asp-action="UpdateProfile" method="post">
+                            @Html.AntiForgeryToken()
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small shadow-sm rounded-3 mb-3" role="alert"></div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="FullName" class="form-label small fw-semibold text-secondary"></label>
+                                    <input asp-for="FullName" class="form-control" required />
+                                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="Email" class="form-label small fw-semibold text-secondary"></label>
+                                    <input asp-for="Email" class="form-control bg-light" readonly />
+                                    <small class="text-muted">Email address cannot be changed directly.</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="PhoneNumber" class="form-label small fw-semibold text-secondary"></label>
+                                    <input asp-for="PhoneNumber" class="form-control" placeholder="+20 100 000 0000" />
+                                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold text-secondary">Role</label>
+                                    <input type="text" class="form-control bg-light" value="@Model.Role" readonly disabled />
+                                </div>
+                                <div class="col-12 mt-4 text-end">
+                                    <button type="submit" class="btn px-4 shadow-sm text-white fw-semibold" style="background-color: #630000; border-color: #630000;">
+                                        <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Security / Password Tab -->
+                    <div class="tab-pane fade @(activeTab == "security" ? "show active" : "")" id="security" role="tabpanel">
+                        <form asp-controller="Account" asp-action="ChangePassword" method="post">
+                            @Html.AntiForgeryToken()
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small shadow-sm rounded-3 mb-3" role="alert"></div>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label asp-for="CurrentPassword" class="form-label small fw-semibold text-secondary"></label>
+                                    <div class="input-group">
+                                        <input asp-for="CurrentPassword" type="password" id="currentPwdInput" class="form-control border-end-0" required autocomplete="current-password" />
+                                        <button class="btn btn-outline-secondary border-start-0 bg-transparent password-toggle-btn" type="button" data-target="#currentPwdInput">
+                                            <i class="bi bi-eye text-muted"></i>
+                                        </button>
+                                    </div>
+                                    <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="NewPassword" class="form-label small fw-semibold text-secondary"></label>
+                                    <div class="input-group">
+                                        <input asp-for="NewPassword" type="password" id="newPwdInput" class="form-control border-end-0" required minlength="6" autocomplete="new-password" />
+                                        <button class="btn btn-outline-secondary border-start-0 bg-transparent password-toggle-btn" type="button" data-target="#newPwdInput">
+                                            <i class="bi bi-eye text-muted"></i>
+                                        </button>
+                                    </div>
+                                    <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="ConfirmPassword" class="form-label small fw-semibold text-secondary"></label>
+                                    <div class="input-group">
+                                        <input asp-for="ConfirmPassword" type="password" id="confirmPwdInput" class="form-control border-end-0" required minlength="6" autocomplete="new-password" />
+                                        <button class="btn btn-outline-secondary border-start-0 bg-transparent password-toggle-btn" type="button" data-target="#confirmPwdInput">
+                                            <i class="bi bi-eye text-muted"></i>
+                                        </button>
+                                    </div>
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                                </div>
+                                <div class="col-12 mt-4 text-end">
+                                    <button type="submit" class="btn btn-warning px-4 shadow-sm fw-bold">
+                                        <i class="fa-solid fa-key me-1"></i> Update Password
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

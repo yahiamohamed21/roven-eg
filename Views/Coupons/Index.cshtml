@@ -1,0 +1,492 @@
+@model Stockify.ViewModels.CouponIndexViewModel
+@using Stockify.Models.Enums
+@{
+    ViewData["Title"] = "Coupons & Promotions";
+}
+
+<!-- Page Header -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">
+            <i class="fa-solid fa-ticket text-primary me-2"></i>إدارة الكوبونات والخصومات (Coupons & Promo Codes)
+        </h3>
+        <p class="text-muted mb-0 small">متابعة إجمالي مبيعات كل كوبون، ومبالغ الخصم الممنوحة، وإضافة كوبونات ترويجية جديدة.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCreateCoupon">
+            <i class="fa-solid fa-plus me-1"></i>إضافة كوبون جديد
+        </button>
+    </div>
+</div>
+
+<!-- Alert Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-exclamation me-2"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>@TempData["WarningMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- KPI Metric Cards (Coupon Performance) -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm p-3 h-100 bg-white">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold">مبيعات الكوبونات المحققة</span>
+                <div class="rounded-circle p-2 bg-success-subtle text-success">
+                    <i class="fa-solid fa-sack-dollar fs-5"></i>
+                </div>
+            </div>
+            <h4 class="fw-extrabold text-success mb-1">@Model.TotalSalesGenerated.ToString("N2") <small class="fs-6 text-muted">EGP</small></h4>
+            <div class="text-muted small">صافي إيرادات طلبات الكوبونات</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm p-3 h-100 bg-white">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold">إجمالي الخصومات الممنوحة</span>
+                <div class="rounded-circle p-2 bg-danger-subtle text-danger">
+                    <i class="fa-solid fa-tags fs-5"></i>
+                </div>
+            </div>
+            <h4 class="fw-extrabold text-danger mb-1">@Model.TotalDiscountsProvided.ToString("N2") <small class="fs-6 text-muted">EGP</small></h4>
+            <div class="text-muted small">وفرناه لعملاء الدار عبر الخصومات</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-2">
+        <div class="card border-0 shadow-sm p-3 h-100 bg-white">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold">مرات الاستخدام</span>
+                <div class="rounded-circle p-2 bg-primary-subtle text-primary">
+                    <i class="fa-solid fa-fire fs-5"></i>
+                </div>
+            </div>
+            <h4 class="fw-extrabold text-dark mb-1">@Model.TotalRedemptionsCount</h4>
+            <div class="text-muted small">عملية شراء تم تطبيق خصم بها</div>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-2">
+        <div class="card border-0 shadow-sm p-3 h-100 bg-white">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold">الكوبونات الفعالة</span>
+                <div class="rounded-circle p-2 bg-info-subtle text-info">
+                    <i class="fa-solid fa-circle-check fs-5"></i>
+                </div>
+            </div>
+            <h4 class="fw-extrabold text-dark mb-1">@Model.ActiveCouponsCount</h4>
+            <div class="text-muted small">جاهزة للاستخدام الآن</div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-2">
+        <div class="card border-0 shadow-sm p-3 h-100 bg-white">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold">إجمالي الكوبونات</span>
+                <div class="rounded-circle p-2 bg-light text-secondary">
+                    <i class="fa-solid fa-ticket fs-5"></i>
+                </div>
+            </div>
+            <h4 class="fw-extrabold text-dark mb-1">@Model.TotalCouponsCount</h4>
+            <div class="text-muted small">كافة الحملات المسجلة</div>
+        </div>
+    </div>
+</div>
+
+<!-- Coupons Main Table Card -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="fw-bold"><i class="fa-solid fa-list-check text-primary me-2"></i>سجل الكوبونات ومبيعاتها</span>
+        <span class="badge bg-light text-muted border">@Model.TotalCouponsCount حملات ترويجية</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">كود الكوبون</th>
+                        <th>نوع وقيمة الخصم</th>
+                        <th>الحد الأدنى للطلب</th>
+                        <th>مرات الاستخدام</th>
+                        <th>المبيعات المحققة</th>
+                        <th>إجمالي الخصم الممنوح</th>
+                        <th>الصلاحية والحالة</th>
+                        <th class="text-end pe-4">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Coupons == null || !Model.Coupons.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-ticket fs-1 d-block mb-3 text-secondary"></i>
+                                لا توجد كوبونات خصم مسجلة حالياً. اضغط على "إضافة كوبون جديد" للبدء.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var c in Model.Coupons)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-dark font-monospace fs-6 px-3 py-1.5 rounded-pill shadow-sm">
+                                            @c.Code
+                                        </span>
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(c.Description))
+                                    {
+                                        <div class="text-muted small mt-1 text-truncate" style="max-width: 260px;" title="@c.Description">
+                                            @c.Description
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    @if (c.DiscountType == CouponDiscountType.Percentage)
+                                    {
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 fw-bold fs-6">
+                                            @c.DiscountValue.ToString("0.##")% خصم
+                                        </span>
+                                        @if (c.MaxDiscountAmount.HasValue)
+                                        {
+                                            <div class="text-muted small">أقصى خصم: @c.MaxDiscountAmount.Value.ToString("N2") ج.م</div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 fw-bold fs-6">
+                                            @c.DiscountValue.ToString("N2") ج.م خصم ثابت
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (c.MinimumOrderAmount.HasValue && c.MinimumOrderAmount.Value > 0)
+                                    {
+                                        <span class="fw-semibold text-dark">@c.MinimumOrderAmount.Value.ToString("N2") ج.م</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">بدون حد أدنى</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-dark">@c.TimesUsed</span>
+                                    @if (c.MaxUsageCount.HasValue)
+                                    {
+                                        <span class="text-muted small">/ @c.MaxUsageCount.Value</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">/ غير محدود</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="fw-extrabold text-success fs-6">
+                                        @c.TotalSalesRevenue.ToString("N2") <small class="text-muted" style="font-size: 0.72rem;">EGP</small>
+                                    </div>
+                                    <div class="text-muted small">من @c.OrdersCount طلبات</div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-danger">
+                                        - @c.TotalDiscountGiven.ToString("N2") <small class="text-muted" style="font-size: 0.72rem;">EGP</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (!c.IsActive)
+                                    {
+                                        <span class="badge bg-secondary">معطل</span>
+                                    }
+                                    else if (c.IsExpired)
+                                    {
+                                        <span class="badge bg-danger">منتهي الصلاحية</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">فعال ونشط</span>
+                                    }
+
+                                    @if (c.ExpiryDate.HasValue)
+                                    {
+                                        <div class="text-muted small mt-1">ينتهي: @c.ExpiryDate.Value.ToString("yyyy/MM/dd")</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted small mt-1">صلاحية دائمة</div>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-controller="Coupons" asp-action="Orders" asp-route-id="@c.Id" class="btn btn-outline-info" title="عرض كافة الطلبات التي استخدمت هذا الكوبون">
+                                            <i class="fa-solid fa-receipt me-1"></i>الطلبات
+                                        </a>
+
+                                        <form asp-controller="Coupons" asp-action="ToggleActive" asp-route-id="@c.Id" method="post" class="d-inline" id="toggle-coupon-form-@c.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="button" class="btn @(c.IsActive ? "btn-outline-warning" : "btn-outline-success") btn-toggle-coupon" 
+                                                    data-form-id="toggle-coupon-form-@c.Id" 
+                                                    data-code="@c.Code" 
+                                                    data-active="@(c.IsActive ? "true" : "false")"
+                                                    title="@(c.IsActive ? "تعطيل الكوبون مؤقتاً" : "تفعيل الكوبون")">
+                                                <i class="fa-solid @(c.IsActive ? "fa-pause" : "fa-play")"></i>
+                                            </button>
+                                        </form>
+
+                                        <form asp-controller="Coupons" asp-action="Delete" asp-route-id="@c.Id" method="post" class="d-inline" id="delete-coupon-form-@c.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="button" class="btn btn-outline-danger btn-delete-coupon" 
+                                                    data-form-id="delete-coupon-form-@c.Id" 
+                                                    data-code="@c.Code" 
+                                                    title="حذف الكوبون">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Create New Coupon -->
+<div class="modal fade" id="modalCreateCoupon" tabindex="-1" aria-labelledby="modalCreateCouponLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <form asp-controller="Coupons" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-dark text-white py-3">
+                    <h5 class="modal-title fw-bold" id="modalCreateCouponLabel">
+                        <i class="fa-solid fa-ticket text-warning me-2"></i>إضافة كوبون خصم جديد (New Coupon)
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <!-- Code -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-dark">
+                                كود الكوبون (Coupon Code) <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fa-solid fa-barcode"></i></span>
+                                <input type="text" name="Code" class="form-control font-monospace text-uppercase fw-bold" placeholder="مثال: ROVEN20" required maxlength="50" />
+                            </div>
+                            <div class="form-text small">يُفضل كتابته بأحرف إنجليزية كبيرة وبدون مسافات.</div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-dark">
+                                وصف الكوبون (Description)
+                            </label>
+                            <input type="text" name="Description" class="form-control" placeholder="مثال: خصم موسم الأعياد على جميع العطور" maxlength="250" />
+                        </div>
+
+                        <!-- Discount Type -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">
+                                نوع الخصم (Discount Type) <span class="text-danger">*</span>
+                            </label>
+                            <select name="DiscountType" id="select-discount-type" class="form-select" required>
+                                <option value="0">نسبة مئوية (%)</option>
+                                <option value="1">مبلغ مالي ثابت (EGP)</option>
+                            </select>
+                        </div>
+
+                        <!-- Discount Value -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">
+                                قيمة الخصم <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="0.01" name="DiscountValue" class="form-control font-monospace fw-bold" placeholder="10" required />
+                                <span class="input-group-text bg-light" id="discount-unit-addon">%</span>
+                            </div>
+                        </div>
+
+                        <!-- Minimum Order Amount -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">
+                                الحد الأدنى للطلب (EGP)
+                            </label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="0" name="MinimumOrderAmount" class="form-control font-monospace" placeholder="1000.00" />
+                                <span class="input-group-text bg-light">ج.م</span>
+                            </div>
+                            <div class="form-text small">اتركه فارغاً إن لم يكن هناك حد أدنى.</div>
+                        </div>
+
+                        <!-- Max Discount Cap (for percentage) -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">
+                                أقصى قيمة للخصم (Cap EGP)
+                            </label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="0" name="MaxDiscountAmount" class="form-control font-monospace" placeholder="500.00" />
+                                <span class="input-group-text bg-light">ج.م</span>
+                            </div>
+                            <div class="form-text small">أقصى خصم بالجنيه في حال النسبة.</div>
+                        </div>
+
+                        <!-- Expiry Date -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">
+                                تاريخ انتهاء الكوبون (Expiry Date)
+                            </label>
+                            <input type="date" name="ExpiryDate" class="form-control" />
+                            <div class="form-text small">اتركه فارغاً لكوبون دائم الصلاحية.</div>
+                        </div>
+
+                        <!-- Max Usage Count -->
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">
+                                أقصى عدد مرات استخدام (Max Redemptions)
+                            </label>
+                            <input type="number" min="1" name="MaxUsageCount" class="form-control font-monospace" placeholder="100" />
+                            <div class="form-text small">اتركه فارغاً لاستخدام غير محدود.</div>
+                        </div>
+
+                        <!-- Is Active Switch -->
+                        <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" name="IsActive" value="true" id="checkIsActive" checked>
+                                <label class="form-check-label fw-bold text-dark" for="checkIsActive">تفعيل الكوبون فورياً بعد الإنشاء</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light py-2">
+                    <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
+                        <i class="fa-solid fa-floppy-disk me-1"></i>حفظ وتفعيل الكوبون
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Handle Discount Type change for Unit Addon
+    const discountTypeSelect = document.getElementById('select-discount-type');
+    if (discountTypeSelect) {
+        discountTypeSelect.addEventListener('change', function () {
+            const addon = document.getElementById('discount-unit-addon');
+            if (addon) {
+                addon.textContent = this.value === '0' ? '%' : 'ج.م';
+            }
+        });
+    }
+
+    // Delegated click handler for SweetAlert2 Coupon Deletion and Toggle
+    document.addEventListener('click', function (e) {
+        // Delete button
+        const deleteBtn = e.target.closest('.btn-delete-coupon');
+        if (deleteBtn) {
+            e.preventDefault();
+            const formId = deleteBtn.getAttribute('data-form-id');
+            const code = deleteBtn.getAttribute('data-code') || 'الكوبون';
+            const form = document.getElementById(formId);
+
+            if (!form) return;
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '<i class="fa-solid fa-trash text-danger me-2"></i>حذف أو تعطيل الكوبون؟',
+                    html: `
+                        <div class="text-center my-2">
+                            <p class="mb-2 text-dark fs-6">هل أنت متأكد من رغبتك في حذف الكوبون <strong class="badge bg-dark font-monospace fs-6 px-2 py-1">${code}</strong>؟</p>
+                            <div class="alert alert-warning text-start small mb-0 py-2 border-0 bg-warning-subtle text-dark">
+                                <i class="fa-solid fa-circle-info text-warning me-1"></i> إذا كان الكوبون مرتبطاً بطلبات شراء سابقة، سيتم تعطيله تلقائياً للحفاظ على السجلات المالية والمحاسبية.
+                            </div>
+                        </div>
+                    `,
+                    icon: 'warning',
+                    iconColor: '#810100',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fa-solid fa-trash me-1"></i> تأكيد الحذف / التعطيل',
+                    cancelButtonText: 'إلغاء',
+                    customClass: {
+                        confirmButton: 'btn btn-danger px-4 py-2 fw-bold me-2',
+                        cancelButton: 'btn btn-outline-secondary px-4 py-2'
+                    },
+                    buttonsStyling: false,
+                    reverseButtons: false
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            } else {
+                form.submit();
+            }
+            return;
+        }
+
+        // Toggle Active button
+        const toggleBtn = e.target.closest('.btn-toggle-coupon');
+        if (toggleBtn) {
+            e.preventDefault();
+            const formId = toggleBtn.getAttribute('data-form-id');
+            const code = toggleBtn.getAttribute('data-code') || 'الكوبون';
+            const isActive = toggleBtn.getAttribute('data-active') === 'true';
+            const form = document.getElementById(formId);
+
+            if (!form) return;
+
+            if (typeof Swal !== 'undefined') {
+                const actionTitle = isActive ? 'تعطيل الكوبون مؤقتاً؟' : 'تفعيل الكوبون الآن؟';
+                const actionText = isActive 
+                    ? `هل تريد إيقاف تفعيل الكوبون <strong class="badge bg-secondary font-monospace fs-6 px-2 py-1">${code}</strong> مؤقتاً؟ لن يتمكن العملاء أو مسؤولو المبيعات من تطبيقه حتى إعادة تشغيله.`
+                    : `هل تريد تفعيل الكوبون <strong class="badge bg-success font-monospace fs-6 px-2 py-1">${code}</strong>؟ سيصبح متاحاً للخصم فوراً عند الشراء.`;
+                const confirmBtnText = isActive ? '<i class="fa-solid fa-pause me-1"></i> تأكيد التعطيل' : '<i class="fa-solid fa-play me-1"></i> تأكيد التفعيل';
+                const confirmBtnClass = isActive ? 'btn btn-warning px-4 py-2 fw-bold me-2 text-dark' : 'btn btn-success px-4 py-2 fw-bold me-2';
+
+                Swal.fire({
+                    title: actionTitle,
+                    html: `<p class="mb-0 text-muted">${actionText}</p>`,
+                    icon: isActive ? 'warning' : 'question',
+                    iconColor: isActive ? '#d97706' : '#198754',
+                    showCancelButton: true,
+                    confirmButtonText: confirmBtnText,
+                    cancelButtonText: 'إلغاء',
+                    customClass: {
+                        confirmButton: confirmBtnClass,
+                        cancelButton: 'btn btn-outline-secondary px-4 py-2'
+                    },
+                    buttonsStyling: false
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            } else {
+                form.submit();
+            }
+        }
+    });
+</script>
+}
+

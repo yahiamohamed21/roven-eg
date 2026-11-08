@@ -1,0 +1,1368 @@
+@model Stockify.Models.Entities.HomeSetting
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Home Control — Maison ROVEN";
+    var products = ViewBag.Products as List<Stockify.Models.Entities.Product> ?? new();
+    var homeOffers = ViewBag.HomeOffers as List<Stockify.Models.Entities.HomeOffer> ?? new();
+    var heroBanners = ViewBag.HeroBanners as List<Stockify.Models.Entities.HeroBanner> ?? new();
+}
+
+<style>
+    .roven-tabs .nav-link {
+        color: #555;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 0.75rem 1.25rem;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+        background: #fff;
+    }
+    .roven-tabs .nav-link:hover {
+        color: #810100;
+        background: #fdfaf6;
+        border-color: rgba(129, 1, 0, 0.15);
+    }
+    .roven-tabs .nav-link.active {
+        color: #EDEBDD !important;
+        background-color: #810100 !important;
+        border-color: #810100 !important;
+        box-shadow: 0 4px 12px rgba(129, 1, 0, 0.25);
+    }
+    .card-setting-header {
+        background-color: #ffffff;
+        border-bottom: 1px solid #f1ece4;
+        padding: 1rem 1.25rem;
+    }
+    .tab-pane-content {
+        animation: fadeInTab 0.25s ease-in-out;
+    }
+    @@keyframes fadeInTab {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container-fluid py-3">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style="background: rgba(99, 0, 0, 0.08); border: 1px solid rgba(99, 0, 0, 0.2); color: #630000; font-size: 0.78rem; font-weight: 700;">
+                <i class="fa-solid fa-sliders"></i>
+                <span>HOMEPAGE CUSTOMIZATION SUITE</span>
+            </div>
+            <h2 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif;">Home Control Center</h2>
+            <p class="text-muted small mb-0">لوحة تحكم كاملة في كافة سكشنات وبانرات ونصوص الصفحة الرئيسية للمتجر بروابط وتعديلات حية تسمع فورياً.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>معاينة المتجر (Preview)</span>
+            </a>
+            <button type="submit" form="homeControlForm" class="btn btn-primary btn-sm px-4 py-2 rounded-pill d-inline-flex align-items-center gap-2 fw-bold shadow-sm" style="background: #810100; border-color: #810100;">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>حفظ كافة التغييرات</span>
+            </button>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert" style="background-color: #f0fdf4; border-left: 5px solid #16a34a !important;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-circle-check text-success fs-5"></i>
+                <span class="fw-semibold text-dark">@TempData["SuccessMessage"]</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert" style="background-color: #fef2f2; border-left: 5px solid #dc2626 !important;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-danger fs-5"></i>
+                <span class="fw-semibold text-dark">@TempData["ErrorMessage"]</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Tabs Navigation Bar -->
+    <ul class="nav nav-pills roven-tabs gap-2 mb-4 p-2 bg-light rounded-4 border" id="homeControlTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active d-flex align-items-center gap-2" id="tab-banners-btn" data-bs-toggle="pill" data-bs-target="#tab-banners" type="button" role="tab" aria-controls="tab-banners" aria-selected="true">
+                <i class="fa-solid fa-images"></i>
+                <span>1. البانرات والسلايدر (Hero Banners)</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link d-flex align-items-center gap-2" id="tab-spotlight-btn" data-bs-toggle="pill" data-bs-target="#tab-spotlight" type="button" role="tab" aria-controls="tab-spotlight" aria-selected="false">
+                <i class="fa-solid fa-bolt text-warning"></i>
+                <span>2. العرض المميز (Spotlight Deal)</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link d-flex align-items-center gap-2" id="tab-sections-btn" data-bs-toggle="pill" data-bs-target="#tab-sections" type="button" role="tab" aria-controls="tab-sections" aria-selected="false">
+                <i class="fa-solid fa-eye"></i>
+                <span>3. ظهور وإخفاء الأقسام (Sections Visibility)</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link d-flex align-items-center gap-2" id="tab-social-btn" data-bs-toggle="pill" data-bs-target="#tab-social" type="button" role="tab" aria-controls="tab-social" aria-selected="false">
+                <i class="fa-solid fa-bullhorn"></i>
+                <span>4. الشريط الإعلاني وروابط السوشيال (Announcement & Social)</span>
+            </button>
+        </li>
+    </ul>
+
+    <!-- Main Form for all tabs -->
+    <form id="homeControlForm" asp-controller="HomeControl" asp-action="Update" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="tab-content" id="homeControlTabsContent">
+
+            <!-- ============================================================== -->
+            <!-- TAB 1: HOMEPAGE HERO BANNERS (IMAGE-BASED SLIDES)              -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade show active tab-pane-content" id="tab-banners" role="tabpanel" aria-labelledby="tab-banners-btn">
+                
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+                    <!-- Header Strip in Light Theme matching Maison ROVEN Dashboard -->
+                    <div class="card-setting-header p-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white border-bottom">
+                        <div>
+                            <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style="background: rgba(129, 1, 0, 0.08); border: 1px solid rgba(129, 1, 0, 0.2); color: #810100; font-size: 0.74rem; font-weight: 700; letter-spacing: 1px;">
+                                <i class="fa-solid fa-images"></i>
+                                <span>HOMEPAGE HERO BANNERS</span>
+                            </div>
+                            <h4 class="fw-bold mb-1" style="font-family: 'Playfair Display', serif; color: #1B1717;">بانرات الواجهة الرئيسية (Hero Banner Carousel)</h4>
+                            <p class="text-muted small mb-0" style="max-width: 680px;">
+                                UPLOAD FULLY STYLED BANNER IMAGES. MULTIPLE ACTIVE BANNERS WILL CYCLE AS A DYNAMIC CAROUSEL.
+                                <br />
+                                ارفع صور البانرات المصممة بالكامل بمقاس الديسكتوب (1920x800) واختيارياً الموبايل (750x1000). تظهر فوراً في سكشن الهيرو أعلى المتجر.
+                            </p>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm px-4 py-2.5 rounded-pill fw-bold shadow-sm d-flex align-items-center gap-2 text-white" style="background: #810100; border-color: #810100;" data-bs-toggle="modal" data-bs-target="#createHeroBannerModal">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>ADD NEW BANNER +</span>
+                        </button>
+                    </div>
+
+                    <!-- Banners List in Light Theme -->
+                    <div class="p-3 p-md-4 bg-white">
+                        @if (heroBanners.Any())
+                        {
+                            <div class="d-flex flex-column gap-3">
+                                @for (int i = 0; i < heroBanners.Count; i++)
+                                {
+                                    var banner = heroBanners[i];
+                                    <div class="card border p-3 rounded-4 position-relative bg-white shadow-xs" style="border-color: #e8e3d5 !important;">
+                                        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                                            
+                                            <!-- Left: Image Preview & Details -->
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="position-relative overflow-hidden rounded-3 border flex-shrink-0" style="width: 140px; height: 60px; background: #fdfaf6; border-color: #e8e3d5 !important;">
+                                                    <img src="@banner.DesktopImageUrl" alt="@banner.Title" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/banners/hero_slide_1.svg'" />
+                                                    <span class="badge position-absolute bottom-0 start-0 m-1 font-monospace" style="background: rgba(27,23,23,0.8); font-size: 0.62rem; padding: 0.15rem 0.35rem; color: #EDEBDD;">#@banner.DisplayOrder</span>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold mb-1" style="font-size: 0.98rem; color: #1B1717;">
+                                                        @banner.Title
+                                                    </div>
+                                                    <div class="d-flex flex-wrap align-items-center gap-2 small">
+                                                        <span class="font-monospace" style="color: #810100; font-size: 0.82rem;">
+                                                            <i class="fa-solid fa-link me-1"></i>Redirect Link: <strong class="text-decoration-underline">@banner.RedirectLink</strong>
+                                                        </span>
+                                                        @if (!string.IsNullOrWhiteSpace(banner.MobileImageUrl))
+                                                        {
+                                                            <span class="badge rounded-pill" style="background: rgba(223, 177, 91, 0.15); color: #8a6a1b; border: 1px solid rgba(223, 177, 91, 0.4); font-size: 0.68rem;">
+                                                                <i class="fa-solid fa-mobile-screen me-1"></i>Mobile Ready
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge rounded-pill bg-light text-muted border font-monospace" style="font-size: 0.68rem;">
+                                                                Desktop Only
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Right: Controls matching user's image (Active Pill, Up, Down, Edit, Delete) -->
+                                            <div class="d-flex align-items-center gap-2 align-self-end align-self-md-center">
+                                                <!-- Active Badge / Toggle Button -->
+                                                <button type="submit" form="toggleBannerForm_@banner.Id" class="badge rounded-pill px-3 py-2 fw-bold text-decoration-none border-0 shadow-xs" style="background-color: @(banner.IsActive ? "#198754" : "#6c757d"); color: #ffffff; cursor: pointer; font-size: 0.74rem; letter-spacing: 0.5px;" title="انقر لتغيير الحالة">
+                                                    @(banner.IsActive ? "ACTIVE" : "INACTIVE")
+                                                </button>
+
+                                                <!-- Move Up -->
+                                                <button type="submit" form="moveBannerUpForm_@banner.Id" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == 0 ? "disabled" : "")" style="width: 34px; height: 34px;" title="تحريك لأعلى">
+                                                    <i class="fa-solid fa-arrow-up" style="font-size: 0.8rem;"></i>
+                                                </button>
+
+                                                <!-- Move Down -->
+                                                <button type="submit" form="moveBannerDownForm_@banner.Id" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == heroBanners.Count - 1 ? "disabled" : "")" style="width: 34px; height: 34px;" title="تحريك لأسفل">
+                                                    <i class="fa-solid fa-arrow-down" style="font-size: 0.8rem;"></i>
+                                                </button>
+
+                                                <!-- Edit Button -->
+                                                <button type="button" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: rgba(13, 110, 253, 0.1); color: #0d6efd; border: 1px solid rgba(13, 110, 253, 0.25);" title="تعديل البانر" onclick="openEditBannerModal(@banner.Id, '@(banner.Title.Replace("'", "\\'"))', '@(banner.DesktopImageUrl.Replace("'", "\\'"))', '@(banner.MobileImageUrl?.Replace("'", "\\'") ?? "")', '@(banner.RedirectLink?.Replace("'", "\\'") ?? "")', '@(banner.AltText?.Replace("'", "\\'") ?? "")', @(banner.IsActive ? "true" : "false"), @banner.DisplayOrder)">
+                                                    <i class="fa-solid fa-pen" style="font-size: 0.8rem;"></i>
+                                                </button>
+
+                                                <!-- Delete Button -->
+                                                <button type="button" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.25);" title="حذف البانر" onclick="confirmDeleteBanner(@banner.Id, '@(banner.Title.Replace("'", "\\'"))')">
+                                                    <i class="fa-solid fa-xmark" style="font-size: 0.95rem;"></i>
+                                                </button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5 rounded-4 bg-light border" style="border-style: dashed !important; border-color: #d1c7bd !important;">
+                                <i class="fa-solid fa-images display-4 mb-3" style="color: #810100;"></i>
+                                <h5 class="fw-bold mb-2" style="color: #1B1717;">لا توجد بانرات مضافة حالياً</h5>
+                                <p class="text-muted small mb-3">
+                                    اضغط على زر "ADD NEW BANNER +" لرفع أول بانر مصمم بالكامل للواجهة الرئيسية للمتجر.
+                                </p>
+                                <button type="button" class="btn btn-primary btn-sm px-4 py-2 rounded-pill fw-bold text-white" style="background: #810100; border-color: #810100;" data-bs-toggle="modal" data-bs-target="#createHeroBannerModal">
+                                    <i class="fa-solid fa-plus me-1"></i> ADD NEW BANNER +
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
+
+                        <!-- TAB 2: SPECIAL OFFERS & DEALS (MULTI-PRODUCT)                  -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade tab-pane-content" id="tab-spotlight" role="tabpanel" aria-labelledby="tab-spotlight-btn">
+                
+                <!-- Main Offers Management Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-setting-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white">
+                        <div>
+                            <span class="fw-bold fs-6" style="color: #1B1717;">
+                                <i class="fa-solid fa-bolt text-warning me-2"></i>عروض وتخفيضات الصفحة الرئيسية (Special Offers & Deals)
+                            </span>
+                            <div class="text-muted small mt-1">
+                                أضف أكثر من منتج إلى قسم العروض. إذا وجد منتجين أو أكثر سيتم عرضها كشبكة كروت عروض فاخرة في الهوم.
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" role="switch" asp-for="SpotlightActive" id="spotlightSwitch" style="cursor: pointer;">
+                                <label class="form-check-label small fw-semibold" for="spotlightSwitch">تفعيل ظهور قسم العروض في الهوم</label>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm px-3 py-2 rounded-pill fw-bold shadow-sm d-flex align-items-center gap-1.5" style="background: #810100; border-color: #810100;" data-bs-toggle="modal" data-bs-target="#addOfferModal">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>إضافة عطر جديد للعروض</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        @if (homeOffers.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light text-muted small">
+                                        <tr>
+                                            <th style="width: 50px;">#</th>
+                                            <th>محتوى العرض</th>
+                                            <th>النوع</th>
+                                            <th>السعر الأصلي</th>
+                                            <th>سعر العرض</th>
+                                            <th>الشارة والنسبة</th>
+                                            <th>المتبقي</th>
+                                            <th>تاريخ الانتهاء</th>
+                                            <th>الحالة</th>
+                                            <th class="text-center" style="width: 140px;">الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var offer in homeOffers)
+                                        {
+                                            var prod = offer.Product;
+                                            var prod2 = offer.SecondProduct;
+                                            var isDuo = prod2 != null;
+                                            var origPrice = (prod?.Price ?? 0m) + (prod2?.Price ?? 0m);
+                                            var discount = origPrice > offer.OfferPrice && origPrice > 0 
+                                                ? (int)Math.Round((origPrice - offer.OfferPrice) / origPrice * 100) 
+                                                : 0;
+
+                                            <tr>
+                                                <td class="font-monospace text-muted small">@offer.DisplayOrder</td>
+                                                <td>
+                                                    @if (isDuo)
+                                                    {
+                                                        <div class="d-flex flex-column gap-1">
+                                                            @if (!string.IsNullOrWhiteSpace(offer.Title))
+                                                            {
+                                                                <div class="fw-bold text-dark" style="font-size: 0.94rem;">@offer.Title</div>
+                                                            }
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; flex-shrink: 0;" title="@prod?.Name">
+                                                                    @if (!string.IsNullOrWhiteSpace(prod?.ImageUrl))
+                                                                    {
+                                                                        <img src="@prod.ImageUrl" alt="@prod.Name" style="width: 100%; height: 100%; object-fit: cover;" />
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <i class="fa-solid fa-spray-can-sparkles text-muted small"></i>
+                                                                    }
+                                                                </div>
+                                                                <span class="small fw-semibold text-dark">1. @(prod?.Name ?? "العطر الأول")</span>
+                                                            </div>
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; flex-shrink: 0;" title="@prod2?.Name">
+                                                                    @if (!string.IsNullOrWhiteSpace(prod2?.ImageUrl))
+                                                                    {
+                                                                        <img src="@prod2.ImageUrl" alt="@prod2.Name" style="width: 100%; height: 100%; object-fit: cover;" />
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <i class="fa-solid fa-spray-can-sparkles text-muted small"></i>
+                                                                    }
+                                                                </div>
+                                                                <span class="small fw-semibold text-dark">2. @(prod2?.Name ?? "العطر الثاني")</span>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; flex-shrink: 0;">
+                                                                @if (!string.IsNullOrWhiteSpace(prod?.ImageUrl))
+                                                                {
+                                                                    <img src="@prod.ImageUrl" alt="@prod.Name" style="width: 100%; height: 100%; object-fit: cover;" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <i class="fa-solid fa-spray-can-sparkles text-muted"></i>
+                                                                }
+                                                            </div>
+                                                            <div>
+                                                                <div class="fw-bold text-dark" style="font-size: 0.92rem;">@(prod?.Name ?? "عطر غير معروف")</div>
+                                                                <div class="text-muted small font-monospace" style="font-size: 0.75rem;">SKU: @(prod?.Sku ?? "N/A")</div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (isDuo)
+                                                    {
+                                                        <span class="badge rounded-pill" style="background-color: #630000; color: #fdf4dc;">
+                                                            <i class="fa-solid fa-layer-group me-1"></i>باقة عطرين
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-light text-secondary border rounded-pill">عطر فردي</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <span class="text-muted text-decoration-line-through font-monospace">@origPrice.ToString("N0") ج.م</span>
+                                                </td>
+                                                <td>
+                                                    <span class="fw-bold font-monospace text-danger fs-6">@offer.OfferPrice.ToString("N0") ج.م</span>
+                                                    @if (discount > 0)
+                                                    {
+                                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-0.5 small ms-1">
+                                                            -@discount%
+                                                        </span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-roven-crimson px-2.5 py-1 rounded-pill small">@offer.BadgeText</span>
+                                                    <div class="text-muted small mt-1 font-monospace" style="font-size: 0.75rem;">محجوز: @offer.AllocatedPercent%</div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark border px-2.5 py-1 rounded-pill font-monospace">
+                                                        @offer.RemainingCount باقة
+                                                    </span>
+                                                </td>
+                                                <td class="small text-muted font-monospace">
+                                                    @(offer.EndTime?.ToString("yyyy-MM-dd HH:mm") ?? "مستمر")
+                                                </td>
+                                                <td>
+                                                    @if (offer.IsActive)
+                                                    {
+                                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill">نشط</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 rounded-pill">معطل</span>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button type="submit" form="toggleOfferForm_@offer.Id" class="btn btn-outline-secondary" title="@(offer.IsActive ? "إيقاف العرض" : "تفعيل العرض")">
+                                                            <i class="fa-solid @(offer.IsActive ? "fa-pause text-warning" : "fa-play text-success")"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-primary" title="تعديل العرض" onclick="openEditOfferModal(@offer.Id, @offer.ProductId, @(offer.SecondProductId?.ToString() ?? "null"), '@(offer.Title?.Replace("'", "\'") ?? "")', @offer.OfferPrice, '@(offer.BadgeText?.Replace("'", "\'") ?? "")', @offer.AllocatedPercent, @offer.RemainingCount, '@(offer.EndTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")', @offer.DisplayOrder)">
+                                                            <i class="fa-solid fa-pen"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-danger" title="حذف العرض" onclick="confirmDeleteOffer(@offer.Id, '@(prod?.Name?.Replace("'", "\'") ?? "العرض")@(isDuo ? " + " + prod2?.Name?.Replace("'", "\'") : "")')">
+                                                            <i class="fa-solid fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5 bg-light rounded-4 border">
+                                <i class="fa-solid fa-bolt text-warning display-4 mb-3"></i>
+                                <h5 class="fw-bold text-dark">لا توجد عطور مضافة في قسم العروض حالياً</h5>
+                                <p class="text-muted small mb-3">يمكنك إضافة عطور متعددة وتقديم خصومات حصرية للمتجر مع شريط العد التنازلي.</p>
+                                <button type="button" class="btn btn-primary btn-sm px-4 py-2 rounded-pill fw-bold" style="background: #810100; border-color: #810100;" data-bs-toggle="modal" data-bs-target="#addOfferModal">
+                                    <i class="fa-solid fa-plus me-1"></i> إضافة أول عطر للعروض الآن
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Fallback / Single Product Spotlight Settings (Collapsible) -->
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-setting-header bg-white" data-bs-toggle="collapse" data-bs-target="#fallbackSpotlightSettings" style="cursor: pointer;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-bold" style="color: #1B1717;">
+                                    <i class="fa-solid fa-sliders text-secondary me-2"></i>الإعدادات الافتراضية للعرض الفردي (Fallback Single Spotlight)
+                                </span>
+                                <div class="text-muted small mt-0.5">تُستخدم هذه الإعدادات كاحتياطي في حالة عدم تفعيل قائمة العروض المتعددة أعلاه.</div>
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-muted"></i>
+                        </div>
+                    </div>
+                    <div class="collapse" id="fallbackSpotlightSettings">
+                        <div class="card-body p-4 border-top">
+                            <div class="row g-4">
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-dark">العطر المعروض الافتراضي</label>
+                                    <select asp-for="SpotlightProductId" class="form-select rounded-3">
+                                        <option value="">-- التحديد التلقائي لأول عطر مميز في الكتالوج --</option>
+                                        @foreach (var prod in products)
+                                        {
+                                            <option value="@prod.Id">@prod.Name (@prod.Price.ToString("N0") EGP)</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-dark">سعر العرض الخاص (Spotlight Price EGP)</label>
+                                    <div class="input-group">
+                                        <input type="number" step="0.01" asp-for="SpotlightPrice" class="form-control rounded-start-3 font-monospace fw-bold" />
+                                        <span class="input-group-text bg-light">EGP</span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label small fw-bold text-dark">موعد انتهاء العرض (Timer End Date/Time)</label>
+                                    <input type="datetime-local" asp-for="SpotlightEndTime" class="form-control rounded-3" />
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label small fw-bold text-dark">نسبة الحجز المحجوزة ظاهرياً (%)</label>
+                                    <div class="input-group">
+                                        <input type="number" min="0" max="100" asp-for="SpotlightAllocatedPercent" class="form-control rounded-start-3 font-monospace" />
+                                        <span class="input-group-text bg-light">%</span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label small fw-bold text-dark">العدد المتبقي المحجوز</label>
+                                    <div class="input-group">
+                                        <input type="number" min="0" asp-for="SpotlightRemainingCount" class="form-control rounded-start-3 font-monospace" />
+                                        <span class="input-group-text bg-light">زجاجة</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 3: SECTIONS VISIBILITY (SHOW / HIDE)                       -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade tab-pane-content" id="tab-sections" role="tabpanel" aria-labelledby="tab-sections-btn">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-setting-header bg-white">
+                        <span class="fw-bold" style="color: #1B1717;">
+                            <i class="fa-solid fa-eye text-primary me-2"></i>إظهار وإخفاء سكشنات الصفحة الرئيسية (Sections Visibility)
+                        </span>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted small mb-4">
+                            يمكنك من هنا تفعيل أو إلغاء تفعيل أي سكشن من سكشنات الصفحة الرئيسية بنقرة واحدة، وسيختفي أو يظهر السكشن فوراً من المتجر.
+                        </p>
+
+                        <div class="row g-3">
+                            <!-- 1. Trust Badges -->
+                            <div class="col-12 col-md-6">
+                                <div class="card h-100 border p-3 rounded-4 bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="fw-bold text-dark mb-1">
+                                                <i class="fa-solid fa-shield-halved text-danger me-1"></i> مميزات الثقة والضمان الفاخرة
+                                            </div>
+                                            <div class="text-muted small" style="font-size: 0.78rem;">
+                                                سكشن الشحن المجاني، المعاينة قبل الدفع COD، ونسبة التركيز 30%.
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowTrustBadges" style="cursor: pointer;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Categories Showcase -->
+                            <div class="col-12 col-md-6">
+                                <div class="card h-100 border p-3 rounded-4 bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="fw-bold text-dark mb-1">
+                                                <i class="fa-solid fa-layer-group text-primary me-1"></i> استعراض أقسام وعائلات العطور
+                                            </div>
+                                            <div class="text-muted small" style="font-size: 0.78rem;">
+                                                كروت أقسام العطور الأربعة (Extraits, Oud & Oriental, Sets, Eaux).
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowCategoriesShowcase" style="cursor: pointer;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. Featured Fragrances -->
+                            <div class="col-12 col-md-6">
+                                <div class="card h-100 border p-3 rounded-4 bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="fw-bold text-dark mb-1">
+                                                <i class="fa-solid fa-crown text-warning me-1"></i> سكشن العطور المميزة (Featured)
+                                            </div>
+                                            <div class="text-muted small" style="font-size: 0.78rem;">
+                                                شبكة العطور المميزة (Master Distillations) التي يحددها الأدمن كـ Featured.
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowFeaturedSection" style="cursor: pointer;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. Best Sellers -->
+                            <div class="col-12 col-md-6">
+                                <div class="card h-100 border p-3 rounded-4 bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="fw-bold text-dark mb-1">
+                                                <i class="fa-solid fa-fire text-danger me-1"></i> سكشن الأكثر مبيعاً (Best Sellers)
+                                            </div>
+                                            <div class="text-muted small" style="font-size: 0.78rem;">
+                                                العطور الأكثر طلباً ومبيعاً ومعدلات الشراء المرتفعة.
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowBestSellersSection" style="cursor: pointer;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. FAQ -->
+                            <div class="col-12 col-md-6">
+                                <div class="card h-100 border p-3 rounded-4 bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="fw-bold text-dark mb-1">
+                                                <i class="fa-solid fa-circle-question text-info me-1"></i> سكشن الأسئلة الشائعة وتوضيحات الدار
+                                            </div>
+                                            <div class="text-muted small" style="font-size: 0.78rem;">
+                                                قائمة الأسئلة الشائعة والأكورديون عن التراكيز ومعاينة الشحنات.
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowFaqSection" style="cursor: pointer;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 6. Newsletter -->
+                            <div class="col-12 col-md-6">
+                                <div class="card h-100 border p-3 rounded-4 bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="fw-bold text-dark mb-1">
+                                                <i class="fa-solid fa-envelope-open-text text-success me-1"></i> شريط الاشتراك في النشرة VIP
+                                            </div>
+                                            <div class="text-muted small" style="font-size: 0.78rem;">
+                                                بانر خصم 10% والاشتراك في النشرة البريدية الحصرية لرواد الدار.
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowNewsletterSection" style="cursor: pointer;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 4: ANNOUNCEMENT & SOCIAL & CONCIERGE                        -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade tab-pane-content" id="tab-social" role="tabpanel" aria-labelledby="tab-social-btn">
+                <div class="row g-4">
+                    <!-- Top Announcement Bar -->
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-setting-header d-flex justify-content-between align-items-center bg-white">
+                                <span class="fw-bold" style="color: #1B1717;">
+                                    <i class="fa-solid fa-bullhorn text-danger me-2"></i>الشريط الإعلاني العلوي (Top Announcement Bar)
+                                </span>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" role="switch" asp-for="AnnouncementActive" id="announcementSwitch" style="cursor: pointer;">
+                                    <label class="form-check-label small fw-semibold" for="announcementSwitch">تفعيل الشريط العلوي</label>
+                                </div>
+                            </div>
+                            <div class="card-body p-4">
+                                <label class="form-label small fw-bold text-dark">نص الإعلان الترويجي</label>
+                                <input type="text" asp-for="AnnouncementText" class="form-control rounded-3" placeholder="Maison ROVEN • Complimentary Nationwide Delivery Across Egypt" />
+                                <div class="form-text small">يظهر هذا النص في الشريط العلوي المتحرك أعلى كافة صفحات المتجر الإلكتروني.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Media Links -->
+                    <div class="col-12 col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                            <div class="card-setting-header bg-white">
+                                <span class="fw-bold" style="color: #1B1717;">
+                                    <i class="fa-solid fa-share-nodes text-primary me-2"></i>روابط منصات التواصل الاجتماعي (Social Media)
+                                </span>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-dark">
+                                        <i class="fa-brands fa-facebook text-primary me-1"></i> رابط صفحة الفيسبوك (Facebook Page URL)
+                                    </label>
+                                    <input type="url" asp-for="FacebookUrl" class="form-control rounded-3 font-monospace" placeholder="https://facebook.com/roven.parfumerie" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-dark">
+                                        <i class="fa-brands fa-instagram text-danger me-1"></i> رابط حساب انستغرام (Instagram Profile URL)
+                                    </label>
+                                    <input type="url" asp-for="InstagramUrl" class="form-control rounded-3 font-monospace" placeholder="https://instagram.com/roven.parfums" />
+                                </div>
+                                <div class="mb-0">
+                                    <label class="form-label small fw-bold text-dark">
+                                        <i class="fa-brands fa-whatsapp text-success me-1"></i> رقم الواتساب المباشر (WhatsApp Direct Number)
+                                    </label>
+                                    <input type="text" asp-for="WhatsAppNumber" class="form-control rounded-3 font-monospace" placeholder="+201008889999" />
+                                    <div class="form-text small">يُستخدم لفتح محادثة واتساب فورية مع خدمة العملاء والكونسيرج.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Concierge & Direct Contact Info -->
+                    <div class="col-12 col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                            <div class="card-setting-header bg-white">
+                                <span class="fw-bold" style="color: #1B1717;">
+                                    <i class="fa-solid fa-headset text-danger me-2"></i>معلومات الاتصال المباشر والكونسيرج (Contact Info)
+                                </span>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-dark">
+                                        <i class="fa-solid fa-phone text-muted me-1"></i> الخط الساخن / هاتف الدار (Contact Phone)
+                                    </label>
+                                    <input type="text" asp-for="ContactPhone" class="form-control rounded-3 font-monospace" placeholder="+20 (02) 19888" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-dark">
+                                        <i class="fa-solid fa-envelope text-muted me-1"></i> البريد الإلكتروني للاستفسارات (Contact Email)
+                                    </label>
+                                    <input type="email" asp-for="ContactEmail" class="form-control rounded-3 font-monospace" placeholder="concierge@roven.local" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-dark">
+                                        <i class="fa-solid fa-clock text-muted me-1"></i> مواعيد العمل وخدمة الكونسيرج (Working Hours)
+                                    </label>
+                                    <input type="text" asp-for="ContactWorkingHours" class="form-control rounded-3" placeholder="Daily: 10:00 AM – 11:00 PM CLT" />
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-12 col-sm-6">
+                                        <label class="form-label small fw-bold text-dark">
+                                            <i class="fa-solid fa-building text-muted me-1"></i> اسم المعرض / الصالون (Atelier)
+                                        </label>
+                                        <input type="text" asp-for="AtelierName" class="form-control rounded-3" placeholder="Zamalek & New Cairo Salons" />
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <label class="form-label small fw-bold text-dark">
+                                            <i class="fa-solid fa-location-dot text-muted me-1"></i> المدينة / العنوان (Location)
+                                        </label>
+                                        <input type="text" asp-for="AtelierAddress" class="form-control rounded-3" placeholder="Cairo & Giza, Arab Republic of Egypt" />
+                                    </div>
+                                </div>
+                                <div class="alert alert-light border small text-muted mb-0">
+                                    <i class="fa-solid fa-circle-info me-1"></i> تنعكس هذه الروابط والأرقام تلقائياً في فوتر الموقع، وفي صفحة تواصل معنا (Contact Us).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sticky Bottom Save Bar -->
+        <div class="card border-0 shadow-sm rounded-4 p-3 mt-4 bg-white border d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-cloud-arrow-up text-danger fs-4"></i>
+                <div>
+                    <div class="fw-bold text-dark small">حفظ فوري ومباشر لكافة الإعدادات</div>
+                    <div class="text-muted" style="font-size: 0.75rem;">يتم تطبيق التعديلات في الصفحة الرئيسية للمتجر فور الضغط على زر الحفظ.</div>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-secondary px-3 py-2 rounded-pill small">
+                    <i class="fa-solid fa-eye me-1"></i> معاينة المتجر
+                </a>
+                <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm d-flex align-items-center gap-2" style="background: #810100; border-color: #810100;">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>حفظ وتطبيق التغييرات</span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Hidden Actions Forms for Offers (Outside main form to prevent nested form submissions) -->
+@foreach (var offer in homeOffers)
+{
+    <form id="toggleOfferForm_@offer.Id" asp-controller="HomeControl" asp-action="ToggleHomeOffer" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@offer.Id" />
+    </form>
+}
+
+<form id="deleteOfferFormGlobal" asp-controller="HomeControl" asp-action="DeleteHomeOffer" method="post" class="d-none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="deleteOfferIdInput" value="0" />
+</form>
+
+<!-- Hidden Actions Forms for Hero Banners -->
+@foreach (var b in heroBanners)
+{
+    <form id="toggleBannerForm_@b.Id" asp-controller="HomeControl" asp-action="ToggleHeroBanner" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@b.Id" />
+    </form>
+    <form id="moveBannerUpForm_@b.Id" asp-controller="HomeControl" asp-action="MoveHeroBanner" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@b.Id" />
+        <input type="hidden" name="direction" value="up" />
+    </form>
+    <form id="moveBannerDownForm_@b.Id" asp-controller="HomeControl" asp-action="MoveHeroBanner" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@b.Id" />
+        <input type="hidden" name="direction" value="down" />
+    </form>
+}
+
+<form id="deleteBannerFormGlobal" asp-controller="HomeControl" asp-action="DeleteHeroBanner" method="post" class="d-none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="deleteBannerIdInput" value="0" />
+</form>
+
+<!-- Modal: Create Hero Banner (Clean Light Theme) -->
+<div class="modal fade" id="createHeroBannerModal" tabindex="-1" aria-labelledby="createHeroBannerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg bg-white">
+            <div class="modal-header border-bottom pb-3 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="modal-title fw-bold" id="createHeroBannerModalLabel" style="color: #1B1717; font-family: 'Playfair Display', serif;">
+                    <i class="fa-solid fa-images text-danger me-2"></i>إضافة بانر رئيسي (Create Hero Banner)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="HomeControl" asp-action="AddHeroBanner" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-3">
+                        <!-- Desktop Image -->
+                        <div>
+                            <label class="form-label small fw-bold text-uppercase mb-1" style="color: #1B1717; letter-spacing: 0.5px;">
+                                UPLOAD DESKTOP IMAGE <span class="text-danger">*</span>
+                            </label>
+                            <div class="text-muted small mb-2" style="font-size: 0.76rem;">
+                                RECOMMENDED: 1920x800 PX (OR 1200x500 PX) | ASPECT RATIO: 12:5
+                            </div>
+                            <input type="file" name="desktopImage" accept="image/*" class="form-control rounded-3" />
+                            <div class="mt-1.5">
+                                <input type="text" name="desktopImageUrl" class="form-control form-control-sm rounded-3 font-monospace" placeholder="أو مسار الصورة المباشر /images/banners/..." />
+                            </div>
+                        </div>
+
+                        <!-- Mobile Image -->
+                        <div>
+                            <label class="form-label small fw-bold text-uppercase mb-1" style="color: #1B1717; letter-spacing: 0.5px;">
+                                UPLOAD MOBILE IMAGE (OPTIONAL)
+                            </label>
+                            <div class="text-muted small mb-2" style="font-size: 0.76rem;">
+                                RECOMMENDED: 750x1000 PX (OR 600x800 PX) | ASPECT RATIO: 3:4
+                            </div>
+                            <input type="file" name="mobileImage" accept="image/*" class="form-control rounded-3" />
+                            <div class="mt-1.5">
+                                <input type="text" name="mobileImageUrl" class="form-control form-control-sm rounded-3 font-monospace" placeholder="أو مسار صورة الموبايل المباشر..." />
+                            </div>
+                        </div>
+
+                        <!-- Redirect Link -->
+                        <div>
+                            <label class="form-label small fw-bold text-uppercase mb-1" style="color: #1B1717; letter-spacing: 0.5px;">
+                                BANNER REDIRECT LINK <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="redirectLink" class="form-control rounded-3 font-monospace" placeholder="/products" value="/Store" required />
+                            <div class="text-muted small mt-1" style="font-size: 0.75rem;">الرابط الذي سيتم توجيه العميل إليه عند النقر على البانر (مثال: /Store أو /Store?categoryId=1).</div>
+                        </div>
+
+                        <!-- Title & Alt Text -->
+                        <div class="row g-2">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-uppercase mb-1" style="color: #1B1717; letter-spacing: 0.5px;">
+                                    BANNER TITLE (NAME)
+                                </label>
+                                <input type="text" name="title" class="form-control rounded-3" placeholder="Hero Banner Slide #..." />
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-uppercase mb-1" style="color: #1B1717; letter-spacing: 0.5px;">
+                                    IMAGE ALT TEXT (SEO DESCRIPTION)
+                                </label>
+                                <input type="text" name="altText" class="form-control rounded-3" placeholder="e.g. Maison ROVEN Luxury Perfumes" />
+                            </div>
+                        </div>
+
+                        <!-- Active Checkbox -->
+                        <div class="form-check mt-2">
+                            <input type="checkbox" name="isActive" class="form-check-input" value="true" checked id="createBannerActiveCheck" style="cursor: pointer; width: 1.25rem; height: 1.25rem;" />
+                            <label class="form-check-label small fw-bold ms-2 pt-1" for="createBannerActiveCheck" style="color: #1B1717; letter-spacing: 0.5px;">
+                                تفعيل البانر مباشرة في المتجر (ENABLE BANNER VISIBILITY)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 pb-4 px-4 d-flex gap-2">
+                    <button type="submit" class="btn fw-bold px-4 py-2.5 rounded-pill shadow-sm text-white" style="background: #810100; border: none; letter-spacing: 0.5px;">
+                        <i class="fa-solid fa-save me-1"></i> حفظ البانر (SAVE BANNER)
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary px-4 py-2.5 rounded-pill" data-bs-dismiss="modal">
+                        إلغاء (CANCEL)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Edit Hero Banner (Clean Light Theme) -->
+<div class="modal fade" id="editHeroBannerModal" tabindex="-1" aria-labelledby="editHeroBannerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg bg-white">
+            <div class="modal-header border-bottom pb-3 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="modal-title fw-bold" id="editHeroBannerModalLabel" style="color: #1B1717; font-family: 'Playfair Display', serif;">
+                    <i class="fa-solid fa-pen-to-square text-primary me-2"></i>تعديل البانر الرئيسي (Edit Hero Banner)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="HomeControl" asp-action="UpdateHeroBanner" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="editBannerId" />
+                <input type="hidden" name="displayOrder" id="editBannerDisplayOrder" />
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-3">
+                        <!-- Current Previews -->
+                        <div class="p-3 rounded-3 bg-light border" style="border-color: #e8e3d5 !important;">
+                            <div class="small fw-bold text-uppercase mb-2" style="color: #810100;">
+                                <i class="fa-solid fa-eye me-1"></i> CURRENT BANNER PREVIEW:
+                            </div>
+                            <div class="d-flex flex-wrap gap-3 align-items-center">
+                                <div>
+                                    <div class="small text-muted mb-1 font-monospace">Desktop (1920x800):</div>
+                                    <img id="editBannerDesktopPreview" src="" alt="Desktop Preview" class="rounded border shadow-xs" style="width: 180px; height: 75px; object-fit: cover; border-color: #ddd !important;" />
+                                </div>
+                                <div id="editBannerMobilePreviewWrap">
+                                    <div class="small text-muted mb-1 font-monospace">Mobile (750x1000):</div>
+                                    <img id="editBannerMobilePreview" src="" alt="Mobile Preview" class="rounded border shadow-xs" style="width: 60px; height: 75px; object-fit: cover; border-color: #ddd !important;" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Replace Desktop Image -->
+                        <div>
+                            <label class="form-label small fw-bold text-uppercase mb-1" style="color: #1B1717;">
+                                CHANGE DESKTOP IMAGE (OPTIONAL)
+                            </label>
+                            <input type="file" name="desktopImage" accept="image/*" class="form-control rounded-3" />
+                            <input type="text" name="desktopImageUrl" id="editBannerDesktopUrlInput" class="form-control form-control-sm rounded-3 font-monospace mt-1" placeholder="أو مسار الصورة المباشر..." />
+                        </div>
+
+                        <!-- Replace Mobile Image -->
+                        <div>
+                            <label class="form-label small fw-bold text-uppercase mb-1" style="color: #1B1717;">
+                                CHANGE MOBILE IMAGE (OPTIONAL)
+                            </label>
+                            <input type="file" name="mobileImage" accept="image/*" class="form-control rounded-3" />
+                            <input type="text" name="mobileImageUrl" id="editBannerMobileUrlInput" class="form-control form-control-sm rounded-3 font-monospace mt-1" placeholder="أو مسار صورة الموبايل المباشر..." />
+                        </div>
+
+                        <!-- Redirect Link -->
+                        <div>
+                            <label class="form-label small fw-bold text-uppercase mb-1" style="color: #1B1717;">
+                                BANNER REDIRECT LINK <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="redirectLink" id="editBannerRedirectLinkInput" class="form-control rounded-3 font-monospace" required />
+                        </div>
+
+                        <!-- Title & Alt Text -->
+                        <div class="row g-2">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-uppercase mb-1" style="color: #1B1717;">
+                                    BANNER TITLE (NAME)
+                                </label>
+                                <input type="text" name="title" id="editBannerTitleInput" class="form-control rounded-3" />
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-uppercase mb-1" style="color: #1B1717;">
+                                    IMAGE ALT TEXT (SEO)
+                                </label>
+                                <input type="text" name="altText" id="editBannerAltTextInput" class="form-control rounded-3" />
+                            </div>
+                        </div>
+
+                        <!-- Active Checkbox -->
+                        <div class="form-check mt-2">
+                            <input type="checkbox" name="isActive" class="form-check-input" value="true" id="editBannerActiveCheck" style="cursor: pointer; width: 1.25rem; height: 1.25rem;" />
+                            <label class="form-check-label small fw-bold ms-2 pt-1" for="editBannerActiveCheck" style="color: #1B1717; letter-spacing: 0.5px;">
+                                تفعيل ظهور البانر (ENABLE BANNER VISIBILITY)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 pb-4 px-4 d-flex gap-2">
+                    <button type="submit" class="btn fw-bold px-4 py-2.5 rounded-pill shadow-sm text-white" style="background: #810100; border: none; letter-spacing: 0.5px;">
+                        <i class="fa-solid fa-save me-1"></i> حفظ التعديلات (SAVE BANNER)
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary px-4 py-2.5 rounded-pill" data-bs-dismiss="modal">
+                        إلغاء (CANCEL)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Confirm Delete Hero Banner -->
+<div class="modal fade" id="deleteHeroBannerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content rounded-4 border-0 shadow-lg text-center p-3 bg-white">
+            <div class="modal-body">
+                <div class="p-3 bg-danger-subtle text-danger rounded-circle d-inline-flex mb-3">
+                    <i class="fa-solid fa-trash-can fs-3"></i>
+                </div>
+                <h6 class="fw-bold mb-1" style="color: #1B1717;">حذف البانر؟</h6>
+                <p class="text-muted small mb-3">هل أنت متأكد من حذف <strong id="deleteBannerTitleDisplay" class="text-dark"></strong> نهائياً من المتجر؟</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold" onclick="executeDeleteBanner()">تأكيد الحذف</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Add New Home Offer -->
+<div class="modal fade" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold" id="addOfferModalLabel" style="color: #1B1717;">
+                    <i class="fa-solid fa-bolt text-warning me-2"></i>إضافة عرض جديد (عطر فردي أو باقة عطرين معاً)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="HomeControl" asp-action="AddHomeOffer" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <!-- Product 1 -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-dark">العطر الأول (الأساسي) <span class="text-danger">*</span></label>
+                            <select name="productId" id="addOfferProduct1Select" class="form-select rounded-3" required onchange="calculateAddOfferPricing()">
+                                <option value="" selected disabled>-- اختر العطر الأول من الكتالوج --</option>
+                                @foreach (var prod in products)
+                                {
+                                    <option value="@prod.Id" data-price="@prod.Price">@prod.Name (@prod.Price.ToString("N0") ج.م - مخزون: @prod.StockQuantity)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Product 2 (Optional) -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-dark">
+                                العطر الثاني <span class="badge bg-warning-subtle text-dark border border-warning-subtle ms-1 font-monospace">اختياري لباقة عطرين</span>
+                            </label>
+                            <select name="secondProductId" id="addOfferProduct2Select" class="form-select rounded-3" onchange="calculateAddOfferPricing()">
+                                <option value="">-- لا يوجد (عرض عطر واحد فقط) --</option>
+                                @foreach (var prod in products)
+                                {
+                                    <option value="@prod.Id" data-price="@prod.Price">@prod.Name (@prod.Price.ToString("N0") ج.م - مخزون: @prod.StockQuantity)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Custom Title -->
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-dark">عنوان مخصص للعرض (اختياري)</label>
+                            <input type="text" name="title" id="addOfferTitleInput" class="form-control rounded-3" placeholder="مثال: باقة الروائح الملكية (روج فيلور + نوار إنتنس)" />
+                            <div class="form-text small">اتركه فارغاً للتسمية التلقائية بأسماء العطور.</div>
+                        </div>
+
+                        <!-- Offer Price -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-dark">سعر العرض الترويجي الإجمالي (ج.م) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="1" name="offerPrice" id="addOfferPriceInput" class="form-control rounded-start-3 font-monospace fw-bold" placeholder="مثال: 3850" required oninput="calculateAddOfferPricing()" />
+                                <span class="input-group-text bg-light">EGP</span>
+                            </div>
+                            <div class="form-text small" id="addOfferPricingSummary" style="color: #630000; font-weight: 600;">
+                                حدد العطور لحساب السعر الإجمالي الأصلي ونسبة الخصم المقترحة.
+                            </div>
+                        </div>
+
+                        <!-- Badge Label -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-dark">شارة العرض (Badge Label)</label>
+                            <input type="text" name="badgeText" id="addOfferBadgeInput" class="form-control rounded-3" placeholder="مثال: DUO BUNDLE • عرض عطرين" value="EXCLUSIVE • عرض خاص" />
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">نسبة الحجز المحجوزة ظاهرياً (%)</label>
+                            <div class="input-group">
+                                <input type="number" min="1" max="100" name="allocatedPercent" class="form-control rounded-start-3 font-monospace" value="82" />
+                                <span class="input-group-text bg-light">%</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">الكمية المتبقية المحجوزة</label>
+                            <div class="input-group">
+                                <input type="number" min="1" name="remainingCount" id="addOfferRemainingInput" class="form-control rounded-start-3 font-monospace" value="15" />
+                                <span class="input-group-text bg-light">باقة / حجز</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">موعد انتهاء العرض (Timer)</label>
+                            <input type="datetime-local" name="endTime" class="form-control rounded-3" value="@DateTime.Now.AddDays(7).ToString("yyyy-MM-ddTHH:mm")" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" style="background: #810100; border-color: #810100;">
+                        <i class="fa-solid fa-plus me-1"></i> حفظ وإضافة العرض
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Edit Home Offer -->
+<div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold" id="editOfferModalLabel" style="color: #1B1717;">
+                    <i class="fa-solid fa-pen-to-square text-primary me-2"></i>تعديل بيانات العرض (عطر فردي أو باقة عطرين)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="HomeControl" asp-action="UpdateHomeOffer" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="editOfferId" />
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <!-- Product 1 -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-dark">العطر الأول (الأساسي) <span class="text-danger">*</span></label>
+                            <select name="productId" id="editOfferProduct1Select" class="form-select rounded-3" required onchange="calculateEditOfferPricing()">
+                                @foreach (var prod in products)
+                                {
+                                    <option value="@prod.Id" data-price="@prod.Price">@prod.Name (@prod.Price.ToString("N0") ج.م)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Product 2 (Optional) -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-dark">
+                                العطر الثاني <span class="badge bg-warning-subtle text-dark border border-warning-subtle ms-1 font-monospace">اختياري لباقة عطرين</span>
+                            </label>
+                            <select name="secondProductId" id="editOfferProduct2Select" class="form-select rounded-3" onchange="calculateEditOfferPricing()">
+                                <option value="">-- لا يوجد (عرض عطر واحد فقط) --</option>
+                                @foreach (var prod in products)
+                                {
+                                    <option value="@prod.Id" data-price="@prod.Price">@prod.Name (@prod.Price.ToString("N0") ج.م)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Title -->
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-dark">عنوان مخصص للعرض (اختياري)</label>
+                            <input type="text" name="title" id="editOfferTitleInput" class="form-control rounded-3" placeholder="عنوان العرض..." />
+                        </div>
+
+                        <!-- Offer Price -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-dark">سعر العرض الإجمالي (ج.م) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="1" name="offerPrice" id="editOfferPriceInput" class="form-control rounded-start-3 font-monospace fw-bold" required oninput="calculateEditOfferPricing()" />
+                                <span class="input-group-text bg-light">EGP</span>
+                            </div>
+                            <div class="form-text small" id="editOfferPricingSummary" style="color: #630000; font-weight: 600;"></div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-dark">شارة العرض (Badge Label)</label>
+                            <input type="text" name="badgeText" id="editOfferBadgeInput" class="form-control rounded-3" />
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <label class="form-label small fw-bold text-dark">نسبة الحجز (%)</label>
+                            <div class="input-group">
+                                <input type="number" min="0" max="100" name="allocatedPercent" id="editOfferAllocatedInput" class="form-control rounded-start-3 font-monospace" />
+                                <span class="input-group-text bg-light">%</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <label class="form-label small fw-bold text-dark">الكمية المتبقية</label>
+                            <div class="input-group">
+                                <input type="number" min="0" name="remainingCount" id="editOfferRemainingInput" class="form-control rounded-start-3 font-monospace" />
+                                <span class="input-group-text bg-light">باقة</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <label class="form-label small fw-bold text-dark">الترتيب</label>
+                            <input type="number" name="displayOrder" id="editOfferOrderInput" class="form-control rounded-3 font-monospace" />
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <label class="form-label small fw-bold text-dark">موعد الانتهاء</label>
+                            <input type="datetime-local" name="endTime" id="editOfferEndTimeInput" class="form-control rounded-3" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" style="background: #810100; border-color: #810100;">
+                        <i class="fa-solid fa-check me-1"></i> حفظ التعديلات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Confirm Delete Offer -->
+<div class="modal fade" id="deleteOfferModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content rounded-4 border-0 shadow-lg text-center p-3">
+            <div class="modal-body">
+                <div class="p-3 bg-danger-subtle text-danger rounded-circle d-inline-flex mb-3">
+                    <i class="fa-solid fa-trash-can fs-3"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-1">حذف العطر من العروض؟</h6>
+                <p class="text-muted small mb-3">هل أنت متأكد من حذف <strong id="deleteOfferNameDisplay" class="text-dark"></strong> من قسم العروض؟</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold" onclick="executeDeleteOffer()">تأكيد الحذف</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function openEditBannerModal(id, title, desktopUrl, mobileUrl, redirectLink, altText, isActive, order) {
+        document.getElementById('editBannerId').value = id;
+        document.getElementById('editBannerTitleInput').value = title;
+        document.getElementById('editBannerDesktopUrlInput').value = desktopUrl;
+        document.getElementById('editBannerDesktopPreview').src = desktopUrl;
+        
+        const mobilePreviewWrap = document.getElementById('editBannerMobilePreviewWrap');
+        const mobilePreview = document.getElementById('editBannerMobilePreview');
+        if (mobileUrl && mobileUrl.trim() !== '') {
+            document.getElementById('editBannerMobileUrlInput').value = mobileUrl;
+            mobilePreview.src = mobileUrl;
+            mobilePreviewWrap.style.display = 'block';
+        } else {
+            document.getElementById('editBannerMobileUrlInput').value = '';
+            mobilePreviewWrap.style.display = 'none';
+        }
+
+        document.getElementById('editBannerRedirectLinkInput').value = redirectLink || '/Store';
+        document.getElementById('editBannerAltTextInput').value = altText || '';
+        document.getElementById('editBannerActiveCheck').checked = (isActive === true || isActive === 'true');
+        document.getElementById('editBannerDisplayOrder').value = order;
+
+        const modal = new bootstrap.Modal(document.getElementById('editHeroBannerModal'));
+        modal.show();
+    }
+
+    function confirmDeleteBanner(id, title) {
+        document.getElementById('deleteBannerIdInput').value = id;
+        document.getElementById('deleteBannerTitleDisplay').innerText = title;
+        const modal = new bootstrap.Modal(document.getElementById('deleteHeroBannerModal'));
+        modal.show();
+    }
+
+    function executeDeleteBanner() {
+        document.getElementById('deleteBannerFormGlobal').submit();
+    }
+
+    function calculateAddOfferPricing() {
+        const s1 = document.getElementById('addOfferProduct1Select');
+        const s2 = document.getElementById('addOfferProduct2Select');
+        const priceInput = document.getElementById('addOfferPriceInput');
+        const summary = document.getElementById('addOfferPricingSummary');
+        const badgeInput = document.getElementById('addOfferBadgeInput');
+
+        const opt1 = s1.options[s1.selectedIndex];
+        const opt2 = s2.options[s2.selectedIndex];
+
+        const p1 = (opt1 && opt1.value) ? parseFloat(opt1.getAttribute('data-price') || '0') : 0;
+        const p2 = (opt2 && opt2.value) ? parseFloat(opt2.getAttribute('data-price') || '0') : 0;
+        const totalOrig = p1 + p2;
+
+        if (p2 > 0) {
+            if (badgeInput.value === 'EXCLUSIVE • عرض خاص' || !badgeInput.value) {
+                badgeInput.value = 'DUO BUNDLE • عرض عطرين';
+            }
+        }
+
+        if (totalOrig > 0 && (!priceInput.value || parseFloat(priceInput.value) <= 0 || priceInput.dataset.autoFilled === 'true')) {
+            const suggested = Math.round(totalOrig * 0.82); // 18% discount
+            priceInput.value = suggested;
+            priceInput.dataset.autoFilled = 'true';
+        }
+
+        const currentOfferPrice = parseFloat(priceInput.value || '0');
+        if (totalOrig > 0 && currentOfferPrice > 0) {
+            const saving = Math.max(0, totalOrig - currentOfferPrice);
+            const discPercent = Math.round((saving / totalOrig) * 100);
+            summary.innerHTML = `السعر الأصلي الإجمالي: <strong>${totalOrig.toLocaleString()} ج.م</strong> &bull; قيمة التوفير: <strong>${saving.toLocaleString()} ج.م (${discPercent}%)</strong>`;
+        }
+    }
+
+    function calculateEditOfferPricing() {
+        const s1 = document.getElementById('editOfferProduct1Select');
+        const s2 = document.getElementById('editOfferProduct2Select');
+        const priceInput = document.getElementById('editOfferPriceInput');
+        const summary = document.getElementById('editOfferPricingSummary');
+
+        const opt1 = s1.options[s1.selectedIndex];
+        const opt2 = s2.options[s2.selectedIndex];
+
+        const p1 = (opt1 && opt1.value) ? parseFloat(opt1.getAttribute('data-price') || '0') : 0;
+        const p2 = (opt2 && opt2.value) ? parseFloat(opt2.getAttribute('data-price') || '0') : 0;
+        const totalOrig = p1 + p2;
+
+        const currentOfferPrice = parseFloat(priceInput.value || '0');
+        if (totalOrig > 0 && currentOfferPrice > 0) {
+            const saving = Math.max(0, totalOrig - currentOfferPrice);
+            const discPercent = Math.round((saving / totalOrig) * 100);
+            summary.innerHTML = `السعر الأصلي: <strong>${totalOrig.toLocaleString()} ج.م</strong> &bull; التوفير: <strong>${saving.toLocaleString()} ج.م (${discPercent}%)</strong>`;
+        }
+    }
+
+    function openEditOfferModal(id, prodId, secondProdId, title, offerPrice, badgeText, allocated, remaining, endTime, order) {
+        document.getElementById('editOfferId').value = id;
+        
+        const s1 = document.getElementById('editOfferProduct1Select');
+        if (s1) s1.value = prodId;
+
+        const s2 = document.getElementById('editOfferProduct2Select');
+        if (s2) s2.value = secondProdId || '';
+
+        document.getElementById('editOfferTitleInput').value = title || '';
+        document.getElementById('editOfferPriceInput').value = offerPrice;
+        document.getElementById('editOfferBadgeInput').value = badgeText || '';
+        document.getElementById('editOfferAllocatedInput').value = allocated;
+        document.getElementById('editOfferRemainingInput').value = remaining;
+        document.getElementById('editOfferEndTimeInput').value = endTime || '';
+        document.getElementById('editOfferOrderInput').value = order;
+
+        calculateEditOfferPricing();
+
+        const modal = new bootstrap.Modal(document.getElementById('editOfferModal'));
+        modal.show();
+    }
+
+    function confirmDeleteOffer(id, name) {
+        document.getElementById('deleteOfferIdInput').value = id;
+        document.getElementById('deleteOfferNameDisplay').innerText = name;
+        const modal = new bootstrap.Modal(document.getElementById('deleteOfferModal'));
+        modal.show();
+    }
+
+    function executeDeleteOffer() {
+        document.getElementById('deleteOfferFormGlobal').submit();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Save current tab in localStorage so refresh preserves active tab
+        const tabLinks = document.querySelectorAll('#homeControlTabs button[data-bs-toggle="pill"]');
+        const activeTabKey = 'roven_home_control_active_tab';
+
+        const savedTab = localStorage.getItem(activeTabKey);
+        if (savedTab) {
+            const triggerEl = document.querySelector(`#homeControlTabs button[data-bs-target="${savedTab}"]`);
+            if (triggerEl) {
+                new bootstrap.Tab(triggerEl).show();
+            }
+        }
+
+        tabLinks.forEach(btn => {
+            btn.addEventListener('shown.bs.tab', function (e) {
+                const target = e.target.getAttribute('data-bs-target');
+                if (target) {
+                    localStorage.setItem(activeTabKey, target);
+                }
+            });
+        });
+    });
+</script>
+}

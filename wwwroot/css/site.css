@@ -1,0 +1,882 @@
+/* ==========================================================================
+   ROVEN Haute Parfumerie - Atelier & Executive Dashboard Stylesheet
+   Strict 4-Color Luxury Palette:
+     #630000 (Deep Burgundy)
+     #810100 (Rich Crimson)
+     #1B1717 (Charcoal Jet)
+     #EDEBDD (Warm Linen / Cream)
+   ========================================================================== */
+
+:root {
+    --roven-burgundy: #630000;
+    --roven-crimson: #810100;
+    --roven-charcoal: #1B1717;
+    --roven-cream: #EDEBDD;
+
+    --primary-color: #630000;
+    --primary-hover: #810100;
+    --primary-light: #EDEBDD;
+    
+    --sidebar-bg: #1B1717;
+    --sidebar-text: #EDEBDD;
+    --sidebar-text-hover: #ffffff;
+    --sidebar-item-hover: rgba(99, 0, 0, 0.3);
+    --sidebar-item-active: #630000;
+    --sidebar-width: 260px;
+    --topbar-height: 68px;
+    
+    --body-bg: #FAF9F5;
+    --card-bg: #ffffff;
+    --border-color: #e8e3d5;
+    --text-main: #1B1717;
+    --text-muted: #6c6358;
+    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+    /* Bootstrap 5 Theme Overrides (Strict 4-Color ROVEN Identity - Zero Blue) */
+    --bs-primary: #630000;
+    --bs-primary-rgb: 99, 0, 0;
+    --bs-link-color: #630000;
+    --bs-link-hover-color: #810100;
+    --bs-pagination-color: #1B1717;
+    --bs-pagination-bg: #FAF9F5;
+    --bs-pagination-border-color: #dcd7c7;
+    --bs-pagination-hover-color: #630000;
+    --bs-pagination-hover-bg: #EDEBDD;
+    --bs-pagination-hover-border-color: #630000;
+    --bs-pagination-focus-color: #630000;
+    --bs-pagination-focus-bg: #EDEBDD;
+    --bs-pagination-focus-box-shadow: 0 0 0 0.2rem rgba(99, 0, 0, 0.2);
+    --bs-pagination-active-color: #EDEBDD;
+    --bs-pagination-active-bg: #630000;
+    --bs-pagination-active-border-color: #810100;
+    --bs-pagination-disabled-color: #c7c1b5;
+    --bs-pagination-disabled-bg: #FAF9F5;
+    --bs-pagination-disabled-border-color: #eee9dc;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--body-bg);
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   App Layout Structure
+   -------------------------------------------------------------------------- */
+.app-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Navigation */
+.app-sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    flex-shrink: 0;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s ease;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(237, 235, 221, 0.1);
+    box-shadow: 4px 0 20px rgba(27, 23, 23, 0.2);
+}
+
+.sidebar-brand-wrapper {
+    background-color: #EDEBDD;
+    padding: 1.25rem 1rem;
+    border-bottom: 2px solid #630000;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+.sidebar-brand-wrapper img {
+    max-height: 46px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.25s ease;
+}
+
+.sidebar-brand-wrapper a:hover img {
+    transform: scale(1.04);
+}
+
+/* ==========================================================================
+   Luxury ROVEN Custom Scrollbar (Sidebar & Workspace)
+   ========================================================================== */
+.sidebar-nav {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.75rem 0.85rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(237, 235, 221, 0.22) transparent;
+}
+
+/* WebKit Custom Scrollbar for Sidebar (Chrome, Edge, Brave, Safari) */
+.sidebar-nav::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent !important;
+    border-radius: 8px;
+    margin: 4px 0;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(237, 235, 221, 0.2) !important;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: #810100 !important;
+    box-shadow: 0 0 6px rgba(129, 1, 0, 0.6);
+}
+
+.sidebar-nav::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Global Luxury Scrollbar for Tables, Modals, and Main Workspace */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(27, 23, 23, 0.04);
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(99, 0, 0, 0.28);
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #630000;
+}
+
+::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.sidebar-section-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08rem;
+    color: #EDEBDD;
+    opacity: 0.45;
+    padding: 0.85rem 0.75rem 0.35rem;
+}
+
+.sidebar-nav .nav-link {
+    color: #EDEBDD;
+    opacity: 0.82;
+    padding: 0.65rem 0.95rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    margin-bottom: 0.25rem;
+    text-decoration: none;
+}
+
+.sidebar-nav .nav-link i {
+    font-size: 1.05rem;
+    margin-right: 0.75rem;
+    width: 1.5rem;
+    text-align: center;
+    color: #d8d4c3;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-nav .nav-link:hover {
+    color: #ffffff;
+    opacity: 1;
+    background-color: rgba(99, 0, 0, 0.3);
+    transform: translateX(3px);
+}
+
+.sidebar-nav .nav-link:hover i {
+    color: #ffffff;
+}
+
+.sidebar-nav .nav-link.active {
+    color: #EDEBDD;
+    opacity: 1;
+    font-weight: 700;
+    background: linear-gradient(135deg, #630000 0%, #810100 100%);
+    box-shadow: 0 4px 14px rgba(99, 0, 0, 0.45);
+}
+
+.sidebar-nav .nav-link.active i {
+    color: #EDEBDD;
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(237, 235, 221, 0.1);
+    background-color: #161212;
+}
+
+/* Main Container */
+.app-main {
+    flex-grow: 1;
+    margin-left: var(--sidebar-width);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Desktop Sidebar Closed / Expanded Full Width Mode */
+@media (min-width: 992px) {
+    body.sidebar-closed .app-sidebar {
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+
+    body.sidebar-closed .app-main {
+        margin-left: 0 !important;
+    }
+}
+
+/* Unified Sidebar Toggle & Internal Close Buttons */
+.sidebar-toggle-btn {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background-color: #FAF9F5;
+    border: 1px solid #dcd7c7;
+    color: #630000;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.sidebar-toggle-btn:hover {
+    background-color: #EDEBDD !important;
+    border-color: #630000 !important;
+    transform: scale(1.05);
+}
+
+body.sidebar-closed .sidebar-toggle-btn {
+    background-color: #EDEBDD !important;
+    border-color: #630000 !important;
+    box-shadow: 0 2px 8px rgba(99, 0, 0, 0.15);
+}
+
+.sidebar-internal-close-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(99, 0, 0, 0.12);
+    color: #630000;
+    border: 1px solid rgba(99, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.sidebar-internal-close-btn:hover {
+    background: #630000;
+    color: #EDEBDD;
+    transform: scale(1.1);
+}
+
+/* Top Navbar */
+.app-topbar {
+    height: var(--topbar-height);
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.75rem;
+    box-shadow: 0 2px 10px rgba(27, 23, 23, 0.03);
+}
+
+.topbar-search {
+    position: relative;
+    width: 320px;
+}
+
+.topbar-search input {
+    background-color: #FAF9F5;
+    border: 1px solid #dcd7c7;
+    border-radius: 2rem;
+    padding-left: 2.35rem;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    transition: all 0.2s ease;
+}
+
+.topbar-search input:focus {
+    background-color: #ffffff;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(99, 0, 0, 0.12) !important;
+    outline: none;
+}
+
+.topbar-search .search-icon {
+    position: absolute;
+    left: 0.95rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+/* Content Area */
+.app-content {
+    flex-grow: 1;
+    padding: 2rem;
+}
+
+/* App Footer */
+.app-footer {
+    background-color: #ffffff;
+    border-top: 1px solid var(--border-color);
+    padding: 1.15rem 2rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* --------------------------------------------------------------------------
+   Cards, Badges, and Reusable UI Components
+   -------------------------------------------------------------------------- */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    box-shadow: 0 4px 15px rgba(27, 23, 23, 0.04);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 25px rgba(27, 23, 23, 0.07);
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.15rem 1.4rem;
+    font-weight: 700;
+}
+
+/* Metric / Stat KPI Card */
+.stat-card {
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.4rem;
+    background-color: #ffffff;
+    box-shadow: 0 4px 15px rgba(27, 23, 23, 0.04);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 0, 0, 0.08);
+    border-color: rgba(99, 0, 0, 0.25);
+}
+
+.stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    transition: transform 0.25s ease;
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.08);
+}
+
+.stat-icon.primary {
+    background-color: #EDEBDD;
+    color: #630000;
+    border: 1px solid rgba(99, 0, 0, 0.15);
+}
+
+.stat-icon.success {
+    background-color: #EDEBDD;
+    color: #810100;
+    border: 1px solid rgba(129, 1, 0, 0.15);
+}
+
+.stat-icon.warning {
+    background-color: #EDEBDD;
+    color: #630000;
+    border: 1px solid rgba(99, 0, 0, 0.15);
+}
+
+.stat-icon.info {
+    background-color: #EDEBDD;
+    color: #810100;
+    border: 1px solid rgba(129, 1, 0, 0.15);
+}
+
+.stat-trend {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 1rem;
+}
+
+.stat-trend.up {
+    background-color: #EDEBDD;
+    color: #630000;
+}
+
+.stat-trend.down {
+    background-color: #fee2e2;
+    color: #810100;
+}
+
+/* Tables */
+.table {
+    margin-bottom: 0;
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+.table th {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #630000;
+    background-color: #EDEBDD;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.85rem 1.15rem;
+}
+
+.table td {
+    padding: 0.95rem 1.15rem;
+    border-bottom: 1px solid #f1ece2;
+    font-size: 0.88rem;
+}
+
+/* --------------------------------------------------------------------------
+   Global Button & Badge Overrides (Zero Blue, 100% ROVEN Colors)
+   -------------------------------------------------------------------------- */
+.btn-primary {
+    background: linear-gradient(135deg, #630000 0%, #810100 100%) !important;
+    border-color: #810100 !important;
+    color: #EDEBDD !important;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(99, 0, 0, 0.25);
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background: linear-gradient(135deg, #810100 0%, #630000 100%) !important;
+    border-color: #630000 !important;
+    color: #EDEBDD !important;
+    box-shadow: 0 6px 18px rgba(129, 1, 0, 0.35);
+    transform: translateY(-1px);
+}
+
+/* Global ROVEN Wine Button */
+.btn-roven-wine {
+    background: linear-gradient(135deg, #630000 0%, #810100 100%) !important;
+    border: 1px solid #810100 !important;
+    color: #EDEBDD !important;
+    transition: all 0.25s ease !important;
+    box-shadow: 0 4px 12px rgba(99, 0, 0, 0.18);
+}
+
+.btn-roven-wine:hover,
+.btn-roven-wine:focus {
+    background: #810100 !important;
+    border-color: #630000 !important;
+    color: #ffffff !important;
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 18px rgba(129, 1, 0, 0.35);
+}
+
+.btn-roven-wine i {
+    color: #EDEBDD !important;
+}
+
+.btn-roven-wine:hover i {
+    color: #ffffff !important;
+}
+
+.btn-outline-primary {
+    border-color: #630000 !important;
+    color: #630000 !important;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+    background-color: #630000 !important;
+    border-color: #630000 !important;
+    color: #EDEBDD !important;
+}
+
+.btn-outline-danger {
+    border-color: #810100 !important;
+    color: #810100 !important;
+    font-weight: 600;
+}
+
+.btn-outline-danger:hover {
+    background-color: #810100 !important;
+    border-color: #810100 !important;
+    color: #EDEBDD !important;
+}
+
+/* Form Controls Focus - Zero Blue Outline */
+.form-control:focus, .form-select:focus {
+    border-color: #630000 !important;
+    box-shadow: 0 0 0 0.25rem rgba(99, 0, 0, 0.12) !important;
+    outline: none !important;
+}
+
+/* Primary Utility Class Overrides */
+.text-primary {
+    color: #630000 !important;
+}
+
+.bg-primary {
+    background-color: #630000 !important;
+    color: #EDEBDD !important;
+}
+
+.bg-primary-subtle {
+    background-color: #EDEBDD !important;
+    color: #630000 !important;
+}
+
+.border-primary {
+    border-color: #630000 !important;
+}
+
+.border-primary-subtle {
+    border-color: rgba(99, 0, 0, 0.2) !important;
+}
+
+/* Sub-badges for luxury */
+.badge-roven-burgundy {
+    background-color: #630000;
+    color: #EDEBDD;
+}
+
+.badge-roven-cream {
+    background-color: #EDEBDD;
+    color: #630000;
+    border: 1px solid rgba(99, 0, 0, 0.15);
+}
+
+/* Auth Pages (Login, AccessDenied) */
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1B1717 0%, #291818 100%);
+    padding: 1.5rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 440px;
+    background: #ffffff;
+    border-radius: 1.25rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    padding: 2.5rem;
+    border: 1px solid #e8e3d5;
+}
+
+.auth-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.auth-brand img {
+    max-height: 52px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Behavior (Mobile / Tablet Off-canvas)
+   -------------------------------------------------------------------------- */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(27, 23, 23, 0.6);
+    z-index: 1030;
+    backdrop-filter: blur(3px);
+}
+
+@media (max-width: 991.98px) {
+    .app-sidebar {
+        transform: translateX(-100%);
+    }
+
+    .app-sidebar.show {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    .app-main {
+        margin-left: 0;
+    }
+
+    .topbar-search {
+        display: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   ROVEN Table Action Buttons (Clean, Isolated Luxury Rounded Buttons)
+   -------------------------------------------------------------------------- */
+.roven-table-actions,
+.table td .btn-group {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+}
+
+.roven-table-actions form,
+.table td .btn-group > form {
+    display: inline-flex !important;
+    margin: 0 !important;
+}
+
+.roven-action-btn,
+.table td .btn-group > .btn,
+.table td .btn-group > form > .btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+    margin: 0 !important;
+    font-size: 0.85rem !important;
+    line-height: 1 !important;
+    background-color: #FAF9F5 !important;
+    border: 1px solid #dcd7c7 !important;
+    color: #1B1717 !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 1px 2px rgba(27, 23, 23, 0.04) !important;
+    text-decoration: none !important;
+    flex-shrink: 0;
+}
+
+.roven-action-btn i,
+.roven-action-btn svg,
+.table td .btn-group > .btn i,
+.table td .btn-group > .btn svg,
+.table td .btn-group > form > .btn i,
+.table td .btn-group > form > .btn svg {
+    line-height: 1;
+    display: inline-block;
+    font-size: 0.85rem;
+}
+
+.roven-action-btn:hover,
+.table td .btn-group > .btn:hover,
+.table td .btn-group > form > .btn:hover {
+    background-color: #EDEBDD !important;
+    border-color: #630000 !important;
+    color: #630000 !important;
+    transform: translateY(-1.5px);
+    box-shadow: 0 3px 8px rgba(99, 0, 0, 0.15) !important;
+}
+
+/* Specific Action Variants */
+.roven-action-btn.roven-action-view,
+.table td .btn-group .btn[title*="View"],
+.table td .btn-group .btn[title*="Details"] {
+    color: #630000 !important;
+}
+.roven-action-btn.roven-action-view:hover,
+.table td .btn-group .btn[title*="View"]:hover,
+.table td .btn-group .btn[title*="Details"]:hover {
+    background-color: #630000 !important;
+    border-color: #630000 !important;
+    color: #EDEBDD !important;
+}
+
+.roven-action-btn.roven-action-edit,
+.table td .btn-group .btn[title*="Edit"] {
+    color: #810100 !important;
+}
+.roven-action-btn.roven-action-edit:hover,
+.table td .btn-group .btn[title*="Edit"]:hover {
+    background-color: #810100 !important;
+    border-color: #810100 !important;
+    color: #EDEBDD !important;
+}
+
+.roven-action-btn.roven-action-delete,
+.table td .btn-group form .btn.text-danger,
+.table td .btn-group .btn.text-danger,
+.table td .btn-group .btn-delete,
+.table td .btn-group .btn-delete-customer {
+    background-color: #fff1f0 !important;
+    border-color: rgba(129, 1, 0, 0.22) !important;
+    color: #810100 !important;
+}
+
+.roven-action-btn.roven-action-delete:hover,
+.table td .btn-group form .btn.text-danger:hover,
+.table td .btn-group .btn.text-danger:hover,
+.table td .btn-group .btn-delete:hover,
+.table td .btn-group .btn-delete-customer:hover {
+    background-color: #810100 !important;
+    border-color: #810100 !important;
+    color: #EDEBDD !important;
+    box-shadow: 0 3px 8px rgba(129, 1, 0, 0.25) !important;
+}
+
+.table td .btn-group .btn.text-primary {
+    color: #630000 !important;
+}
+
+.table td .btn-group .btn.text-primary:hover {
+    background-color: #630000 !important;
+    border-color: #630000 !important;
+    color: #EDEBDD !important;
+}
+
+.table td .btn-group .btn.text-warning {
+    color: #b45309 !important;
+}
+
+.table td .btn-group .btn.text-warning:hover {
+    background-color: #fef3c7 !important;
+    border-color: #d97706 !important;
+    color: #92400e !important;
+}
+
+.table td .btn-group .btn.text-success {
+    color: #15803d !important;
+}
+
+.table td .btn-group .btn.text-success:hover {
+    background-color: #dcfce7 !important;
+    border-color: #16a34a !important;
+    color: #14532d !important;
+}
+
+/* --------------------------------------------------------------------------
+   ROVEN Table Pagination Controls (Strict 4-Color Luxury Palette - Zero Blue)
+   -------------------------------------------------------------------------- */
+.table-pagination-nav {
+    margin-top: 0.25rem;
+}
+
+.pagination,
+.table-pagination-controls {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 5px !important;
+    margin-bottom: 0 !important;
+    padding-left: 0;
+    list-style: none;
+}
+
+.pagination .page-item,
+.table-pagination-controls .page-item {
+    margin: 0 !important;
+}
+
+.pagination .page-item .page-link,
+.table-pagination-controls .page-item .page-link {
+    border-radius: 8px !important;
+    margin-left: 0 !important;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1B1717 !important;
+    background-color: #FAF9F5 !important;
+    border: 1px solid #dcd7c7 !important;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(27, 23, 23, 0.04);
+    text-decoration: none;
+}
+
+.pagination .page-item .page-link:hover,
+.table-pagination-controls .page-item .page-link:hover {
+    background-color: #EDEBDD !important;
+    color: #630000 !important;
+    border-color: #630000 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(99, 0, 0, 0.15);
+}
+
+.pagination .page-item.active .page-link,
+.table-pagination-controls .page-item.active .page-link {
+    background: linear-gradient(135deg, #630000 0%, #810100 100%) !important;
+    border-color: #810100 !important;
+    color: #EDEBDD !important;
+    box-shadow: 0 3px 8px rgba(99, 0, 0, 0.3) !important;
+    cursor: default;
+}
+
+.pagination .page-item.disabled .page-link,
+.table-pagination-controls .page-item.disabled .page-link {
+    background-color: #FAF9F5 !important;
+    color: #c7c1b5 !important;
+    border-color: #eee9dc !important;
+    pointer-events: none;
+    opacity: 0.45;
+    box-shadow: none;
+}

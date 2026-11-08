@@ -1,0 +1,430 @@
+@model Stockify.ViewModels.Users.UserIndexViewModel
+@using Stockify.Common.Constants
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<!-- Header -->
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Users & Access Control</h3>
+        <p class="text-muted mb-0 small">إدارة مستخدمي ومسؤولي النظام، توزيع الأدوار والصلاحيات، وتحديد الصفحات المسموحة في الداشبورد.</p>
+    </div>
+    <div>
+        <a asp-controller="Users" asp-action="Create" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm px-4 py-2" style="background: #810100; border-color: #810100;">
+            <i class="fa-solid fa-user-plus"></i>
+            <span class="fw-bold">Add User</span>
+        </a>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-circle-check text-success me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+        <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3 bg-white">
+            <span class="text-muted small fw-semibold">إجمالي المستخدمين</span>
+            <h4 class="fw-bold text-dark mb-0 mt-1">@Model.TotalUsers <small class="fs-6 text-muted">حسابات</small></h4>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3 bg-white">
+            <span class="text-muted small fw-semibold">الحسابات النشطة</span>
+            <h4 class="fw-bold text-success mb-0 mt-1">@Model.ActiveUsers <small class="fs-6 text-muted">نشط</small></h4>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3 bg-white">
+            <span class="text-muted small fw-semibold">المديرون (Admins)</span>
+            <h4 class="fw-bold text-danger mb-0 mt-1">@Model.AdminCount <small class="fs-6 text-muted">مدير</small></h4>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm p-3 bg-white">
+            <span class="text-muted small fw-semibold">فريق المبيعات (Sales)</span>
+            <h4 class="fw-bold text-primary mb-0 mt-1">@Model.EmployeeCount <small class="fs-6 text-muted">موظف</small></h4>
+        </div>
+    </div>
+</div>
+
+<!-- Table Card -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3">
+        <form method="get" asp-action="Index" class="row g-2 align-items-center">
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" name="search" value="@Model.SearchTerm" class="form-control border-start-0" placeholder="Search user by name or email..." />
+                    @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
+                    {
+                        <a asp-action="Index" class="btn btn-outline-secondary border-start-0">إلغاء</a>
+                    }
+                    <button type="submit" class="btn btn-outline-dark px-3">بحث</button>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 text-md-end">
+                <span class="badge bg-warning-subtle text-dark border border-warning-subtle py-2 px-3">
+                    <i class="fa-solid fa-lock me-1"></i> Admin-Only Access & Permissions
+                </span>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">USER</th>
+                    <th>ROLE</th>
+                    <th>ACCOUNT STATUS</th>
+                    <th>PERMISSIONS (DASHBOARD)</th>
+                    <th>CREATED AT</th>
+                    <th class="text-end pe-4">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Users.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            لا يوجد مستخدمون يطابقون معايير البحث.
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var u in Model.Users)
+                    {
+                        var isAdmin = (u.Role == Roles.Admin);
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" 
+                                         style="width: 40px; height: 40px; font-size: 0.85rem; background: @(isAdmin ? "#810100" : "#1B1717");">
+                                        @u.Initials
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark d-flex align-items-center gap-2">
+                                            @u.FullName
+                                            @if (u.IsCurrentUser)
+                                            {
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.65rem;">أنت</span>
+                                            }
+                                        </div>
+                                        <span class="text-muted small">@u.Email</span>
+                                        @if (!string.IsNullOrEmpty(u.PhoneNumber))
+                                        {
+                                            <div class="text-muted small" style="font-size: 0.75rem;"><i class="fa-solid fa-phone me-1"></i>@u.PhoneNumber</div>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @if (isAdmin)
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1.5 fw-bold">
+                                        <i class="fa-solid fa-shield-halved me-1"></i>Administrator
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1.5 fw-bold">
+                                        <i class="fa-solid fa-user-tag me-1"></i>Employee (Sales)
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <span id="status-badge-@u.Id" class="badge @(u.IsActive ? "bg-success-subtle text-success border border-success-subtle" : "bg-secondary-subtle text-secondary border") px-2.5 py-1.5">
+                                    <i class="fa-solid @(u.IsActive ? "fa-circle-check text-success" : "fa-circle-minus text-secondary") me-1"></i>
+                                    <span>@(u.IsActive ? "Active" : "Inactive")</span>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1 align-items-center" style="max-width: 260px;">
+                                    @if (u.GrantedPermissions.Count == Permissions.All.Count)
+                                    {
+                                        <span class="badge bg-dark text-warning border border-warning-subtle px-2 py-1">
+                                            <i class="fa-solid fa-crown me-1 text-warning"></i>كافة الصلاحيات (Full Access)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var perm in u.GrantedPermissions.Take(3))
+                                        {
+                                            <span class="badge bg-light text-dark border font-monospace" style="font-size: 0.72rem;">@perm</span>
+                                        }
+                                        @if (u.GrantedPermissions.Count > 3)
+                                        {
+                                            <span class="badge bg-secondary-subtle text-secondary border" style="font-size: 0.72rem;">+@(u.GrantedPermissions.Count - 3) إضافية</span>
+                                        }
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-muted small">
+                                @u.CreatedAt.ToEgyptTimeString("MMM dd, yyyy")
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group btn-group-sm">
+                                    <!-- Edit User & Permissions -->
+                                    <a asp-action="Edit" asp-route-id="@u.Id" class="btn btn-outline-secondary" title="تعديل البيانات والصلاحيات">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+
+                                    <!-- Reset Password -->
+                                    <button type="button" class="btn btn-outline-warning btn-reset-password" 
+                                            data-user-id="@u.Id" 
+                                            data-user-name="@u.FullName" 
+                                            title="إعادة تعيين كلمة المرور">
+                                        <i class="fa-solid fa-key"></i>
+                                    </button>
+
+                                    <!-- Toggle Active / Inactive -->
+                                    @if (!u.IsCurrentUser && !string.Equals(u.Email, "admin@roven.local", StringComparison.OrdinalIgnoreCase) && !string.Equals(u.Email, "admin@stockify.local", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <button type="button" class="btn @(u.IsActive ? "btn-outline-danger" : "btn-outline-success") btn-toggle-status" 
+                                                data-user-id="@u.Id" 
+                                                data-user-name="@u.FullName" 
+                                                data-active="@(u.IsActive ? "true" : "false")"
+                                                title="@(u.IsActive ? "تعطيل الحساب" : "تفعيل الحساب")">
+                                            <i class="fa-solid @(u.IsActive ? "fa-ban" : "fa-check")"></i>
+                                        </button>
+
+                                        <form asp-action="Delete" asp-route-id="@u.Id" method="post" class="d-inline" id="delete-user-form-@u.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="button" class="btn btn-outline-dark btn-delete-user" 
+                                                    data-form-id="delete-user-form-@u.Id" 
+                                                    data-user-name="@u.FullName" 
+                                                    title="حذف المستخدم">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center">
+        <div class="text-muted small">
+            Showing 1 to @Model.Users.Count of @Model.TotalUsers entries
+        </div>
+        <div>
+            <span class="badge bg-light text-muted border">ROVEN Security Layer Active</span>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        const token = tokenInput ? tokenInput.value : '';
+
+        // 1. Reset Password Handler via SweetAlert2
+        document.addEventListener('click', function (e) {
+            const resetBtn = e.target.closest('.btn-reset-password');
+            if (!resetBtn) return;
+            e.preventDefault();
+
+            const userId = resetBtn.getAttribute('data-user-id');
+            const userName = resetBtn.getAttribute('data-user-name') || 'المستخدم';
+
+            Swal.fire({
+                title: '<i class="fa-solid fa-key text-warning me-2"></i>تعيين كلمة مرور جديدة',
+                html: `
+                    <div class="text-start mb-2">
+                        <p class="text-muted small mb-2">إعادة تعيين كلمة المرور لحساب <strong>${userName}</strong>:</p>
+                        <label class="form-label small fw-bold text-dark">كلمة المرور الجديدة (6 أحرف على الأقل وبها رقم وحرف كبير):</label>
+                        <input type="password" id="swal-new-password" class="form-control mb-2" placeholder="••••••••" autocomplete="new-password">
+                        <label class="form-label small fw-bold text-dark">تأكيد كلمة المرور:</label>
+                        <input type="password" id="swal-confirm-password" class="form-control" placeholder="••••••••" autocomplete="new-password">
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fa-solid fa-check me-1"></i> حفظ كلمة المرور',
+                cancelButtonText: 'إلغاء',
+                customClass: {
+                    confirmButton: 'btn btn-primary px-4 py-2 fw-bold me-2',
+                    cancelButton: 'btn btn-outline-secondary px-4 py-2'
+                },
+                buttonsStyling: false,
+                preConfirm: () => {
+                    const newPass = document.getElementById('swal-new-password').value;
+                    const confirmPass = document.getElementById('swal-confirm-password').value;
+                    if (!newPass || newPass.length < 6) {
+                        Swal.showValidationMessage('يجب أن تكون كلمة المرور 6 خانات على الأقل');
+                        return false;
+                    }
+                    if (newPass !== confirmPass) {
+                        Swal.showValidationMessage('كلمتا المرور غير متطابقتين');
+                        return false;
+                    }
+                    return newPass;
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    fetch('/Users/ResetPassword', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
+                        },
+                        body: JSON.stringify({
+                            userId: userId,
+                            newPassword: result.value
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تم التغيير بنجاح',
+                                text: data.message,
+                                confirmButtonText: 'حسناً',
+                                customClass: { confirmButton: 'btn btn-success px-4 py-2' },
+                                buttonsStyling: false
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'فشل التغيير',
+                                text: data.message || 'حدث خطأ أثناء تعيين كلمة المرور',
+                                confirmButtonText: 'إغلاق',
+                                customClass: { confirmButton: 'btn btn-danger px-4 py-2' },
+                                buttonsStyling: false
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'خطأ في الاتصال',
+                            text: 'تعذر الاتصال بالخادم، يرجى المحاولة لاحقاً',
+                            confirmButtonText: 'إغلاق'
+                        });
+                    });
+                }
+            });
+        });
+
+        // 2. Toggle Status (Active / Inactive) via SweetAlert2
+        document.addEventListener('click', function (e) {
+            const toggleBtn = e.target.closest('.btn-toggle-status');
+            if (!toggleBtn) return;
+            e.preventDefault();
+
+            const userId = toggleBtn.getAttribute('data-user-id');
+            const userName = toggleBtn.getAttribute('data-user-name') || 'المستخدم';
+            const isActive = toggleBtn.getAttribute('data-active') === 'true';
+
+            const actionTitle = isActive ? 'تعطيل الحساب؟' : 'تفعيل الحساب؟';
+            const actionText = isActive
+                ? `هل أنت متأكد من رغبتك في إيقاف حساب <strong>${userName}</strong>؟ لن يتمكن من تسجيل الدخول إلى النظام حتى يعاد تفعيله.`
+                : `هل أنت متأكد من إعادة تفعيل حساب <strong>${userName}</strong>؟ سيتمكن من تسجيل الدخول واستخدام صلاحياته فوراً.`;
+            const confirmBtnText = isActive ? '<i class="fa-solid fa-ban me-1"></i> تأكيد التعطيل' : '<i class="fa-solid fa-check me-1"></i> تأكيد التفعيل';
+            const confirmBtnClass = isActive ? 'btn btn-danger px-4 py-2 fw-bold me-2' : 'btn btn-success px-4 py-2 fw-bold me-2';
+
+            Swal.fire({
+                title: actionTitle,
+                html: `<p class="text-muted mb-0">${actionText}</p>`,
+                icon: isActive ? 'warning' : 'question',
+                showCancelButton: true,
+                confirmButtonText: confirmBtnText,
+                cancelButtonText: 'إلغاء',
+                customClass: {
+                    confirmButton: confirmBtnClass,
+                    cancelButton: 'btn btn-outline-secondary px-4 py-2'
+                },
+                buttonsStyling: false
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    const formData = new FormData();
+                    formData.append('id', userId);
+                    formData.append('__RequestVerificationToken', token);
+
+                    fetch('/Users/ToggleStatus', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تم التحديث بنجاح',
+                                text: data.message,
+                                confirmButtonText: 'حسناً',
+                                customClass: { confirmButton: 'btn btn-primary px-4 py-2' },
+                                buttonsStyling: false
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'فشل الإجراء',
+                                text: data.message,
+                                confirmButtonText: 'إغلاق'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        // 3. Delete User via SweetAlert2
+        document.addEventListener('click', function (e) {
+            const delBtn = e.target.closest('.btn-delete-user');
+            if (!delBtn) return;
+            e.preventDefault();
+
+            const formId = delBtn.getAttribute('data-form-id');
+            const userName = delBtn.getAttribute('data-user-name') || 'المستخدم';
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            Swal.fire({
+                title: '<i class="fa-solid fa-trash text-danger me-2"></i>حذف المستخدم نهائياً؟',
+                html: `<p class="mb-2 text-muted">هل أنت متأكد من حذف حساب <strong>${userName}</strong>؟</p><div class="small text-danger">سيتم حذف هذا الحساب نهائياً من قاعدة البيانات ولا يمكن التراجع.</div>`,
+                icon: 'warning',
+                iconColor: '#810100',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fa-solid fa-trash me-1"></i> تأكيد الحذف',
+                cancelButtonText: 'إلغاء',
+                customClass: {
+                    confirmButton: 'btn btn-danger px-4 py-2 fw-bold me-2',
+                    cancelButton: 'btn btn-outline-secondary px-4 py-2'
+                },
+                buttonsStyling: false
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+</script>
+}

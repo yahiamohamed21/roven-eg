@@ -1,0 +1,57 @@
+## Build and compiled output
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+[Tt]emp/
+[Tt]mp/
+
+## Visual Studio & VS Code cache / user settings
+.vs/
+.vscode/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+*.ide
+*.swp
+
+## ASP.NET / IIS publish artifacts
+*.pubxml
+*.publishsettings
+PublishProfiles/
+
+## Database backups & local scratch dumps
+*.bak
+*.mdf
+*.ldf
+*.sqlite
+*.db
+StockifyDb_PreMigrationSync.bak
+seed_sample_order.sql
+audit_test_results.json
+db_schema_audit.json
+
+## Python files & virtual environments
+*.py
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.egg-info/
+.pytest_cache/
+venv/
+.venv/
+env/
+.env
+
+## Scratch and test scripts
+scratch/
+scratch_test_*.ps1
+0
+
+## OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini

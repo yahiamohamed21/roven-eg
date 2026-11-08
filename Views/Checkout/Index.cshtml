@@ -1,0 +1,611 @@
+@model Stockify.ViewModels.Store.CheckoutViewModel
+@{
+    Layout = "_StoreLayout";
+    ViewData["Title"] = "Checkout";
+}
+
+<style>
+    /* Maison ROVEN Luxury Governorate Selector */
+    .roven-gov-picker {
+        position: relative;
+    }
+
+    .roven-gov-trigger {
+        background-color: #FAF9F5 !important;
+        border: 1.5px solid #dcd7c7 !important;
+        min-height: 46px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-align: right;
+        box-shadow: 0 1px 3px rgba(27, 23, 23, 0.03);
+    }
+
+    .roven-gov-trigger:hover {
+        border-color: #630000 !important;
+        background-color: #ffffff !important;
+        box-shadow: 0 2px 8px rgba(99, 0, 0, 0.08) !important;
+    }
+
+    .roven-gov-picker.is-open .roven-gov-trigger {
+        border-color: #630000 !important;
+        background-color: #ffffff !important;
+        box-shadow: 0 0 0 3px rgba(99, 0, 0, 0.12) !important;
+    }
+
+    .roven-gov-picker.is-open #customGovChevron {
+        transform: rotate(180deg);
+    }
+
+    #customGovChevron {
+        transition: transform 0.25s ease;
+    }
+
+    .roven-gov-dropdown {
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 1060;
+        background: #ffffff;
+        border: 1.5px solid #e8e3d5;
+        box-shadow: 0 14px 35px rgba(27, 23, 23, 0.12) !important;
+        animation: rovenGovFade 0.2s ease forwards;
+    }
+
+    @@keyframes rovenGovFade {
+        from {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .roven-gov-list {
+        max-height: 240px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(99, 0, 0, 0.25) transparent;
+    }
+
+    .roven-gov-list::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .roven-gov-list::-webkit-scrollbar-thumb {
+        background: rgba(99, 0, 0, 0.22);
+        border-radius: 8px;
+    }
+
+    .roven-gov-list::-webkit-scrollbar-thumb:hover {
+        background: #630000;
+    }
+
+    .roven-gov-item {
+        cursor: pointer;
+        padding: 0.65rem 1rem;
+        transition: all 0.15s ease;
+        border-bottom: 1px solid rgba(232, 227, 213, 0.4);
+    }
+
+    .roven-gov-item:last-child {
+        border-bottom: none;
+    }
+
+    .roven-gov-item:hover {
+        background-color: rgba(99, 0, 0, 0.05);
+    }
+
+    .roven-gov-item:hover .gov-item-name {
+        color: #630000 !important;
+        transform: translateX(-2px);
+    }
+
+    .roven-gov-item.active {
+        background-color: rgba(99, 0, 0, 0.08);
+    }
+
+    .roven-gov-item.active .gov-item-name {
+        color: #630000 !important;
+        font-weight: 700 !important;
+    }
+
+    .gov-item-name {
+        transition: transform 0.15s ease, color 0.15s ease;
+        font-size: 0.95rem;
+    }
+</style>
+
+<div class="container py-4">
+    <!-- Luxury Maison ROVEN Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <div class="roven-breadcrumb-nav">
+            <a asp-controller="Home" asp-action="Index">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+            <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+            <a asp-controller="Cart" asp-action="Index">Cart</a>
+            <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+            <span class="breadcrumb-current">Checkout</span>
+        </div>
+    </nav>
+
+    <div class="mb-4">
+        <h3 class="fw-bold text-dark mb-1"><i class="bi bi-shield-check text-success me-2"></i>Secure Guest Checkout</h3>
+        <p class="text-muted mb-0 small">No account needed. Provide delivery details and pay with cash upon receiving your order.</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger shadow-sm mb-4">
+            <div class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i>Please fix the following:</div>
+            <div asp-validation-summary="All" class="text-danger small mb-0"></div>
+        </div>
+    }
+
+    <form asp-action="PlaceOrder" method="post" id="checkout-form">
+        @Html.AntiForgeryToken()
+
+        <div class="row g-4">
+            <!-- Left: Shipping & Recipient Details -->
+            <div class="col-12 col-lg-7">
+                <div class="card border-0 shadow-sm p-4 mb-4">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-truck text-primary me-2"></i>1. Shipping & Contact Information
+                    </h5>
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="CustomerName" class="form-label small fw-semibold text-secondary">Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="CustomerName" class="form-control" placeholder="e.g. Yahia Mohamed" />
+                            <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <label asp-for="CustomerPhone" class="form-label small fw-semibold text-secondary">Mobile Phone Number <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted small">+20</span>
+                                <input asp-for="CustomerPhone" class="form-control" placeholder="010XXXXXXXX" />
+                            </div>
+                            <span asp-validation-for="CustomerPhone" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <label asp-for="CustomerEmail" class="form-label small fw-semibold text-secondary">Email Address (Optional)</label>
+                            <input asp-for="CustomerEmail" class="form-control" placeholder="name@example.com" />
+                            <span asp-validation-for="CustomerEmail" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-md-7">
+                            <label asp-for="ShippingAddress" class="form-label small fw-semibold text-secondary">العنوان بالتفصيل / Delivery Address <span class="text-danger">*</span></label>
+                            <input asp-for="ShippingAddress" class="form-control rounded-3 py-2" placeholder="الشارع، رقم العمارة، الشقة / علامة مميزة..." />
+                            <span asp-validation-for="ShippingAddress" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-md-5">
+                            <label asp-for="City" class="form-label small fw-semibold text-secondary">
+                                المحافظة / Governorate <span class="text-danger">*</span>
+                            </label>
+
+                            <!-- Hidden Native Select (Synchronized for ModelBinding & Validation) -->
+                            <select asp-for="City" id="cityGovernorateSelect" class="d-none" required onchange="onGovernorateChanged()">
+                                @if (Model.AvailableGovernorates != null && Model.AvailableGovernorates.Any())
+                                {
+                                    @foreach (var gov in Model.AvailableGovernorates)
+                                    {
+                                        var isSelected = Model.City == gov.NameAr || Model.City == gov.NameEn;
+                                        <option value="@gov.NameAr" data-name-en="@gov.NameEn" data-fee="@gov.ShippingFee" data-delivery="@(gov.DeliveryTime ?? "1-3 أيام عمل")" selected="@(isSelected ? "selected" : null)">
+                                            @gov.NameAr
+                                        </option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="القاهرة" data-fee="50" selected>القاهرة</option>
+                                    <option value="الجيزة" data-fee="50">الجيزة</option>
+                                    <option value="الإسكندرية" data-fee="65">الإسكندرية</option>
+                                }
+                            </select>
+
+                            <!-- Custom Luxury Governorate Selector Box -->
+                            <div class="roven-gov-picker position-relative" id="customGovPicker">
+                                <button type="button" class="roven-gov-trigger form-control d-flex align-items-center justify-content-between py-2 px-3 rounded-3" id="customGovTrigger" aria-expanded="false">
+                                    <span class="d-flex align-items-center gap-2 overflow-hidden">
+                                        <i class="fa-solid fa-location-dot" style="color: #630000; font-size: 1.05rem;"></i>
+                                        <span class="fw-bold text-dark text-truncate" id="customGovDisplay">
+                                            @(string.IsNullOrWhiteSpace(Model.City) ? "القاهرة" : Model.City)
+                                        </span>
+                                    </span>
+                                    <span class="d-flex align-items-center gap-2 ms-2">
+                                        <i class="fa-solid fa-chevron-down text-muted small" id="customGovChevron"></i>
+                                    </span>
+                                </button>
+
+                                <!-- Dropdown Menu -->
+                                <div class="roven-gov-dropdown position-absolute w-100 rounded-4 overflow-hidden d-none" id="customGovDropdown">
+                                    <!-- Search Filter Box -->
+                                    <div class="p-2 border-bottom" style="background-color: #FAF9F5;">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-white border-end-0" style="border-color: #dcd7c7; color: #630000;">
+                                                <i class="fa-solid fa-magnifying-glass"></i>
+                                            </span>
+                                            <input type="text" id="customGovSearchInput" class="form-control border-start-0" placeholder="ابحث عن اسم المحافظة..." style="border-color: #dcd7c7; font-size: 0.85rem;" autocomplete="off" />
+                                        </div>
+                                    </div>
+
+                                    <!-- Governorates List -->
+                                    <div class="roven-gov-list py-1" id="customGovList">
+                                        @if (Model.AvailableGovernorates != null && Model.AvailableGovernorates.Any())
+                                        {
+                                            @foreach (var gov in Model.AvailableGovernorates)
+                                            {
+                                                var isSelected = (string.IsNullOrWhiteSpace(Model.City) && gov.NameAr == "القاهرة") || Model.City == gov.NameAr || Model.City == gov.NameEn;
+                                                <div class="roven-gov-item d-flex align-items-center justify-content-between px-3 py-2 @(isSelected ? "active" : "")" 
+                                                     data-value="@gov.NameAr" 
+                                                     data-fee="@gov.ShippingFee" 
+                                                     data-delivery="@(gov.DeliveryTime ?? "1-3 أيام عمل")">
+                                                    <span class="gov-item-name text-dark fw-semibold">@gov.NameAr</span>
+                                                    <i class="fa-solid fa-circle-check text-success gov-check-icon @(isSelected ? "" : "d-none")" style="color: #16a34a !important;"></i>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="roven-gov-item d-flex align-items-center justify-content-between px-3 py-2 active" data-value="القاهرة" data-fee="50" data-delivery="1-2 أيام عمل">
+                                                <span class="gov-item-name text-dark fw-semibold">القاهرة</span>
+                                                <i class="fa-solid fa-circle-check text-success gov-check-icon" style="color: #16a34a !important;"></i>
+                                            </div>
+                                            <div class="roven-gov-item d-flex align-items-center justify-content-between px-3 py-2" data-value="الجيزة" data-fee="50" data-delivery="1-2 أيام عمل">
+                                                <span class="gov-item-name text-dark fw-semibold">الجيزة</span>
+                                                <i class="fa-solid fa-circle-check text-success gov-check-icon d-none" style="color: #16a34a !important;"></i>
+                                            </div>
+                                            <div class="roven-gov-item d-flex align-items-center justify-content-between px-3 py-2" data-value="الإسكندرية" data-fee="65" data-delivery="2-3 أيام عمل">
+                                                <span class="gov-item-name text-dark fw-semibold">الإسكندرية</span>
+                                                <i class="fa-solid fa-circle-check text-success gov-check-icon d-none" style="color: #16a34a !important;"></i>
+                                            </div>
+                                        }
+                                        <div id="noGovFoundMsg" class="p-3 text-center text-muted small d-none">
+                                            <i class="fa-solid fa-magnifying-glass me-1"></i> لا توجد محافظة بهذا الاسم
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                            <div id="govDeliveryTimeHint" class="small text-muted mt-1" style="font-size: 0.75rem;">
+                                <i class="fa-regular fa-clock me-1 text-secondary"></i>مدة التوصيل: <span id="deliveryTimeText" class="fw-semibold text-dark">1-2 أيام عمل</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="OrderNotes" class="form-label small fw-semibold text-secondary">Delivery Instructions / Notes (Optional)</label>
+                            <textarea asp-for="OrderNotes" class="form-control" rows="2" placeholder="e.g. Leave with security, call before arrival..."></textarea>
+                            <span asp-validation-for="OrderNotes" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Selection Card -->
+                <div class="card border-0 shadow-sm p-4">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-wallet2 text-success me-2"></i>2. Payment Method
+                    </h5>
+
+                    <div class="form-check p-3 border rounded-3 bg-light d-flex align-items-center gap-3">
+                        <input class="form-check-input ms-0" type="radio" asp-for="PaymentMethod" value="Cash on Delivery" id="pay-cod" checked />
+                        <label class="form-check-label w-100" for="pay-cod">
+                            <div class="fw-bold text-dark d-flex align-items-center justify-content-between">
+                                <span>Cash on Delivery (COD)</span>
+                                <i class="bi bi-cash-stack text-success fs-4"></i>
+                            </div>
+                            <div class="small text-muted">Pay in Egyptian Pounds when the shipment arrives at your doorstep.</div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Order Summary Review -->
+            <div class="col-12 col-lg-5">
+                <div class="card border-0 shadow-sm p-3 p-md-4 sticky-lg-top" style="top: 90px;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-dark mb-0">Order Review</h5>
+                        <a asp-controller="Cart" asp-action="Index" class="small text-decoration-none">Edit Cart</a>
+                    </div>
+
+                    <div class="border rounded-3 p-2 mb-3" style="max-height: 240px; overflow-y: auto;">
+                        @foreach (var item in Model.Cart.Items)
+                        {
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom last-border-0">
+                                <div>
+                                    <div class="fw-semibold text-dark small text-truncate" style="max-width: 220px;">@item.ProductName</div>
+                                    <div class="small text-muted">Qty: <strong>@item.Quantity</strong> &times; @item.UnitPrice.ToString("N2") EGP</div>
+                                </div>
+                                <div class="fw-bold text-dark small text-nowrap">
+                                    @item.LineTotal.ToString("N2") EGP
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2 small text-muted">
+                        <span>إجمالي المنتجات (Subtotal):</span>
+                        <span class="fw-bold text-dark font-monospace">@Model.Cart.Subtotal.ToString("N2") EGP</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2 small text-muted">
+                        <span class="d-flex align-items-center gap-1.5">
+                            <i class="fa-solid fa-truck-fast text-secondary"></i>
+                            <span>مصاريف الشحن (<span id="selectedGovLabel" class="fw-semibold">@Model.City</span>):</span>
+                        </span>
+                        <span class="fw-bold font-monospace" id="reviewShippingFee" style="color: #630000;">
+                            @(Model.ShippingFee > 0 ? Model.ShippingFee.ToString("N2") + " EGP" : "مجاني")
+                        </span>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Cart.AppliedCouponCode) || !string.IsNullOrEmpty(Model.CouponCode))
+                    {
+                        var code = Model.CouponCode ?? Model.Cart.AppliedCouponCode;
+                        <input type="hidden" asp-for="CouponCode" value="@code" />
+                        <div class="d-flex justify-content-between mb-2 small text-danger">
+                            <span><i class="fa-solid fa-ticket me-1"></i>خصم الكوبون (@code):</span>
+                            <span class="fw-bold font-monospace">- @Model.Cart.DiscountAmount.ToString("N2") EGP</span>
+                        </div>
+                    }
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold fs-5 text-dark">الإجمالي النهائي المطلوب:</span>
+                        <span class="fw-bold fs-4 font-monospace" id="reviewGrandTotal" style="color: #630000;">
+                            @Model.Cart.GrandTotal.ToString("N2") EGP
+                        </span>
+                    </div>
+
+                    <button type="submit" class="btn w-100 py-3 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color: #630000; color: #EDEBDD; border: 1px solid #810100;" id="btn-submit-order">
+                        <i class="fa-solid fa-gem fs-5"></i>
+                        <span>Confirm & Place Bespoke Order</span>
+                    </button>
+
+                    <div class="text-center mt-3 text-muted small">
+                        <i class="fa-solid fa-shield-halved me-1" style="color: #630000;"></i>Your information is encrypted & secured &bull; Cash on Delivery
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const cartSubtotal = @Model.Cart.Subtotal;
+        const cartDiscount = @Model.Cart.DiscountAmount;
+
+        window.onGovernorateChanged = function() {
+            const select = document.getElementById('cityGovernorateSelect');
+            if (!select) return;
+
+            const selectedOption = select.options[select.selectedIndex];
+            if (!selectedOption) return;
+
+            const fee = parseFloat(selectedOption.getAttribute('data-fee') || '0');
+            const delivery = selectedOption.getAttribute('data-delivery') || '1-3 أيام عمل';
+            const govName = selectedOption.value;
+
+            // Update UI elements
+            const deliveryText = document.getElementById('deliveryTimeText');
+            if (deliveryText) deliveryText.textContent = delivery;
+
+            const govLabel = document.getElementById('selectedGovLabel');
+            if (govLabel) govLabel.textContent = govName;
+
+            const shippingSpan = document.getElementById('reviewShippingFee');
+            if (shippingSpan) {
+                shippingSpan.textContent = fee > 0 ? (fee.toFixed(2) + ' EGP') : 'مجاني (Free)';
+            }
+
+            // Calculate live Grand Total
+            const grandTotal = Math.max(0, cartSubtotal - cartDiscount + fee);
+            const grandTotalSpan = document.getElementById('reviewGrandTotal');
+            if (grandTotalSpan) {
+                grandTotalSpan.textContent = grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
+            }
+        };
+
+        // Setup Custom Luxury Governorate Selector
+        function initCustomGovPicker() {
+            const picker = document.getElementById('customGovPicker');
+            const trigger = document.getElementById('customGovTrigger');
+            const dropdown = document.getElementById('customGovDropdown');
+            const searchInput = document.getElementById('customGovSearchInput');
+            const displaySpan = document.getElementById('customGovDisplay');
+            const select = document.getElementById('cityGovernorateSelect');
+            const items = document.querySelectorAll('.roven-gov-item');
+            const noFound = document.getElementById('noGovFoundMsg');
+
+            if (!picker || !trigger || !dropdown || !select) return;
+
+            // Sync display with initial select value
+            if (select.value && displaySpan) {
+                displaySpan.textContent = select.value;
+            }
+
+            // Toggle dropdown open/close
+            trigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const isOpen = !dropdown.classList.contains('d-none');
+                if (isOpen) {
+                    closePicker();
+                } else {
+                    openPicker();
+                }
+            });
+
+            function openPicker() {
+                dropdown.classList.remove('d-none');
+                picker.classList.add('is-open');
+                if (searchInput) {
+                    searchInput.value = '';
+                    filterGovs('');
+                    setTimeout(() => searchInput.focus(), 80);
+                }
+            }
+
+            function closePicker() {
+                dropdown.classList.add('d-none');
+                picker.classList.remove('is-open');
+            }
+
+            // Click outside to close
+            document.addEventListener('click', function(e) {
+                if (!picker.contains(e.target)) {
+                    closePicker();
+                }
+            });
+
+            // Prevent clicks inside dropdown from closing it
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // Governorate item selection
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    const govVal = this.getAttribute('data-value');
+                    
+                    // Update hidden native select
+                    select.value = govVal;
+                    if (displaySpan) displaySpan.textContent = govVal;
+
+                    // Update active item styling and check icons
+                    items.forEach(i => {
+                        i.classList.remove('active');
+                        const icon = i.querySelector('.gov-check-icon');
+                        if (icon) icon.classList.add('d-none');
+                    });
+                    this.classList.add('active');
+                    const activeIcon = this.querySelector('.gov-check-icon');
+                    if (activeIcon) activeIcon.classList.remove('d-none');
+
+                    // Trigger live shipping calculation
+                    window.onGovernorateChanged();
+
+                    // Trigger change event on select for draft capture
+                    select.dispatchEvent(new Event('change', { bubbles: true }));
+
+                    // Close dropdown
+                    closePicker();
+                });
+            });
+
+            // Live search filter
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    filterGovs(this.value.trim().toLowerCase());
+                });
+            }
+
+            function filterGovs(query) {
+                let matchesCount = 0;
+                items.forEach(item => {
+                    const name = (item.querySelector('.gov-item-name')?.textContent || '').toLowerCase();
+                    if (!query || name.includes(query)) {
+                        item.classList.remove('d-none');
+                        matchesCount++;
+                    } else {
+                        item.classList.add('d-none');
+                    }
+                });
+
+                if (noFound) {
+                    noFound.classList.toggle('d-none', matchesCount > 0);
+                }
+            }
+
+            // Keyboard navigation (Escape closes picker)
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !dropdown.classList.contains('d-none')) {
+                    closePicker();
+                }
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initCustomGovPicker();
+            window.onGovernorateChanged();
+        });
+
+        (function() {
+            let isOrderSubmitted = false;
+
+            document.getElementById('checkout-form').addEventListener('submit', function () {
+                const btn = document.getElementById('btn-submit-order');
+                if (btn && this.checkValidity()) {
+                    isOrderSubmitted = true;
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Processing Order...';
+                }
+            });
+
+            // Real-time Abandoned Checkout Draft Capture
+            const nameInput = document.getElementById('CustomerName');
+            const phoneInput = document.getElementById('CustomerPhone');
+            const emailInput = document.getElementById('CustomerEmail');
+            const addressInput = document.getElementById('ShippingAddress');
+            const cityInput = document.getElementById('cityGovernorateSelect') || document.getElementById('City');
+            const notesInput = document.getElementById('OrderNotes');
+
+            let saveTimeout = null;
+
+            function triggerDraftSave() {
+                if (isOrderSubmitted) return;
+                const phone = phoneInput ? phoneInput.value.trim().replace(/\s+/g, '') : '';
+                if (!phone || phone.length < 7) return;
+
+                const payload = {
+                    customerName: nameInput ? nameInput.value.trim() : '',
+                    customerPhone: phone,
+                    customerEmail: emailInput ? emailInput.value.trim() : '',
+                    shippingAddress: addressInput ? addressInput.value.trim() : '',
+                    city: cityInput ? cityInput.value.trim() : '',
+                    orderNotes: notesInput ? notesInput.value.trim() : ''
+                };
+
+                const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                fetch('/Checkout/CaptureAbandonedCheckout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': csrfToken || ''
+                    },
+                    body: JSON.stringify(payload)
+                }).catch(() => {});
+            }
+
+            function debouncedDraftSave() {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(triggerDraftSave, 1200);
+            }
+
+            const trackFields = [nameInput, phoneInput, emailInput, addressInput, cityInput, notesInput];
+            trackFields.forEach(field => {
+                if (!field) return;
+                field.addEventListener('input', debouncedDraftSave);
+                field.addEventListener('blur', triggerDraftSave);
+                field.addEventListener('change', triggerDraftSave);
+            });
+
+            window.addEventListener('beforeunload', function() {
+                if (!isOrderSubmitted) {
+                    triggerDraftSave();
+                }
+            });
+        })();
+    </script>
+}
+
