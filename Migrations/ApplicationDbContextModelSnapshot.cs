@@ -17,7 +17,7 @@ namespace Stockify.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -220,7 +220,7 @@ namespace Stockify.Migrations
 
                     b.HasIndex("RecoveredOrderId");
 
-                    b.ToTable("AbandonedCheckouts");
+                    b.ToTable("AbandonedCheckouts", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.ApplicationUser", b =>
@@ -324,7 +324,7 @@ namespace Stockify.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.ContactMessage", b =>
@@ -369,7 +369,7 @@ namespace Stockify.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactMessages");
+                    b.ToTable("ContactMessages", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.Coupon", b =>
@@ -421,7 +421,7 @@ namespace Stockify.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Coupons");
+                    b.ToTable("Coupons", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.Customer", b =>
@@ -455,7 +455,7 @@ namespace Stockify.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.Governorate", b =>
@@ -494,7 +494,7 @@ namespace Stockify.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Governorates");
+                    b.ToTable("Governorates", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.HeroBanner", b =>
@@ -542,7 +542,7 @@ namespace Stockify.Migrations
 
                     b.HasIndex("IsActive");
 
-                    b.ToTable("HeroBanners");
+                    b.ToTable("HeroBanners", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.HomeOffer", b =>
@@ -598,7 +598,7 @@ namespace Stockify.Migrations
 
                     b.HasIndex("SecondProductId");
 
-                    b.ToTable("HomeOffers");
+                    b.ToTable("HomeOffers", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.HomeSetting", b =>
@@ -738,7 +738,7 @@ namespace Stockify.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HomeSettings");
+                    b.ToTable("HomeSettings", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.InventoryTransaction", b =>
@@ -779,7 +779,7 @@ namespace Stockify.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("InventoryTransactions");
+                    b.ToTable("InventoryTransactions", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.Order", b =>
@@ -862,7 +862,7 @@ namespace Stockify.Migrations
                     b.HasIndex("OrderNumber")
                         .IsUnique();
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.OrderItem", b =>
@@ -891,7 +891,7 @@ namespace Stockify.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.Product", b =>
@@ -957,7 +957,7 @@ namespace Stockify.Migrations
                     b.HasIndex("Sku")
                         .IsUnique();
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.SiteVisit", b =>
@@ -996,7 +996,7 @@ namespace Stockify.Migrations
 
                     b.HasIndex("VisitedAt");
 
-                    b.ToTable("SiteVisits");
+                    b.ToTable("SiteVisits", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
