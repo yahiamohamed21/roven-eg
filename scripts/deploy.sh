@@ -24,12 +24,12 @@ log "Starting ROVEN Production Deployment (roven-eg.online)"
 log "=================================================="
 
 # Step 1: Pull latest source
-log "Pulling latest source code from GitHub (Production branch)..."
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+log "Pulling latest source code from GitHub ($CURRENT_BRANCH branch)..."
 cd "$PROJECT_ROOT"
 git reset --hard HEAD >> "$LOG_FILE" 2>&1
-git fetch origin Production >> "$LOG_FILE" 2>&1
-git checkout -B Production origin/Production >> "$LOG_FILE" 2>&1 || git checkout Production >> "$LOG_FILE" 2>&1
-git pull origin Production >> "$LOG_FILE" 2>&1
+git fetch origin "$CURRENT_BRANCH" >> "$LOG_FILE" 2>&1
+git pull origin "$CURRENT_BRANCH" >> "$LOG_FILE" 2>&1
 chmod +x "$PROJECT_ROOT/scripts/"*.sh
 
 # Step 2: Ensure environment and database setup
