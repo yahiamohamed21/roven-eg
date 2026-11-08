@@ -55,6 +55,17 @@ public class HomeSetting
     public int SpotlightRemainingCount { get; set; } = 51;
     public bool SpotlightActive { get; set; } = true;
 
+    // Infinite Moving Marquee Announcement Tape (Under Hero Banners)
+    [MaxLength(500)]
+    public string MarqueeText { get; set; } = "OFFER 20% OFF ON ALL LUXURY EXTRAITS • كود الخصم: ROVEN20 • عطور أصلية بتركيز 30% زيوت نقية • شحن مجاني ودفع عند الاستلام مع المعاينة في كافة محافظات مصر";
+
+    [MaxLength(100)]
+    public string MarqueeBadgeText { get; set; } = "OFFER 20%";
+
+    public bool MarqueeActive { get; set; } = true;
+
+    public int MarqueeSpeedSeconds { get; set; } = 25;
+
     // Social Links
     [MaxLength(300)]
     public string FacebookUrl { get; set; } = "https://facebook.com/roven.parfumerie";

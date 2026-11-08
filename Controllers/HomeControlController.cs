@@ -311,6 +311,11 @@ public class HomeControlController : Controller
         settings.SpotlightRemainingCount = model.SpotlightRemainingCount;
         settings.SpotlightActive = model.SpotlightActive;
 
+        settings.MarqueeActive = model.MarqueeActive;
+        settings.MarqueeText = model.MarqueeText?.Trim() ?? "";
+        settings.MarqueeBadgeText = model.MarqueeBadgeText?.Trim() ?? "";
+        settings.MarqueeSpeedSeconds = model.MarqueeSpeedSeconds > 0 ? model.MarqueeSpeedSeconds : 25;
+
         settings.FacebookUrl = model.FacebookUrl?.Trim() ?? "";
         settings.InstagramUrl = model.InstagramUrl?.Trim() ?? "";
         settings.WhatsAppNumber = model.WhatsAppNumber?.Trim() ?? "";
