@@ -17,6 +17,8 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
+trap 'echo "❌ Deployment failed at line $LINENO! Recent log output:"; tail -n 30 "$LOG_FILE"; exit 1' ERR
+
 log "=================================================="
 log "Starting ROVEN Production Deployment (roven-eg.online)"
 log "=================================================="
@@ -26,6 +28,7 @@ log "Pulling latest source code from GitHub..."
 cd "$PROJECT_ROOT"
 git reset --hard HEAD >> "$LOG_FILE" 2>&1
 git pull origin $(git rev-parse --abbrev-ref HEAD) >> "$LOG_FILE" 2>&1
+chmod +x "$PROJECT_ROOT/scripts/"*.sh
 
 # Step 2: Ensure environment and database setup
 log "Configuring environment and verifying database..."
