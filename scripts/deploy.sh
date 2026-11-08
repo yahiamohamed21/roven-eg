@@ -17,7 +17,7 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
-trap 'echo "❌ Deployment failed at line $LINENO! Recent log output:"; [ -f "$LOG_FILE" ] && tail -n 40 "$LOG_FILE"; exit 1' ERR
+trap 'echo "❌ Deployment failed at line $LINENO! Attempting service recovery..."; sudo systemctl start roven-web >> "$LOG_FILE" 2>&1 || true; [ -f "$LOG_FILE" ] && tail -n 50 "$LOG_FILE"; exit 1' ERR
 
 log "=================================================="
 log "Starting ROVEN Production Deployment (roven-eg.online)"
@@ -49,6 +49,11 @@ dotnet restore Stockify.csproj >> "$LOG_FILE" 2>&1
 log "Stopping roven-web service before publish to release file locks..."
 sudo systemctl stop roven-web >> "$LOG_FILE" 2>&1 || true
 
+# Ensure deploy user has write permissions to publish directory
+CURRENT_USER=$(whoami)
+sudo chown -R "$CURRENT_USER":www-data "$PUBLISH_DIR" 2>/dev/null || true
+sudo chmod -R 775 "$PUBLISH_DIR" 2>/dev/null || true
+
 log "Publishing .NET project in Release mode..."
 dotnet publish Stockify.csproj -c Release -o "$PUBLISH_DIR" >> "$LOG_FILE" 2>&1
 
@@ -56,15 +61,15 @@ dotnet publish Stockify.csproj -c Release -o "$PUBLISH_DIR" >> "$LOG_FILE" 2>&1
 log "Configuring persistent uploads directory..."
 # Copy initial uploads if persistent folder is empty
 if [ ! "$(ls -A $UPLOADS_DIR/banners 2>/dev/null)" ] && [ -d "$PUBLISH_DIR/wwwroot/uploads/banners" ]; then
-    cp -rn "$PUBLISH_DIR/wwwroot/uploads/banners/"* "$UPLOADS_DIR/banners/" 2>/dev/null || true
+    sudo cp -rn "$PUBLISH_DIR/wwwroot/uploads/banners/"* "$UPLOADS_DIR/banners/" 2>/dev/null || true
 fi
 if [ ! "$(ls -A $UPLOADS_DIR/products 2>/dev/null)" ] && [ -d "$PUBLISH_DIR/wwwroot/uploads/products" ]; then
-    cp -rn "$PUBLISH_DIR/wwwroot/uploads/products/"* "$UPLOADS_DIR/products/" 2>/dev/null || true
+    sudo cp -rn "$PUBLISH_DIR/wwwroot/uploads/products/"* "$UPLOADS_DIR/products/" 2>/dev/null || true
 fi
 
 # Symlink uploads directory to published wwwroot/uploads
-rm -rf "$PUBLISH_DIR/wwwroot/uploads"
-ln -sfn "$UPLOADS_DIR" "$PUBLISH_DIR/wwwroot/uploads"
+sudo rm -rf "$PUBLISH_DIR/wwwroot/uploads"
+sudo ln -sfn "$UPLOADS_DIR" "$PUBLISH_DIR/wwwroot/uploads"
 
 # Ensure proper permissions for www-data
 sudo chown -R www-data:www-data "$PUBLISH_DIR"
