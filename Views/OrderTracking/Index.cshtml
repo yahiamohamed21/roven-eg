@@ -168,28 +168,6 @@
             transform: translateY(-2px);
         }
 
-        /* Sample Quick Pill */
-        .sample-ref-pill {
-            cursor: pointer;
-            background-color: #EDEBDD;
-            color: #630000;
-            border: 1px dashed #630000;
-            border-radius: 50px;
-            padding: 0.35rem 0.85rem;
-            font-size: 0.82rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            max-width: 100%;
-        }
-
-        .sample-ref-pill:hover {
-            background-color: #630000;
-            color: #EDEBDD;
-            border-style: solid;
-        }
 
         /* Feature Reassurance Badges */
         .roven-feature-badge {
@@ -486,14 +464,8 @@
                     </div>
                 </div>
 
-                <!-- Interactive Sample Reference Pill Helper -->
-                <div class="col-12 d-flex flex-wrap align-items-center justify-content-between gap-2 pt-1">
-                    <div class="d-flex align-items-center gap-2 small flex-wrap">
-                        <span class="text-muted" style="font-size: 0.82rem;">رقم تجريبي:</span>
-                        <button type="button" class="sample-ref-pill text-break" onclick="fillSampleOrder('ORD-20261105-6525')">
-                            <i class="fa-solid fa-sparkles"></i> تجربة: <code>ORD-20261105-6525</code>
-                        </button>
-                    </div>
+                <!-- Security Reassurance -->
+                <div class="col-12 d-flex align-items-center justify-content-center justify-content-md-end gap-2 pt-1">
                     <span class="text-muted small" style="font-size: 0.8rem;">
                         <i class="fa-solid fa-shield-halved me-1" style="color: #630000;"></i>تتبع مشفر وآمن SSL
                     </span>
@@ -984,18 +956,5 @@
             });
         }
 
-        // Fill sample reference and auto-submit
-        function fillSampleOrder(ref) {
-            const input = document.getElementById('orderNumberInput');
-            if (input) {
-                input.value = ref;
-                input.focus();
-                
-                const form = document.getElementById('rovenTrackingForm');
-                if (form) {
-                    form.submit();
-                }
-            }
-        }
     </script>
 }
