@@ -3,7 +3,6 @@ name: Production Deployment
 on:
   push:
     branches:
-      - main
       - Production
   workflow_dispatch:
 
