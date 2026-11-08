@@ -11,10 +11,10 @@
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="roven-loading">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
     @{
         var rawTitle = ViewData["Title"]?.ToString() ?? "";
         var tabTitle = string.IsNullOrWhiteSpace(rawTitle) || rawTitle == "Storefront" || rawTitle.Equals("ROVEN", StringComparison.OrdinalIgnoreCase)
@@ -232,6 +232,19 @@
             overflow-x: clip;
         }
 
+        html.roven-loading,
+        body.roven-loading {
+            overflow: hidden !important;
+            height: 100% !important;
+            max-height: 100% !important;
+            touch-action: none !important;
+            -webkit-overflow-scrolling: auto !important;
+        }
+
+        .text-gold {
+            color: #dfb15b !important;
+        }
+
         .store-topbar,
         .store-navbar,
         .store-footer {
@@ -243,19 +256,65 @@
         .store-topbar {
             background: #1B1717;
             color: #EDEBDD;
-            font-size: 0.8rem;
-            padding: 7px 0;
+            font-size: 0.78rem;
+            padding: 6px 0;
             border-bottom: 1px solid rgba(237, 235, 221, 0.12);
+            line-height: 1.35;
         }
 
-        .store-topbar a {
-            color: #EDEBDD !important;
-            transition: color 0.15s;
+        .topbar-icon-gold {
+            color: #dfb15b;
+            font-size: 0.8rem;
         }
 
-        .store-topbar a:hover {
+        .topbar-announcement-text {
+            color: #EDEBDD;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .topbar-divider {
+            color: rgba(237, 235, 221, 0.3);
+        }
+
+        .topbar-track-pill {
             color: #EDEBDD !important;
-            text-decoration: underline !important;
+            font-size: 0.74rem;
+            font-weight: 600;
+            padding: 3px 11px;
+            border-radius: 50px;
+            background: rgba(237, 235, 221, 0.08);
+            border: 1px solid rgba(237, 235, 221, 0.22);
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .topbar-track-pill:hover {
+            background: #810100;
+            border-color: #dfb15b;
+            color: #ffffff !important;
+            transform: translateY(-1px);
+        }
+
+        .topbar-track-pill i {
+            color: #dfb15b;
+        }
+
+        @@media (max-width: 575.98px) {
+            .store-topbar {
+                padding: 4px 0 !important;
+                font-size: 0.72rem !important;
+            }
+            .topbar-announcement-text {
+                font-size: 0.72rem !important;
+            }
+            .topbar-track-pill {
+                font-size: 0.68rem !important;
+                padding: 2px 8px !important;
+            }
         }
 
         .store-navbar {
@@ -787,17 +846,145 @@
             border-top: 3px solid #630000;
         }
 
-        .store-footer a {
+        .store-footer .footer-heading {
             color: #EDEBDD;
-            opacity: 0.85;
-            text-decoration: none;
-            transition: opacity 0.15s, color 0.15s;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            position: relative;
+            padding-bottom: 6px;
         }
 
-        .store-footer a:hover {
+        .store-footer .footer-heading::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 24px;
+            height: 2px;
+            background: #810100;
+            border-radius: 2px;
+        }
+
+        .store-footer .footer-desc {
             color: #EDEBDD;
+            opacity: 0.85;
+            line-height: 1.65;
+            font-size: 0.84rem;
+        }
+
+        .store-footer .footer-links-list a,
+        .store-footer .footer-contact-list a {
+            color: #EDEBDD !important;
+            opacity: 0.82;
+            text-decoration: none !important;
+            font-size: 0.84rem;
+            transition: opacity 0.15s, color 0.15s, transform 0.15s;
+            display: inline-block;
+        }
+
+        .store-footer .footer-links-list a:hover,
+        .store-footer .footer-contact-list a:hover {
             opacity: 1;
-            text-decoration: underline;
+            color: #dfb15b !important;
+            transform: translateX(3px);
+        }
+
+        .store-footer .footer-contact-item {
+            font-size: 0.84rem;
+            color: #EDEBDD;
+            opacity: 0.85;
+            line-height: 1.45;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .footer-divider {
+            border-color: rgba(237, 235, 221, 0.12) !important;
+            opacity: 1 !important;
+        }
+
+        .footer-social-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(237, 235, 221, 0.08);
+            border: 1px solid rgba(237, 235, 221, 0.18);
+            color: #EDEBDD !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            text-decoration: none !important;
+        }
+
+        .footer-social-btn:hover {
+            background: #810100;
+            border-color: #dfb15b;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+        }
+
+        .developer-box {
+            background: rgba(237, 235, 221, 0.08);
+            border: 1px solid rgba(237, 235, 221, 0.22);
+        }
+
+        .developer-icon-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none !important;
+        }
+
+        .developer-icon-btn.linkedin {
+            background-color: #0a66c2;
+            color: #ffffff !important;
+            font-size: 0.72rem;
+        }
+
+        .developer-icon-btn.whatsapp {
+            background-color: #25d366;
+            color: #ffffff !important;
+            font-size: 0.8rem;
+        }
+
+        @@media (max-width: 575.98px) {
+            .store-footer {
+                padding-top: 2.25rem !important;
+                padding-bottom: 1.75rem !important;
+            }
+            .store-footer .footer-desc {
+                font-size: 0.78rem !important;
+                line-height: 1.55 !important;
+                margin-bottom: 0.85rem !important;
+            }
+            .store-footer .footer-authenticity {
+                font-size: 0.75rem !important;
+            }
+            .store-footer .footer-heading {
+                font-size: 0.8rem !important;
+                margin-bottom: 0.65rem !important;
+                letter-spacing: 0.5px !important;
+            }
+            .store-footer .footer-links-list a,
+            .store-footer .footer-contact-list a,
+            .store-footer .footer-contact-item {
+                font-size: 0.76rem !important;
+                line-height: 1.4 !important;
+            }
+            .footer-social-btn {
+                width: 34px !important;
+                height: 34px !important;
+                font-size: 0.85rem !important;
+            }
+            .developer-box {
+                font-size: 0.72rem !important;
+                padding: 4px 10px !important;
+            }
         }
 
         .category-pill {
@@ -844,19 +1031,31 @@
            MAISON ROVEN — HAUTE PARFUMERIE LUXURY PRELOADER
            ------------------------------------------------------------- */
         #roven-preloader {
-            position: fixed;
-            inset: 0;
-            width: 100% !important;
-            max-width: 100% !important;
-            height: 100% !important;
-            z-index: 9999999;
-            background-color: #1B1717;
-            background: radial-gradient(circle at 50% 45%, rgba(129, 1, 0, 0.45) 0%, rgba(99, 0, 0, 0.22) 32%, rgba(27, 23, 23, 0.98) 72%),
-                        linear-gradient(135deg, #150f0f 0%, #240505 50%, #150f0f 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            min-width: 100vw !important;
+            max-width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            min-height: 100vh !important;
+            min-height: 100dvh !important;
+            max-height: 100dvh !important;
+            z-index: 2147483647 !important;
+            background-color: #1B1717 !important;
+            background: radial-gradient(circle at 50% 45%, rgba(129, 1, 0, 0.55) 0%, rgba(99, 0, 0, 0.28) 32%, rgba(27, 23, 23, 0.99) 72%),
+                        linear-gradient(135deg, #150f0f 0%, #240505 50%, #150f0f 100%) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
             overflow: hidden !important;
+            touch-action: none !important;
+            overscroll-behavior: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
             transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.75s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -1040,6 +1239,44 @@
             }
         }
 
+        /* Mobile Viewport Sizing for Preloader */
+        @@media (max-width: 576px) {
+            .preloader-content {
+                padding: 1rem !important;
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+            .preloader-emblem-wrap {
+                width: 96px !important;
+                height: 96px !important;
+                margin-bottom: 1rem !important;
+            }
+            .preloader-shield {
+                width: 70px !important;
+                height: 70px !important;
+            }
+            .preloader-monogram-letter {
+                font-size: 2.5rem !important;
+            }
+            .preloader-brand-title {
+                font-size: 1.85rem !important;
+                letter-spacing: 8px !important;
+                margin-bottom: 0.25rem !important;
+            }
+            .preloader-brand-subtitle {
+                font-size: 0.62rem !important;
+                letter-spacing: 2.5px !important;
+                margin-bottom: 1.3rem !important;
+            }
+            .preloader-track {
+                width: 200px !important;
+            }
+            .preloader-footer {
+                width: 200px !important;
+                font-size: 0.68rem !important;
+            }
+        }
+
         /* -------------------------------------------------------------
            MAISON ROVEN — HAUTE PARFUMERIE VIP LEAD & WELCOME MODAL
            ------------------------------------------------------------- */
@@ -1169,7 +1406,7 @@
     
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
+<body class="roven-loading">
     <!-- ============================================================== -->
     <!-- MAISON ROVEN — HAUTE PARFUMERIE LUXURY PRELOADER               -->
     <!-- ============================================================== -->
@@ -1206,22 +1443,24 @@
     @if (siteSetting.AnnouncementActive)
     {
         <div class="store-topbar">
-            <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="d-inline-flex align-items-center gap-2">
-                        <i class="fa-solid fa-spray-can-sparkles" style="color: #810100;"></i>
-                        <span>@siteSetting.AnnouncementText</span>
-                    </span>
-                    <span class="opacity-50 d-none d-md-inline">|</span>
-                    <span class="d-none d-md-inline">
-                        <i class="fa-solid fa-shield-halved me-1" style="color: #810100;"></i>
-                        <span>Cash on Delivery Available</span>
-                    </span>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <a asp-controller="OrderTracking" asp-action="Index" class="text-decoration-none small" style="color: #EDEBDD;">
-                        <i class="fa-solid fa-box-open me-1" style="color: #810100;"></i>Track Your Order
-                    </a>
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center text-truncate pe-2">
+                        <i class="fa-solid fa-spray-can-sparkles me-2 topbar-icon-gold"></i>
+                        <span class="topbar-announcement-text text-truncate">@siteSetting.AnnouncementText</span>
+                        <span class="topbar-divider d-none d-md-inline-block mx-2">|</span>
+                        <span class="d-none d-md-inline-flex align-items-center text-nowrap">
+                            <i class="fa-solid fa-shield-halved me-1 topbar-icon-gold"></i>
+                            <span>Cash on Delivery Available</span>
+                        </span>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <a asp-controller="OrderTracking" asp-action="Index" class="topbar-track-pill" title="Track Your Order">
+                            <i class="fa-solid fa-box-open me-1 topbar-icon-gold"></i>
+                            <span class="d-none d-sm-inline">Track Your Order</span>
+                            <span class="d-inline d-sm-none">تتبع طلبك</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1382,25 +1621,25 @@
     <!-- Store Footer -->
     <footer class="store-footer">
         <div class="container">
-            <div class="row g-4 mb-4">
-                <div class="col-12 col-md-5">
+            <div class="row g-4 g-lg-5 mb-4">
+                <div class="col-12 col-lg-5">
                     <div class="d-flex align-items-center gap-2 mb-3">
                         <div class="p-1 px-2 rounded-2" style="background-color: #EDEBDD;">
                             <img src="~/images/roven-logo.png" alt="ROVEN" style="height: 32px; width: auto;" />
                         </div>
                     </div>
-                    <p class="small mb-3" style="color: #EDEBDD; opacity: 0.85; line-height: 1.6;">
+                    <p class="footer-desc small mb-3">
                         <strong>Maison ROVEN (دار روڤين / روفين للعطور الفاخرة)</strong> — The official Haute Parfumerie house dedicated to high-concentration Extraits de Parfum (30%+ pure oils) and rare Assam oud. Handcrafted with Grasse extracts, eternal sillage, and nationwide Cash on Delivery with full parcel inspection across Egypt.
                     </p>
-                    <div class="d-flex gap-2 align-items-center" style="color: #EDEBDD; opacity: 0.9;">
-                        <i class="fa-solid fa-shield-halved" style="color: #810100;"></i>
+                    <div class="d-flex gap-2 align-items-center footer-authenticity" style="color: #EDEBDD; opacity: 0.9;">
+                        <i class="fa-solid fa-shield-halved text-gold"></i>
                         <span class="small">100% Authentic Luxury Parfums &bull; Cash on Delivery</span>
                     </div>
                 </div>
 
-                <div class="col-6 col-md-3 offset-md-1">
-                    <h6 class="fw-bold mb-3" style="color: #EDEBDD; letter-spacing: 0.5px;">MAISON</h6>
-                    <ul class="list-unstyled small d-flex flex-column gap-2">
+                <div class="col-6 col-sm-6 col-lg-3 offset-lg-1">
+                    <h6 class="footer-heading fw-bold mb-3">MAISON</h6>
+                    <ul class="list-unstyled footer-links-list d-flex flex-column gap-2 mb-0">
                         <li><a asp-controller="Home" asp-action="Index">Maison Home</a></li>
                         <li><a asp-controller="Store" asp-action="Index">All Fragrances</a></li>
                         <li><a asp-controller="OrderTracking" asp-action="Index">Track Your Order</a></li>
@@ -1409,40 +1648,56 @@
                     </ul>
                 </div>
 
-                <div class="col-6 col-md-3">
-                    <h6 class="fw-bold mb-3" style="color: #EDEBDD; letter-spacing: 0.5px;">CONCIERGE</h6>
-                    <ul class="list-unstyled small d-flex flex-column gap-2" style="color: #EDEBDD; opacity: 0.85;">
-                        <li><i class="fa-solid fa-phone me-2" style="color: #810100;"></i> @(!string.IsNullOrWhiteSpace(siteSetting.ContactPhone) ? siteSetting.ContactPhone : "+20 (02) 19888")</li>
-                        <li><i class="fa-solid fa-envelope me-2" style="color: #810100;"></i> @(!string.IsNullOrWhiteSpace(siteSetting.ContactEmail) ? siteSetting.ContactEmail : "concierge@roven.local")</li>
-                        <li><i class="fa-solid fa-location-dot me-2" style="color: #810100;"></i> @(!string.IsNullOrWhiteSpace(siteSetting.AtelierAddress) ? siteSetting.AtelierAddress : "Cairo & Giza, Arab Republic of Egypt")</li>
-                        <li><i class="fa-solid fa-clock me-2" style="color: #810100;"></i> @(!string.IsNullOrWhiteSpace(siteSetting.ContactWorkingHours) ? siteSetting.ContactWorkingHours : "Daily: 10:00 AM – 11:00 PM CLT")</li>
+                <div class="col-6 col-sm-6 col-lg-3">
+                    <h6 class="footer-heading fw-bold mb-3">CONCIERGE</h6>
+                    <ul class="list-unstyled footer-contact-list d-flex flex-column gap-2 mb-0">
+                        <li class="footer-contact-item">
+                            <i class="fa-solid fa-phone me-2 text-gold"></i>
+                            <a href="tel:@(!string.IsNullOrWhiteSpace(siteSetting.ContactPhone) ? siteSetting.ContactPhone.Replace(" ", "").Replace("-", "") : "+20219888")">
+                                @(!string.IsNullOrWhiteSpace(siteSetting.ContactPhone) ? siteSetting.ContactPhone : "+20 (02) 19888")
+                            </a>
+                        </li>
+                        <li class="footer-contact-item">
+                            <i class="fa-solid fa-envelope me-2 text-gold"></i>
+                            <a href="mailto:@(!string.IsNullOrWhiteSpace(siteSetting.ContactEmail) ? siteSetting.ContactEmail : "concierge@roven.local")">
+                                @(!string.IsNullOrWhiteSpace(siteSetting.ContactEmail) ? siteSetting.ContactEmail : "concierge@roven.local")
+                            </a>
+                        </li>
+                        <li class="footer-contact-item">
+                            <i class="fa-solid fa-location-dot me-2 text-gold"></i>
+                            <span>@(!string.IsNullOrWhiteSpace(siteSetting.AtelierAddress) ? siteSetting.AtelierAddress : "Cairo & Giza, Egypt")</span>
+                        </li>
+                        <li class="footer-contact-item">
+                            <i class="fa-solid fa-clock me-2 text-gold"></i>
+                            <span>@(!string.IsNullOrWhiteSpace(siteSetting.ContactWorkingHours) ? siteSetting.ContactWorkingHours : "Daily: 10 AM – 11 PM")</span>
+                        </li>
                     </ul>
                 </div>
             </div>
 
-            <hr style="border-color: rgba(237, 235, 221, 0.15); margin: 2rem 0;" />
+            <hr class="footer-divider my-4" />
 
             <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center small gap-3" style="color: #EDEBDD; opacity: 0.88;">
-                <div>&copy; @DateTime.UtcNow.Year ROVEN Omnichannel System. All rights reserved.</div>
-                <div class="d-flex gap-3 align-items-center">
-                    <a href="@siteSetting.FacebookUrl" target="_blank" style="color: #EDEBDD; opacity: 0.8;" title="Facebook"><i class="fa-brands fa-facebook-f fs-6"></i></a>
-                    <a href="@siteSetting.InstagramUrl" target="_blank" style="color: #EDEBDD; opacity: 0.8;" title="Instagram"><i class="fa-brands fa-instagram fs-6"></i></a>
+                <div class="footer-copyright text-center text-sm-start">&copy; @DateTime.UtcNow.Year ROVEN Omnichannel System. All rights reserved.</div>
+                <div class="d-flex gap-3 align-items-center justify-content-center">
+                    <a href="@siteSetting.FacebookUrl" target="_blank" class="footer-social-btn" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="@siteSetting.InstagramUrl" target="_blank" class="footer-social-btn" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
                     @{
                         var ftWa = siteSetting.WhatsAppNumber ?? "+201008889999";
                         var ftWaLink = ftWa.StartsWith("http") ? ftWa : $"https://wa.me/{ftWa.Replace("+", "").Replace(" ", "").Replace("-", "")}";
                     }
-                    <a href="@ftWaLink" target="_blank" style="color: #EDEBDD; opacity: 0.8;" title="WhatsApp Concierge"><i class="fa-brands fa-whatsapp fs-6"></i></a>
+                    <a href="@ftWaLink" target="_blank" class="footer-social-btn" title="WhatsApp Concierge"><i class="fa-brands fa-whatsapp"></i></a>
                 </div>
             </div>
 
             <div class="text-center mt-3 pt-2">
-                <div class="developer-box d-inline-flex align-items-center justify-content-center flex-wrap gap-2 px-3 py-1 rounded-pill shadow-sm" style="background: rgba(237, 235, 221, 0.08); border: 1px solid rgba(237, 235, 221, 0.22); max-width: 100%;">
+                <div class="developer-box d-inline-flex align-items-center justify-content-center flex-wrap gap-2 px-3 py-1.5 rounded-pill shadow-sm">
                     <span class="small" style="color: #EDEBDD;">Created by <strong style="color: #ffffff;">Yahia Mohamed</strong></span>
-                    <span class="vr mx-1" style="height: 16px; opacity: 0.35; background-color: #EDEBDD;"></span>
-                    <a href="https://www.linkedin.com/in/yahia-mohamed-b8b440372/" target="_blank" rel="noopener noreferrer" class="d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none shadow-sm" style="width: 24px; height: 24px; background-color: #0a66c2; color: #ffffff; font-size: 0.75rem;" title="LinkedIn Profile">
+                    <span class="vr mx-1 developer-vr"></span>
+                    <a href="https://www.linkedin.com/in/yahia-mohamed-b8b440372/" target="_blank" rel="noopener noreferrer" class="developer-icon-btn linkedin" title="LinkedIn Profile">
                         <i class="fa-brands fa-linkedin-in"></i>
                     </a>
-                    <a href="https://wa.me/201090411612" target="_blank" rel="noopener noreferrer" class="d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none shadow-sm" style="width: 24px; height: 24px; background-color: #25d366; color: #ffffff; font-size: 0.85rem;" title="WhatsApp">
+                    <a href="https://wa.me/201090411612" target="_blank" rel="noopener noreferrer" class="developer-icon-btn whatsapp" title="WhatsApp">
                         <i class="fa-brands fa-whatsapp"></i>
                     </a>
                 </div>
@@ -1725,13 +1980,30 @@
                 }
             }, 32);
 
+            // Lock viewport to top on initial execution
+            window.scrollTo(0, 0);
+
+            // Prevent touch and wheel gestures from scrolling while preloader is visible
+            function preventPreloaderScroll(e) {
+                if (preloader && !preloader.classList.contains('preloader-hidden') && preloader.style.display !== 'none') {
+                    e.preventDefault();
+                }
+            }
+            window.addEventListener('touchmove', preventPreloaderScroll, { passive: false });
+            window.addEventListener('wheel', preventPreloaderScroll, { passive: false });
+
             function dismissPreloader() {
                 preloader.classList.add('preloader-hidden');
+                document.documentElement.classList.remove('roven-loading');
+                document.body.classList.remove('roven-loading');
+                window.removeEventListener('touchmove', preventPreloaderScroll);
+                window.removeEventListener('wheel', preventPreloaderScroll);
+                window.scrollTo(0, 0);
                 setTimeout(() => {
                     preloader.style.display = 'none';
                     // Trigger VIP Welcome Lead Modal right after preloader dismisses
                     window.dispatchEvent(new CustomEvent('rovenPreloaderDismissed'));
-                }, 800);
+                }, 750);
             }
 
             // Window load event
