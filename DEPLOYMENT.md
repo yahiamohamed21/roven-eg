@@ -108,7 +108,7 @@ sudo certbot --nginx -d roven-eg.online -d www.roven-eg.online
 تم إنشاء ملف Workflow في المسار:
 [`.github/workflows/deploy.yml`](file:///d:/Roven-eg/roven-eg/.github/workflows/deploy.yml)
 
-بمجرد عمل Push على فرع `main`، سيتصل GitHub بالسيرفر وينفذ `deploy.sh` تلقائياً!
+بمجرد عمل Push على فرع `production`، سيتصل GitHub بالسيرفر وينفذ `deploy.sh` تلقائياً!
 
 ### أسرار المستودع المطلوبة (GitHub Repository Secrets):
 توجه في GitHub إلى: **Settings -> Secrets and variables -> Actions -> New repository secret**
