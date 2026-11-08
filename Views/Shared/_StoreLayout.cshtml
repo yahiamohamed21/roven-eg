@@ -1280,93 +1280,122 @@
         /* -------------------------------------------------------------
            MAISON ROVEN — HAUTE PARFUMERIE VIP LEAD & WELCOME MODAL
            ------------------------------------------------------------- */
+        html.roven-lead-open,
+        body.roven-lead-open {
+            overflow: hidden !important;
+            height: 100% !important;
+            max-height: 100% !important;
+            touch-action: none !important;
+            overscroll-behavior: none !important;
+        }
+
         .roven-lead-backdrop {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 999998;
-            background: rgba(18, 14, 14, 0.84);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.25rem;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            min-height: 100dvh !important;
+            z-index: 2147483640 !important;
+            background: rgba(12, 10, 10, 0.88) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 1rem !important;
+            padding-top: max(1rem, env(safe-area-inset-top, 0px)) !important;
+            padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px)) !important;
+            padding-left: max(1rem, env(safe-area-inset-left, 0px)) !important;
+            padding-right: max(1rem, env(safe-area-inset-right, 0px)) !important;
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.45s ease;
+            touch-action: none !important;
+            overscroll-behavior: none !important;
+            transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
         }
 
         .roven-lead-backdrop.active {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
         }
 
         .roven-lead-modal {
-            background: #181414;
-            border: 1px solid rgba(232, 198, 136, 0.35);
-            border-radius: 20px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 0, 0, 0.5);
-            width: 100%;
-            max-width: 390px;
-            color: #EDEBDD;
-            position: relative;
-            padding: 2.2rem 1.8rem 1.6rem;
-            text-align: center;
+            background: radial-gradient(135% 120% at 50% 0%, #221616 0%, #151111 60%, #0d0a0a 100%) !important;
+            border: 1px solid rgba(232, 198, 136, 0.4) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(99, 0, 0, 0.35) !important;
+            width: 100% !important;
+            max-width: 400px !important;
+            max-height: min(90dvh, 620px) !important;
+            color: #EDEBDD !important;
+            position: relative !important;
+            padding: 2.2rem 1.75rem 1.6rem !important;
+            text-align: center !important;
             transform: scale(0.94) translateY(12px);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
-            overflow: hidden;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+            overflow-y: auto !important;
+            overscroll-behavior: contain !important;
+            touch-action: pan-y !important;
+            -webkit-overflow-scrolling: touch !important;
         }
 
         .roven-lead-backdrop.active .roven-lead-modal {
-            transform: scale(1) translateY(0);
+            transform: scale(1) translateY(0) !important;
         }
 
         .roven-lead-close {
-            position: absolute;
-            top: 14px;
-            right: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #c9c4b8;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            z-index: 5;
+            position: absolute !important;
+            top: 14px !important;
+            right: 14px !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.16) !important;
+            color: #EDEBDD !important;
+            width: 34px !important;
+            height: 34px !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 0.95rem !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            z-index: 10 !important;
+            line-height: 1 !important;
         }
 
-        .roven-lead-close:hover {
-            background: #810100;
-            color: #ffffff;
-            border-color: #810100;
+        .roven-lead-close:hover,
+        .roven-lead-close:active {
+            background: #810100 !important;
+            color: #ffffff !important;
+            border-color: #810100 !important;
+            transform: scale(1.06) !important;
         }
 
         .roven-lead-wa-icon {
-            width: 46px;
-            height: 46px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background: rgba(37, 211, 102, 0.12);
             color: #25D366;
-            font-size: 1.5rem;
-            border: 1px solid rgba(37, 211, 102, 0.3);
+            font-size: 1.55rem;
+            border: 1px solid rgba(37, 211, 102, 0.35);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 0.85rem;
+            box-shadow: 0 0 20px rgba(37, 211, 102, 0.2);
         }
 
         .roven-lead-input-group {
             position: relative;
             margin-bottom: 0.85rem;
+            width: 100%;
         }
 
         .roven-lead-input-group i {
@@ -1375,32 +1404,93 @@
             top: 50%;
             transform: translateY(-50%);
             color: #25D366;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
+            pointer-events: none;
+            z-index: 2;
         }
 
         .roven-lead-input {
-            background: rgba(255, 255, 255, 0.06) !important;
-            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            background: rgba(255, 255, 255, 0.07) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
             border-radius: 12px !important;
-            padding: 0.7rem 1rem 0.7rem 2.7rem !important;
-            font-size: 0.95rem !important;
+            padding: 0.75rem 1rem 0.75rem 2.85rem !important;
+            font-size: 16px !important; /* Critical: 16px prevents iOS Safari auto-zoom gesture */
             color: #EDEBDD !important;
             font-weight: 500;
             text-align: center;
-            width: 100%;
+            width: 100% !important;
+            height: 48px !important;
+            box-sizing: border-box !important;
             transition: all 0.2s ease;
         }
 
         .roven-lead-input::placeholder {
-            color: rgba(237, 235, 221, 0.45) !important;
+            color: rgba(237, 235, 221, 0.5) !important;
             font-weight: 400;
+            font-size: 0.88rem !important;
         }
 
         .roven-lead-input:focus {
-            background: rgba(255, 255, 255, 0.09) !important;
-            border-color: rgba(232, 198, 136, 0.6) !important;
-            box-shadow: 0 0 0 3px rgba(232, 198, 136, 0.15) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(232, 198, 136, 0.7) !important;
+            box-shadow: 0 0 0 3px rgba(232, 198, 136, 0.2) !important;
             outline: none;
+        }
+
+        @media (max-width: 576px) {
+            .roven-lead-backdrop {
+                padding: 0.75rem !important;
+            }
+            .roven-lead-modal {
+                max-width: calc(100vw - 1.5rem) !important;
+                border-radius: 18px !important;
+                padding: 1.85rem 1.15rem 1.35rem !important;
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.95) !important;
+                max-height: min(92dvh, 580px) !important;
+            }
+            .roven-lead-close {
+                top: 10px !important;
+                right: 10px !important;
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 0.9rem !important;
+            }
+            .roven-lead-wa-icon {
+                width: 44px !important;
+                height: 44px !important;
+                font-size: 1.4rem !important;
+                margin-bottom: 0.65rem !important;
+            }
+            #rovenLeadTitle {
+                font-size: 1.18rem !important;
+                line-height: 1.35 !important;
+                margin-bottom: 0.4rem !important;
+            }
+            #rovenLeadFormView p {
+                font-size: 0.82rem !important;
+                line-height: 1.5 !important;
+                margin-bottom: 0.85rem !important;
+            }
+            .roven-lead-input-group {
+                margin-bottom: 0.75rem !important;
+            }
+            .roven-lead-input {
+                font-size: 16px !important; /* Keep 16px to prevent iOS auto-zoom */
+                height: 46px !important;
+                padding: 0.65rem 0.85rem 0.65rem 2.6rem !important;
+            }
+            .roven-lead-input-group i {
+                left: 12px !important;
+                font-size: 1.15rem !important;
+            }
+            #rovenLeadSubmitBtn {
+                height: 46px !important;
+                font-size: 0.92rem !important;
+                padding: 0.65rem 1rem !important;
+            }
+            #rovenSuccessPhone {
+                font-size: 1.25rem !important;
+            }
         }
     </style>
     
@@ -2061,7 +2151,7 @@
                 </form>
 
                 <div class="mt-3">
-                    <button type="button" class="btn btn-link text-decoration-none p-0" style="color: #EDEBDD !important; opacity: 0.5; font-size: 0.78rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='0.5'" onclick="dismissRovenLeadModal()">
+                    <button type="button" class="btn btn-link text-decoration-none p-1" style="color: #EDEBDD !important; opacity: 0.65; font-size: 0.8rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.65'" onclick="dismissRovenLeadModal()">
                         تخطي ومتابعة تصفح المتجر
                     </button>
                 </div>
@@ -2102,6 +2192,24 @@
             const modal = document.getElementById('rovenLeadModal');
             if (!modal) return;
 
+            function lockScroll() {
+                document.documentElement.classList.add('roven-lead-open');
+                document.body.classList.add('roven-lead-open');
+            }
+
+            function unlockScroll() {
+                document.documentElement.classList.remove('roven-lead-open');
+                document.body.classList.remove('roven-lead-open');
+            }
+
+            // Allow force-testing via URL parameters: ?testLead=1 or ?showPromo=1
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('showPromo') || urlParams.has('testLead')) {
+                    localStorage.removeItem('roven_lead_dismissed');
+                }
+            } catch (e) {}
+
             window.openRovenLeadModal = function() {
                 try {
                     if (localStorage.getItem('roven_lead_dismissed') === 'true') {
@@ -2111,14 +2219,20 @@
 
                 modal.classList.add('active');
                 modal.setAttribute('aria-hidden', 'false');
-                setTimeout(() => {
-                    document.getElementById('rovenLeadPhone')?.focus();
-                }, 350);
+                lockScroll();
+
+                // Only autofocus on desktop screens (> 768px) to avoid mobile keyboard viewport jump and zoom shifts
+                if (window.innerWidth > 768) {
+                    setTimeout(() => {
+                        document.getElementById('rovenLeadPhone')?.focus();
+                    }, 250);
+                }
             };
 
             window.dismissRovenLeadModal = function() {
                 modal.classList.remove('active');
                 modal.setAttribute('aria-hidden', 'true');
+                unlockScroll();
                 try {
                     localStorage.setItem('roven_lead_dismissed', 'true');
                 } catch (e) {}
@@ -2130,10 +2244,31 @@
                         return;
                     }
                 } catch (e) {}
-                // Triggered right after preloader finishes
                 setTimeout(openRovenLeadModal, 450);
             };
 
+            // Prevent background dragging and rubber-banding when touching outside modal content
+            modal.addEventListener('touchmove', function(e) {
+                if (!e.target.closest('.roven-lead-modal')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            // Click outside dialog to dismiss
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    dismissRovenLeadModal();
+                }
+            });
+
+            // Close on Escape key press
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    dismissRovenLeadModal();
+                }
+            });
+
+            // Lead Submission Handler
             window.submitRovenLeadForm = async function(e) {
                 e.preventDefault();
                 const phoneInput = document.getElementById('rovenLeadPhone');
@@ -2208,13 +2343,6 @@
                     submitBtn.innerHTML = originalBtnHtml;
                 }
             };
-
-            // Click outside modal dialog to dismiss
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    dismissRovenLeadModal();
-                }
-            });
 
             // Trigger on preloader dismiss event
             window.addEventListener('rovenPreloaderDismissed', function() {
