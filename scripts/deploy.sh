@@ -24,9 +24,9 @@ log "Starting ROVEN Production Deployment (roven-eg.online)"
 log "=================================================="
 
 # Step 1: Pull latest source
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-log "Pulling latest source code from GitHub ($CURRENT_BRANCH branch)..."
 cd "$PROJECT_ROOT"
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
+log "Pulling latest source code from GitHub ($CURRENT_BRANCH branch)..."
 git reset --hard HEAD >> "$LOG_FILE" 2>&1
 git fetch origin "$CURRENT_BRANCH" >> "$LOG_FILE" 2>&1
 git pull origin "$CURRENT_BRANCH" >> "$LOG_FILE" 2>&1
@@ -74,12 +74,19 @@ sleep 5
 
 # Step 6: Health check
 log "Running health check on port 5050..."
-if curl --fail --silent --show-error --connect-timeout 10 http://127.0.0.1:5050/health > /dev/null 2>&1; then
+sleep 3
+if curl -k -L --fail --silent --show-error --connect-timeout 15 http://127.0.0.1:5050/health > /dev/null 2>&1; then
     log "Health Check: PASSED (http://127.0.0.1:5050/health is alive)"
 else
-    log "Health Check: FAILED! Checking service status..."
-    sudo systemctl status roven-web --no-pager >> "$LOG_FILE" 2>&1 || true
-    exit 1
+    log "Health Check: Retrying after 5 seconds..."
+    sleep 5
+    if curl -k -L --fail --silent --show-error --connect-timeout 15 http://127.0.0.1:5050/health > /dev/null 2>&1; then
+        log "Health Check: PASSED (http://127.0.0.1:5050/health is alive on retry)"
+    else
+        log "Health Check: FAILED! Checking service status..."
+        sudo systemctl status roven-web --no-pager >> "$LOG_FILE" 2>&1 || true
+        exit 1
+    fi
 fi
 
 log "=================================================="

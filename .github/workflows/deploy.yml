@@ -7,6 +7,10 @@ on:
       - Production
   workflow_dispatch:
 
+concurrency:
+  group: production_deployment
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy to VPS
