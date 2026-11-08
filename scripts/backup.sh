@@ -22,22 +22,24 @@ ENV_FILE="/etc/roven.env"
 if [ -f "$ENV_FILE" ]; then
     DB_PASSWORD=$(grep "ConnectionStrings__DefaultConnection" "$ENV_FILE" | sed -n 's/.*Password=\([^;]*\);.*/\1/p')
     DB_USER=$(grep "ConnectionStrings__DefaultConnection" "$ENV_FILE" | sed -n 's/.*User Id=\([^;]*\);.*/\1/p')
+    DB_NAME=$(grep "ConnectionStrings__DefaultConnection" "$ENV_FILE" | sed -n 's/.*Database=\([^;]*\);.*/\1/p')
 fi
 
-DB_PASSWORD=${DB_PASSWORD:-"2Y5u7YSnh#"}
-DB_USER=${DB_USER:-"sa"}
+DB_PASSWORD=${DB_PASSWORD:-"sCdADns@s123s"}
+DB_USER=${DB_USER:-"RovenEGAdmin"}
+DB_NAME=${DB_NAME:-"RovenEG"}
 
 # Step 1: SQL Server Database Backup
-log "Backing up database 'rovendb' from sqlserver container..."
+log "Backing up database '$DB_NAME' from sqlserver container..."
 SQLCMD_PATH="/opt/mssql-tools/bin/sqlcmd"
 if docker exec sqlserver ls /opt/mssql-tools18/bin/sqlcmd >/dev/null 2>&1; then
     SQLCMD_PATH="/opt/mssql-tools18/bin/sqlcmd"
 fi
 
-TEMP_BAK_FILE="/var/opt/mssql/rovendb_backup.bak"
-docker exec -i sqlserver $SQLCMD_PATH -S localhost -U "$DB_USER" -P "$DB_PASSWORD" -C -Q "BACKUP DATABASE rovendb TO DISK = '$TEMP_BAK_FILE' WITH FORMAT, INIT;" >> "$LOG_FILE" 2>&1
+TEMP_BAK_FILE="/var/opt/mssql/${DB_NAME}_backup.bak"
+docker exec -i sqlserver $SQLCMD_PATH -S localhost -U "$DB_USER" -P "$DB_PASSWORD" -C -Q "BACKUP DATABASE [$DB_NAME] TO DISK = '$TEMP_BAK_FILE' WITH FORMAT, INIT;" >> "$LOG_FILE" 2>&1
 
-BACKUP_FILE_NAME="rovendb_backup_$(date +%Y%m%d_%H%M%S).bak"
+BACKUP_FILE_NAME="${DB_NAME}_backup_$(date +%Y%m%d_%H%M%S).bak"
 docker cp sqlserver:$TEMP_BAK_FILE "$BACKUP_DIR/database/$BACKUP_FILE_NAME" >> "$LOG_FILE" 2>&1
 docker exec -i sqlserver rm -f $TEMP_BAK_FILE >> "$LOG_FILE" 2>&1
 

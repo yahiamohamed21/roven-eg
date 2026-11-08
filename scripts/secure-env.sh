@@ -19,7 +19,7 @@ if [ ! -f "$ENV_FILE" ]; then
     
     sudo bash -c "cat << EOF > $ENV_FILE
 # --- Database Connection (Shared SQL Server 2022 Docker Container) ---
-ConnectionStrings__DefaultConnection=Server=127.0.0.1,1433;Database=rovendb;User Id=sa;Password=2Y5u7YSnh#;TrustServerCertificate=True;MultipleActiveResultSets=true;
+ConnectionStrings__DefaultConnection=Server=127.0.0.1,1433;Database=RovenEG;User Id=RovenEGAdmin;Password=sCdADns@s123s;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=true;
 
 # --- ASP.NET Core Settings ---
 ASPNETCORE_ENVIRONMENT=Production
@@ -34,25 +34,23 @@ fi
 sudo chown root:root "$ENV_FILE"
 sudo chmod 600 "$ENV_FILE"
 
-# 2. Extract DB password & ensure database exists in SQL Server container
+# 2. Extract DB credentials & ensure database exists in SQL Server container
 DB_PASSWORD=$(grep "ConnectionStrings__DefaultConnection" "$ENV_FILE" | sed -n 's/.*Password=\([^;]*\);.*/\1/p')
 DB_USER=$(grep "ConnectionStrings__DefaultConnection" "$ENV_FILE" | sed -n 's/.*User Id=\([^;]*\);.*/\1/p')
+DB_NAME=$(grep "ConnectionStrings__DefaultConnection" "$ENV_FILE" | sed -n 's/.*Database=\([^;]*\);.*/\1/p')
 
-if [ -z "$DB_PASSWORD" ]; then
-    DB_PASSWORD="2Y5u7YSnh#"
-fi
-if [ -z "$DB_USER" ]; then
-    DB_USER="sa"
-fi
+DB_PASSWORD=${DB_PASSWORD:-"sCdADns@s123s"}
+DB_USER=${DB_USER:-"RovenEGAdmin"}
+DB_NAME=${DB_NAME:-"RovenEG"}
 
-echo "Verifying database 'rovendb' in sqlserver container..."
+echo "Verifying database '$DB_NAME' in sqlserver container..."
 SQLCMD_PATH="/opt/mssql-tools/bin/sqlcmd"
 if docker exec sqlserver ls /opt/mssql-tools18/bin/sqlcmd >/dev/null 2>&1; then
     SQLCMD_PATH="/opt/mssql-tools18/bin/sqlcmd"
 fi
 
 # Execute database existence check and creation if missing
-docker exec -i sqlserver $SQLCMD_PATH -S localhost -U "$DB_USER" -P "$DB_PASSWORD" -C -Q "IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'rovendb') BEGIN CREATE DATABASE rovendb; PRINT 'Created database rovendb'; END ELSE PRINT 'Database rovendb already exists';" || {
+docker exec -i sqlserver $SQLCMD_PATH -S localhost -U "$DB_USER" -P "$DB_PASSWORD" -C -Q "IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = '$DB_NAME') BEGIN CREATE DATABASE [$DB_NAME]; PRINT 'Created database $DB_NAME'; END ELSE PRINT 'Database $DB_NAME already exists';" || {
     echo "Notice: Direct database check via sqlcmd exited. EF Core Migrate will also ensure creation on application startup."
 }
 
