@@ -42,14 +42,18 @@ log "Configuring environment and verifying database..."
 chmod +x "$PROJECT_ROOT/scripts/secure-env.sh"
 sudo "$PROJECT_ROOT/scripts/secure-env.sh" >> "$LOG_FILE" 2>&1
 
-# Step 3: Restore & Publish .NET Application
-log "Restoring NuGet packages..."
-dotnet restore Stockify.csproj >> "$LOG_FILE" 2>&1
-
+# Step 3: Clean, Restore & Publish .NET 10 Application
 log "Stopping roven-web service before publish to release file locks..."
 sudo systemctl stop roven-web >> "$LOG_FILE" 2>&1 || true
 
-log "Publishing .NET project in Release mode..."
+log "Cleaning old build and published binaries..."
+rm -rf "$PROJECT_ROOT/bin" "$PROJECT_ROOT/obj"
+find "$PUBLISH_DIR" -mindepth 1 -maxdepth 1 ! -name 'wwwroot' -exec rm -rf {} + >> "$LOG_FILE" 2>&1 || true
+
+log "Restoring NuGet packages..."
+dotnet restore Stockify.csproj >> "$LOG_FILE" 2>&1
+
+log "Publishing .NET 10 project in Release mode..."
 dotnet publish Stockify.csproj -c Release -o "$PUBLISH_DIR" >> "$LOG_FILE" 2>&1
 
 # Step 4: Preserve persistent uploads
@@ -75,23 +79,26 @@ sudo chmod -R 775 "$UPLOADS_DIR"
 log "Restarting roven-web systemd service..."
 sudo systemctl daemon-reload
 sudo systemctl restart roven-web >> "$LOG_FILE" 2>&1
-sleep 5
 
-# Step 6: Health check
-log "Running health check on port 5050..."
-sleep 3
-if curl -k -L --fail --silent --show-error --connect-timeout 15 http://127.0.0.1:5050/health > /dev/null 2>&1; then
+# Step 6: Health check with retry loop (waiting up to 30s for Kestrel & DB)
+log "Running health check on port 5050 (waiting for startup)..."
+HEALTH_PASSED=false
+for i in {1..15}; do
+    if curl --fail --silent --show-error --connect-timeout 2 http://127.0.0.1:5050/health > /dev/null 2>&1; then
+        HEALTH_PASSED=true
+        break
+    fi
+    sleep 2
+done
+
+if [ "$HEALTH_PASSED" = true ]; then
     log "Health Check: PASSED (http://127.0.0.1:5050/health is alive)"
 else
-    log "Health Check: Retrying after 5 seconds..."
-    sleep 5
-    if curl -k -L --fail --silent --show-error --connect-timeout 15 http://127.0.0.1:5050/health > /dev/null 2>&1; then
-        log "Health Check: PASSED (http://127.0.0.1:5050/health is alive on retry)"
-    else
-        log "Health Check: FAILED! Checking service status..."
-        sudo systemctl status roven-web --no-pager >> "$LOG_FILE" 2>&1 || true
-        exit 1
-    fi
+    log "Health Check: FAILED! Checking service status..."
+    sudo systemctl status roven-web --no-pager >> "$LOG_FILE" 2>&1 || true
+    echo "❌ Deployment failed! Recent service logs:"
+    sudo journalctl -u roven-web -n 30 --no-pager
+    exit 1
 fi
 
 log "=================================================="
