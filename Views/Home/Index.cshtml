@@ -22,6 +22,15 @@
         width: 100%;
     }
 
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.5em;
+        line-height: 1.25;
+    }
+
     #heroHomeCarousel,
     .carousel,
     .carousel-inner {
@@ -627,7 +636,7 @@
         }
         .newsletter-pill-form .form-control {
             text-align: center !important;
-            font-size: 0.88rem !important;
+            font-size: 16px !important; /* Prevents iOS auto-zoom */
             padding: 0.5rem !important;
             width: 100% !important;
         }
@@ -646,6 +655,201 @@
         .roven-faq-body {
             padding: 0.95rem 1rem !important;
             font-size: 0.88rem !important;
+        }
+    }
+
+    @@media (max-width: 575.98px) {
+        /* Section Spacing & Containers for Small Phones */
+        section {
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+        }
+
+        .container {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+        }
+
+        /* 1. Trust Value Cards (2x2 Grid) */
+        .trust-card {
+            padding: 0.75rem 0.45rem !important;
+            border-radius: 12px !important;
+            gap: 4px !important;
+            text-align: center !important;
+            justify-content: center !important;
+        }
+        .trust-icon-box {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 0.95rem !important;
+            border-radius: 8px !important;
+            margin: 0 auto 3px auto !important;
+        }
+        .trust-title {
+            font-size: 0.74rem !important;
+            line-height: 1.2 !important;
+            margin-bottom: 2px !important;
+            font-weight: 700 !important;
+        }
+        .trust-subtitle {
+            font-size: 0.63rem !important;
+            line-height: 1.2 !important;
+            color: #78716c !important;
+        }
+
+        /* 2. Category Showcase (2x2 Grid) */
+        .cat-showcase-card {
+            padding: 0.8rem 0.65rem !important;
+            border-radius: 14px !important;
+            min-height: 190px !important;
+        }
+        .cat-icon-container {
+            width: 34px !important;
+            height: 34px !important;
+            font-size: 0.95rem !important;
+            border-radius: 8px !important;
+        }
+        .cat-count-badge {
+            font-size: 0.62rem !important;
+            padding: 0.15rem 0.4rem !important;
+        }
+        .cat-card-title {
+            font-size: 0.86rem !important;
+            min-height: 2.1rem !important;
+            line-height: 1.25 !important;
+            margin-top: 0.4rem !important;
+        }
+        .cat-card-desc {
+            font-size: 0.7rem !important;
+            line-height: 1.3 !important;
+            margin-bottom: 0.35rem !important;
+        }
+        .cat-explore-text {
+            font-size: 0.7rem !important;
+        }
+        .cat-arrow-circle {
+            width: 24px !important;
+            height: 24px !important;
+            font-size: 0.65rem !important;
+        }
+
+        /* 3. Special Offers & Duo Bundles */
+        .special-offer-card {
+            border-radius: 16px !important;
+        }
+        .special-offer-duo-img {
+            max-height: 125px !important;
+        }
+        .special-offer-single-img {
+            max-height: 160px !important;
+        }
+        .special-offer-plus-badge {
+            width: 26px !important;
+            height: 26px !important;
+            font-size: 0.85rem !important;
+        }
+        .special-offer-actions .btn {
+            font-size: 0.8rem !important;
+            padding: 0.55rem 0.75rem !important;
+        }
+
+        /* 4. Spotlight Deal of the Day */
+        .spotlight-deal-card {
+            border-radius: 16px !important;
+        }
+        .spotlight-deal-card img {
+            max-height: 220px !important;
+        }
+        .spotlight-timer-boxes {
+            justify-content: center !important;
+        }
+        .timer-unit-box {
+            width: 52px !important;
+            height: 48px !important;
+            padding: 0.35rem 0.4rem !important;
+            border-radius: 10px !important;
+        }
+        .timer-unit-num {
+            font-size: 1.1rem !important;
+        }
+        .timer-unit-lbl {
+            font-size: 0.58rem !important;
+        }
+
+        /* 5. Product Cards (Featured & Best Sellers) */
+        .product-card {
+            border-radius: 14px !important;
+        }
+        .product-image-container {
+            height: 200px !important;
+        }
+        .product-card .p-3 {
+            padding: 0.85rem !important;
+        }
+        .product-card h6 {
+            font-size: 0.95rem !important;
+            line-height: 1.3 !important;
+        }
+        .product-card .fw-bold.fs-5 {
+            font-size: 1.05rem !important;
+        }
+        .product-card .btn-sm {
+            font-size: 0.8rem !important;
+            padding: 0.35rem 0.7rem !important;
+        }
+
+        /* 6. Client Testimonials */
+        .testimonial-card {
+            padding: 1.15rem 0.95rem !important;
+            border-radius: 14px !important;
+        }
+        .testimonial-card p {
+            font-size: 0.82rem !important;
+            line-height: 1.5 !important;
+        }
+
+        /* 7. FAQ Accordion */
+        .roven-faq-card {
+            border-radius: 12px !important;
+            margin-bottom: 8px !important;
+        }
+        .roven-faq-btn {
+            padding: 0.85rem 0.95rem !important;
+            font-size: 0.88rem !important;
+            line-height: 1.35 !important;
+        }
+        .roven-faq-body {
+            padding: 0.85rem 0.95rem !important;
+            font-size: 0.82rem !important;
+            line-height: 1.5 !important;
+        }
+
+        /* 8. VIP Newsletter Card */
+        .newsletter-card {
+            padding: 2.2rem 1rem !important;
+            border-radius: 18px !important;
+        }
+        .newsletter-card h2 {
+            font-size: 1.35rem !important;
+            line-height: 1.3 !important;
+        }
+        .newsletter-card p {
+            font-size: 0.8rem !important;
+            line-height: 1.5 !important;
+        }
+        .newsletter-pill-form {
+            padding: 6px !important;
+            border-radius: 16px !important;
+            gap: 6px !important;
+        }
+        .newsletter-pill-form .form-control {
+            font-size: 16px !important; /* CRITICAL: Prevents iOS auto-zoom */
+            height: 44px !important;
+        }
+        .newsletter-btn {
+            height: 44px !important;
+            font-size: 0.88rem !important;
+            padding: 0.6rem 1rem !important;
         }
     }
 
@@ -1120,7 +1324,7 @@
                 </h3>
                 <p class="mb-0 small" style="color: #6c6358;">From concentrated Extraits to majestic Oud and discovery coffrets</p>
             </div>
-            <a asp-controller="Store" asp-action="Index" class="btn btn-sm fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2" style="border: 1px solid #630000; color: #630000; background: transparent;">
+            <a asp-controller="Store" asp-action="Index" class="btn btn-sm fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2 align-self-start align-self-sm-auto" style="border: 1px solid #630000; color: #630000; background: transparent;">
                 <span>View All Fragrances</span>
                 <i class="fa-solid fa-arrow-right"></i>
             </a>
@@ -1151,7 +1355,8 @@
                         <h5 class="cat-card-title">@cat.Name</h5>
                         <p class="cat-card-desc flex-grow-1">@(cat.Description ?? "Discover the haute perfumerie collection")</p>
                         <div class="cat-card-footer mt-auto d-flex align-items-center justify-content-between">
-                            <span class="cat-explore-text" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 32px);">Explore Department</span>
+                            <span class="cat-explore-text d-none d-sm-inline" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 32px);">Explore Department</span>
+                            <span class="cat-explore-text d-inline d-sm-none" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Explore</span>
                             <div class="cat-arrow-circle">
                                 <i class="fa-solid fa-arrow-right"></i>
                             </div>
@@ -1188,12 +1393,12 @@
                     </p>
                 </div>
 
-                <div class="row g-4 justify-content-center">
+                <div class="row g-3 g-md-4 justify-content-center">
                     @foreach (var offer in Model.SpecialOffers)
                     {
                         var isDuo = offer.IsDuoOffer;
                         <div class="col-12 col-md-6 @(Model.SpecialOffers.Count == 2 ? "col-lg-6" : "col-lg-4")">
-                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative d-flex flex-column" style="background-color: #FAF9F5; border: 1px solid rgba(99, 0, 0, 0.12) !important; transition: transform 0.25s ease, box-shadow 0.25s ease;">
+                            <div class="card special-offer-card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative d-flex flex-column" style="background-color: #FAF9F5; border: 1px solid rgba(99, 0, 0, 0.12) !important; transition: transform 0.25s ease, box-shadow 0.25s ease;">
                                 <!-- Top Badges -->
                                 <div class="position-absolute top-0 start-0 m-3 z-2 d-flex flex-column gap-1">
                                     <span class="badge badge-roven-crimson px-2.5 py-1.5 rounded-pill fw-bold shadow-xs small d-inline-flex align-items-center gap-1">
@@ -1209,7 +1414,7 @@
                                 </div>
 
                                 <!-- Perfume Image Box -->
-                                <div class="text-center p-3 position-relative overflow-hidden" style="background-color: #EDEBDD; min-height: 250px; display: flex; align-items: center; justify-content: center;">
+                                <div class="text-center p-3 position-relative overflow-hidden special-offer-img-box" style="background-color: #EDEBDD; min-height: 250px; display: flex; align-items: center; justify-content: center;">
                                     @if (isDuo)
                                     {
                                         <!-- Duo Perfumes Visual Presentation (2 Flacons side-by-side with + divider) -->
@@ -1219,7 +1424,7 @@
                                                 <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-block" title="@offer.ProductName">
                                                     @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
                                                     {
-                                                        <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid rounded-3 shadow-xs" style="max-height: 185px; object-fit: contain; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'" />
+                                                        <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid rounded-3 shadow-xs special-offer-duo-img" style="max-height: 185px; object-fit: contain; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'" />
                                                     }
                                                     else
                                                     {
@@ -1232,7 +1437,7 @@
                                             </div>
 
                                             <!-- Gold Plus Separator Badge -->
-                                            <div class="d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 32px; height: 32px; background: #630000; color: #EDEBDD; font-weight: bold; font-size: 1.1rem; flex-shrink: 0; z-index: 2; border: 2px solid #dfb15b;">
+                                            <div class="d-flex align-items-center justify-content-center rounded-circle shadow-sm special-offer-plus-badge" style="width: 32px; height: 32px; background: #630000; color: #EDEBDD; font-weight: bold; font-size: 1.1rem; flex-shrink: 0; z-index: 2; border: 2px solid #dfb15b;">
                                                 +
                                             </div>
 
@@ -1241,7 +1446,7 @@
                                                 <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.SecondProductId" class="d-block" title="@offer.SecondProductName">
                                                     @if (!string.IsNullOrWhiteSpace(offer.SecondProductImageUrl))
                                                     {
-                                                        <img src="@offer.SecondProductImageUrl" alt="@offer.SecondProductName" class="img-fluid rounded-3 shadow-xs" style="max-height: 185px; object-fit: contain; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'" />
+                                                        <img src="@offer.SecondProductImageUrl" alt="@offer.SecondProductName" class="img-fluid rounded-3 shadow-xs special-offer-duo-img" style="max-height: 185px; object-fit: contain; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'" />
                                                     }
                                                     else
                                                     {
@@ -1260,7 +1465,7 @@
                                         <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-block">
                                             @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
                                             {
-                                                <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid rounded-3 shadow-xs" style="max-height: 210px; object-fit: contain; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" />
+                                                <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid rounded-3 shadow-xs special-offer-single-img" style="max-height: 210px; object-fit: contain; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" />
                                             }
                                             else
                                             {
@@ -1343,7 +1548,7 @@
                                     </div>
 
                                     <!-- Action Buttons -->
-                                    <div class="d-flex gap-2">
+                                    <div class="d-flex gap-2 special-offer-actions">
                                         <button type="button" class="btn btn-roven-wine btn-sm py-2 px-3 fw-bold rounded-pill flex-grow-1 d-flex align-items-center justify-content-center gap-1.5 shadow-xs" onclick="window.addOfferToCart(@offer.Id, this)">
                                             <i class="fa-solid @(isDuo ? "fa-gift" : "fa-bag-shopping")"></i>
                                             <span>@(isDuo ? "أضف باقة العطرين للحقيبة" : "أضف للحقيبة")</span>
@@ -1512,7 +1717,7 @@
                 <h3 class="fw-extrabold mb-1" style="color: #1B1717;">Featured ROVEN Parfums</h3>
                 <p class="mb-0 small" style="color: #6c6358;">Our most acclaimed fragrant creations formulated with precious Grasse and oriental oils</p>
             </div>
-            <a asp-controller="Store" asp-action="Index" class="btn btn-sm fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2" style="border: 1px solid #630000; color: #630000; background: transparent;">
+            <a asp-controller="Store" asp-action="Index" class="btn btn-sm fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2 align-self-start align-self-sm-auto" style="border: 1px solid #630000; color: #630000; background: transparent;">
                 <span>Explore Full Collection</span>
                 <i class="fa-solid fa-arrow-right"></i>
             </a>
@@ -1559,7 +1764,7 @@
                             </h6>
                             <div class="font-monospace small mb-3" style="color: #8c8374;">SKU: @product.Sku</div>
 
-                            <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between" style="border-color: #e8e3d5 !important;">
+                            <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-2" style="border-color: #e8e3d5 !important;">
                                 <div>
                                     <div class="small" style="font-size: 0.75rem; color: #6c6358;">Price</div>
                                     <div class="fw-bold fs-5" style="color: #630000;">
@@ -1603,7 +1808,7 @@
                     <h3 class="fw-extrabold mb-1" style="color: #1B1717;">Top Acclaimed ROVEN Parfums</h3>
                     <p class="mb-0 small" style="color: #6c6358;">The fragrances most cherished by our clientele across Egypt this month</p>
                 </div>
-                <a asp-controller="Store" asp-action="Index" class="btn btn-sm fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2" style="border: 1px solid #1B1717; color: #1B1717; background: transparent;">
+                <a asp-controller="Store" asp-action="Index" class="btn btn-sm fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2 align-self-start align-self-sm-auto" style="border: 1px solid #1B1717; color: #1B1717; background: transparent;">
                     <span>View All Best Sellers</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </a>
@@ -1637,7 +1842,7 @@
                                 </h6>
                                 <div class="font-monospace small mb-3" style="color: #8c8374;">SKU: @product.Sku</div>
 
-                                <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between" style="border-color: #e8e3d5 !important;">
+                                <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-2" style="border-color: #e8e3d5 !important;">
                                     <div class="fw-bold fs-5" style="color: #630000;">
                                         @product.Price.ToString("N2") <span class="fs-6 fw-normal" style="color: #6c6358;">EGP</span>
                                     </div>
@@ -1667,9 +1872,9 @@
             <p class="small mb-0" style="color: #6c6358;">Over @Model.TotalCustomersCount+ discerning fragrance collectors rely on ROVEN Parfums</p>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-3 g-md-4">
             <div class="col-12 col-md-4">
-                <div class="card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
+                <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
                     <div class="star-rating mb-3">
                         <i class="fa-solid fa-star"></i>
                         <i class="fa-solid fa-star"></i>
@@ -1693,7 +1898,7 @@
             </div>
 
             <div class="col-12 col-md-4">
-                <div class="card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
+                <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
                     <div class="star-rating mb-3">
                         <i class="fa-solid fa-star"></i>
                         <i class="fa-solid fa-star"></i>
@@ -1717,7 +1922,7 @@
             </div>
 
             <div class="col-12 col-md-4">
-                <div class="card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
+                <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
                     <div class="star-rating mb-3">
                         <i class="fa-solid fa-star"></i>
                         <i class="fa-solid fa-star"></i>
@@ -1854,7 +2059,7 @@
             <!-- Sleek Unified Pill Input Bar -->
             <div class="mx-auto" style="max-width: 540px;">
                 <form class="newsletter-pill-form" onsubmit="handleNewsletterSubmit(event)">
-                    <i class="fa-solid fa-envelope fs-5 ms-1 me-2" style="color: #630000;"></i>
+                    <i class="fa-solid fa-envelope fs-5 ms-1 me-2 d-none d-sm-inline-block" style="color: #630000;"></i>
                     <input type="email" id="newsletter-email" class="form-control" placeholder="Enter your email for private salon access..." required autocomplete="email" />
                     <button type="submit" class="newsletter-btn d-flex align-items-center gap-2">
                         <span>Get 10% Off</span>
@@ -1864,7 +2069,7 @@
             </div>
 
             <!-- Trust Features List -->
-            <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 mt-4 small" style="color: #EDEBDD; opacity: 0.85;">
+            <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 gap-sm-4 mt-4 small" style="color: #EDEBDD; opacity: 0.85;">
                 <span class="d-flex align-items-center gap-1"><i class="fa-solid fa-circle-check fs-6" style="color: #EDEBDD;"></i> Zero spam guarantee</span>
                 <span class="d-flex align-items-center gap-1"><i class="fa-solid fa-bolt fs-6" style="color: #810100;"></i> Instant bespoke voucher</span>
                 <span class="d-flex align-items-center gap-1"><i class="fa-solid fa-circle-xmark fs-6" style="color: #EDEBDD;"></i> Unsubscribe anytime</span>
