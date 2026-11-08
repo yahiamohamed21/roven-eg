@@ -28,17 +28,24 @@ public class CustomersController : Controller
             .Include(c => c.Orders)
             .AsNoTracking();
 
-        // High-level statistics
-        var totalCustomers = await _context.Customers.CountAsync();
-        var activeCustomers = await _context.Customers.CountAsync(c => c.Orders.Any());
-        var leadsOnly = await _context.Customers.CountAsync(c => !c.Orders.Any());
-        var totalRevenue = await _context.Orders
+        // High-level statistics (Single combined aggregate query)
+        var custKpis = await _context.Customers.AsNoTracking()
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                Total = g.Count(),
+                Active = g.Count(c => c.Orders.Any()),
+                Leads = g.Count(c => !c.Orders.Any())
+            })
+            .FirstOrDefaultAsync();
+
+        var totalRevenue = await _context.Orders.AsNoTracking()
             .Where(o => o.Status != OrderStatus.Cancelled)
             .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
 
-        ViewBag.TotalCustomers = totalCustomers;
-        ViewBag.ActiveCustomers = activeCustomers;
-        ViewBag.LeadsOnly = leadsOnly;
+        ViewBag.TotalCustomers = custKpis?.Total ?? 0;
+        ViewBag.ActiveCustomers = custKpis?.Active ?? 0;
+        ViewBag.LeadsOnly = custKpis?.Leads ?? 0;
         ViewBag.TotalRevenue = totalRevenue;
 
         // Apply Filter: 'all', 'purchased' (customers with orders), 'leads' (customers without orders)

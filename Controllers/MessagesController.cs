@@ -20,7 +20,7 @@ public class MessagesController : Controller
     // GET: /Messages
     public async Task<IActionResult> Index(string? search = null, string? status = null, string? tab = null, string? reviewStatus = null)
     {
-        var query = _context.ContactMessages.AsQueryable();
+        var query = _context.ContactMessages.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -41,6 +41,7 @@ public class MessagesController : Controller
 
         // Product Reviews Query
         var reviewsQuery = _context.ProductReviews
+            .AsNoTracking()
             .Include(r => r.Product)
             .AsQueryable();
 

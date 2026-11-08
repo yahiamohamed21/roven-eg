@@ -53,7 +53,11 @@
             <h2 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif;">Home Control Center</h2>
             <p class="text-muted small mb-0">لوحة تحكم كاملة في كافة سكشنات وبانرات ونصوص الصفحة الرئيسية للمتجر بروابط وتعديلات حية تسمع فورياً.</p>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2 shadow-xs" onclick="syncImagesToCloudinary(this)" title="ضغط وتحويل كل صور المتجر إلى WebP ورفعها لـ Cloudinary">
+                <i class="fa-solid fa-cloud-arrow-up text-primary"></i>
+                <span>مزامنة الصور مع Cloudinary (WebP)</span>
+            </button>
             <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2">
                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 <span>معاينة المتجر (Preview)</span>
@@ -1364,5 +1368,84 @@
             });
         });
     });
+
+    async function syncImagesToCloudinary(btn) {
+        const confirmResult = await Swal.fire({
+            title: 'مزامنة الصور مع Cloudinary',
+            text: 'سيتم تحويل وضغط كافة صور المنتجات والبانرات الحالية إلى صيغة WebP ورفعها إلى Cloudinary CDN وتحديث قاعدة البيانات بالروابط السحابية مباشرة.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'بدء المزامنة الآن',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#630000',
+            cancelButtonColor: '#6c757d'
+        });
+
+        if (!confirmResult.isConfirmed) return;
+
+        const originalBtnHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> جاري المزامنة...';
+
+        Swal.fire({
+            title: 'جاري ضغط ورفع الصور...',
+            text: 'يتم الآن تحويل الصور إلى WebP وضغطها ورفعها لـ Cloudinary. يرجى الانتظار قليلاً.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        try {
+            const tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
+            const token = tokenEl ? tokenEl.value : '';
+
+            const response = await fetch('/HomeControl/SyncImagesToCloudinary', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'اكتملت المزامنة بنجاح!',
+                    html: `
+                        <div class="text-start p-2">
+                            <p class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> ${data.message}</p>
+                            <p class="mb-1 text-muted small"><i class="fa-solid fa-images me-2"></i> عدد الصور التي تم تحويلها: <strong>${data.syncedCount}</strong></p>
+                            <p class="mb-0 text-muted small"><i class="fa-solid fa-hard-drive me-2"></i> المساحة المخففة على السيرفر: <strong>${data.mbSaved} MB</strong></p>
+                        </div>
+                    `,
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#630000'
+                });
+                window.location.reload();
+            } else {
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'تنبيه',
+                    text: data.message || 'تعذرت المزامنة، يرجى مراجعة إعدادات Cloudinary.',
+                    confirmButtonColor: '#630000'
+                });
+            }
+        } catch (err) {
+            console.error('Cloudinary sync error:', err);
+            await Swal.fire({
+                icon: 'error',
+                title: 'خطأ في الاتصال',
+                text: 'حدث خطأ أثناء الاتصال بالسيرفر. يرجى التأكد من تشغيل السيرفر والمحاولة مرة أخرى.',
+                confirmButtonColor: '#630000'
+            });
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalBtnHtml;
+        }
+    }
 </script>
 }

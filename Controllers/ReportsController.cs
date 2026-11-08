@@ -28,34 +28,33 @@ public class ReportsController : Controller
 
         var vm = new ReportsViewModel();
 
-        // 1. Live Sales & Revenue Data
-        vm.MonthlyGrossRevenue = await _context.Orders
-            .Where(o => o.Status != OrderStatus.Cancelled && o.OrderDate >= startOfMonthUtc && o.OrderDate < endOfMonthUtc)
-            .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
+        // 1. Live Sales & Revenue Data (Single Combined Query)
+        var orderReportKpis = await _context.Orders.AsNoTracking()
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                MonthlyGrossRevenue = g.Where(o => o.Status != OrderStatus.Cancelled && o.OrderDate >= startOfMonthUtc && o.OrderDate < endOfMonthUtc).Sum(o => o.TotalAmount),
+                TotalRevenueAllTime = g.Where(o => o.Status != OrderStatus.Cancelled).Sum(o => o.TotalAmount),
+                MonthlyOrdersCount = g.Count(o => o.OrderDate >= startOfMonthUtc && o.OrderDate < endOfMonthUtc),
+                TotalOrdersCount = g.Count(),
+                CompletedOrActiveOrdersCount = g.Count(o => o.Status != OrderStatus.Cancelled),
+                WebsiteRevenue = g.Where(o => o.Status != OrderStatus.Cancelled && o.OrderSource == OrderSource.Website).Sum(o => o.TotalAmount),
+                PosRevenue = g.Where(o => o.Status != OrderStatus.Cancelled && o.OrderSource == OrderSource.Manual).Sum(o => o.TotalAmount)
+            })
+            .FirstOrDefaultAsync();
 
-        vm.TotalRevenueAllTime = await _context.Orders
-            .Where(o => o.Status != OrderStatus.Cancelled)
-            .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
-
-        vm.MonthlyOrdersCount = await _context.Orders
-            .CountAsync(o => o.OrderDate >= startOfMonthUtc && o.OrderDate < endOfMonthUtc);
-
-        vm.TotalOrdersCount = await _context.Orders.CountAsync();
-
-        var completedOrActiveOrdersCount = await _context.Orders
-            .CountAsync(o => o.Status != OrderStatus.Cancelled);
+        vm.MonthlyGrossRevenue = orderReportKpis?.MonthlyGrossRevenue ?? 0m;
+        vm.TotalRevenueAllTime = orderReportKpis?.TotalRevenueAllTime ?? 0m;
+        vm.MonthlyOrdersCount = orderReportKpis?.MonthlyOrdersCount ?? 0;
+        vm.TotalOrdersCount = orderReportKpis?.TotalOrdersCount ?? 0;
+        var completedOrActiveOrdersCount = orderReportKpis?.CompletedOrActiveOrdersCount ?? 0;
 
         vm.AverageOrderValue = completedOrActiveOrdersCount > 0
             ? Math.Round(vm.TotalRevenueAllTime / completedOrActiveOrdersCount, 2)
             : 0m;
 
-        vm.WebsiteRevenue = await _context.Orders
-            .Where(o => o.Status != OrderStatus.Cancelled && o.OrderSource == OrderSource.Website)
-            .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
-
-        vm.PosRevenue = await _context.Orders
-            .Where(o => o.Status != OrderStatus.Cancelled && o.OrderSource == OrderSource.Manual)
-            .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
+        vm.WebsiteRevenue = orderReportKpis?.WebsiteRevenue ?? 0m;
+        vm.PosRevenue = orderReportKpis?.PosRevenue ?? 0m;
 
         // 2. Live Inventory Valuation Data
         var activeProducts = await _context.Products

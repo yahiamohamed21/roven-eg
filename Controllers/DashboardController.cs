@@ -109,22 +109,16 @@ public class DashboardController : Controller
                 break;
         }
 
-        // 2. Query Eligible Sales Representatives & Populate Filter Dropdown
-        var salesRoleIds = await _context.Roles
-            .Where(r => r.Name == Roles.Employee || r.Name == Roles.Admin)
-            .Select(r => r.Id)
-            .ToListAsync();
+        // 2. Query Eligible Sales Representatives (Optimized Single Join)
+        var eligibleUsers = await (
+            from u in _context.Users.AsNoTracking()
+            join ur in _context.UserRoles on u.Id equals ur.UserId
+            join r in _context.Roles on ur.RoleId equals r.Id
+            where r.Name == Roles.Employee || r.Name == Roles.Admin
+            select u
+        ).Distinct().OrderBy(u => u.FullName).ToListAsync();
 
-        var salesUserIds = await _context.UserRoles
-            .Where(ur => salesRoleIds.Contains(ur.RoleId))
-            .Select(ur => ur.UserId)
-            .Distinct()
-            .ToListAsync();
-
-        var eligibleUsers = await _context.Users
-            .Where(u => salesUserIds.Contains(u.Id))
-            .OrderBy(u => u.FullName)
-            .ToListAsync();
+        var salesUserIds = eligibleUsers.Select(u => u.Id).ToList();
 
         model.AvailableSalesReps = eligibleUsers.Select(u => new SalesRepDropdownItemViewModel
         {
@@ -196,55 +190,79 @@ public class DashboardController : Controller
             ordersQuery = ordersQuery.Where(o => selectedRepOrderIdsQuery.Contains(o.Id));
         }
 
-        // 5. High-Level Inventory & Sales KPIs
-        model.TotalProducts = await _context.Products.CountAsync(p => p.IsActive);
-        model.TotalCustomers = await _context.Customers.CountAsync(c => c.CreatedAt <= endUtc);
-        model.TotalOrders = await ordersQuery.CountAsync();
-        model.TotalSalesRevenue = await ordersQuery.SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
+        // 5. High-Level Inventory & Sales KPIs (Combined Single-Batch Aggregate Queries)
+        var productStats = await _context.Products.AsNoTracking()
+            .Where(p => p.IsActive)
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                Total = g.Count(),
+                LowStock = g.Count(p => p.StockQuantity <= p.ReorderLevel),
+                OutOfStock = g.Count(p => p.StockQuantity <= 0)
+            })
+            .FirstOrDefaultAsync();
 
-        model.LowStockItemsCount = await _context.Products
-            .CountAsync(p => p.IsActive && p.StockQuantity <= p.ReorderLevel);
+        model.TotalProducts = productStats?.Total ?? 0;
+        model.LowStockItemsCount = productStats?.LowStock ?? 0;
+        model.OutOfStockCount = productStats?.OutOfStock ?? 0;
+        model.TotalCustomers = await _context.Customers.AsNoTracking().CountAsync(c => c.CreatedAt <= endUtc);
 
-        model.OutOfStockCount = await _context.Products
-            .CountAsync(p => p.IsActive && p.StockQuantity <= 0);
+        var orderStats = await ordersQuery.AsNoTracking()
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                TotalOrders = g.Count(),
+                TotalRevenue = g.Sum(o => o.TotalAmount),
+                TodayRevenue = g.Where(o => o.OrderDate >= todayEgyptStartUtc).Sum(o => o.TotalAmount),
+                TodayOrders = g.Count(o => o.OrderDate >= todayEgyptStartUtc),
+                WebsiteOrders = g.Count(o => o.OrderSource == OrderSource.Website),
+                WebsiteRevenue = g.Where(o => o.OrderSource == OrderSource.Website).Sum(o => o.TotalAmount),
+                ManualOrders = g.Count(o => o.OrderSource == OrderSource.Manual),
+                ManualRevenue = g.Where(o => o.OrderSource == OrderSource.Manual).Sum(o => o.TotalAmount)
+            })
+            .FirstOrDefaultAsync();
 
-        model.TodaySalesRevenue = await ordersQuery
-            .Where(o => o.OrderDate >= todayEgyptStartUtc)
-            .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
+        model.TotalOrders = orderStats?.TotalOrders ?? 0;
+        model.TotalSalesRevenue = orderStats?.TotalRevenue ?? 0m;
+        model.TodaySalesRevenue = orderStats?.TodayRevenue ?? 0m;
+        model.TodayOrdersCount = orderStats?.TodayOrders ?? 0;
+        model.WebsiteOrdersCount = orderStats?.WebsiteOrders ?? 0;
+        model.WebsiteSalesRevenue = orderStats?.WebsiteRevenue ?? 0m;
+        model.ManualOrdersCount = orderStats?.ManualOrders ?? 0;
+        model.ManualSalesRevenue = orderStats?.ManualRevenue ?? 0m;
 
-        model.TodayOrdersCount = await ordersQuery
-            .CountAsync(o => o.OrderDate >= todayEgyptStartUtc);
-
-        // E-Commerce vs Counter POS Metrics (Within Filtered Window)
-        model.WebsiteOrdersCount = await ordersQuery.CountAsync(o => o.OrderSource == OrderSource.Website);
-        model.PendingWebsiteOrdersCount = await _context.Orders
+        model.PendingWebsiteOrdersCount = await _context.Orders.AsNoTracking()
             .CountAsync(o => o.OrderSource == OrderSource.Website && o.Status == OrderStatus.Pending && o.OrderDate >= startUtc && o.OrderDate <= endUtc);
-        model.WebsiteSalesRevenue = await ordersQuery
-            .Where(o => o.OrderSource == OrderSource.Website)
-            .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
 
-        model.ManualOrdersCount = await ordersQuery.CountAsync(o => o.OrderSource == OrderSource.Manual);
-        model.ManualSalesRevenue = await ordersQuery
-            .Where(o => o.OrderSource == OrderSource.Manual)
-            .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
-
-        // Website Visits & Traffic Analytics (Within Filtered Window)
-        model.TotalWebsiteVisits = await _context.SiteVisits
-            .CountAsync(v => v.VisitedAt >= startUtc && v.VisitedAt <= endUtc);
-        model.TodayWebsiteVisits = await _context.SiteVisits
-            .CountAsync(v => v.VisitedAt >= todayEgyptStartUtc);
-        model.UniqueVisitorsCount = await _context.SiteVisits
+        // Website Visits & Traffic Analytics (Single Aggregation Query)
+        var visitStats = await _context.SiteVisits.AsNoTracking()
             .Where(v => v.VisitedAt >= startUtc && v.VisitedAt <= endUtc)
-            .Select(v => v.SessionId ?? v.IpAddress)
-            .Distinct()
-            .CountAsync();
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                Total = g.Count(),
+                Today = g.Count(v => v.VisitedAt >= todayEgyptStartUtc),
+                Unique = g.Select(v => v.SessionId ?? v.IpAddress).Distinct().Count()
+            })
+            .FirstOrDefaultAsync();
 
-        // Abandoned Checkouts Analytics (Within Filtered Window)
-        model.AbandonedCheckoutsCount = await _context.AbandonedCheckouts
-            .CountAsync(a => !a.IsRecovered && a.LastUpdatedAt >= startUtc && a.LastUpdatedAt <= endUtc);
-        model.AbandonedCheckoutsTotalValue = await _context.AbandonedCheckouts
+        model.TotalWebsiteVisits = visitStats?.Total ?? 0;
+        model.TodayWebsiteVisits = visitStats?.Today ?? 0;
+        model.UniqueVisitorsCount = visitStats?.Unique ?? 0;
+
+        // Abandoned Checkouts Analytics (Single Aggregation Query)
+        var abandonedStats = await _context.AbandonedCheckouts.AsNoTracking()
             .Where(a => !a.IsRecovered && a.LastUpdatedAt >= startUtc && a.LastUpdatedAt <= endUtc)
-            .SumAsync(a => (decimal?)a.TotalAmount) ?? 0m;
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                Count = g.Count(),
+                TotalValue = g.Sum(a => a.TotalAmount)
+            })
+            .FirstOrDefaultAsync();
+
+        model.AbandonedCheckoutsCount = abandonedStats?.Count ?? 0;
+        model.AbandonedCheckoutsTotalValue = abandonedStats?.TotalValue ?? 0m;
 
         model.RecentAbandonedCheckouts = await _context.AbandonedCheckouts
             .Where(a => a.LastUpdatedAt >= startUtc && a.LastUpdatedAt <= endUtc)

@@ -23,6 +23,7 @@ public class CouponsController : Controller
     public async Task<IActionResult> Index()
     {
         var coupons = await _context.Coupons
+            .AsNoTracking()
             .Include(c => c.Orders)
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();

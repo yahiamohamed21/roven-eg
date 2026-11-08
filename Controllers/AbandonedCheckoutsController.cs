@@ -50,10 +50,23 @@ public class AbandonedCheckoutsController : Controller
         }
 
         ViewBag.CurrentFilter = cleanFilter;
-        ViewBag.TotalPending = await _context.AbandonedCheckouts.CountAsync(a => !a.IsRecovered);
-        ViewBag.TotalRecovered = await _context.AbandonedCheckouts.CountAsync(a => a.IsRecovered);
-        ViewBag.TotalAll = await _context.AbandonedCheckouts.CountAsync();
-        ViewBag.PendingValue = await _context.AbandonedCheckouts.Where(a => !a.IsRecovered).SumAsync(a => (decimal?)a.TotalAmount) ?? 0m;
+
+        // Single combined aggregate query
+        var acStats = await _context.AbandonedCheckouts.AsNoTracking()
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                TotalPending = g.Count(a => !a.IsRecovered),
+                TotalRecovered = g.Count(a => a.IsRecovered),
+                TotalAll = g.Count(),
+                PendingValue = g.Where(a => !a.IsRecovered).Sum(a => a.TotalAmount)
+            })
+            .FirstOrDefaultAsync();
+
+        ViewBag.TotalPending = acStats?.TotalPending ?? 0;
+        ViewBag.TotalRecovered = acStats?.TotalRecovered ?? 0;
+        ViewBag.TotalAll = acStats?.TotalAll ?? 0;
+        ViewBag.PendingValue = acStats?.PendingValue ?? 0m;
 
         var results = await query
             .OrderByDescending(a => a.LastUpdatedAt)

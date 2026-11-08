@@ -14,6 +14,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IInventoryService, InventoryService>();
         services.AddScoped<IOrderService, OrderService>();
         services.AddScoped<IDashboardService, DashboardService>();
+        services.AddScoped<IImageStorageService, CloudinaryImageStorageService>();
 
         return services;
     }

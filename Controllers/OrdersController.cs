@@ -38,22 +38,32 @@ public class OrdersController : Controller
                 .ThenInclude(i => i.Product)
             .AsNoTracking();
 
-        // 1. Calculate Summary Statistics across all orders
-        ViewBag.TotalOrders = await _context.Orders.CountAsync();
-        ViewBag.CompletedOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Completed);
-        ViewBag.PendingOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Pending || o.Status == OrderStatus.Processing);
-        ViewBag.CancelledOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Cancelled);
-        ViewBag.TotalSalesRevenue = await _context.Orders
-            .Where(o => o.Status != OrderStatus.Cancelled)
-            .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
+        // 1. Calculate Summary Statistics across all orders (Single Combined Aggregate Query)
+        var orderKpis = await _context.Orders.AsNoTracking()
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                TotalOrders = g.Count(),
+                CompletedOrders = g.Count(o => o.Status == OrderStatus.Completed),
+                PendingOrders = g.Count(o => o.Status == OrderStatus.Pending || o.Status == OrderStatus.Processing),
+                CancelledOrders = g.Count(o => o.Status == OrderStatus.Cancelled),
+                TotalSalesRevenue = g.Where(o => o.Status != OrderStatus.Cancelled).Sum(o => o.TotalAmount),
+                WebsiteOrders = g.Count(o => o.OrderSource == OrderSource.Website),
+                PendingWebsiteOrders = g.Count(o => o.OrderSource == OrderSource.Website && o.Status == OrderStatus.Pending),
+                ManualOrders = g.Count(o => o.OrderSource == OrderSource.Manual),
+                WebsiteRevenue = g.Where(o => o.OrderSource == OrderSource.Website && o.Status != OrderStatus.Cancelled).Sum(o => o.TotalAmount)
+            })
+            .FirstOrDefaultAsync();
 
-        // E-Commerce Specific Stats
-        ViewBag.WebsiteOrders = await _context.Orders.CountAsync(o => o.OrderSource == OrderSource.Website);
-        ViewBag.PendingWebsiteOrders = await _context.Orders.CountAsync(o => o.OrderSource == OrderSource.Website && o.Status == OrderStatus.Pending);
-        ViewBag.ManualOrders = await _context.Orders.CountAsync(o => o.OrderSource == OrderSource.Manual);
-        ViewBag.WebsiteRevenue = await _context.Orders
-            .Where(o => o.OrderSource == OrderSource.Website && o.Status != OrderStatus.Cancelled)
-            .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
+        ViewBag.TotalOrders = orderKpis?.TotalOrders ?? 0;
+        ViewBag.CompletedOrders = orderKpis?.CompletedOrders ?? 0;
+        ViewBag.PendingOrders = orderKpis?.PendingOrders ?? 0;
+        ViewBag.CancelledOrders = orderKpis?.CancelledOrders ?? 0;
+        ViewBag.TotalSalesRevenue = orderKpis?.TotalSalesRevenue ?? 0m;
+        ViewBag.WebsiteOrders = orderKpis?.WebsiteOrders ?? 0;
+        ViewBag.PendingWebsiteOrders = orderKpis?.PendingWebsiteOrders ?? 0;
+        ViewBag.ManualOrders = orderKpis?.ManualOrders ?? 0;
+        ViewBag.WebsiteRevenue = orderKpis?.WebsiteRevenue ?? 0m;
 
         ViewBag.CurrentSearch = search;
         ViewBag.CurrentStatus = status;

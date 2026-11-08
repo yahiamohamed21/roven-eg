@@ -32,17 +32,21 @@ public class InventoryController : Controller
             .Where(p => p.IsActive)
             .AsNoTracking();
 
-        // 1. Calculate KPI Statistics across all active inventory
-        ViewBag.TotalInventoryValue = await _context.Products
+        // 1. Calculate KPI Statistics across all active inventory (Single Combined Query)
+        var invStats = await _context.Products.AsNoTracking()
             .Where(p => p.IsActive)
-            .SumAsync(p => (decimal?)p.Price * p.StockQuantity) ?? 0m;
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                TotalValue = g.Sum(p => p.Price * p.StockQuantity),
+                TotalUnits = g.Sum(p => p.StockQuantity),
+                LowStock = g.Count(p => p.StockQuantity <= p.ReorderLevel)
+            })
+            .FirstOrDefaultAsync();
 
-        ViewBag.TotalUnitsInStock = await _context.Products
-            .Where(p => p.IsActive)
-            .SumAsync(p => (int?)p.StockQuantity) ?? 0;
-
-        ViewBag.LowStockCount = await _context.Products
-            .CountAsync(p => p.IsActive && p.StockQuantity <= p.ReorderLevel);
+        ViewBag.TotalInventoryValue = invStats?.TotalValue ?? 0m;
+        ViewBag.TotalUnitsInStock = invStats?.TotalUnits ?? 0;
+        ViewBag.LowStockCount = invStats?.LowStock ?? 0;
 
         ViewBag.LowStockProducts = await _context.Products
             .Include(p => p.Category)

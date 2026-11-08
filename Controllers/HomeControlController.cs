@@ -18,11 +18,16 @@ public class HomeControlController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _environment;
+    private readonly Stockify.Services.Interfaces.IImageStorageService _imageStorageService;
 
-    public HomeControlController(ApplicationDbContext context, IWebHostEnvironment environment)
+    public HomeControlController(
+        ApplicationDbContext context, 
+        IWebHostEnvironment environment,
+        Stockify.Services.Interfaces.IImageStorageService imageStorageService)
     {
         _context = context;
         _environment = environment;
+        _imageStorageService = imageStorageService;
     }
 
     // GET: /HomeControl
@@ -66,21 +71,8 @@ public class HomeControlController : Controller
         var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
         if (!allowedExtensions.Contains(ext)) return null;
 
-        var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "banners");
-        if (!Directory.Exists(uploadsFolder))
-        {
-            Directory.CreateDirectory(uploadsFolder);
-        }
-
-        var uniqueFileName = $"{prefix}_{Guid.NewGuid():N}{ext}";
-        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-
-        return $"/uploads/banners/{uniqueFileName}";
+        var customFileName = $"{prefix}_{Guid.NewGuid():N}{ext}";
+        return await _imageStorageService.UploadImageAsync(file, "roven/banners", customFileName);
     }
 
     // POST: /HomeControl/AddHeroBanner
@@ -473,6 +465,109 @@ public class HomeControlController : Controller
 
         TempData["SuccessMessage"] = $"تم حذف '{prodName}' من قسم العروض بنجاح.";
         return RedirectToAction(nameof(Index));
+    }
+
+    // POST: /HomeControl/SyncImagesToCloudinary
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SyncImagesToCloudinary()
+    {
+        if (!_imageStorageService.IsConfigured)
+        {
+            return Json(new 
+            { 
+                success = false, 
+                message = "بيانات حساب Cloudinary غير مكتملة. يرجى إدخال CloudName و ApiKey و ApiSecret في appsettings.json أولاً." 
+            });
+        }
+
+        int syncedCount = 0;
+        long bytesSaved = 0;
+
+        // 1. Sync Products Images
+        var products = await _context.Products.ToListAsync();
+        foreach (var p in products)
+        {
+            if (!string.IsNullOrWhiteSpace(p.ImageUrl) && !p.ImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                var cleanPath = p.ImageUrl.TrimStart('/', '\\').Replace('/', Path.DirectorySeparatorChar);
+                var fullLocalPath = Path.Combine(_environment.WebRootPath, cleanPath);
+
+                if (System.IO.File.Exists(fullLocalPath))
+                {
+                    var fileInfo = new FileInfo(fullLocalPath);
+                    bytesSaved += fileInfo.Length;
+
+                    await using (var stream = System.IO.File.OpenRead(fullLocalPath))
+                    {
+                        var newUrl = await _imageStorageService.UploadFileAsync(stream, fileInfo.Name, "roven/products");
+                        if (!string.IsNullOrWhiteSpace(newUrl))
+                        {
+                            p.ImageUrl = newUrl;
+                            syncedCount++;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Sync Hero Banners Images
+        var banners = await _context.HeroBanners.ToListAsync();
+        foreach (var b in banners)
+        {
+            if (!string.IsNullOrWhiteSpace(b.DesktopImageUrl) && !b.DesktopImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                var cleanPath = b.DesktopImageUrl.TrimStart('/', '\\').Replace('/', Path.DirectorySeparatorChar);
+                var fullLocalPath = Path.Combine(_environment.WebRootPath, cleanPath);
+                if (System.IO.File.Exists(fullLocalPath))
+                {
+                    var fileInfo = new FileInfo(fullLocalPath);
+                    bytesSaved += fileInfo.Length;
+
+                    await using (var stream = System.IO.File.OpenRead(fullLocalPath))
+                    {
+                        var newUrl = await _imageStorageService.UploadFileAsync(stream, fileInfo.Name, "roven/banners");
+                        if (!string.IsNullOrWhiteSpace(newUrl))
+                        {
+                            b.DesktopImageUrl = newUrl;
+                            syncedCount++;
+                        }
+                    }
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(b.MobileImageUrl) && !b.MobileImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                var cleanPath = b.MobileImageUrl.TrimStart('/', '\\').Replace('/', Path.DirectorySeparatorChar);
+                var fullLocalPath = Path.Combine(_environment.WebRootPath, cleanPath);
+                if (System.IO.File.Exists(fullLocalPath))
+                {
+                    var fileInfo = new FileInfo(fullLocalPath);
+                    bytesSaved += fileInfo.Length;
+
+                    await using (var stream = System.IO.File.OpenRead(fullLocalPath))
+                    {
+                        var newUrl = await _imageStorageService.UploadFileAsync(stream, fileInfo.Name, "roven/banners");
+                        if (!string.IsNullOrWhiteSpace(newUrl))
+                        {
+                            b.MobileImageUrl = newUrl;
+                            syncedCount++;
+                        }
+                    }
+                }
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        var mbSaved = Math.Round((double)bytesSaved / (1024 * 1024), 2);
+        return Json(new
+        {
+            success = true,
+            syncedCount = syncedCount,
+            mbSaved = mbSaved,
+            message = $"تم بنجاح رفع وضغط {syncedCount} صورة بصيغة WebP إلى Cloudinary وتحديث قاعدة البيانات بالروابط السحابية!"
+        });
     }
 }
 

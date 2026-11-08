@@ -1,5 +1,6 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Caching.Memory
 @using Stockify.Models.Entities
 @using Stockify.Models.Enums
 @using Stockify.Common.Constants
@@ -7,6 +8,7 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 @inject Stockify.Data.ApplicationDbContext DbContext
+@inject IMemoryCache MemoryCache
 
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
@@ -43,48 +45,47 @@
             }
         }
 
-        var pendingOrdersQuery = DbContext.Orders
-            .AsNoTracking()
-            .Where(o => o.Status == OrderStatus.Pending || o.Status == OrderStatus.Processing);
-
-        if (notifsLastReadAt.HasValue)
+        // High-Performance In-Memory Cache (25s) to eliminate layout DB queries on every navigation click!
+        var layoutStats = MemoryCache.GetOrCreate("roven_dashboard_layout_kpis", entry =>
         {
-            pendingOrdersQuery = pendingOrdersQuery.Where(o => o.OrderDate > notifsLastReadAt.Value);
-        }
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(25);
 
-        pendingOrdersCount = pendingOrdersQuery.Count(o => !readOrderIds.Contains(o.Id));
-
-        lowStockCount = DbContext.Products
-            .AsNoTracking()
-            .Count(p => p.IsActive && p.StockQuantity <= p.ReorderLevel);
-
-        if (notifsLastReadAt.HasValue)
-        {
-            lowStockCount = 0;
-        }
-
-        abandonedCartsCount = DbContext.AbandonedCheckouts
-            .AsNoTracking()
-            .Count(a => !a.IsRecovered);
-
-        if (isAdmin)
-        {
-            var msgQuery = DbContext.ContactMessages
+            var pending = DbContext.Orders
                 .AsNoTracking()
-                .Where(m => !m.IsRead);
-            if (notifsLastReadAt.HasValue)
-            {
-                msgQuery = msgQuery.Where(m => m.CreatedAt > notifsLastReadAt.Value);
-            }
-            unreadMessagesCount = msgQuery.Count();
-        }
+                .Where(o => o.Status == OrderStatus.Pending || o.Status == OrderStatus.Processing)
+                .Select(o => o.Id)
+                .ToList();
 
-        recentNotificationOrders = DbContext.Orders
-            .Include(o => o.Customer)
-            .AsNoTracking()
-            .OrderByDescending(o => o.OrderDate)
-            .Take(4)
-            .ToList();
+            var low = DbContext.Products
+                .AsNoTracking()
+                .Count(p => p.IsActive && p.StockQuantity <= p.ReorderLevel);
+
+            var abandoned = DbContext.AbandonedCheckouts
+                .AsNoTracking()
+                .Count(a => !a.IsRecovered);
+
+            var unread = DbContext.ContactMessages
+                .AsNoTracking()
+                .Count(m => !m.IsRead);
+
+            var recent = DbContext.Orders
+                .Include(o => o.Customer)
+                .AsNoTracking()
+                .OrderByDescending(o => o.OrderDate)
+                .Take(4)
+                .ToList();
+
+            return (pending, low, abandoned, unread, recent);
+        });
+
+        pendingOrdersCount = notifsLastReadAt.HasValue 
+            ? 0 
+            : (layoutStats.pending?.Count(id => !readOrderIds.Contains(id)) ?? 0);
+
+        lowStockCount = notifsLastReadAt.HasValue ? 0 : (layoutStats.low);
+        abandonedCartsCount = layoutStats.abandoned;
+        unreadMessagesCount = isAdmin ? (notifsLastReadAt.HasValue ? 0 : layoutStats.unread) : 0;
+        recentNotificationOrders = layoutStats.recent ?? new List<Order>();
     }
 
     var totalAlerts = pendingOrdersCount + lowStockCount + unreadMessagesCount;
@@ -97,18 +98,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ROVEN Atelier & Boutique Portal</title>
     
-    <!-- Bootstrap 5 CSS -->
+    <!-- Bootstrap 5 CSS (Local) -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <!-- Local FontAwesome 6 & Bootstrap Icons (Guaranteed Offline / TE Data Protection) -->
+    <!-- Local FontAwesome 6 & Bootstrap Icons (Guaranteed Fast Local Loading) -->
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" asp-append-version="true" />
-    <!-- CDN Fallbacks -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <!-- Custom Theme CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <!-- SweetAlert2 Stylesheet -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
     
     <!-- Favicon & Touch Icons (Crisp 1:1 ROVEN Monogram) -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=roven3" />

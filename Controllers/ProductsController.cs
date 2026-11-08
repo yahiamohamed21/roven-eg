@@ -15,11 +15,16 @@ public class ProductsController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _environment;
+    private readonly Stockify.Services.Interfaces.IImageStorageService _imageStorageService;
 
-    public ProductsController(ApplicationDbContext context, IWebHostEnvironment environment)
+    public ProductsController(
+        ApplicationDbContext context, 
+        IWebHostEnvironment environment,
+        Stockify.Services.Interfaces.IImageStorageService imageStorageService)
     {
         _context = context;
         _environment = environment;
+        _imageStorageService = imageStorageService;
     }
 
     // GET: Products
@@ -29,11 +34,22 @@ public class ProductsController : Controller
             .Include(p => p.Category)
             .AsNoTracking();
 
-        // Summary Statistics (calculated across all active products)
-        ViewBag.TotalProducts = await query.CountAsync();
-        ViewBag.InStockCount = await query.CountAsync(p => p.StockQuantity > p.ReorderLevel);
-        ViewBag.LowStockCount = await query.CountAsync(p => p.StockQuantity > 0 && p.StockQuantity <= p.ReorderLevel);
-        ViewBag.OutOfStockCount = await query.CountAsync(p => p.StockQuantity <= 0);
+        // Summary Statistics (calculated across all active products in 1 single combined query)
+        var productKpis = await _context.Products.AsNoTracking()
+            .GroupBy(_ => 1)
+            .Select(g => new
+            {
+                Total = g.Count(),
+                InStock = g.Count(p => p.StockQuantity > p.ReorderLevel),
+                LowStock = g.Count(p => p.StockQuantity > 0 && p.StockQuantity <= p.ReorderLevel),
+                OutOfStock = g.Count(p => p.StockQuantity <= 0)
+            })
+            .FirstOrDefaultAsync();
+
+        ViewBag.TotalProducts = productKpis?.Total ?? 0;
+        ViewBag.InStockCount = productKpis?.InStock ?? 0;
+        ViewBag.LowStockCount = productKpis?.LowStock ?? 0;
+        ViewBag.OutOfStockCount = productKpis?.OutOfStock ?? 0;
 
         // Populate Categories Filter Dropdown
         ViewBag.Categories = await _context.Categories
@@ -334,21 +350,7 @@ public class ProductsController : Controller
 
     private async Task<string> SaveUploadedImageAsync(IFormFile file)
     {
-        var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "products");
-        if (!Directory.Exists(uploadsFolder))
-        {
-            Directory.CreateDirectory(uploadsFolder);
-        }
-
-        var uniqueFileName = $"{Guid.NewGuid():N}{Path.GetExtension(file.FileName).ToLowerInvariant()}";
-        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-        using (var fileStream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(fileStream);
-        }
-
-        return $"/uploads/products/{uniqueFileName}";
+        return await _imageStorageService.UploadImageAsync(file, "roven/products");
     }
 
     #endregion
