@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Stockify.Common.Extensions;
@@ -66,7 +67,16 @@ builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 
-// 6. Seed Roles & Default Admin (Only runs if the database exists and can be reached)
+// Configure Forwarded Headers for reverse proxy (Nginx)
+var forwardedOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
+};
+forwardedOptions.KnownIPNetworks.Clear();
+forwardedOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedOptions);
+
+// 6. Migrate Database & Seed Roles / Initial Data
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -74,14 +84,13 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        if (context.Database.CanConnect())
-        {
-            await DbInitializer.SeedRolesAndAdminAsync(services);
-        }
+        // Auto-apply migrations if pending
+        await context.Database.MigrateAsync();
+        await DbInitializer.SeedRolesAndAdminAsync(services);
     }
     catch (Exception ex)
     {
-        logger.LogWarning(ex, "Initial seeding skipped: database does not exist or has not been migrated yet.");
+        logger.LogError(ex, "An error occurred while migrating or seeding the database.");
     }
 }
 
@@ -105,6 +114,9 @@ app.UseMiddleware<Stockify.Services.Middleware.StorefrontVisitTrackerMiddleware>
 // Authentication MUST come before Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Lightweight Health Check for deployment pipelines
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
 
 // 8. Configure Route Mapping (Storefront is default landing page)
 app.MapControllerRoute(

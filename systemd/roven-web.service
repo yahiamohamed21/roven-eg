@@ -1,0 +1,19 @@
+[Unit]
+Description=ROVEN Luxury Storefront & ERP Application (.NET 10)
+After=network.target
+
+[Service]
+WorkingDirectory=/var/www/roven-eg.online/published
+ExecStart=/usr/bin/dotnet Stockify.dll
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=roven-web
+User=www-data
+EnvironmentFile=/etc/roven.env
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5050
+
+[Install]
+WantedBy=multi-user.target
+

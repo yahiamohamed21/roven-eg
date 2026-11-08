@@ -1,6 +1,6 @@
 # ROVEN Haute Parfumerie & Omnichannel Commerce Platform
 
-نظام تجارة وإدارة متكامل لمجموعة عطور **ROVEN** الفاخرة مبني بأحدث تقنيات **ASP.NET Core (.NET 9.0)**، **Entity Framework Core 9.0.2**، و **SQL Server**.  
+نظام تجارة وإدارة متكامل لمجموعة عطور **ROVEN** الفاخرة مبني بأحدث تقنيات **ASP.NET Core (.NET 10.0)**، **Entity Framework Core 10.0.14**، و **SQL Server**.  
 يجمع النظام بين متجر إلكتروني فاخر مخصص للعملاء (Boutique Storefront) مع فحص الطرود والدفع عند الاستلام (COD)، ولوحة تحكم متقدمة لإدارة دار العطور (Atelier & Back-Office ERP) مع تأمين كامل لعمليات البيع المتزامنة وتصدير الإكسيل وأرشفة SEO عالمية.
 
 ---
