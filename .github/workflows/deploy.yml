@@ -29,5 +29,5 @@ jobs:
           script: |
             cd /var/www/roven-eg.online
             chmod +x scripts/deploy.sh
-            ./scripts/deploy.sh
+            ./scripts/deploy.sh "${{ github.ref_name }}"
 

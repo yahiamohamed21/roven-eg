@@ -17,19 +17,24 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
 
-trap 'echo "❌ Deployment failed at line $LINENO! Recent log output:"; tail -n 30 "$LOG_FILE"; exit 1' ERR
+trap 'echo "❌ Deployment failed at line $LINENO! Recent log output:"; [ -f "$LOG_FILE" ] && tail -n 40 "$LOG_FILE"; exit 1' ERR
 
 log "=================================================="
 log "Starting ROVEN Production Deployment (roven-eg.online)"
 log "=================================================="
 
 # Step 1: Pull latest source
+TARGET_BRANCH="${1:-Production}"
+if [ -z "$TARGET_BRANCH" ] || [ "$TARGET_BRANCH" = "HEAD" ]; then
+    TARGET_BRANCH="Production"
+fi
+
 cd "$PROJECT_ROOT"
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
-log "Pulling latest source code from GitHub ($CURRENT_BRANCH branch)..."
+log "Pulling latest source code from GitHub ($TARGET_BRANCH branch)..."
 git reset --hard HEAD >> "$LOG_FILE" 2>&1
-git fetch origin "$CURRENT_BRANCH" >> "$LOG_FILE" 2>&1
-git pull origin "$CURRENT_BRANCH" >> "$LOG_FILE" 2>&1
+git fetch origin "$TARGET_BRANCH" >> "$LOG_FILE" 2>&1
+git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH" >> "$LOG_FILE" 2>&1 || git checkout "$TARGET_BRANCH" >> "$LOG_FILE" 2>&1
+git pull origin "$TARGET_BRANCH" >> "$LOG_FILE" 2>&1
 chmod +x "$PROJECT_ROOT/scripts/"*.sh
 
 # Step 2: Ensure environment and database setup
