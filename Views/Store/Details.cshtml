@@ -8,7 +8,68 @@
     ViewData["OgImage"] = !string.IsNullOrWhiteSpace(p.ImageUrl) ? (p.ImageUrl.StartsWith("http") ? p.ImageUrl : $"{Context.Request.Scheme}://{Context.Request.Host}{p.ImageUrl}") : $"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png";
 }
 
-<div class="container py-4">
+<style>
+    .product-details-img-box {
+        background: radial-gradient(circle, #1a1a1a 0%, #000000 100%);
+        min-height: 320px;
+        max-height: 440px;
+        transition: transform 0.3s ease;
+    }
+    .product-details-img {
+        max-height: 380px;
+        width: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 12px 24px rgba(0,0,0,0.45));
+        transition: transform 0.4s ease;
+    }
+    .product-details-img-box:hover .product-details-img {
+        transform: scale(1.04);
+    }
+    .roven-details-trust-item {
+        font-size: 0.76rem;
+        color: #6c6358;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: #faf8f5;
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+        border: 1px solid #ede8de;
+    }
+
+    @@media (max-width: 767.98px) {
+        .roven-breadcrumb-nav {
+            overflow-x: auto;
+            white-space: nowrap;
+            flex-wrap: nowrap !important;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding-bottom: 2px;
+            max-width: 100%;
+        }
+        .roven-breadcrumb-nav::-webkit-scrollbar {
+            display: none;
+        }
+        .product-details-img-box {
+            min-height: 260px !important;
+            max-height: 320px !important;
+            padding: 1rem !important;
+        }
+        .product-details-img {
+            max-height: 270px !important;
+        }
+        .star-rating-box {
+            font-size: 1.6rem !important;
+            gap: 0.35rem !important;
+        }
+        .roven-details-trust-item {
+            font-size: 0.72rem;
+            padding: 0.25rem 0.5rem;
+        }
+    }
+</style>
+
+<div class="container py-3 py-md-4 px-2 px-sm-3">
     <!-- Luxury Maison ROVEN Breadcrumb -->
     <nav aria-label="breadcrumb">
         <div class="roven-breadcrumb-nav">
@@ -21,47 +82,60 @@
             <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
             <a asp-controller="Store" asp-action="Index" asp-route-categoryId="@p.CategoryId">@p.CategoryName</a>
             <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
-            <span class="breadcrumb-current text-truncate" style="max-width: 260px;">@p.Name</span>
+            <span class="breadcrumb-current text-truncate" style="max-width: 200px;">@p.Name</span>
         </div>
     </nav>
 
     <!-- Product Overview Card -->
-    <div class="card border-0 shadow-sm p-4 mb-5">
-        <div class="row g-5">
-            <!-- Left: Product Image -->
+    <div class="card border-0 shadow-sm p-3 p-sm-4 p-md-5 mb-4 mb-md-5 rounded-4 overflow-hidden" style="background: #ffffff; border: 1px solid #e8e3d5 !important;">
+        <div class="row g-4 g-lg-5 align-items-center">
+            <!-- Left: Product Image with Luxury Radial Frame -->
             <div class="col-12 col-md-6 text-center">
-                <div class="rounded-4 p-4 d-flex align-items-center justify-content-center shadow-sm" style="min-height: 420px; background-color: #000000;">
+                <div class="rounded-4 p-3 p-sm-4 d-flex align-items-center justify-content-center shadow-sm position-relative overflow-hidden product-details-img-box">
                     @if (!string.IsNullOrWhiteSpace(p.ImageUrl))
                     {
-                        <img src="@p.ImageUrl" alt="@p.Name" class="img-fluid rounded-3" style="max-height: 390px; object-fit: cover;" />
+                        <img src="@p.ImageUrl" alt="@p.Name" class="img-fluid rounded-3 product-details-img" />
                     }
                     else
                     {
                         <i class="fa-solid fa-spray-can-sparkles display-1" style="color: #EDEBDD;"></i>
+                    }
+
+                    @if (p.IsFeatured)
+                    {
+                        <span class="position-absolute top-0 start-0 m-2.5 m-sm-3 badge px-3 py-1.5 rounded-pill shadow-sm" style="background: linear-gradient(135deg, #810100 0%, #630000 100%); color: #EDEBDD; font-size: 0.74rem; letter-spacing: 0.5px;">
+                            <i class="fa-solid fa-gem me-1 text-warning"></i>إصدار حصري
+                        </span>
                     }
                 </div>
             </div>
 
             <!-- Right: Details & Purchase Actions -->
             <div class="col-12 col-md-6 d-flex flex-column">
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="badge px-3 py-1 rounded-pill" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99, 0, 0, 0.2);">
-                        @p.CategoryName
+                <!-- Badges & SKU Row -->
+                <div class="d-flex align-items-center flex-wrap gap-1.5 gap-sm-2 mb-2">
+                    <span class="badge px-3 py-1.5 rounded-pill" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99, 0, 0, 0.2); font-size: 0.78rem; font-weight: 700;">
+                        <i class="fa-solid fa-tag me-1"></i>@p.CategoryName
                     </span>
-                    <span class="small font-monospace" style="color: #8c8374;">SKU: @p.Sku</span>
-                    @if (p.IsFeatured)
+                    <span class="badge bg-light text-muted border rounded-pill px-2.5 py-1 font-monospace" style="font-size: 0.75rem;">
+                        SKU: @p.Sku
+                    </span>
+                    @if (p.StockQuantity > 0 && p.StockQuantity <= 5)
                     {
-                        <span class="badge px-2 py-1 rounded-pill" style="background-color: #630000; color: #EDEBDD;">
-                            <i class="fa-solid fa-gem me-1" style="color: #EDEBDD;"></i>Featured
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2.5 py-1" style="font-size: 0.75rem;">
+                            <i class="fa-solid fa-fire me-1"></i>طلب عالي جداً
                         </span>
                     }
                 </div>
 
-                <h2 class="fw-extrabold mb-1" style="color: #1B1717;">@p.Name</h2>
+                <!-- Product Name with Fluid Typography -->
+                <h1 class="fw-extrabold mb-2" style="color: #1B1717; font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 4vw, 2.2rem); line-height: 1.25;">
+                    @p.Name
+                </h1>
 
-                <!-- Rating badge link to reviews -->
-                <div class="d-flex align-items-center gap-2 mb-3">
-                    <div class="text-warning small">
+                <!-- Rating badge & link to reviews -->
+                <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
+                    <div class="text-warning small d-flex align-items-center gap-0.5">
                         @for (int s = 1; s <= 5; s++)
                         {
                             <i class="fa-solid fa-star @(s <= Math.Round(Model.AverageRating) ? "" : "text-muted opacity-25")"></i>
@@ -69,36 +143,39 @@
                     </div>
                     <span class="fw-bold small" style="color: #1B1717;">@Model.AverageRating.ToString("0.0")</span>
                     <span class="text-muted small">(@(Model.ReviewsCount > 0 ? $"{Model.ReviewsCount} تقييمات معتمدة" : "كن أول من يقيّم"))</span>
-                    <a href="#reviewsSection" class="small text-decoration-none ms-2" style="color: #810100; font-weight: 600;">
+                    <a href="#reviewsSection" class="small text-decoration-none ms-1 text-nowrap" style="color: #810100; font-weight: 600;">
                         <i class="fa-solid fa-arrow-down small me-1"></i>قراءة التقييمات
                     </a>
                 </div>
 
-                <!-- Price and Availability -->
-                <div class="p-3 rounded-3 mb-4 d-flex align-items-center justify-content-between" style="background-color: #FAF9F5; border: 1px solid #e8e3d5;">
+                <!-- Price and Availability Box (Fluid on Mobile) -->
+                <div class="p-3 p-sm-3.5 rounded-3 mb-4 d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3" style="background-color: #FAF9F5; border: 1px solid #e8e3d5;">
                     <div>
-                        <div class="small mb-1" style="color: #6c6358;">Flacon Price</div>
-                        <div class="display-6 fw-bold mb-0" style="color: #630000;">
-                            @p.Price.ToString("N2") <span class="fs-5 fw-normal" style="color: #6c6358;">EGP</span>
+                        <div class="text-uppercase small fw-bold mb-0.5" style="color: #8c8374; font-size: 0.72rem; letter-spacing: 0.5px;">سعر الزجاجة (Flacon Price)</div>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <span class="fw-extrabold" style="color: #630000; font-size: clamp(1.8rem, 5vw, 2.4rem); font-family: 'Playfair Display', serif; line-height: 1;">
+                                @p.Price.ToString("N0")
+                            </span>
+                            <span class="fw-bold" style="color: #6c6358; font-size: 0.95rem;">جنيه مصري</span>
                         </div>
                     </div>
-                    <div class="text-end">
+                    <div class="align-self-stretch align-self-sm-auto text-sm-end">
                         @if (p.IsOutOfStock)
                         {
-                            <span class="badge px-3 py-2 fs-6" style="background-color: #EDEBDD; color: #810100; border: 1px solid #810100;">
-                                <i class="fa-solid fa-circle-xmark me-1"></i>Allocated
+                            <span class="badge px-3 py-2 w-100 w-sm-auto text-center" style="background-color: #EDEBDD; color: #810100; border: 1px solid #810100; font-size: 0.82rem;">
+                                <i class="fa-solid fa-circle-xmark me-1"></i>تم نفاد الكمية (Allocated)
                             </span>
                         }
                         else if (p.IsLowStock)
                         {
-                            <span class="badge px-3 py-2 fs-6" style="background-color: #810100; color: #EDEBDD;">
-                                <i class="fa-solid fa-fire me-1"></i>Only @p.StockQuantity Flacons Left!
+                            <span class="badge px-3 py-2 w-100 w-sm-auto text-center" style="background: linear-gradient(135deg, #810100 0%, #630000 100%); color: #EDEBDD; font-size: 0.82rem;">
+                                <i class="fa-solid fa-fire me-1 text-warning"></i>متبقي @p.StockQuantity زجاجات فقط!
                             </span>
                         }
                         else
                         {
-                            <span class="badge px-3 py-2 fs-6" style="background-color: #630000; color: #EDEBDD;">
-                                <i class="fa-solid fa-circle-check me-1"></i>Available (@p.StockQuantity in vault)
+                            <span class="badge px-3 py-2 w-100 w-sm-auto text-center" style="background-color: #630000; color: #EDEBDD; font-size: 0.82rem;">
+                                <i class="fa-solid fa-circle-check me-1 text-success"></i>متوفر جاهز للشحن الفوري
                             </span>
                         }
                     </div>
@@ -106,10 +183,13 @@
 
                 <!-- Product Description -->
                 <div class="mb-4">
-                    <h6 class="fw-bold mb-2" style="color: #1B1717;">Olfactory Profile & Description</h6>
-                    <p class="leading-relaxed" style="color: #595252; line-height: 1.7;">
+                    <h6 class="fw-bold mb-2 d-flex align-items-center gap-2" style="color: #1B1717;">
+                        <i class="fa-solid fa-droplet text-danger"></i>
+                        <span>الهرم العطري والتفاصيل (Olfactory Profile)</span>
+                    </h6>
+                    <p class="leading-relaxed mb-0" style="color: #4a4545; line-height: 1.8; font-size: 0.94rem;">
                         @(string.IsNullOrWhiteSpace(p.Description) 
-                            ? "Maison ROVEN masterpiece formulated with pure Grasse essences, aged botanicals, and high-concentration oils for an extraordinary sillage." 
+                            ? "تحفة عطرية من دار روڤين بتركيز إكستري دي بارفان 30% من الزيوت النقية المستخلصة في غراس بفرنسا، لثبات يدوم طويلاً وفوحان أخّاذ يأسر الحواس." 
                             : p.Description)
                     </p>
                 </div>
@@ -118,37 +198,51 @@
                 @if (!p.IsOutOfStock)
                 {
                     <div class="mt-auto pt-3 border-top" style="border-color: #e8e3d5 !important;">
-                        <div class="row g-3 align-items-center mb-3">
-                            <div class="col-12 col-sm-4">
-                                <label class="form-label small fw-semibold mb-1" style="color: #6c6358;">Flacons</label>
+                        <div class="row g-2 g-sm-3 align-items-center mb-3">
+                            <div class="col-4 col-sm-4">
+                                <label class="form-label small fw-semibold mb-1 d-block text-muted" style="font-size: 0.75rem;">الكمية</label>
                                 <div class="input-group">
-                                    <button class="btn btn-outline-secondary" type="button" onclick="adjustQty(-1)">-</button>
-                                    <input type="number" id="purchase-qty" class="form-control text-center fw-bold" value="1" min="1" max="@p.StockQuantity" />
-                                    <button class="btn btn-outline-secondary" type="button" onclick="adjustQty(1)">+</button>
+                                    <button class="btn btn-outline-secondary px-2 py-2" type="button" onclick="adjustQty(-1)" style="border-color: #d1c9b8;">-</button>
+                                    <input type="number" id="purchase-qty" class="form-control text-center fw-bold px-1" value="1" min="1" max="@p.StockQuantity" style="border-color: #d1c9b8;" />
+                                    <button class="btn btn-outline-secondary px-2 py-2" type="button" onclick="adjustQty(1)" style="border-color: #d1c9b8;">+</button>
                                 </div>
                             </div>
-                            <div class="col-12 col-sm-8 d-flex align-items-end">
-                                <button type="button" class="btn w-100 py-3 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color: #630000; color: #EDEBDD; border: 1px solid #810100;" onclick="handleAddToCart()">
+                            <div class="col-8 col-sm-8 d-flex align-items-end">
+                                <button type="button" class="btn w-100 py-2.5 py-sm-3 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2 shadow-sm text-nowrap" style="background: linear-gradient(135deg, #630000 0%, #810100 100%); color: #EDEBDD; border: 1px solid #810100;" onclick="handleAddToCart()">
                                     <i class="fa-solid fa-bag-shopping fs-5"></i>
-                                    <span>Add Flacon to Bag</span>
+                                    <span>إضافة إلى السلة</span>
                                 </button>
                             </div>
                         </div>
 
-                        <div class="d-flex align-items-center gap-4 small mt-2" style="color: #6c6358;">
-                            <span><i class="fa-solid fa-truck-fast me-1" style="color: #630000;"></i> 24h Nationwide Shipping</span>
-                            <span><i class="fa-solid fa-money-bill-wave me-1" style="color: #810100;"></i> Cash on Delivery</span>
-                            <span><i class="fa-solid fa-shield-halved me-1" style="color: #630000;"></i> 100% Guaranteed Authentic</span>
+                        <!-- Direct WhatsApp Concierge Ordering -->
+                        @{
+                            var waStorePhone = "201008889999";
+                            var productUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Store/Details/{p.Id}";
+                            var waMessage = Uri.EscapeDataString($"مرحباً دار روڤين، أود طلب عطر {p.Name} بسعر {p.Price:N0} ج.م.\nالرابط: {productUrl}");
+                        }
+                        <div class="mb-3">
+                            <a href="https://wa.me/@waStorePhone?text=@waMessage" target="_blank" rel="noopener noreferrer" class="btn btn-outline-success w-100 py-2 rounded-pill fw-bold d-inline-flex align-items-center justify-content-center gap-2" style="font-size: 0.86rem; border-width: 1.5px;">
+                                <i class="fa-brands fa-whatsapp fs-5"></i>
+                                <span>طلب فوري مباشر عبر الواتساب</span>
+                            </a>
+                        </div>
+
+                        <!-- Trust Badges with Wrap -->
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 border-top" style="border-color: #f0ece3 !important;">
+                            <span class="roven-details-trust-item"><i class="fa-solid fa-truck-fast text-danger"></i> شحن سريع لكافة المحافظات</span>
+                            <span class="roven-details-trust-item"><i class="fa-solid fa-hand-holding-dollar text-success"></i> معاينة ودفع عند الاستلام</span>
+                            <span class="roven-details-trust-item"><i class="fa-solid fa-shield-halved text-primary"></i> زيوت أصلية 100% مضمونة</span>
                         </div>
                     </div>
                 }
                 else
                 {
                     <div class="mt-auto pt-3 border-top" style="border-color: #e8e3d5 !important;">
-                        <div class="alert alert-secondary mb-0 d-flex align-items-center gap-2" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99, 0, 0, 0.2);">
-                            <i class="fa-solid fa-circle-info fs-5"></i>
-                            <div>
-                                <strong>Currently Reserved:</strong> This bespoke fragrance is temporarily allocated. Check back soon for the next private maceration release.
+                        <div class="alert alert-secondary mb-0 d-flex align-items-center gap-2 rounded-4" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99, 0, 0, 0.2);">
+                            <i class="fa-solid fa-circle-info fs-5 flex-shrink-0"></i>
+                            <div class="small">
+                                <strong>محجوز بالكامل:</strong> هذا العطر الحصري نفدت كميته مؤقتاً. تابعونا في إطلاق دورة التعتيق القادمة.
                             </div>
                         </div>
                     </div>
@@ -160,29 +254,29 @@
     <!-- ============================================================== -->
     <!-- CLIENT REVIEWS & OLFACTORY IMPRESSIONS SECTION                 -->
     <!-- ============================================================== -->
-    <div id="reviewsSection" class="card border-0 shadow-sm p-4 p-md-5 mb-5 rounded-4" style="background: #ffffff; border: 1px solid #e8e3d5 !important;">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-3 border-bottom" style="border-color: #e8e3d5 !important;">
+    <div id="reviewsSection" class="card border-0 shadow-sm p-3 p-sm-4 p-md-5 mb-5 rounded-4 overflow-hidden" style="background: #ffffff; border: 1px solid #e8e3d5 !important;">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4 pb-3 border-bottom" style="border-color: #e8e3d5 !important;">
             <div>
-                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style="background-color: #EDEBDD; color: #630000; font-size: 0.8rem; font-weight: 700;">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style="background-color: #EDEBDD; color: #630000; font-size: 0.78rem; font-weight: 700;">
                     <i class="fa-solid fa-star text-warning"></i>
                     <span>CLIENT EXPERIENCES & REVIEWS</span>
                 </div>
-                <h3 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif;">آراء وتقييمات العملاء</h3>
+                <h3 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif; font-size: clamp(1.25rem, 3.5vw, 1.75rem);">آراء وتقييمات العملاء</h3>
                 <p class="small text-muted mb-0">تجارب حقيقية لعملاء دار روڤين مع عطر <strong>@p.Name</strong> وثباته وفوحانه.</p>
             </div>
-            <div class="d-flex align-items-center gap-3">
-                <div class="text-md-end">
-                    <div class="d-flex align-items-center gap-1 justify-content-md-end text-warning fs-5">
+            <div class="d-flex flex-wrap align-items-center gap-3 w-100 w-md-auto justify-content-between justify-content-md-end">
+                <div class="text-start text-md-end">
+                    <div class="d-flex align-items-center gap-1 text-warning fs-5">
                         @for (int i = 1; i <= 5; i++)
                         {
                             <i class="fa-solid fa-star @(i <= Math.Round(Model.AverageRating) ? "" : "text-muted opacity-25")"></i>
                         }
                     </div>
-                    <div class="small text-muted mt-1">
+                    <div class="small text-muted mt-1" style="font-size: 0.78rem;">
                         متوسط التقييم <strong class="text-dark">@Model.AverageRating.ToString("0.0")</strong> من 5 (@Model.ReviewsCount تقييم معتمد)
                     </div>
                 </div>
-                <button type="button" class="btn btn-sm btn-roven-wine px-3 py-2 rounded-pill fw-bold" onclick="document.getElementById('addReviewCard').scrollIntoView({ behavior: 'smooth' });">
+                <button type="button" class="btn btn-sm btn-roven-wine px-3 py-2 rounded-pill fw-bold text-nowrap" onclick="document.getElementById('addReviewCard').scrollIntoView({ behavior: 'smooth' });">
                     <i class="fa-solid fa-pen-nib me-1"></i> أضف تقييمك
                 </button>
             </div>
@@ -191,19 +285,19 @@
         <div class="row g-4">
             <!-- Review Form Column -->
             <div class="col-12 col-lg-5 order-lg-2">
-                <div class="card border-0 rounded-4 p-4 shadow-xs" style="background: #FAF9F5; border: 1.5px solid rgba(99, 0, 0, 0.12) !important;" id="addReviewCard">
+                <div class="card border-0 rounded-4 p-3 p-sm-4 shadow-xs" style="background: #FAF9F5; border: 1.5px solid rgba(99, 0, 0, 0.12) !important;" id="addReviewCard">
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <i class="fa-solid fa-award" style="color: #630000;"></i>
-                        <h5 class="fw-bold mb-0" style="color: #1B1717;">شاركنا رأيك في العطر</h5>
+                        <h5 class="fw-bold mb-0" style="color: #1B1717; font-size: 1.05rem;">شاركنا رأيك في العطر</h5>
                     </div>
-                    <p class="small text-muted mb-3">تقييمك يساعد عملاء دار روڤين في اختيار العطر المناسب لذوقهم.</p>
+                    <p class="small text-muted mb-3" style="font-size: 0.8rem;">تقييمك يساعد عملاء دار روڤين في اختيار العطر المناسب لذوقهم.</p>
 
                     <form id="productReviewForm" asp-controller="Store" asp-action="SubmitReview" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="productId" value="@p.Id" />
                         
                         <!-- Star Selection -->
-                        <div class="mb-3 text-center p-3 bg-white rounded-3 border">
+                        <div class="mb-3 text-center p-2.5 p-sm-3 bg-white rounded-3 border">
                             <label class="form-label small fw-bold d-block mb-1 text-dark">تقييمك للعطر بالنجوم</label>
                             <div class="star-rating-box d-inline-flex flex-row-reverse gap-2 fs-2" id="starRatingBox">
                                 <input type="radio" id="star5" name="rating" value="5" checked class="d-none star-radio" />
@@ -217,7 +311,7 @@
                                 <input type="radio" id="star1" name="rating" value="1" class="d-none star-radio" />
                                 <label for="star1" class="star-label cursor-pointer text-warning" data-val="1" title="نجمة واحدة - غير راضٍ"><i class="fa-solid fa-star"></i></label>
                             </div>
-                            <div id="starRatingLabel" class="small fw-bold text-muted mt-1">5 نجوم — ثبات وفوحان استثنائي</div>
+                            <div id="starRatingLabel" class="small fw-bold text-muted mt-1" style="font-size: 0.78rem;">5 نجوم — ثبات وفوحان استثنائي</div>
                         </div>
 
                         <div class="mb-3">
@@ -237,10 +331,10 @@
 
                         <div class="mb-3">
                             <label class="form-label small fw-bold text-dark">رأيك وتجربتك مع العطر *</label>
-                            <textarea name="comment" rows="4" class="form-control rounded-3" placeholder="حدثنا عن تجاربك مع فوحان العطر، ثباته، والمناسبات المفضلة لاستخدامه..." required></textarea>
+                            <textarea name="comment" rows="3" class="form-control rounded-3" placeholder="حدثنا عن تجاربك مع فوحان العطر، ثباته، والمناسبات المفضلة لاستخدامه..." required></textarea>
                         </div>
 
-                        <div class="alert alert-light border small text-muted py-2 mb-3">
+                        <div class="alert alert-light border small text-muted py-2 mb-3" style="font-size: 0.76rem;">
                             <i class="fa-solid fa-shield-halved text-success me-1"></i> يتم فحص واعتماد التقييمات من إدارة المتجر قبل ظهورها علناً حفاظاً على جودة التعليقات.
                         </div>
 
@@ -257,7 +351,7 @@
                 @if (!Model.Reviews.Any())
                 {
                     <div class="text-center py-5 p-4 rounded-4 bg-light border border-dashed">
-                        <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background: #EDEBDD; color: #630000; font-size: 1.5rem;">
+                        <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 56px; height: 56px; background: #EDEBDD; color: #630000; font-size: 1.4rem;">
                             <i class="fa-regular fa-comment-dots"></i>
                         </div>
                         <h6 class="fw-bold mb-1" style="color: #1B1717;">كن أول من يقيّم هذا العطر!</h6>
@@ -269,30 +363,30 @@
                     <div class="d-flex flex-column gap-3">
                         @foreach (var rev in Model.Reviews)
                         {
-                            <div class="p-3.5 p-md-4 rounded-4 bg-light border shadow-2xs">
+                            <div class="p-3 p-sm-3.5 p-md-4 rounded-4 bg-light border shadow-2xs">
                                 <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                                    <div class="d-flex align-items-center gap-2.5">
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-xs" style="width: 42px; height: 42px; background: #630000; font-size: 1rem;">
+                                    <div class="d-flex align-items-center gap-2 gap-sm-2.5">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-xs flex-shrink-0" style="width: 38px; height: 38px; background: #630000; font-size: 0.95rem;">
                                             @(rev.CustomerName.Length > 0 ? rev.CustomerName.Substring(0, 1).ToUpper() : "R")
                                         </div>
                                         <div>
-                                            <div class="fw-bold text-dark mb-0">@rev.CustomerName</div>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle py-0.5 px-2 rounded-pill" style="font-size: 0.72rem;">
+                                            <div class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">@rev.CustomerName</div>
+                                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle py-0.5 px-2 rounded-pill" style="font-size: 0.68rem;">
                                                     <i class="fa-solid fa-circle-check me-1"></i> عميل موثّق
                                                 </span>
-                                                <span class="small text-muted" style="font-size: 0.75rem;">@rev.CreatedAt.ToEgyptTimeString("dd MMM yyyy")</span>
+                                                <span class="small text-muted" style="font-size: 0.72rem;">@rev.CreatedAt.ToEgyptTimeString("dd MMM yyyy")</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="text-warning text-nowrap">
+                                    <div class="text-warning text-nowrap" style="font-size: 0.85rem;">
                                         @for (int s = 1; s <= 5; s++)
                                         {
                                             <i class="fa-solid fa-star @(s <= rev.Rating ? "" : "text-muted opacity-25")"></i>
                                         }
                                     </div>
                                 </div>
-                                <p class="mb-0 text-secondary" style="line-height: 1.6; font-size: 0.92rem;">
+                                <p class="mb-0 text-secondary" style="line-height: 1.6; font-size: 0.88rem;">
                                     "@rev.Comment"
                                 </p>
                             </div>
@@ -303,16 +397,27 @@
         </div>
     </div>
 
-    <!-- Related Products -->
+    <!-- Related Products (Responsive 2-Column Grid on Mobile) -->
     @if (Model.RelatedProducts.Any())
     {
         <div class="mb-5">
-            <h4 class="fw-bold text-dark mb-4">Related Products from @p.CategoryName</h4>
-            <div class="row g-4">
+            <div class="d-flex align-items-center justify-content-between mb-3 mb-md-4">
+                <div>
+                    <h4 class="fw-bold text-dark mb-1" style="font-family: 'Playfair Display', serif; font-size: clamp(1.15rem, 3vw, 1.5rem);">
+                        عطور أخرى قد تنال إعجابك من فئة @p.CategoryName
+                    </h4>
+                    <p class="small text-muted mb-0">تشكيلة مختارة من أرقى إصدارات دار روڤين</p>
+                </div>
+                <a asp-action="Index" asp-route-categoryId="@p.CategoryId" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1.5 d-none d-sm-inline-flex align-items-center gap-1.5" style="font-size: 0.78rem;">
+                    <span>عرض الكل</span>
+                    <i class="fa-solid fa-arrow-left small"></i>
+                </a>
+            </div>
+            <div class="row g-2 g-sm-3 g-md-4">
                 @foreach (var related in Model.RelatedProducts)
                 {
-                    <div class="col-12 col-sm-6 col-md-3">
-                        <div class="product-card" data-details-url="@Url.Action("Details", "Store", new { id = related.Id })">
+                    <div class="col-6 col-lg-3">
+                        <div class="product-card h-100 d-flex flex-column" data-details-url="@Url.Action("Details", "Store", new { id = related.Id })">
                             <a asp-action="Details" asp-route-id="@related.Id" class="product-image-container d-block position-relative text-decoration-none" title="عرض تفاصيل عطر @related.Name">
                                 @if (!string.IsNullOrWhiteSpace(related.ImageUrl))
                                 {
@@ -320,19 +425,19 @@
                                 }
                                 else
                                 {
-                                    <i class="bi bi-box-seam text-muted display-4"></i>
+                                    <i class="fa-solid fa-spray-can-sparkles text-muted display-4"></i>
                                 }
                             </a>
-                            <div class="p-3 d-flex flex-column flex-grow-1">
-                                <h6 class="fw-bold text-dark mb-1 text-truncate">
+                            <div class="p-2.5 p-sm-3 d-flex flex-column flex-grow-1">
+                                <h6 class="fw-bold text-dark mb-1 text-truncate" style="font-size: 0.88rem;">
                                     <a asp-action="Details" asp-route-id="@related.Id" class="text-dark text-decoration-none">
                                         @related.Name
                                     </a>
                                 </h6>
-                                <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between">
-                                    <div class="fw-bold text-primary">@related.Price.ToString("N2") EGP</div>
-                                    <a asp-action="Details" asp-route-id="@related.Id" class="btn btn-sm btn-outline-secondary">
-                                        View
+                                <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-1">
+                                    <div class="fw-bold" style="color: #630000; font-size: 0.88rem;">@related.Price.ToString("N0") ج.م</div>
+                                    <a asp-action="Details" asp-route-id="@related.Id" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5" style="font-size: 0.72rem;">
+                                        عرض
                                     </a>
                                 </div>
                             </div>
@@ -542,4 +647,3 @@
     }
     </script>
 }
-
