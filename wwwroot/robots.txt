@@ -1,6 +1,6 @@
 # ==============================================================================
 # ROVEN Haute Parfumerie - Official Robots Configuration for Search Engines
-# Designed for maximum SEO visibility and brand authority on Google & Bing
+# Brand Domination SEO Configuration
 # ==============================================================================
 
 User-agent: *
@@ -31,6 +31,8 @@ Disallow: /AbandonedCheckouts/
 Disallow: /Coupons/
 Disallow: /Messages/
 
-# XML Sitemap References
-Sitemap: /sitemap.xml
+# Host Directive for Regional Search Engines
+Host: roven-eg.online
 
+# XML Sitemap References (Absolute Protocol Requirement for Search Engines)
+Sitemap: https://roven-eg.online/sitemap.xml

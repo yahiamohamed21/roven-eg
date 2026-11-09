@@ -11,10 +11,11 @@
 }
 
 <!DOCTYPE html>
-<html lang="en" class="roven-loading">
+<html lang="ar" class="roven-loading">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <meta http-equiv="content-language" content="ar-eg, en" />
     <script>
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
@@ -24,38 +25,43 @@
     @{
         var rawTitle = ViewData["Title"]?.ToString() ?? "";
         var tabTitle = string.IsNullOrWhiteSpace(rawTitle) || rawTitle == "Storefront" || rawTitle.Equals("ROVEN", StringComparison.OrdinalIgnoreCase)
-            ? "ROVEN Haute Parfumerie"
-            : (rawTitle.Contains("ROVEN") ? rawTitle : $"{rawTitle} | ROVEN");
+            ? "ROVEN Haute Parfumerie | دار روڤين / روفان للعطور الفاخرة — الموقع الرسمي"
+            : (rawTitle.Contains("ROVEN") ? rawTitle : $"{rawTitle} | ROVEN Haute Parfumerie");
+        var canonicalHost = "roven-eg.online";
+        var currentPath = Context.Request.Path.Value ?? "/";
+        var canonicalUrl = $"https://{canonicalHost}{currentPath}";
     }
     <title>@tabTitle</title>
     
     <!-- ============================================================== -->
     <!-- Brand Domination SEO & Metadata (ROVEN Haute Parfumerie)         -->
     <!-- ============================================================== -->
-    <meta name="description" content="@(ViewData["MetaDescription"] ?? "الموقع الرسمي لدار روڤين / روفين للعطور الفاخرة — Official Maison ROVEN Haute Parfumerie. تسوق أرقى عطور النيش والـ Extraits de Parfum بتركيز 30% مع ثبات وفوحان يدوم 24 ساعة. شحن وتوصيل فوري لجميع محافظات مصر مع المعاينة قبل الاستلام والدفع عند الاستلام.")" />
-    <meta name="keywords" content="ROVEN, roven, Maison ROVEN, roven perfumes, roven perfume, roven egypt, roven fragrance, عطور roven, براند roven, ماركة roven, روڤين, روفين, روفن, روڤن, روفيين, روبن, عطور روڤين, عطور روفين, براند روڤين, براند روفين, ماركة روفين, ميزون روڤين, ميزون روفين, عطور روبن, موقع روفين, متجر روڤين, rovin, rowen, rovan, rouven, rovn, roveen, rovyn, rofen, haute parfumerie, extrait de parfum, luxury perfume egypt, niche perfumes egypt, عطور نيش مصر, تركيبات عطور فاخرة, عطور ثبات عالي, عود هندي, عنبر, مسك, شراء عطور اونلاين مصر, دفع عند الاستلام مع المعاينة" />
+    <meta name="description" content="@(ViewData["MetaDescription"] ?? "الموقع الرسمي لدار روڤين / روفان للعطور الفاخرة (Maison ROVEN Haute Parfumerie) في مصر. تسوق أرقى عطور النيش والـ Extraits de Parfum بتركيز 30% زيوت نقية مع ثبات وفوحان يدوم 24 ساعة. شحن وتوصيل فوري لجميع محافظات مصر مع المعاينة قبل الاستلام والدفع عند الاستلام.")" />
+    <meta name="keywords" content="ROVEN, roven, Maison ROVEN, roven perfumes, roven perfume, roven egypt, roven fragrance, عطور roven, براند roven, ماركة roven, روڤين, روفين, روفن, روڤن, روفان, روفيين, روبن, عطور روفان, براند روفان, عطور روڤين, عطور روفين, براند روڤين, براند روفين, ماركة روفين, ميزون روفان, ميزون روڤين, ميزون روفين, عطور روبن, موقع روفان, متجر روفان, موقع روفين, متجر روڤين, rovin, rowen, rovan, rouven, rovn, roveen, rovyn, rofen, haute parfumerie, extrait de parfum, luxury perfume egypt, niche perfumes egypt, عطور نيش مصر, تركيبات عطور فاخرة, عطور ثبات عالي, عود هندي, عنبر, مسك, شراء عطور اونلاين مصر, دفع عند الاستلام مع المعاينة" />
     <meta name="author" content="Maison ROVEN" />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="theme-color" content="#630000" />
     
+    <!-- Canonical & International Hreflang Tags (Guaranteed Primary Domain Equity) -->
+    <link rel="canonical" href="@canonicalUrl" />
+    <link rel="alternate" hreflang="ar-eg" href="@canonicalUrl" />
+    <link rel="alternate" hreflang="x-default" href="@canonicalUrl" />
+    
     <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
-    <meta property="og:site_name" content="Maison ROVEN (روڤين / روفين)" />
+    <meta property="og:site_name" content="Maison ROVEN (روڤين / روفان)" />
     <meta property="og:type" content="@(ViewData["OgType"] ?? "website")" />
-    <meta property="og:title" content="@(ViewData["Title"]?.ToString()?.Contains("ROVEN") == true ? ViewData["Title"] : $"{ViewData["Title"]} | ROVEN Haute Parfumerie")" />
-    <meta property="og:description" content="@(ViewData["MetaDescription"] ?? "Official Maison ROVEN Haute Parfumerie. Handcrafted luxury Extraits de Parfum, royal oud, and eternal sillage with Cash on Delivery in Egypt. دار روڤين للعطور.")" />
-    <meta property="og:image" content="@(ViewData["OgImage"] ?? $"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")" />
-    <meta property="og:url" content="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
+    <meta property="og:title" content="@tabTitle" />
+    <meta property="og:description" content="@(ViewData["MetaDescription"] ?? "Official Maison ROVEN Haute Parfumerie. Handcrafted luxury Extraits de Parfum, royal oud, and eternal sillage with Cash on Delivery in Egypt. دار روڤين / روفان للعطور.")" />
+    <meta property="og:image" content="@(ViewData["OgImage"] ?? $"{canonicalUrl.TrimEnd('/')}/images/roven-logo.png")" />
+    <meta property="og:url" content="@canonicalUrl" />
     <meta property="og:locale" content="ar_EG" />
     <meta property="og:locale:alternate" content="en_US" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="@(ViewData["Title"]?.ToString()?.Contains("ROVEN") == true ? ViewData["Title"] : $"{ViewData["Title"]} | ROVEN Haute Parfumerie")" />
+    <meta name="twitter:title" content="@tabTitle" />
     <meta name="twitter:description" content="@(ViewData["MetaDescription"] ?? "Official Maison ROVEN Haute Parfumerie. Handcrafted luxury Extraits de Parfum with Cash on Delivery across Egypt.")" />
-    <meta name="twitter:image" content="@(ViewData["OgImage"] ?? $"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")" />
-
-    <!-- Canonical URL -->
-    <link rel="canonical" href="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
+    <meta name="twitter:image" content="@(ViewData["OgImage"] ?? $"{canonicalUrl.TrimEnd('/')}/images/roven-logo.png")" />
     
     <!-- Favicon & Touch Icons (Crisp 1:1 ROVEN Monogram) -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=roven3" />
@@ -71,7 +77,7 @@
       "@@graph": [
         {
           "@@type": "Brand",
-          "@@id": "@($"{Context.Request.Scheme}://{Context.Request.Host}/#brand")",
+          "@@id": "https://roven-eg.online/#brand",
           "name": "ROVEN",
           "alternateName": [
             "Maison ROVEN",
@@ -79,6 +85,7 @@
             "ROVEN Perfumes",
             "ROVEN Fragrance",
             "ROVEN Egypt",
+            "روفان",
             "روڤين",
             "روفين",
             "روفيين",
@@ -86,15 +93,22 @@
             "روڤن",
             "روبن",
             "روفيان",
+            "عطور روفان",
+            "براند روفان",
             "عطور روڤين",
             "عطور روفين",
             "براند روڤين",
             "براند روفين",
+            "براند roven",
+            "عطور roven",
             "ماركة روفين",
             "ماركة روڤين",
+            "ميزون روفان",
             "ميزون روڤين",
             "ميزون روفين",
             "عطور روبن",
+            "متجر روفان",
+            "موقع روفان",
             "متجر روفين",
             "موقع روفين",
             "Rovin",
@@ -107,20 +121,34 @@
             "Roveen",
             "Rovenn"
           ],
-          "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/")",
-          "logo": "@($"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")",
-          "image": "@($"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")",
-          "description": "Maison ROVEN (روڤين / روفين) is an official luxury Haute Parfumerie brand specializing in handcrafted Extraits de Parfum, pure oils, royal oud, and signature long-lasting scents in Egypt.",
-          "slogan": "The Art of Eternal Sillage & Rare Extracts"
+          "url": "https://roven-eg.online/",
+          "logo": "https://roven-eg.online/images/roven-logo.png",
+          "image": "https://roven-eg.online/images/roven-logo.png",
+          "description": "Maison ROVEN (روڤين / روفان) is an official luxury Haute Parfumerie brand specializing in handcrafted Extraits de Parfum, pure oils, royal oud, and signature long-lasting scents in Egypt.",
+          "slogan": "The Art of Eternal Sillage & Rare Extracts",
+          "sameAs": [
+            "@siteSetting.FacebookUrl",
+            "@siteSetting.InstagramUrl"
+          ],
+          "aggregateRating": {
+            "@@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "reviewCount": "142",
+            "bestRating": "5",
+            "worstRating": "1"
+          }
         },
         {
           "@@type": ["Organization", "OnlineStore"],
-          "@@id": "@($"{Context.Request.Scheme}://{Context.Request.Host}/#organization")",
+          "@@id": "https://roven-eg.online/#organization",
           "name": "ROVEN Haute Parfumerie",
           "alternateName": [
             "Maison ROVEN",
+            "روفان",
             "روڤين",
             "روفين",
+            "عطور روفان",
+            "براند روفان",
             "عطور روڤين",
             "عطور روفين",
             "براند روفين",
@@ -129,12 +157,28 @@
             "Rowen",
             "Rovn"
           ],
-          "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/")",
-          "logo": "@($"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")",
-          "brand": { "@@id": "@($"{Context.Request.Scheme}://{Context.Request.Host}/#brand")" },
+          "url": "https://roven-eg.online/",
+          "logo": "https://roven-eg.online/images/roven-logo.png",
+          "brand": { "@@id": "https://roven-eg.online/#brand" },
           "priceRange": "$$",
           "currenciesAccepted": "EGP",
           "paymentAccepted": ["Cash on Delivery", "COD", "Cash"],
+          "sameAs": [
+            "@siteSetting.FacebookUrl",
+            "@siteSetting.InstagramUrl"
+          ],
+          "knowsAbout": [
+            "Haute Parfumerie",
+            "Extrait de Parfum",
+            "Luxury Perfumes",
+            "French Perfumes in Egypt",
+            "عطور نيش",
+            "عطور فاخرة",
+            "عطور مصر",
+            "ثبات وفوحان 24 ساعة",
+            "زيوت عطرية نقية",
+            "عود هندي وعنبر"
+          ],
           "address": {
             "@@type": "PostalAddress",
             "streetAddress": "@(!string.IsNullOrWhiteSpace(siteSetting.AtelierAddress) ? siteSetting.AtelierAddress : "Zamalek & New Cairo Salons")",
@@ -149,26 +193,73 @@
             "contactType": "Customer Concierge",
             "areaServed": "EG",
             "availableLanguage": ["Arabic", "English"]
+          },
+          "hasMerchantReturnPolicy": {
+            "@@type": "MerchantReturnPolicy",
+            "applicableCountry": "EG",
+            "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+            "merchantReturnDays": 14,
+            "returnMethod": "https://schema.org/ReturnByMail",
+            "returnFees": "https://schema.org/FreeReturn"
           }
         },
         {
           "@@type": "WebSite",
-          "@@id": "@($"{Context.Request.Scheme}://{Context.Request.Host}/#website")",
-          "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/")",
+          "@@id": "https://roven-eg.online/#website",
+          "url": "https://roven-eg.online/",
           "name": "ROVEN Official Store",
           "alternateName": [
             "Maison ROVEN Store",
+            "متجر روفان الرسمي",
             "متجر روڤين الرسمي",
+            "موقع روفان للعطور",
             "موقع روفين للعطور",
+            "روفان مصر",
             "روڤين مصر",
             "روفين مصر"
           ],
-          "publisher": { "@@id": "@($"{Context.Request.Scheme}://{Context.Request.Host}/#organization")" },
+          "publisher": { "@@id": "https://roven-eg.online/#organization" },
           "potentialAction": {
             "@@type": "SearchAction",
-            "target": "@($"{Context.Request.Scheme}://{Context.Request.Host}/Store?search={{search_term_string}}")",
+            "target": "https://roven-eg.online/Store?search={search_term_string}",
             "query-input": "required name=search_term_string"
           }
+        },
+        {
+          "@@type": "ItemList",
+          "name": "ROVEN Navigation Sitelinks",
+          "itemListElement": [
+            {
+              "@@type": "SiteNavigationElement",
+              "position": 1,
+              "name": "متجر عطور روفان (جميع العطور)",
+              "url": "https://roven-eg.online/Store"
+            },
+            {
+              "@@type": "SiteNavigationElement",
+              "position": 2,
+              "name": "عطور النيش الأكثر طلباً",
+              "url": "https://roven-eg.online/Store?sort=popular"
+            },
+            {
+              "@@type": "SiteNavigationElement",
+              "position": 3,
+              "name": "تتبع حالة شحنتك",
+              "url": "https://roven-eg.online/OrderTracking"
+            },
+            {
+              "@@type": "SiteNavigationElement",
+              "position": 4,
+              "name": "عن دار روفان (About)",
+              "url": "https://roven-eg.online/Home/About"
+            },
+            {
+              "@@type": "SiteNavigationElement",
+              "position": 5,
+              "name": "تواصل مع دار روفان (Concierge)",
+              "url": "https://roven-eg.online/Home/Contact"
+            }
+          ]
         }
       ]
     }

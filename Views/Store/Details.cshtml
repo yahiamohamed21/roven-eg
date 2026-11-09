@@ -2,10 +2,10 @@
 @{
     Layout = "_StoreLayout";
     var p = Model.Product;
-    ViewData["Title"] = $"{p.Name} | ROVEN Haute Parfumerie";
-    ViewData["MetaDescription"] = $"Buy authentic {p.Name} ({p.CategoryName}) handcrafted by Maison ROVEN. Price: {p.Price:N2} EGP. Cash on Delivery with full parcel inspection available across Egypt.";
+    ViewData["Title"] = $"{p.Name} | عطر فاخر من دار روفان ROVEN Haute Parfumerie";
+    ViewData["MetaDescription"] = $"تسوق عطر {p.Name} الأصلي من دار روڤين / روفان (ROVEN Haute Parfumerie). عطر فاخر ({p.CategoryName}) بتركيز Extrait de Parfum بنسبة 30% زيوت نقية فرنسية وشرقية بثبات وفوحان يتجاوز 24 ساعة. السعر: {p.Price:N0} ج.م مع التوصيل السريع لجميع محافظات مصر والدفع عند الاستلام مع المعاينة قبل الدفع.";
     ViewData["OgType"] = "product";
-    ViewData["OgImage"] = !string.IsNullOrWhiteSpace(p.ImageUrl) ? (p.ImageUrl.StartsWith("http") ? p.ImageUrl : $"{Context.Request.Scheme}://{Context.Request.Host}{p.ImageUrl}") : $"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png";
+    ViewData["OgImage"] = !string.IsNullOrWhiteSpace(p.ImageUrl) ? (p.ImageUrl.StartsWith("http") ? p.ImageUrl : $"https://roven-eg.online{p.ImageUrl}") : "https://roven-eg.online/images/roven-logo.png";
 }
 
 <style>
@@ -635,14 +635,15 @@
       "@@type": "Product",
       "name": "@p.Name",
       "image": [
-        "@(!string.IsNullOrWhiteSpace(p.ImageUrl) ? (p.ImageUrl.StartsWith("http") ? p.ImageUrl : $"{Context.Request.Scheme}://{Context.Request.Host}{p.ImageUrl}") : $"{Context.Request.Scheme}://{Context.Request.Host}/images/roven-logo.png")"
+        "@(!string.IsNullOrWhiteSpace(p.ImageUrl) ? (p.ImageUrl.StartsWith("http") ? p.ImageUrl : $"https://roven-eg.online{p.ImageUrl}") : "https://roven-eg.online/images/roven-logo.png")"
       ],
-      "description": "@(string.IsNullOrWhiteSpace(p.Description) ? $"{p.Name} luxury perfume by ROVEN Haute Parfumerie" : p.Description.Replace("\"", "\\\"").Replace("\r", "").Replace("\n", " "))",
+      "description": "@(string.IsNullOrWhiteSpace(p.Description) ? $"{p.Name} luxury perfume by ROVEN Haute Parfumerie (عطور روفان مصر)" : p.Description.Replace("\"", "\\\"").Replace("\r", "").Replace("\n", " "))",
       "sku": "@p.Sku",
+      "mpn": "@p.Sku",
       "brand": {
         "@@type": "Brand",
         "name": "ROVEN",
-        "alternateName": ["Maison ROVEN", "ROVEN Haute Parfumerie", "روڤين", "روفين", "عطور روڤين", "عطور روفين"]
+        "alternateName": ["Maison ROVEN", "ROVEN Haute Parfumerie", "روڤين", "روفان", "روفين", "عطور روڤين", "عطور روفان"]
       },
       "category": "@p.CategoryName",
       @if (Model.ReviewsCount > 0)
@@ -659,7 +660,7 @@
       }
       "offers": {
         "@@type": "Offer",
-        "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/Store/Details/{p.Id}")",
+        "url": "https://roven-eg.online/Store/Details/@p.Id",
         "priceCurrency": "EGP",
         "price": "@p.Price.ToString("F2")",
         "priceValidUntil": "@(DateTime.UtcNow.AddYears(1).ToString("yyyy-MM-dd"))",
@@ -668,9 +669,68 @@
         "seller": {
           "@@type": "Organization",
           "name": "ROVEN Haute Parfumerie",
-          "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/")"
+          "url": "https://roven-eg.online/"
+        },
+        "hasMerchantReturnPolicy": {
+          "@@type": "MerchantReturnPolicy",
+          "applicableCountry": "EG",
+          "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+          "merchantReturnDays": 14,
+          "returnMethod": "https://schema.org/ReturnByMail",
+          "returnFees": "https://schema.org/FreeReturn"
+        },
+        "shippingDetails": {
+          "@@type": "OfferShippingDetails",
+          "shippingRate": {
+            "@@type": "MonetaryAmount",
+            "value": "0",
+            "currency": "EGP"
+          },
+          "shippingDestination": {
+            "@@type": "DefinedRegion",
+            "addressCountry": "EG"
+          },
+          "deliveryTime": {
+            "@@type": "ShippingDeliveryTime",
+            "handlingTime": { "@@type": "QuantitativeValue", "minValue": 0, "maxValue": 1, "unitCode": "DAY" },
+            "transitTime": { "@@type": "QuantitativeValue", "minValue": 1, "maxValue": 3, "unitCode": "DAY" }
+          }
         }
       }
+    }
+    </script>
+
+    <!-- Google BreadcrumbList Structured Data for SERP Hierarchy -->
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@@type": "ListItem",
+          "position": 1,
+          "name": "دار روفان",
+          "item": "https://roven-eg.online/"
+        },
+        {
+          "@@type": "ListItem",
+          "position": 2,
+          "name": "متجر العطور",
+          "item": "https://roven-eg.online/Store"
+        },
+        {
+          "@@type": "ListItem",
+          "position": 3,
+          "name": "@p.CategoryName",
+          "item": "https://roven-eg.online/Store?categoryId=@p.CategoryId"
+        },
+        {
+          "@@type": "ListItem",
+          "position": 4,
+          "name": "@p.Name",
+          "item": "https://roven-eg.online/Store/Details/@p.Id"
+        }
+      ]
     }
     </script>
 }

@@ -335,7 +335,7 @@ public class HomeController : Controller
         });
     }
 
-    // GET: /sitemap.xml (Dynamic Search Engine XML Sitemap)
+    // GET: /sitemap.xml (Dynamic Search Engine XML Sitemap with Google Image Extensions)
     [HttpGet("sitemap.xml")]
     [ResponseCache(Duration = 3600)]
     public async Task<IActionResult> Sitemap()
@@ -346,7 +346,7 @@ public class HomeController : Controller
 
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        sb.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
+        sb.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:image=\"http://www.google.com/schemas/sitemap-image/1.1\">");
 
         // 1. Core Brand Landing Pages
         sb.AppendLine($"  <url><loc>{baseUrl}/</loc><lastmod>{DateTime.UtcNow:yyyy-MM-dd}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>");
@@ -362,11 +362,26 @@ public class HomeController : Controller
             sb.AppendLine($"  <url><loc>{baseUrl}/Store?categoryId={cat.Id}</loc><lastmod>{cat.CreatedAt:yyyy-MM-dd}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>");
         }
 
-        // 3. Active Perfumes & Flacons
+        // 3. Active Perfumes & Flacons (with Google Image Sitemap tags for visual SEO dominance)
         var products = await _context.Products.Where(p => p.IsActive && p.IsPublished).AsNoTracking().ToListAsync();
         foreach (var p in products)
         {
-            sb.AppendLine($"  <url><loc>{baseUrl}/Store/Details/{p.Id}</loc><lastmod>{p.CreatedAt:yyyy-MM-dd}</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>");
+            sb.AppendLine("  <url>");
+            sb.AppendLine($"    <loc>{baseUrl}/Store/Details/{p.Id}</loc>");
+            sb.AppendLine($"    <lastmod>{(p.UpdatedAt ?? p.CreatedAt):yyyy-MM-dd}</lastmod>");
+            sb.AppendLine("    <changefreq>daily</changefreq>");
+            sb.AppendLine("    <priority>0.9</priority>");
+
+            if (!string.IsNullOrWhiteSpace(p.ImageUrl))
+            {
+                var imgUrl = p.ImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? p.ImageUrl : $"{baseUrl}{p.ImageUrl}";
+                sb.AppendLine("    <image:image>");
+                sb.AppendLine($"      <image:loc>{System.Security.SecurityElement.Escape(imgUrl)}</image:loc>");
+                sb.AppendLine($"      <image:title>{System.Security.SecurityElement.Escape(p.Name)} - ROVEN Haute Parfumerie</image:title>");
+                sb.AppendLine($"      <image:caption>{System.Security.SecurityElement.Escape(p.Name)} عطور روفان ROVEN مصر</image:caption>");
+                sb.AppendLine("    </image:image>");
+            }
+            sb.AppendLine("  </url>");
         }
 
         sb.AppendLine("</urlset>");
@@ -414,6 +429,9 @@ Disallow: /HomeControl/
 Disallow: /AbandonedCheckouts/
 Disallow: /Coupons/
 Disallow: /Messages/
+
+# Host Directive for Regional Search Engines
+Host: {host}
 
 # Dynamic XML Sitemap Index
 Sitemap: {baseUrl}/sitemap.xml

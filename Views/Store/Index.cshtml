@@ -1,9 +1,9 @@
 @model Stockify.ViewModels.Store.StoreCatalogViewModel
 @{
     Layout = "_StoreLayout";
-    var catTitle = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "Luxury Perfumes & Extraits Catalog" : Model.SelectedCategoryName;
-    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "Parfums Catalog — ROVEN" : $"{Model.SelectedCategoryName} — ROVEN";
-    ViewData["MetaDescription"] = $"Explore the official ROVEN fragrance catalog: {catTitle}. Handcrafted Extraits de Parfum, signature scents, and royal oud flacons with Cash on Delivery in Egypt.";
+    var catTitle = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "كتالوج عطور روفان الفاخرة | All ROVEN Fragrances" : $"عطور {Model.SelectedCategoryName} | دار روفان ROVEN";
+    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "كتالوج عطور روفان الرسمية | ROVEN Haute Parfumerie" : $"عطور {Model.SelectedCategoryName} | دار روفان ROVEN";
+    ViewData["MetaDescription"] = $"تسوق أرقى تشكيلات عطور روفان (Maison ROVEN) الأصلية في مصر. عطور نيش وExtraits de Parfum بتركيز 30% مع ثبات وفوحان فائق يدوم طويلاً، وشحن وتوصيل فوري مع المعاينة قبل الدفع.";
 }
 
 <div class="container py-4">
@@ -277,5 +277,55 @@
         form.submit();
     }
 </script>
+}
+
+@section SeoStructuredData {
+    <!-- Google BreadcrumbList & CollectionPage Structured Data for Catalog -->
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@graph": [
+        {
+          "@@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@@type": "ListItem",
+              "position": 1,
+              "name": "دار روفان",
+              "item": "https://roven-eg.online/"
+            },
+            {
+              "@@type": "ListItem",
+              "position": 2,
+              "name": "متجر عطور روفان",
+              "item": "https://roven-eg.online/Store"
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.SelectedCategoryName))
+            {
+              <text>
+              ,{
+                "@@type": "ListItem",
+                "position": 3,
+                "name": "@Model.SelectedCategoryName",
+                "item": "https://roven-eg.online/Store?categoryId=@Model.SelectedCategoryId"
+              }
+              </text>
+            }
+          ]
+        },
+        {
+          "@@type": "CollectionPage",
+          "name": "@(string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "كتالوج عطور روفان الرسمية | ROVEN Haute Parfumerie" : $"عطور {Model.SelectedCategoryName} | دار روفان ROVEN")",
+          "url": "@($"https://roven-eg.online/Store{(Model.SelectedCategoryId.HasValue ? $"?categoryId={Model.SelectedCategoryId.Value}" : "")}")",
+          "description": "تسوق أرقى عطور النيش والـ Extraits de Parfum من دار روفان ROVEN Haute Parfumerie في مصر.",
+          "isPartOf": {
+            "@@type": "WebSite",
+            "name": "ROVEN Haute Parfumerie",
+            "url": "https://roven-eg.online/"
+          }
+        }
+      ]
+    }
+    </script>
 }
 
