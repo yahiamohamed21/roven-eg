@@ -846,25 +846,32 @@
             padding-top: 3.5rem;
             padding-bottom: 2rem;
             border-top: 3px solid #630000;
+            position: relative;
         }
 
         .store-footer .footer-heading {
             color: #EDEBDD;
             letter-spacing: 1px;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             position: relative;
-            padding-bottom: 6px;
+            padding-bottom: 8px;
         }
 
         .store-footer .footer-heading::after {
             content: '';
             position: absolute;
             bottom: 0;
-            left: 0;
-            width: 24px;
+            inset-inline-start: 0;
+            width: 26px;
             height: 2px;
             background: #810100;
             border-radius: 2px;
+        }
+
+        .store-footer .footer-heading-sub {
+            letter-spacing: normal;
+            font-weight: 500;
+            color: #dfb15b;
         }
 
         .store-footer .footer-desc {
@@ -874,30 +881,75 @@
             font-size: 0.84rem;
         }
 
-        .store-footer .footer-links-list a,
-        .store-footer .footer-contact-list a {
+        .footer-authenticity-badge {
+            background: rgba(237, 235, 221, 0.05);
+            border: 1px solid rgba(223, 177, 91, 0.22);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            color: #EDEBDD;
+            opacity: 0.95;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            max-width: 100%;
+        }
+
+        .store-footer .footer-links-list a {
             color: #EDEBDD !important;
             opacity: 0.82;
             text-decoration: none !important;
             font-size: 0.84rem;
-            transition: opacity 0.15s, color 0.15s, transform 0.15s;
-            display: inline-block;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 0;
         }
 
-        .store-footer .footer-links-list a:hover,
-        .store-footer .footer-contact-list a:hover {
+        .store-footer .footer-links-list a:hover {
             opacity: 1;
             color: #dfb15b !important;
             transform: translateX(3px);
         }
 
         .store-footer .footer-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-size: 0.84rem;
             color: #EDEBDD;
-            opacity: 0.85;
-            line-height: 1.45;
+            opacity: 0.9;
+            padding: 3px 0;
+        }
+
+        .store-footer .footer-contact-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background: rgba(223, 177, 91, 0.12);
+            border: 1px solid rgba(223, 177, 91, 0.25);
+            color: #dfb15b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            flex-shrink: 0;
+        }
+
+        .store-footer .footer-contact-info {
+            min-width: 0;
+            flex: 1;
             word-break: break-word;
             overflow-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .store-footer .footer-contact-link {
+            color: #EDEBDD !important;
+            text-decoration: none !important;
+            transition: color 0.2s ease;
+        }
+
+        .store-footer .footer-contact-link:hover {
+            color: #dfb15b !important;
         }
 
         .footer-divider {
@@ -906,11 +958,11 @@
         }
 
         .footer-social-btn {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background: rgba(237, 235, 221, 0.08);
-            border: 1px solid rgba(237, 235, 221, 0.18);
+            border: 1px solid rgba(223, 177, 91, 0.25);
             color: #EDEBDD !important;
             display: inline-flex;
             align-items: center;
@@ -920,16 +972,25 @@
             text-decoration: none !important;
         }
 
-        .footer-social-btn:hover {
+        .footer-social-btn:hover, .footer-social-btn:active {
             background: #810100;
             border-color: #dfb15b;
             color: #ffffff !important;
             transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(129, 1, 0, 0.4);
         }
 
         .developer-box {
-            background: rgba(237, 235, 221, 0.08);
-            border: 1px solid rgba(237, 235, 221, 0.22);
+            background: rgba(237, 235, 221, 0.06);
+            border: 1px solid rgba(237, 235, 221, 0.18);
+            font-size: 0.78rem;
+            max-width: 100%;
+        }
+
+        .developer-vr {
+            height: 14px;
+            opacity: 0.25;
+            background-color: #EDEBDD;
         }
 
         .developer-icon-btn {
@@ -957,35 +1018,40 @@
         @@media (max-width: 575.98px) {
             .store-footer {
                 padding-top: 2.25rem !important;
-                padding-bottom: 1.75rem !important;
+                padding-bottom: 2rem !important;
             }
             .store-footer .footer-desc {
-                font-size: 0.78rem !important;
-                line-height: 1.55 !important;
-                margin-bottom: 0.85rem !important;
+                font-size: 0.82rem !important;
+                line-height: 1.6 !important;
+                margin-bottom: 1rem !important;
             }
-            .store-footer .footer-authenticity {
-                font-size: 0.75rem !important;
+            .footer-authenticity-badge {
+                font-size: 0.76rem !important;
+                padding: 6px 12px !important;
+                width: 100%;
+                justify-content: center;
             }
             .store-footer .footer-heading {
-                font-size: 0.8rem !important;
-                margin-bottom: 0.65rem !important;
+                font-size: 0.84rem !important;
+                margin-bottom: 0.85rem !important;
                 letter-spacing: 0.5px !important;
             }
-            .store-footer .footer-links-list a,
-            .store-footer .footer-contact-list a,
+            .store-footer .footer-links-list a {
+                font-size: 0.82rem !important;
+                padding: 5px 0 !important;
+            }
             .store-footer .footer-contact-item {
-                font-size: 0.76rem !important;
-                line-height: 1.4 !important;
+                font-size: 0.82rem !important;
+                padding: 4px 0 !important;
             }
             .footer-social-btn {
-                width: 34px !important;
-                height: 34px !important;
-                font-size: 0.85rem !important;
+                width: 38px !important;
+                height: 38px !important;
+                font-size: 0.95rem !important;
             }
             .developer-box {
-                font-size: 0.72rem !important;
-                padding: 4px 10px !important;
+                font-size: 0.74rem !important;
+                padding: 5px 12px !important;
             }
         }
 
@@ -1720,59 +1786,76 @@
     <footer class="store-footer">
         <div class="container">
             <div class="row g-4 g-lg-5 mb-4">
-                <div class="col-12 col-lg-5">
+                <!-- Column 1: Brand / Maison Heritage -->
+                <div class="col-12 col-lg-5 mb-1 mb-lg-0">
                     <div class="d-flex align-items-center gap-2 mb-3">
-                        <div class="p-1 px-2 rounded-2" style="background-color: #EDEBDD;">
+                        <div class="p-1 px-2.5 rounded-2" style="background-color: #EDEBDD; display: inline-block;">
                             <img src="~/images/roven-logo.png" alt="ROVEN" style="height: 32px; width: auto;" />
                         </div>
                     </div>
-                    <p class="footer-desc small mb-3">
+                    <p class="footer-desc mb-3">
                         <strong>Maison ROVEN (دار روڤين / روفين للعطور الفاخرة)</strong> — The official Haute Parfumerie house dedicated to high-concentration Extraits de Parfum (30%+ pure oils) and rare Assam oud. Handcrafted with Grasse extracts, eternal sillage, and nationwide Cash on Delivery with full parcel inspection across Egypt.
                     </p>
-                    <div class="d-flex gap-2 align-items-center footer-authenticity" style="color: #EDEBDD; opacity: 0.9;">
+                    <div class="footer-authenticity-badge d-inline-flex gap-2 align-items-center">
                         <i class="fa-solid fa-shield-halved text-gold"></i>
-                        <span class="small">100% Authentic Luxury Parfums &bull; Cash on Delivery</span>
+                        <span>100% Authentic Luxury Parfums &bull; Cash on Delivery</span>
                     </div>
                 </div>
 
-                <div class="col-6 col-sm-6 col-lg-3 offset-lg-1">
-                    <h6 class="footer-heading fw-bold mb-3">MAISON</h6>
-                    <ul class="list-unstyled footer-links-list d-flex flex-column gap-2 mb-0">
-                        <li><a asp-controller="Home" asp-action="Index">Maison Home</a></li>
-                        <li><a asp-controller="Store" asp-action="Index">All Fragrances</a></li>
-                        <li><a asp-controller="OrderTracking" asp-action="Index">Track Your Order</a></li>
-                        <li><a asp-controller="Home" asp-action="About">About Maison</a></li>
-                        <li><a asp-controller="Home" asp-action="Contact">Contact Concierge</a></li>
+                <!-- Column 2: Navigation Links -->
+                <div class="col-12 col-sm-6 col-lg-3 offset-lg-1">
+                    <h6 class="footer-heading fw-bold mb-3 d-flex align-items-center justify-content-between">
+                        <span>MAISON</span>
+                        <span class="footer-heading-sub small opacity-50">دار روڤين</span>
+                    </h6>
+                    <ul class="list-unstyled footer-links-list row g-2 mb-0">
+                        <li class="col-6 col-sm-12"><a asp-controller="Home" asp-action="Index"><i class="fa-solid fa-angle-right me-1.5 text-gold opacity-50" style="font-size: 0.72rem;"></i>Maison Home</a></li>
+                        <li class="col-6 col-sm-12"><a asp-controller="Store" asp-action="Index"><i class="fa-solid fa-angle-right me-1.5 text-gold opacity-50" style="font-size: 0.72rem;"></i>All Fragrances</a></li>
+                        <li class="col-6 col-sm-12"><a asp-controller="OrderTracking" asp-action="Index"><i class="fa-solid fa-angle-right me-1.5 text-gold opacity-50" style="font-size: 0.72rem;"></i>Track Order</a></li>
+                        <li class="col-6 col-sm-12"><a asp-controller="Home" asp-action="About"><i class="fa-solid fa-angle-right me-1.5 text-gold opacity-50" style="font-size: 0.72rem;"></i>About Maison</a></li>
+                        <li class="col-6 col-sm-12"><a asp-controller="Home" asp-action="Contact"><i class="fa-solid fa-angle-right me-1.5 text-gold opacity-50" style="font-size: 0.72rem;"></i>Concierge</a></li>
                     </ul>
                 </div>
 
-                <div class="col-6 col-sm-6 col-lg-3">
-                    <h6 class="footer-heading fw-bold mb-3">CONCIERGE</h6>
+                <!-- Column 3: Concierge / Contact Information -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <h6 class="footer-heading fw-bold mb-3 d-flex align-items-center justify-content-between">
+                        <span>CONCIERGE</span>
+                        <span class="footer-heading-sub small opacity-50">خدمة العملاء</span>
+                    </h6>
                     <ul class="list-unstyled footer-contact-list d-flex flex-column gap-2 mb-0">
                         @if (!string.IsNullOrWhiteSpace(siteSetting.WhatsAppNumber))
                         {
                             var ftWaClean = siteSetting.WhatsAppNumber.Replace("+", "").Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
                             var ftWaUrl = siteSetting.WhatsAppNumber.StartsWith("http") ? siteSetting.WhatsAppNumber : $"https://wa.me/{ftWaClean}";
                             <li class="footer-contact-item">
-                                <i class="fa-brands fa-whatsapp me-2 text-gold"></i>
-                                <a href="@ftWaUrl" target="_blank" rel="noopener noreferrer">
-                                    @siteSetting.WhatsAppNumber
-                                </a>
+                                <div class="footer-contact-icon"><i class="fa-brands fa-whatsapp"></i></div>
+                                <div class="footer-contact-info">
+                                    <a href="@ftWaUrl" target="_blank" rel="noopener noreferrer" class="footer-contact-link">
+                                        @siteSetting.WhatsAppNumber
+                                    </a>
+                                </div>
                             </li>
                         }
                         <li class="footer-contact-item">
-                            <i class="fa-solid fa-envelope me-2 text-gold"></i>
-                            <a href="mailto:@(!string.IsNullOrWhiteSpace(siteSetting.ContactEmail) ? siteSetting.ContactEmail : "concierge@roven.local")">
-                                @(!string.IsNullOrWhiteSpace(siteSetting.ContactEmail) ? siteSetting.ContactEmail : "concierge@roven.local")
-                            </a>
+                            <div class="footer-contact-icon"><i class="fa-solid fa-envelope"></i></div>
+                            <div class="footer-contact-info">
+                                <a href="mailto:@(!string.IsNullOrWhiteSpace(siteSetting.ContactEmail) ? siteSetting.ContactEmail : "concierge@roven.local")" class="footer-contact-link">
+                                    @(!string.IsNullOrWhiteSpace(siteSetting.ContactEmail) ? siteSetting.ContactEmail : "concierge@roven.local")
+                                </a>
+                            </div>
                         </li>
                         <li class="footer-contact-item">
-                            <i class="fa-solid fa-location-dot me-2 text-gold"></i>
-                            <span>@(!string.IsNullOrWhiteSpace(siteSetting.AtelierAddress) ? siteSetting.AtelierAddress : "Cairo & Giza, Egypt")</span>
+                            <div class="footer-contact-icon"><i class="fa-solid fa-location-dot"></i></div>
+                            <div class="footer-contact-info">
+                                <span>@(!string.IsNullOrWhiteSpace(siteSetting.AtelierAddress) ? siteSetting.AtelierAddress : "Cairo & Giza, Egypt")</span>
+                            </div>
                         </li>
                         <li class="footer-contact-item">
-                            <i class="fa-solid fa-clock me-2 text-gold"></i>
-                            <span>@(!string.IsNullOrWhiteSpace(siteSetting.ContactWorkingHours) ? siteSetting.ContactWorkingHours : "Daily: 10 AM – 11 PM")</span>
+                            <div class="footer-contact-icon"><i class="fa-solid fa-clock"></i></div>
+                            <div class="footer-contact-info">
+                                <span>@(!string.IsNullOrWhiteSpace(siteSetting.ContactWorkingHours) ? siteSetting.ContactWorkingHours : "Daily: 10 AM – 11 PM")</span>
+                            </div>
                         </li>
                     </ul>
                 </div>
@@ -1780,16 +1863,16 @@
 
             <hr class="footer-divider my-4" />
 
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center small gap-3" style="color: #EDEBDD; opacity: 0.88;">
+            <div class="d-flex flex-column-reverse flex-sm-row justify-content-between align-items-center small gap-3" style="color: #EDEBDD; opacity: 0.9;">
                 <div class="footer-copyright text-center text-sm-start">&copy; @DateTime.UtcNow.Year ROVEN Omnichannel System. All rights reserved.</div>
-                <div class="d-flex gap-3 align-items-center justify-content-center">
-                    <a href="@siteSetting.FacebookUrl" target="_blank" class="footer-social-btn" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="@siteSetting.InstagramUrl" target="_blank" class="footer-social-btn" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <div class="d-flex gap-2.5 align-items-center justify-content-center">
+                    <a href="@siteSetting.FacebookUrl" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="@siteSetting.InstagramUrl" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
                     @{
                         var ftWa = siteSetting.WhatsAppNumber ?? "+201008889999";
                         var ftWaLink = ftWa.StartsWith("http") ? ftWa : $"https://wa.me/{ftWa.Replace("+", "").Replace(" ", "").Replace("-", "")}";
                     }
-                    <a href="@ftWaLink" target="_blank" class="footer-social-btn" title="WhatsApp Concierge"><i class="fa-brands fa-whatsapp"></i></a>
+                    <a href="@ftWaLink" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="WhatsApp Concierge"><i class="fa-brands fa-whatsapp"></i></a>
                 </div>
             </div>
 
