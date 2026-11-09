@@ -245,16 +245,16 @@
             <h2 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif;">Home Control Center</h2>
             <p class="text-muted small mb-0">لوحة تحكم كاملة في كافة سكشنات وبانرات ونصوص الصفحة الرئيسية للمتجر بروابط وتعديلات حية تسمع فورياً.</p>
         </div>
-        <div class="d-flex flex-wrap gap-2 w-100 w-md-auto justify-content-start justify-content-md-end">
-            <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center gap-2 shadow-xs flex-grow-1 flex-md-grow-0" onclick="syncImagesToCloudinary(this)" title="ضغط وتحويل كل صور المتجر إلى WebP ورفعها لـ Cloudinary">
+        <div class="d-flex flex-wrap gap-2 align-items-center justify-content-start justify-content-md-end">
+            <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center gap-2 shadow-xs" onclick="syncImagesToCloudinary(this)" title="ضغط وتحويل كل صور المتجر إلى WebP ورفعها لـ Cloudinary">
                 <i class="fa-solid fa-cloud-arrow-up text-primary"></i>
                 <span>مزامنة الصور (WebP)</span>
             </button>
-            <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 flex-md-grow-0">
+            <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center gap-2">
                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 <span>معاينة المتجر</span>
             </a>
-            <button type="submit" form="homeControlForm" class="btn btn-primary btn-sm px-4 py-2 rounded-pill d-inline-flex align-items-center justify-content-center gap-2 fw-bold shadow-sm w-100 w-md-auto text-white" style="background: #810100; border-color: #810100;">
+            <button type="submit" form="homeControlForm" class="btn btn-primary btn-sm px-3.5 py-2 rounded-pill d-inline-flex align-items-center justify-content-center gap-2 fw-bold shadow-sm text-white" style="background: #810100; border-color: #810100; width: auto !important; max-width: fit-content;">
                 <i class="fa-solid fa-floppy-disk"></i>
                 <span>حفظ كافة التغييرات</span>
             </button>
@@ -1142,11 +1142,12 @@
                     <div class="text-muted" style="font-size: 0.75rem;">يتم تطبيق التعديلات في الصفحة الرئيسية للمتجر فور الضغط على زر الحفظ.</div>
                 </div>
             </div>
-            <div class="d-flex gap-2 w-100 w-sm-auto">
-                <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-secondary px-3 py-2 rounded-pill small flex-grow-1 flex-sm-grow-0 d-flex align-items-center justify-content-center">
-                    <i class="fa-solid fa-eye me-1"></i> معاينة المتجر
+            <div class="d-flex gap-2 flex-wrap align-items-center">
+                <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center gap-1.5" style="width: auto !important;">
+                    <i class="fa-solid fa-eye"></i>
+                    <span>معاينة المتجر</span>
                 </a>
-                <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 flex-grow-1 flex-sm-grow-0 text-white" style="background: #810100; border-color: #810100;">
+                <button type="submit" class="btn btn-primary btn-sm px-3.5 py-2 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-2 text-white" style="background: #810100; border-color: #810100; width: auto !important; max-width: fit-content;">
                     <i class="fa-solid fa-floppy-disk"></i>
                     <span>حفظ وتطبيق</span>
                 </button>
