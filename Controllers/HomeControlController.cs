@@ -122,6 +122,7 @@ public class HomeControlController : Controller
 
         _context.HeroBanners.Add(banner);
         await _context.SaveChangesAsync();
+        await AutoSyncLocalImagesToCloudinaryAsync();
 
         TempData["SuccessMessage"] = $"تمت إضافة البانر '{banner.Title}' بنجاح!";
         return RedirectToAction(nameof(Index));
@@ -179,6 +180,7 @@ public class HomeControlController : Controller
         banner.DisplayOrder = displayOrder;
 
         await _context.SaveChangesAsync();
+        await AutoSyncLocalImagesToCloudinaryAsync();
 
         TempData["SuccessMessage"] = $"تم تحديث بيانات البانر '{banner.Title}' بنجاح!";
         return RedirectToAction(nameof(Index));
@@ -333,6 +335,7 @@ public class HomeControlController : Controller
         settings.ShowNewsletterSection = model.ShowNewsletterSection;
 
         await _context.SaveChangesAsync();
+        await AutoSyncLocalImagesToCloudinaryAsync();
 
         TempData["SuccessMessage"] = "تم تحديث وتثبيت إعدادات الواجهة الرئيسية بنجاح!";
         return RedirectToAction(nameof(Index));
@@ -573,6 +576,87 @@ public class HomeControlController : Controller
             mbSaved = mbSaved,
             message = $"تم بنجاح رفع وضغط {syncedCount} صورة بصيغة WebP إلى Cloudinary وتحديث قاعدة البيانات بالروابط السحابية!"
         });
+    }
+
+    private async Task AutoSyncLocalImagesToCloudinaryAsync()
+    {
+        if (!_imageStorageService.IsConfigured) return;
+
+        try
+        {
+            bool changed = false;
+
+            // 1. Sync Products Images
+            var products = await _context.Products
+                .Where(p => !string.IsNullOrEmpty(p.ImageUrl) && !p.ImageUrl.StartsWith("http"))
+                .ToListAsync();
+
+            foreach (var p in products)
+            {
+                var cleanPath = p.ImageUrl.TrimStart('/', '\\').Replace('/', Path.DirectorySeparatorChar);
+                var fullLocalPath = Path.Combine(_environment.WebRootPath, cleanPath);
+                if (System.IO.File.Exists(fullLocalPath))
+                {
+                    await using var stream = System.IO.File.OpenRead(fullLocalPath);
+                    var newUrl = await _imageStorageService.UploadFileAsync(stream, Path.GetFileName(fullLocalPath), "roven/products");
+                    if (!string.IsNullOrWhiteSpace(newUrl))
+                    {
+                        p.ImageUrl = newUrl;
+                        changed = true;
+                    }
+                }
+            }
+
+            // 2. Sync Hero Banners Images
+            var banners = await _context.HeroBanners
+                .Where(b => (!string.IsNullOrEmpty(b.DesktopImageUrl) && !b.DesktopImageUrl.StartsWith("http"))
+                         || (!string.IsNullOrEmpty(b.MobileImageUrl) && !b.MobileImageUrl.StartsWith("http")))
+                .ToListAsync();
+
+            foreach (var b in banners)
+            {
+                if (!string.IsNullOrWhiteSpace(b.DesktopImageUrl) && !b.DesktopImageUrl.StartsWith("http"))
+                {
+                    var cleanPath = b.DesktopImageUrl.TrimStart('/', '\\').Replace('/', Path.DirectorySeparatorChar);
+                    var fullLocalPath = Path.Combine(_environment.WebRootPath, cleanPath);
+                    if (System.IO.File.Exists(fullLocalPath))
+                    {
+                        await using var stream = System.IO.File.OpenRead(fullLocalPath);
+                        var newUrl = await _imageStorageService.UploadFileAsync(stream, Path.GetFileName(fullLocalPath), "roven/banners");
+                        if (!string.IsNullOrWhiteSpace(newUrl))
+                        {
+                            b.DesktopImageUrl = newUrl;
+                            changed = true;
+                        }
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(b.MobileImageUrl) && !b.MobileImageUrl.StartsWith("http"))
+                {
+                    var cleanPath = b.MobileImageUrl.TrimStart('/', '\\').Replace('/', Path.DirectorySeparatorChar);
+                    var fullLocalPath = Path.Combine(_environment.WebRootPath, cleanPath);
+                    if (System.IO.File.Exists(fullLocalPath))
+                    {
+                        await using var stream = System.IO.File.OpenRead(fullLocalPath);
+                        var newUrl = await _imageStorageService.UploadFileAsync(stream, Path.GetFileName(fullLocalPath), "roven/banners");
+                        if (!string.IsNullOrWhiteSpace(newUrl))
+                        {
+                            b.MobileImageUrl = newUrl;
+                            changed = true;
+                        }
+                    }
+                }
+            }
+
+            if (changed)
+            {
+                await _context.SaveChangesAsync();
+            }
+        }
+        catch
+        {
+            // Fail-safe: do not interrupt user operations if network or Cloudinary is unreachable
+        }
     }
 }
 

@@ -90,6 +90,7 @@ using (var scope = app.Services.CreateScope())
         // Auto-apply migrations if pending
         await context.Database.MigrateAsync();
         await DbInitializer.SeedRolesAndAdminAsync(services);
+        await DbInitializer.AutoSyncImagesToCloudinaryAsync(services);
     }
     catch (Exception ex)
     {
