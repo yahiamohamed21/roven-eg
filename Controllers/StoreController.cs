@@ -295,6 +295,35 @@ public class StoreController : Controller
             })
             .ToListAsync();
 
+        // Supplement up to 4 recommendations if category has fewer products
+        if (related.Count < 4)
+        {
+            var existingIds = related.Select(r => r.Id).Append(product.Id).ToList();
+            var needed = 4 - related.Count;
+            var additional = await _context.Products
+                .Include(p => p.Category)
+                .Where(p => !existingIds.Contains(p.Id) && p.IsActive && p.IsPublished)
+                .OrderByDescending(p => p.IsFeatured)
+                .ThenByDescending(p => p.CreatedAt)
+                .Take(needed)
+                .Select(p => new StoreProductCardViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Sku = p.Sku ?? "",
+                    Description = p.Description,
+                    Price = p.Price,
+                    StockQuantity = p.StockQuantity,
+                    ImageUrl = p.ImageUrl,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category != null ? p.Category.Name : "General",
+                    IsFeatured = p.IsFeatured
+                })
+                .ToListAsync();
+
+            related.AddRange(additional);
+        }
+
         // Approved reviews for this product
         var reviews = await _context.ProductReviews
             .Where(r => r.ProductId == id && r.IsApproved)

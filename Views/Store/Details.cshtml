@@ -397,47 +397,74 @@
         </div>
     </div>
 
-    <!-- Related Products (Responsive 2-Column Grid on Mobile) -->
+    <!-- Related Products -->
     @if (Model.RelatedProducts.Any())
     {
         <div class="mb-5">
             <div class="d-flex align-items-center justify-content-between mb-3 mb-md-4">
                 <div>
+                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style="background-color: #EDEBDD; color: #630000; font-size: 0.76rem; font-weight: 700;">
+                        <i class="fa-solid fa-sparkles text-warning"></i>
+                        <span>CURATED PERFUMERY SELECTIONS</span>
+                    </div>
                     <h4 class="fw-bold text-dark mb-1" style="font-family: 'Playfair Display', serif; font-size: clamp(1.15rem, 3vw, 1.5rem);">
-                        عطور أخرى قد تنال إعجابك من فئة @p.CategoryName
+                        عطور أخرى قد تنال إعجابك
                     </h4>
-                    <p class="small text-muted mb-0">تشكيلة مختارة من أرقى إصدارات دار روڤين</p>
+                    <p class="small text-muted mb-0">تشكيلة مختارة بعناية من أرقى إصدارات دار روڤين</p>
                 </div>
-                <a asp-action="Index" asp-route-categoryId="@p.CategoryId" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1.5 d-none d-sm-inline-flex align-items-center gap-1.5" style="font-size: 0.78rem;">
-                    <span>عرض الكل</span>
+                <a asp-action="Index" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1.5 d-none d-sm-inline-flex align-items-center gap-1.5" style="font-size: 0.78rem;">
+                    <span>عرض كافة العطور</span>
                     <i class="fa-solid fa-arrow-left small"></i>
                 </a>
             </div>
-            <div class="row g-2 g-sm-3 g-md-4">
+
+            <div class="row g-2 g-sm-3 g-md-4 justify-content-center">
                 @foreach (var related in Model.RelatedProducts)
                 {
-                    <div class="col-6 col-lg-3">
-                        <div class="product-card h-100 d-flex flex-column" data-details-url="@Url.Action("Details", "Store", new { id = related.Id })">
-                            <a asp-action="Details" asp-route-id="@related.Id" class="product-image-container d-block position-relative text-decoration-none" title="عرض تفاصيل عطر @related.Name">
+                    <div class="@(Model.RelatedProducts.Count == 1 ? "col-12 col-sm-8 col-md-6 col-lg-4" : (Model.RelatedProducts.Count == 2 ? "col-6 col-md-6 col-lg-4" : "col-6 col-lg-3"))">
+                        <div class="product-card h-100 d-flex flex-column shadow-xs" data-details-url="@Url.Action("Details", "Store", new { id = related.Id })" style="border-radius: 14px; overflow: hidden; background: #ffffff; border: 1px solid #e8e3d5;">
+                            <a asp-action="Details" asp-route-id="@related.Id" class="product-image-container d-block position-relative text-decoration-none" style="background: #000000; height: 180px; overflow: hidden;" title="عرض تفاصيل عطر @related.Name">
                                 @if (!string.IsNullOrWhiteSpace(related.ImageUrl))
                                 {
-                                    <img src="@related.ImageUrl" alt="@related.Name" loading="lazy" />
+                                    <img src="@related.ImageUrl" alt="@related.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='/images/products/perfume_default.svg'" style="object-fit: contain; width: 100%; height: 100%; padding: 8px;" />
                                 }
                                 else
                                 {
-                                    <i class="fa-solid fa-spray-can-sparkles text-muted display-4"></i>
+                                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                        <i class="fa-solid fa-spray-can-sparkles display-5" style="color: #EDEBDD;"></i>
+                                    </div>
+                                }
+
+                                @if (related.IsFeatured)
+                                {
+                                    <span class="position-absolute top-0 start-0 m-2 badge px-2 py-1 rounded-pill" style="background: linear-gradient(135deg, #810100 0%, #630000 100%); color: #EDEBDD; font-size: 0.65rem;">
+                                        <i class="fa-solid fa-gem me-0.5 text-warning"></i>مميز
+                                    </span>
                                 }
                             </a>
                             <div class="p-2.5 p-sm-3 d-flex flex-column flex-grow-1">
-                                <h6 class="fw-bold text-dark mb-1 text-truncate" style="font-size: 0.88rem;">
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <span class="badge px-2 py-0.5 rounded-pill" style="background-color: #EDEBDD; color: #630000; font-size: 0.68rem; font-weight: 600;">
+                                        @related.CategoryName
+                                    </span>
+                                    <div class="text-warning small" style="font-size: 0.7rem;">
+                                        <i class="fa-solid fa-star"></i>
+                                        <span class="fw-bold text-dark ms-0.5" style="font-size: 0.72rem;">5.0</span>
+                                    </div>
+                                </div>
+
+                                <h6 class="fw-bold text-dark mb-2" style="font-size: 0.88rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.4em;">
                                     <a asp-action="Details" asp-route-id="@related.Id" class="text-dark text-decoration-none">
                                         @related.Name
                                     </a>
                                 </h6>
-                                <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-1">
-                                    <div class="fw-bold" style="color: #630000; font-size: 0.88rem;">@related.Price.ToString("N0") ج.م</div>
-                                    <a asp-action="Details" asp-route-id="@related.Id" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5" style="font-size: 0.72rem;">
-                                        عرض
+
+                                <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-1" style="border-color: #f0ece3 !important;">
+                                    <div class="fw-extrabold" style="color: #630000; font-size: 0.92rem; font-family: 'Playfair Display', serif;">
+                                        @related.Price.ToString("N0") <span class="fw-normal text-muted" style="font-size: 0.7rem;">ج.م</span>
+                                    </div>
+                                    <a asp-action="Details" asp-route-id="@related.Id" class="btn btn-sm btn-outline-dark rounded-pill px-2.5 py-1 fw-bold text-nowrap" style="font-size: 0.72rem; border-color: #d1c9b8;">
+                                        <span>عرض العطر</span>
                                     </a>
                                 </div>
                             </div>
