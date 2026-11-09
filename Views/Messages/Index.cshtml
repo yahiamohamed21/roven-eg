@@ -78,11 +78,8 @@
                             <label class="form-label small fw-bold"><i class="fa-brands fa-whatsapp text-success me-1"></i> رقم الواتساب الرسمي (WhatsApp)</label>
                             <input type="text" name="whatsAppNumber" value="@settings.WhatsAppNumber" class="form-control rounded-3" placeholder="+201008889999" required />
                         </div>
-                        <div class="col-12 col-md-6">
-                            <label class="form-label small fw-bold"><i class="fa-solid fa-phone text-muted me-1"></i> الخط الساخن / هاتف الدار (Contact Phone)</label>
-                            <input type="text" name="contactPhone" value="@settings.ContactPhone" class="form-control rounded-3 font-monospace" placeholder="+20 (02) 19888" />
-                        </div>
-                        <div class="col-12 col-md-6">
+                        <input type="hidden" name="contactPhone" value="" />
+                        <div class="col-12">
                             <label class="form-label small fw-bold"><i class="fa-solid fa-envelope text-muted me-1"></i> البريد الإلكتروني للاستفسارات (Contact Email)</label>
                             <input type="email" name="contactEmail" value="@settings.ContactEmail" class="form-control rounded-3 font-monospace" placeholder="concierge@roven.local" />
                         </div>

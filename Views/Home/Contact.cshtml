@@ -154,22 +154,6 @@
 
                     <div class="contact-channel-item">
                         <div class="channel-icon-box">
-                            <i class="fa-solid fa-phone"></i>
-                        </div>
-                        <div>
-                            <div class="text-uppercase small fw-bold" style="color: #810100; font-size: 0.75rem; letter-spacing: 0.5px;">Telephone Hotline</div>
-                            @{
-                                var phone = !string.IsNullOrWhiteSpace(Model?.ContactPhone) ? Model.ContactPhone : "+20 (02) 19888";
-                                var cleanPhone = phone.Replace(" ", "").Replace("(", "").Replace(")", "").Replace("-", "");
-                                var workingHours = !string.IsNullOrWhiteSpace(Model?.ContactWorkingHours) ? Model.ContactWorkingHours : "Daily: 10:00 AM – 11:00 PM CLT";
-                            }
-                            <a href="tel:@cleanPhone" class="fs-5 fw-bold text-decoration-none" style="color: #1B1717;">@phone</a>
-                            <div class="small text-muted">@workingHours</div>
-                        </div>
-                    </div>
-
-                    <div class="contact-channel-item">
-                        <div class="channel-icon-box">
                             <i class="fa-brands fa-whatsapp"></i>
                         </div>
                         <div>
@@ -357,7 +341,7 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Transmission Error',
-                    text: 'Unable to reach the concierge server. Please call @(Model?.ContactPhone ?? "+20 (02) 19888") directly.',
+                    text: 'Unable to reach the concierge server. Please message us via WhatsApp concierge.',
                     confirmButtonColor: '#630000'
                 });
             } finally {

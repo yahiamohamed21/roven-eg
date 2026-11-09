@@ -144,7 +144,7 @@
           },
           "contactPoint": {
             "@@type": "ContactPoint",
-            "telephone": "@(!string.IsNullOrWhiteSpace(siteSetting.ContactPhone) ? siteSetting.ContactPhone : "+20 (02) 19888")",
+            "telephone": "@(!string.IsNullOrWhiteSpace(siteSetting.WhatsAppNumber) ? siteSetting.WhatsAppNumber : "+201008889999")",
             "email": "@(!string.IsNullOrWhiteSpace(siteSetting.ContactEmail) ? siteSetting.ContactEmail : "concierge@roven.local")",
             "contactType": "Customer Concierge",
             "areaServed": "EG",
@@ -1749,12 +1749,17 @@
                 <div class="col-6 col-sm-6 col-lg-3">
                     <h6 class="footer-heading fw-bold mb-3">CONCIERGE</h6>
                     <ul class="list-unstyled footer-contact-list d-flex flex-column gap-2 mb-0">
-                        <li class="footer-contact-item">
-                            <i class="fa-solid fa-phone me-2 text-gold"></i>
-                            <a href="tel:@(!string.IsNullOrWhiteSpace(siteSetting.ContactPhone) ? siteSetting.ContactPhone.Replace(" ", "").Replace("-", "") : "+20219888")">
-                                @(!string.IsNullOrWhiteSpace(siteSetting.ContactPhone) ? siteSetting.ContactPhone : "+20 (02) 19888")
-                            </a>
-                        </li>
+                        @if (!string.IsNullOrWhiteSpace(siteSetting.WhatsAppNumber))
+                        {
+                            var ftWaClean = siteSetting.WhatsAppNumber.Replace("+", "").Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
+                            var ftWaUrl = siteSetting.WhatsAppNumber.StartsWith("http") ? siteSetting.WhatsAppNumber : $"https://wa.me/{ftWaClean}";
+                            <li class="footer-contact-item">
+                                <i class="fa-brands fa-whatsapp me-2 text-gold"></i>
+                                <a href="@ftWaUrl" target="_blank" rel="noopener noreferrer">
+                                    @siteSetting.WhatsAppNumber
+                                </a>
+                            </li>
+                        }
                         <li class="footer-contact-item">
                             <i class="fa-solid fa-envelope me-2 text-gold"></i>
                             <a href="mailto:@(!string.IsNullOrWhiteSpace(siteSetting.ContactEmail) ? siteSetting.ContactEmail : "concierge@roven.local")">
