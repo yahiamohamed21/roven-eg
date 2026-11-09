@@ -82,7 +82,7 @@ public static class DbInitializer
             await userManager.UpdateAsync(existingSales);
         }
 
-        // 4. Seed Perfume Collections & Products if not present
+        // 4. Seed Perfume Collections if not present
         if (!await context.Categories.AnyAsync())
         {
             var catExtrait = new Category { Name = "Extrait de Parfum", Description = "Highest perfume concentration (30%+) offering remarkable longevity and intoxicating sillage." };
@@ -91,21 +91,6 @@ public static class DbInitializer
             var catSets = new Category { Name = "Discovery & Gift Sets", Description = "Curated luxury presentation boxes and travel atomizers for perfume connoisseurs." };
 
             context.Categories.AddRange(catExtrait, catEdp, catOud, catSets);
-            await context.SaveChangesAsync();
-
-            var products = new List<Product>
-            {
-                new() { Name = "ROVEN Rouge Velours Extrait (100ml)", Sku = "ROV-EXT-ROUGE-100", Price = 2850.00m, StockQuantity = 45, ReorderLevel = 5, CategoryId = catExtrait.Id, IsPublished = true, IsFeatured = true, ImageUrl = "/images/perfumes/rouge-velours.jpg", Description = "An intoxicating blend of wild black cherry, damask rose, warm ambergris, and rich Madagascar vanilla bean." },
-                new() { Name = "ROVEN Noir Intense Eau de Parfum (100ml)", Sku = "ROV-EDP-NOIR-100", Price = 2150.00m, StockQuantity = 60, ReorderLevel = 5, CategoryId = catEdp.Id, IsPublished = true, IsFeatured = true, ImageUrl = "/images/perfumes/noir-intense.jpg", Description = "Cardamom, Italian bergamot, leather accord, smoked cedarwood, and velvet tonka bean. Dark and magnetic." },
-                new() { Name = "ROVEN Royal Amber & Oud (100ml)", Sku = "ROV-OUD-ROYAL-100", Price = 3450.00m, StockQuantity = 28, ReorderLevel = 5, CategoryId = catOud.Id, IsPublished = true, IsFeatured = true, ImageUrl = "/images/perfumes/amber-oud.jpg", Description = "Precious aged Assam oud married with warm golden amber, frankincense, saffron, and sweet myrrh." },
-                new() { Name = "ROVEN Santal Impérial (100ml)", Sku = "ROV-EDP-SANTAL-100", Price = 2350.00m, StockQuantity = 35, ReorderLevel = 5, CategoryId = catEdp.Id, IsPublished = true, IsFeatured = true, ImageUrl = "/images/perfumes/santal-imperial.jpg", Description = "Creamy Australian sandalwood, iris butter, pink pepper, and white musk. Timeless elegance." },
-                new() { Name = "ROVEN Rose de Taif Extrait (50ml)", Sku = "ROV-EXT-ROSE-50", Price = 3100.00m, StockQuantity = 18, ReorderLevel = 5, CategoryId = catExtrait.Id, IsPublished = true, IsFeatured = false, ImageUrl = "/images/perfumes/rose-taif.jpg", Description = "Pure mountain Taif rose distillate enriched with Moroccan rose absolute and dry amber wood." },
-                new() { Name = "ROVEN Cuir Majestueux (100ml)", Sku = "ROV-OUD-CUIR-100", Price = 3200.00m, StockQuantity = 14, ReorderLevel = 5, CategoryId = catOud.Id, IsPublished = true, IsFeatured = false, ImageUrl = "/images/perfumes/cuir-majeste.jpg", Description = "Smoky Tuscan leather, dried fruits, tobacco leaf, and bourbon vanilla. Powerful and distinguished." },
-                new() { Name = "ROVEN Blanc Musc Eau de Parfum (100ml)", Sku = "ROV-EDP-BLANC-100", Price = 1950.00m, StockQuantity = 50, ReorderLevel = 5, CategoryId = catEdp.Id, IsPublished = true, IsFeatured = true, ImageUrl = "/images/perfumes/blanc-musc.jpg", Description = "Crisp white linen accord, powdery iris, Tunisian neroli, and celestial musks. Clean and luminous." },
-                new() { Name = "ROVEN Grand Discovery Coffret (5 x 10ml)", Sku = "ROV-SET-DISCOV-5", Price = 1450.00m, StockQuantity = 40, ReorderLevel = 5, CategoryId = catSets.Id, IsPublished = true, IsFeatured = true, ImageUrl = "/images/perfumes/discovery-set.jpg", Description = "Experience the five iconic ROVEN parfums in bespoke travel atomizers, housed in our signature burgundy presentation box." }
-            };
-
-            context.Products.AddRange(products);
             await context.SaveChangesAsync();
         }
 
