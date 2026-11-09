@@ -289,26 +289,60 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.btn-delete-customer').forEach(button => {
-                button.addEventListener('click', function () {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
                     const form = this.closest('form');
-                    const customerName = form.getAttribute('data-customer-name');
+                    if (!form) return;
+
+                    const customerName = form.getAttribute('data-customer-name') || 'this customer';
                     const hasOrders = form.getAttribute('data-has-orders') === 'true';
 
                     if (hasOrders) {
-                        StockifyAlert.warning(
-                            'Action Blocked',
-                            `Customer '${customerName}' has active order history. You cannot delete customers with associated sales orders for financial audit integrity.`
-                        );
+                        Swal.fire({
+                            title: 'Action Blocked',
+                            html: `Customer <strong>"${customerName}"</strong> has registered purchase orders in the system.<br/><span class="small text-muted mt-2 d-block">Customers with recorded sales orders cannot be deleted for financial audit integrity.</span>`,
+                            icon: 'info',
+                            confirmButtonText: 'Understood',
+                            confirmButtonColor: '#810100',
+                            customClass: {
+                                popup: 'rounded-4 shadow-lg border-0 p-4 text-center',
+                                confirmButton: 'btn btn-primary px-4 py-2 rounded-pill fw-bold'
+                            },
+                            buttonsStyling: false
+                        });
                         return;
                     }
 
-                    StockifyAlert.confirmDelete(
-                        `Are you sure you want to delete customer '${customerName}'? This action cannot be undone.`,
-                        () => {
-                            StockifyAlert.showLoading('Deleting customer...');
+                    Swal.fire({
+                        title: 'Delete Customer?',
+                        html: `Are you sure you want to delete customer <strong>"${customerName}"</strong>?<br/><span class="small text-danger fw-semibold mt-2 d-block">This action is permanent and cannot be undone.</span>`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: '<i class="fa-solid fa-trash-can me-1"></i> Yes, Delete',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#810100',
+                        cancelButtonColor: '#6c757d',
+                        customClass: {
+                            popup: 'rounded-4 shadow-lg border-0 p-4 text-center',
+                            confirmButton: 'btn btn-danger px-4 py-2 rounded-pill fw-bold me-2 shadow-xs',
+                            cancelButton: 'btn btn-outline-secondary px-4 py-2 rounded-pill'
+                        },
+                        buttonsStyling: false,
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                title: 'Deleting Customer...',
+                                text: 'Please wait while customer profile is being removed.',
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
                             form.submit();
                         }
-                    );
+                    });
                 });
             });
         });

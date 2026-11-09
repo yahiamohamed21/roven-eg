@@ -99,6 +99,13 @@ window.StockifyAlert = {
 
     // 3. Confirmation Dialog for Deletions & Irreversible Operations
     confirmDelete: function (title, text, onConfirmCallback) {
+        // If caller passed 2 arguments: confirmDelete(message, callback)
+        if (typeof text === 'function') {
+            onConfirmCallback = text;
+            text = title;
+            title = 'Confirm Deletion';
+        }
+
         if (typeof Swal === 'undefined') {
             if (confirm(text || 'Are you sure you want to delete this?')) {
                 if (onConfirmCallback) onConfirmCallback();
@@ -106,15 +113,18 @@ window.StockifyAlert = {
             return;
         }
         return Swal.fire({
-            title: title || 'Are you sure?',
-            text: text || "You won't be able to revert this operation!",
+            title: title || 'Confirm Deletion',
+            html: text || "Are you sure you want to delete this item? This action cannot be undone.",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: '<i class="bi bi-trash me-1"></i> Yes, Delete',
+            confirmButtonText: '<i class="fa-solid fa-trash-can me-1"></i> Yes, Delete',
             cancelButtonText: 'Cancel',
+            confirmButtonColor: '#810100',
+            cancelButtonColor: '#6c757d',
             customClass: {
-                confirmButton: 'btn btn-danger px-4 me-2',
-                cancelButton: 'btn btn-secondary px-4'
+                popup: 'rounded-4 shadow-lg border-0 p-4 text-center',
+                confirmButton: 'btn btn-danger px-4 py-2 rounded-pill fw-bold me-2 shadow-xs',
+                cancelButton: 'btn btn-outline-secondary px-4 py-2 rounded-pill'
             },
             buttonsStyling: false,
             reverseButtons: true
