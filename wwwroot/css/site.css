@@ -671,6 +671,20 @@ body.sidebar-closed .sidebar-toggle-btn {
     .topbar-search {
         display: none;
     }
+
+    .app-content {
+        padding: 1rem 0.75rem;
+    }
+
+    .app-footer {
+        padding: 1rem 0.75rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .app-content {
+        padding: 0.75rem 0.5rem;
+    }
 }
 
 /* --------------------------------------------------------------------------

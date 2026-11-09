@@ -8,6 +8,7 @@
 }
 
 <style>
+    /* Tabs Navigation */
     .roven-tabs .nav-link {
         color: #555;
         font-weight: 600;
@@ -16,6 +17,7 @@
         transition: all 0.2s ease;
         border: 1px solid transparent;
         background: #fff;
+        white-space: nowrap;
     }
     .roven-tabs .nav-link:hover {
         color: #810100;
@@ -31,7 +33,7 @@
     .card-setting-header {
         background-color: #ffffff;
         border-bottom: 1px solid #f1ece4;
-        padding: 1rem 1.25rem;
+        padding: 1.15rem 1.25rem;
     }
     .tab-pane-content {
         animation: fadeInTab 0.25s ease-in-out;
@@ -40,9 +42,94 @@
         from { opacity: 0; transform: translateY(4px); }
         to { opacity: 1; transform: translateY(0); }
     }
+
+    /* Live Marquee Preview Animation */
+    .preview-marquee-wrapper {
+        overflow: hidden;
+        white-space: nowrap;
+        position: relative;
+    }
+    .preview-marquee-track {
+        display: inline-flex;
+        align-items: center;
+        gap: 1.5rem;
+        width: max-content;
+        animation: previewMarqueeScroll 25s linear infinite;
+    }
+    .preview-marquee-wrapper:hover .preview-marquee-track {
+        animation-play-state: paused;
+    }
+    @@keyframes previewMarqueeScroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+
+    /* Banner Thumbnail & Action styling */
+    .banner-thumb-container {
+        width: 140px;
+        height: 64px;
+        background: #fdfaf6;
+        border-color: #e8e3d5 !important;
+    }
+
+    /* Mobile Offer Card */
+    .offer-mobile-card {
+        border-radius: 14px;
+        border: 1px solid #e8e3d5;
+        background: #ffffff;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    /* Mobile Responsive Optimizations */
+    @@media (max-width: 991.98px) {
+        .roven-tabs {
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+            padding: 0.5rem !important;
+            gap: 0.5rem !important;
+            scrollbar-width: none;
+        }
+        .roven-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        .roven-tabs .nav-item {
+            flex-shrink: 0;
+        }
+        .roven-tabs .nav-link {
+            font-size: 0.82rem;
+            padding: 0.55rem 0.9rem;
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .app-content {
+            padding: 0.85rem 0.5rem !important;
+        }
+        .card-setting-header {
+            padding: 0.95rem 0.85rem !important;
+        }
+        .card-body {
+            padding: 0.95rem 0.85rem !important;
+        }
+        .banner-thumb-container {
+            width: 100% !important;
+            height: 120px !important;
+        }
+        .banner-card-mobile {
+            padding: 0.85rem !important;
+        }
+        .sticky-save-bar {
+            position: sticky;
+            bottom: 0.75rem;
+            z-index: 1020;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
+        }
+    }
 </style>
 
-<div class="container-fluid py-3">
+<div class="container-fluid py-3 px-2 px-md-3">
     <!-- Header -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
         <div>
@@ -53,16 +140,16 @@
             <h2 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif;">Home Control Center</h2>
             <p class="text-muted small mb-0">لوحة تحكم كاملة في كافة سكشنات وبانرات ونصوص الصفحة الرئيسية للمتجر بروابط وتعديلات حية تسمع فورياً.</p>
         </div>
-        <div class="d-flex flex-wrap gap-2">
-            <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2 shadow-xs" onclick="syncImagesToCloudinary(this)" title="ضغط وتحويل كل صور المتجر إلى WebP ورفعها لـ Cloudinary">
+        <div class="d-flex flex-wrap gap-2 w-100 w-md-auto justify-content-start justify-content-md-end">
+            <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center gap-2 shadow-xs flex-grow-1 flex-md-grow-0" onclick="syncImagesToCloudinary(this)" title="ضغط وتحويل كل صور المتجر إلى WebP ورفعها لـ Cloudinary">
                 <i class="fa-solid fa-cloud-arrow-up text-primary"></i>
-                <span>مزامنة الصور مع Cloudinary (WebP)</span>
+                <span>مزامنة الصور (WebP)</span>
             </button>
-            <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2">
+            <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-dark btn-sm px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 flex-md-grow-0">
                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                <span>معاينة المتجر (Preview)</span>
+                <span>معاينة المتجر</span>
             </a>
-            <button type="submit" form="homeControlForm" class="btn btn-primary btn-sm px-4 py-2 rounded-pill d-inline-flex align-items-center gap-2 fw-bold shadow-sm" style="background: #810100; border-color: #810100;">
+            <button type="submit" form="homeControlForm" class="btn btn-primary btn-sm px-4 py-2 rounded-pill d-inline-flex align-items-center justify-content-center gap-2 fw-bold shadow-sm w-100 w-md-auto text-white" style="background: #810100; border-color: #810100;">
                 <i class="fa-solid fa-floppy-disk"></i>
                 <span>حفظ كافة التغييرات</span>
             </button>
@@ -132,7 +219,7 @@
                 
                 <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
                     <!-- Header Strip in Light Theme matching Maison ROVEN Dashboard -->
-                    <div class="card-setting-header p-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white border-bottom">
+                    <div class="card-setting-header p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white border-bottom">
                         <div>
                             <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style="background: rgba(129, 1, 0, 0.08); border: 1px solid rgba(129, 1, 0, 0.2); color: #810100; font-size: 0.74rem; font-weight: 700; letter-spacing: 1px;">
                                 <i class="fa-solid fa-images"></i>
@@ -145,35 +232,35 @@
                                 ارفع صور البانرات المصممة بالكامل بمقاس الديسكتوب (1920x800) واختيارياً الموبايل (750x1000). تظهر فوراً في سكشن الهيرو أعلى المتجر.
                             </p>
                         </div>
-                        <button type="button" class="btn btn-primary btn-sm px-4 py-2.5 rounded-pill fw-bold shadow-sm d-flex align-items-center gap-2 text-white" style="background: #810100; border-color: #810100;" data-bs-toggle="modal" data-bs-target="#createHeroBannerModal">
+                        <button type="button" class="btn btn-primary btn-sm px-4 py-2.5 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 text-white w-100 w-md-auto" style="background: #810100; border-color: #810100;" data-bs-toggle="modal" data-bs-target="#createHeroBannerModal">
                             <i class="fa-solid fa-plus"></i>
                             <span>ADD NEW BANNER +</span>
                         </button>
                     </div>
 
                     <!-- Banners List in Light Theme -->
-                    <div class="p-3 p-md-4 bg-white">
+                    <div class="p-2 p-md-4 bg-white">
                         @if (heroBanners.Any())
                         {
                             <div class="d-flex flex-column gap-3">
                                 @for (int i = 0; i < heroBanners.Count; i++)
                                 {
                                     var banner = heroBanners[i];
-                                    <div class="card border p-3 rounded-4 position-relative bg-white shadow-xs" style="border-color: #e8e3d5 !important;">
+                                    <div class="card border p-3 rounded-4 position-relative bg-white shadow-xs banner-card-mobile" style="border-color: #e8e3d5 !important;">
                                         <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
                                             
                                             <!-- Left: Image Preview & Details -->
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div class="position-relative overflow-hidden rounded-3 border flex-shrink-0" style="width: 140px; height: 60px; background: #fdfaf6; border-color: #e8e3d5 !important;">
+                                            <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-3 w-100 flex-grow-1" style="min-width: 0;">
+                                                <div class="position-relative overflow-hidden rounded-3 border flex-shrink-0 banner-thumb-container">
                                                     <img src="@banner.DesktopImageUrl" alt="@banner.Title" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/banners/hero_slide_1.svg'" />
-                                                    <span class="badge position-absolute bottom-0 start-0 m-1 font-monospace" style="background: rgba(27,23,23,0.8); font-size: 0.62rem; padding: 0.15rem 0.35rem; color: #EDEBDD;">#@banner.DisplayOrder</span>
+                                                    <span class="badge position-absolute bottom-0 start-0 m-1 font-monospace" style="background: rgba(27,23,23,0.85); font-size: 0.65rem; padding: 0.2rem 0.4rem; color: #EDEBDD;">#@banner.DisplayOrder</span>
                                                 </div>
-                                                <div>
-                                                    <div class="fw-bold mb-1" style="font-size: 0.98rem; color: #1B1717;">
+                                                <div class="flex-grow-1" style="min-width: 0; width: 100%;">
+                                                    <div class="fw-bold mb-1 text-truncate" style="font-size: 0.98rem; color: #1B1717;" title="@banner.Title">
                                                         @banner.Title
                                                     </div>
                                                     <div class="d-flex flex-wrap align-items-center gap-2 small">
-                                                        <span class="font-monospace" style="color: #810100; font-size: 0.82rem;">
+                                                        <span class="font-monospace text-break" style="color: #810100; font-size: 0.8rem; word-break: break-all;">
                                                             <i class="fa-solid fa-link me-1"></i>Redirect Link: <strong class="text-decoration-underline">@banner.RedirectLink</strong>
                                                         </span>
                                                         @if (!string.IsNullOrWhiteSpace(banner.MobileImageUrl))
@@ -193,31 +280,33 @@
                                             </div>
 
                                             <!-- Right: Controls matching user's image (Active Pill, Up, Down, Edit, Delete) -->
-                                            <div class="d-flex align-items-center gap-2 align-self-end align-self-md-center">
+                                            <div class="d-flex align-items-center justify-content-between justify-content-md-end gap-2 w-100 w-md-auto pt-2 pt-md-0 border-top border-md-top-0" style="border-color: #f1ece4 !important;">
                                                 <!-- Active Badge / Toggle Button -->
                                                 <button type="submit" form="toggleBannerForm_@banner.Id" class="badge rounded-pill px-3 py-2 fw-bold text-decoration-none border-0 shadow-xs" style="background-color: @(banner.IsActive ? "#198754" : "#6c757d"); color: #ffffff; cursor: pointer; font-size: 0.74rem; letter-spacing: 0.5px;" title="انقر لتغيير الحالة">
                                                     @(banner.IsActive ? "ACTIVE" : "INACTIVE")
                                                 </button>
 
-                                                <!-- Move Up -->
-                                                <button type="submit" form="moveBannerUpForm_@banner.Id" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == 0 ? "disabled" : "")" style="width: 34px; height: 34px;" title="تحريك لأعلى">
-                                                    <i class="fa-solid fa-arrow-up" style="font-size: 0.8rem;"></i>
-                                                </button>
+                                                <div class="d-flex align-items-center gap-1.5">
+                                                    <!-- Move Up -->
+                                                    <button type="submit" form="moveBannerUpForm_@banner.Id" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == 0 ? "disabled" : "")" style="width: 34px; height: 34px;" title="تحريك لأعلى">
+                                                        <i class="fa-solid fa-arrow-up" style="font-size: 0.8rem;"></i>
+                                                    </button>
 
-                                                <!-- Move Down -->
-                                                <button type="submit" form="moveBannerDownForm_@banner.Id" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == heroBanners.Count - 1 ? "disabled" : "")" style="width: 34px; height: 34px;" title="تحريك لأسفل">
-                                                    <i class="fa-solid fa-arrow-down" style="font-size: 0.8rem;"></i>
-                                                </button>
+                                                    <!-- Move Down -->
+                                                    <button type="submit" form="moveBannerDownForm_@banner.Id" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == heroBanners.Count - 1 ? "disabled" : "")" style="width: 34px; height: 34px;" title="تحريك لأسفل">
+                                                        <i class="fa-solid fa-arrow-down" style="font-size: 0.8rem;"></i>
+                                                    </button>
 
-                                                <!-- Edit Button -->
-                                                <button type="button" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: rgba(13, 110, 253, 0.1); color: #0d6efd; border: 1px solid rgba(13, 110, 253, 0.25);" title="تعديل البانر" onclick="openEditBannerModal(@banner.Id, '@(banner.Title.Replace("'", "\\'"))', '@(banner.DesktopImageUrl.Replace("'", "\\'"))', '@(banner.MobileImageUrl?.Replace("'", "\\'") ?? "")', '@(banner.RedirectLink?.Replace("'", "\\'") ?? "")', '@(banner.AltText?.Replace("'", "\\'") ?? "")', @(banner.IsActive ? "true" : "false"), @banner.DisplayOrder)">
-                                                    <i class="fa-solid fa-pen" style="font-size: 0.8rem;"></i>
-                                                </button>
+                                                    <!-- Edit Button -->
+                                                    <button type="button" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: rgba(13, 110, 253, 0.1); color: #0d6efd; border: 1px solid rgba(13, 110, 253, 0.25);" title="تعديل البانر" onclick="openEditBannerModal(@banner.Id, '@(banner.Title.Replace("'", "\\'"))', '@(banner.DesktopImageUrl.Replace("'", "\\'"))', '@(banner.MobileImageUrl?.Replace("'", "\\'") ?? "")', '@(banner.RedirectLink?.Replace("'", "\\'") ?? "")', '@(banner.AltText?.Replace("'", "\\'") ?? "")', @(banner.IsActive ? "true" : "false"), @banner.DisplayOrder)">
+                                                        <i class="fa-solid fa-pen" style="font-size: 0.8rem;"></i>
+                                                    </button>
 
-                                                <!-- Delete Button -->
-                                                <button type="button" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.25);" title="حذف البانر" onclick="confirmDeleteBanner(@banner.Id, '@(banner.Title.Replace("'", "\\'"))')">
-                                                    <i class="fa-solid fa-xmark" style="font-size: 0.95rem;"></i>
-                                                </button>
+                                                    <!-- Delete Button -->
+                                                    <button type="button" class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.25);" title="حذف البانر" onclick="confirmDeleteBanner(@banner.Id, '@(banner.Title.Replace("'", "\\'"))')">
+                                                        <i class="fa-solid fa-xmark" style="font-size: 0.95rem;"></i>
+                                                    </button>
+                                                </div>
                                             </div>
 
                                         </div>
@@ -258,21 +347,22 @@
                                 أضف أكثر من منتج إلى قسم العروض. إذا وجد منتجين أو أكثر سيتم عرضها كشبكة كروت عروض فاخرة في الهوم.
                             </div>
                         </div>
-                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <div class="d-flex align-items-center gap-2 gap-md-3 flex-wrap w-100 w-md-auto justify-content-between justify-content-md-end">
                             <div class="form-check form-switch mb-0">
                                 <input class="form-check-input" type="checkbox" role="switch" asp-for="SpotlightActive" id="spotlightSwitch" style="cursor: pointer;">
-                                <label class="form-check-label small fw-semibold" for="spotlightSwitch">تفعيل ظهور قسم العروض في الهوم</label>
+                                <label class="form-check-label small fw-semibold" for="spotlightSwitch">تفعيل قسم العروض</label>
                             </div>
-                            <button type="button" class="btn btn-primary btn-sm px-3 py-2 rounded-pill fw-bold shadow-sm d-flex align-items-center gap-1.5" style="background: #810100; border-color: #810100;" data-bs-toggle="modal" data-bs-target="#addOfferModal">
+                            <button type="button" class="btn btn-primary btn-sm px-3 py-2 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-1.5 w-100 w-md-auto text-white" style="background: #810100; border-color: #810100;" data-bs-toggle="modal" data-bs-target="#addOfferModal">
                                 <i class="fa-solid fa-plus"></i>
                                 <span>إضافة عطر جديد للعروض</span>
                             </button>
                         </div>
                     </div>
-                    <div class="card-body p-4">
+                    <div class="card-body p-2 p-md-4">
                         @if (homeOffers.Any())
                         {
-                            <div class="table-responsive">
+                            <!-- Desktop View: Comprehensive 10-Column Table -->
+                            <div class="table-responsive d-none d-lg-block">
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="table-light text-muted small">
                                         <tr>
@@ -408,10 +498,10 @@
                                                         <button type="submit" form="toggleOfferForm_@offer.Id" class="btn btn-outline-secondary" title="@(offer.IsActive ? "إيقاف العرض" : "تفعيل العرض")">
                                                             <i class="fa-solid @(offer.IsActive ? "fa-pause text-warning" : "fa-play text-success")"></i>
                                                         </button>
-                                                        <button type="button" class="btn btn-outline-primary" title="تعديل العرض" onclick="openEditOfferModal(@offer.Id, @offer.ProductId, @(offer.SecondProductId?.ToString() ?? "null"), '@(offer.Title?.Replace("'", "\'") ?? "")', @offer.OfferPrice, '@(offer.BadgeText?.Replace("'", "\'") ?? "")', @offer.AllocatedPercent, @offer.RemainingCount, '@(offer.EndTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")', @offer.DisplayOrder)">
+                                                        <button type="button" class="btn btn-outline-primary" title="تعديل العرض" onclick="openEditOfferModal(@offer.Id, @offer.ProductId, @(offer.SecondProductId?.ToString() ?? "null"), '@(offer.Title?.Replace("'", "\\'") ?? "")', @offer.OfferPrice, '@(offer.BadgeText?.Replace("'", "\\'") ?? "")', @offer.AllocatedPercent, @offer.RemainingCount, '@(offer.EndTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")', @offer.DisplayOrder)">
                                                             <i class="fa-solid fa-pen"></i>
                                                         </button>
-                                                        <button type="button" class="btn btn-outline-danger" title="حذف العرض" onclick="confirmDeleteOffer(@offer.Id, '@(prod?.Name?.Replace("'", "\'") ?? "العرض")@(isDuo ? " + " + prod2?.Name?.Replace("'", "\'") : "")')">
+                                                        <button type="button" class="btn btn-outline-danger" title="حذف العرض" onclick="confirmDeleteOffer(@offer.Id, '@(prod?.Name?.Replace("'", "\\'") ?? "العرض")@(isDuo ? " + " + prod2?.Name?.Replace("'", "\\'") : "")')">
                                                             <i class="fa-solid fa-trash"></i>
                                                         </button>
                                                     </div>
@@ -421,6 +511,126 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            <!-- Mobile View: Clean Touch-Friendly Luxury Cards (d-lg-none) -->
+                            <div class="d-lg-none d-flex flex-column gap-3">
+                                @foreach (var offer in homeOffers)
+                                {
+                                    var prod = offer.Product;
+                                    var prod2 = offer.SecondProduct;
+                                    var isDuo = prod2 != null;
+                                    var origPrice = (prod?.Price ?? 0m) + (prod2?.Price ?? 0m);
+                                    var discount = origPrice > offer.OfferPrice && origPrice > 0 
+                                        ? (int)Math.Round((origPrice - offer.OfferPrice) / origPrice * 100) 
+                                        : 0;
+
+                                    <div class="offer-mobile-card">
+                                        <!-- Top Bar: Order & Badges -->
+                                        <div class="d-flex justify-content-between align-items-center mb-2.5 pb-2 border-bottom">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge rounded-pill bg-dark font-monospace px-2 py-1" style="font-size: 0.72rem;">#@offer.DisplayOrder</span>
+                                                @if (isDuo)
+                                                {
+                                                    <span class="badge rounded-pill" style="background-color: #630000; color: #fdf4dc; font-size: 0.7rem;">
+                                                        <i class="fa-solid fa-layer-group me-1"></i>باقة عطرين
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-light text-secondary border rounded-pill" style="font-size: 0.7rem;">عطر فردي</span>
+                                                }
+                                            </div>
+                                            <div>
+                                                @if (offer.IsActive)
+                                                {
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                                                        <i class="fa-solid fa-circle-check me-1"></i>نشط
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                                                        <i class="fa-solid fa-circle-pause me-1"></i>معطل
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <!-- Product details -->
+                                        <div class="d-flex align-items-center gap-3 mb-3">
+                                            @if (isDuo)
+                                            {
+                                                <div class="position-relative" style="width: 58px; height: 58px; flex-shrink: 0;">
+                                                    <img src="@prod?.ImageUrl" alt="@prod?.Name" class="rounded-3 border position-absolute top-0 start-0" style="width: 38px; height: 38px; object-fit: cover; z-index: 2;" onerror="this.src='/images/placeholder.svg'" />
+                                                    <img src="@prod2?.ImageUrl" alt="@prod2?.Name" class="rounded-3 border position-absolute bottom-0 end-0" style="width: 38px; height: 38px; object-fit: cover; z-index: 1;" onerror="this.src='/images/placeholder.svg'" />
+                                                </div>
+                                                <div class="flex-grow-1" style="min-width: 0;">
+                                                    @if (!string.IsNullOrWhiteSpace(offer.Title))
+                                                    {
+                                                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.95rem;">@offer.Title</div>
+                                                    }
+                                                    <div class="small text-muted text-truncate">1. @(prod?.Name ?? "العطر الأول")</div>
+                                                    <div class="small text-muted text-truncate">2. @(prod2?.Name ?? "العطر الثاني")</div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center flex-shrink-0" style="width: 54px; height: 54px;">
+                                                    @if (!string.IsNullOrWhiteSpace(prod?.ImageUrl))
+                                                    {
+                                                        <img src="@prod.ImageUrl" alt="@prod.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fa-solid fa-spray-can-sparkles text-muted fs-4"></i>
+                                                    }
+                                                </div>
+                                                <div class="flex-grow-1" style="min-width: 0;">
+                                                    <div class="fw-bold text-dark text-truncate" style="font-size: 0.95rem;">@(prod?.Name ?? "عطر غير معروف")</div>
+                                                    <div class="text-muted small font-monospace" style="font-size: 0.75rem;">SKU: @(prod?.Sku ?? "N/A")</div>
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <!-- Pricing & Badge row -->
+                                        <div class="p-2.5 rounded-3 mb-3" style="background: #FAF9F5; border: 1px solid #f0ebe1;">
+                                            <div class="d-flex justify-content-between align-items-center mb-1.5">
+                                                <div>
+                                                    <span class="text-muted text-decoration-line-through small font-monospace me-2">@origPrice.ToString("N0") ج.م</span>
+                                                    <span class="fw-bold font-monospace text-danger fs-6">@offer.OfferPrice.ToString("N0") ج.م</span>
+                                                </div>
+                                                @if (discount > 0)
+                                                {
+                                                    <span class="badge bg-danger text-white rounded-pill px-2 py-0.5 small fw-bold">
+                                                        خصم @discount%
+                                                    </span>
+                                                }
+                                            </div>
+                                            <div class="d-flex flex-wrap justify-content-between align-items-center small text-muted pt-1 border-top" style="border-color: #e8e3d5 !important; font-size: 0.76rem;">
+                                                <span><i class="fa-solid fa-tag text-warning me-1"></i>@offer.BadgeText</span>
+                                                <span class="font-monospace"><i class="fa-solid fa-box text-secondary me-1"></i>متبقي: <strong>@offer.RemainingCount</strong></span>
+                                                <span><i class="fa-solid fa-clock text-info me-1"></i>@(offer.EndTime?.ToString("dd/MM/yyyy HH:mm") ?? "مستمر")</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Mobile Action Buttons -->
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" form="toggleOfferForm_@offer.Id" class="btn btn-sm btn-outline-secondary flex-grow-1 rounded-pill d-flex align-items-center justify-content-center gap-1.5 py-2" style="font-size: 0.82rem;">
+                                                <i class="fa-solid @(offer.IsActive ? "fa-pause text-warning" : "fa-play text-success")"></i>
+                                                <span>@(offer.IsActive ? "إيقاف" : "تفعيل")</span>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-primary flex-grow-1 rounded-pill d-flex align-items-center justify-content-center gap-1.5 py-2" style="font-size: 0.82rem;" onclick="openEditOfferModal(@offer.Id, @offer.ProductId, @(offer.SecondProductId?.ToString() ?? "null"), '@(offer.Title?.Replace("'", "\\'") ?? "")', @offer.OfferPrice, '@(offer.BadgeText?.Replace("'", "\\'") ?? "")', @offer.AllocatedPercent, @offer.RemainingCount, '@(offer.EndTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")', @offer.DisplayOrder)">
+                                                <i class="fa-solid fa-pen"></i>
+                                                <span>تعديل</span>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger flex-grow-1 rounded-pill d-flex align-items-center justify-content-center gap-1.5 py-2" style="font-size: 0.82rem;" onclick="confirmDeleteOffer(@offer.Id, '@(prod?.Name?.Replace("'", "\\'") ?? "العرض")@(isDuo ? " + " + prod2?.Name?.Replace("'", "\\'") : "")')">
+                                                <i class="fa-solid fa-trash"></i>
+                                                <span>حذف</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
                         }
                         else
                         {
@@ -428,7 +638,7 @@
                                 <i class="fa-solid fa-bolt text-warning display-4 mb-3"></i>
                                 <h5 class="fw-bold text-dark">لا توجد عطور مضافة في قسم العروض حالياً</h5>
                                 <p class="text-muted small mb-3">يمكنك إضافة عطور متعددة وتقديم خصومات حصرية للمتجر مع شريط العد التنازلي.</p>
-                                <button type="button" class="btn btn-primary btn-sm px-4 py-2 rounded-pill fw-bold" style="background: #810100; border-color: #810100;" data-bs-toggle="modal" data-bs-target="#addOfferModal">
+                                <button type="button" class="btn btn-primary btn-sm px-4 py-2 rounded-pill fw-bold text-white" style="background: #810100; border-color: #810100;" data-bs-toggle="modal" data-bs-target="#addOfferModal">
                                     <i class="fa-solid fa-plus me-1"></i> إضافة أول عطر للعروض الآن
                                 </button>
                             </div>
@@ -544,8 +754,8 @@
                             <!-- Live Interactive Preview -->
                             <div class="col-12">
                                 <label class="form-label small fw-bold text-dark mb-2">معاينة حية لشكل الشريط في الصفحة الرئيسية:</label>
-                                <div class="p-3 rounded-4 border position-relative overflow-hidden" style="background: linear-gradient(90deg, #150f0f 0%, #290808 30%, #3a0606 50%, #290808 70%, #150f0f 100%); color: #EDEBDD; border-color: rgba(223, 177, 91, 0.35) !important;">
-                                    <div class="d-flex align-items-center gap-3" style="overflow: hidden; white-space: nowrap;">
+                                <div class="p-3 rounded-4 border position-relative overflow-hidden preview-marquee-wrapper" style="background: linear-gradient(90deg, #150f0f 0%, #290808 30%, #3a0606 50%, #290808 70%, #150f0f 100%); color: #EDEBDD; border-color: rgba(223, 177, 91, 0.35) !important;">
+                                    <div class="preview-marquee-track">
                                         <span id="previewMarqueeBadge" class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: linear-gradient(135deg, #810100 0%, #630000 100%); color: #EDEBDD; font-size: 0.75rem; border: 1px solid rgba(223, 177, 91, 0.45); letter-spacing: 1px;">
                                             @(string.IsNullOrWhiteSpace(Model.MarqueeBadgeText) ? "OFFER 20%" : Model.MarqueeBadgeText)
                                         </span>
@@ -812,21 +1022,21 @@
         </div>
 
         <!-- Sticky Bottom Save Bar -->
-        <div class="card border-0 shadow-sm rounded-4 p-3 mt-4 bg-white border d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
-            <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-cloud-arrow-up text-danger fs-4"></i>
+        <div class="card border-0 shadow-sm rounded-4 p-3 mt-4 bg-white border sticky-save-bar d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2 w-100 w-sm-auto">
+                <i class="fa-solid fa-cloud-arrow-up text-danger fs-4 flex-shrink-0"></i>
                 <div>
                     <div class="fw-bold text-dark small">حفظ فوري ومباشر لكافة الإعدادات</div>
                     <div class="text-muted" style="font-size: 0.75rem;">يتم تطبيق التعديلات في الصفحة الرئيسية للمتجر فور الضغط على زر الحفظ.</div>
                 </div>
             </div>
-            <div class="d-flex gap-2">
-                <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-secondary px-3 py-2 rounded-pill small">
+            <div class="d-flex gap-2 w-100 w-sm-auto">
+                <a asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-secondary px-3 py-2 rounded-pill small flex-grow-1 flex-sm-grow-0 d-flex align-items-center justify-content-center">
                     <i class="fa-solid fa-eye me-1"></i> معاينة المتجر
                 </a>
-                <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm d-flex align-items-center gap-2" style="background: #810100; border-color: #810100;">
+                <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 flex-grow-1 flex-sm-grow-0 text-white" style="background: #810100; border-color: #810100;">
                     <i class="fa-solid fa-floppy-disk"></i>
-                    <span>حفظ وتطبيق التغييرات</span>
+                    <span>حفظ وتطبيق</span>
                 </button>
             </div>
         </div>
