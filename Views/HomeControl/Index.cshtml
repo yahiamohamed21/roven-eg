@@ -58,15 +58,18 @@
     .tab-pane-content {
         min-width: 0 !important;
         max-width: 100% !important;
+        width: 100% !important;
         overflow-x: hidden !important;
+        box-sizing: border-box !important;
     }
     @@keyframes fadeInTab {
         from { opacity: 0; transform: translateY(4px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Live Marquee Preview Animation with Strict Containment & Fixed Dimensions */
+    /* Live Marquee Preview Animation with Strict Containment & Absolute Detached Layout */
     .preview-marquee-wrapper {
+        position: relative !important;
         width: 100% !important;
         max-width: 100% !important;
         min-width: 0 !important;
@@ -75,11 +78,10 @@
         max-height: 46px !important;
         overflow: hidden !important;
         white-space: nowrap !important;
-        position: relative !important;
         display: block !important;
         padding: 0 !important;
         box-sizing: border-box !important;
-        contain: paint !important;
+        contain: strict !important;
         isolation: isolate !important;
         border-radius: 12px !important;
     }
@@ -102,16 +104,19 @@
         background: linear-gradient(to left, #150f0f 0%, transparent 100%);
     }
     .preview-marquee-container {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
         display: flex !important;
         align-items: center !important;
         overflow: hidden !important;
         white-space: nowrap !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        height: 100% !important;
         user-select: none;
-        contain: paint !important;
+        contain: strict !important;
         direction: ltr !important;
     }
     .preview-marquee-track {
@@ -808,7 +813,7 @@
                 </div>
 
                 <!-- Infinite Moving Marquee Announcement Tape (الشريط الإعلاني المتحرك تحت البانرات) -->
-                <div class="card border-0 shadow-sm rounded-4 mt-4">
+                <div class="card border-0 shadow-sm rounded-4 mt-4" style="max-width: 100%; overflow: hidden; min-width: 0;">
                     <div class="card-setting-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white">
                         <div>
                             <span class="fw-bold fs-6" style="color: #1B1717;">
@@ -823,33 +828,33 @@
                             <label class="form-check-label small fw-semibold" for="marqueeSwitch">تفعيل ظهور الشريط المتحرك في الهوم</label>
                         </div>
                     </div>
-                    <div class="card-body p-4 border-top">
-                        <div class="row g-3 g-md-4" style="min-width: 0;">
-                            <div class="col-12 col-lg-8" style="min-width: 0;">
+                    <div class="card-body p-4 border-top" style="max-width: 100%; overflow: hidden; min-width: 0;">
+                        <div class="row g-3 g-md-4" style="min-width: 0; max-width: 100%;">
+                            <div class="col-12 col-lg-8" style="min-width: 0; max-width: 100%;">
                                 <label class="form-label small fw-bold text-dark">نص العرض والإعلانات (Marquee Text)</label>
-                                <div class="input-group">
+                                <div class="input-group" style="min-width: 0; max-width: 100%;">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-scroll text-muted"></i></span>
-                                    <input type="text" asp-for="MarqueeText" id="marqueeTextInput" class="form-control rounded-end-3" placeholder="مثال: OFFER 20% OFF ON ALL LUXURY EXTRAITS • كود الخصم: ROVEN20 • عطور أصلية بتركيز 30% • شحن مجاني ودفع عند الاستلام" />
+                                    <input type="text" asp-for="MarqueeText" id="marqueeTextInput" class="form-control rounded-end-3" style="min-width: 0;" placeholder="مثال: OFFER 20% OFF ON ALL LUXURY EXTRAITS • كود الخصم: ROVEN20 • عطور أصلية بتركيز 30% • شحن مجاني ودفع عند الاستلام" />
                                 </div>
                                 <div class="form-text small text-muted">
                                     يمكنك كتابة نص العرض واستخدام النقطة الفاصلة (•) بين العبارات للتنقل السلس.
                                 </div>
                             </div>
-                            <div class="col-12 col-sm-6 col-lg-4" style="min-width: 0;">
+                            <div class="col-12 col-sm-6 col-lg-4" style="min-width: 0; max-width: 100%;">
                                 <label class="form-label small fw-bold text-dark">نص البادج البارز (Badge Text)</label>
-                                <div class="input-group">
+                                <div class="input-group" style="min-width: 0; max-width: 100%;">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-tag text-warning"></i></span>
-                                    <input type="text" asp-for="MarqueeBadgeText" id="marqueeBadgeInput" class="form-control rounded-end-3 font-monospace fw-bold" placeholder="مثال: OFFER 20%" />
+                                    <input type="text" asp-for="MarqueeBadgeText" id="marqueeBadgeInput" class="form-control rounded-end-3 font-monospace fw-bold" style="min-width: 0;" placeholder="مثال: OFFER 20%" />
                                 </div>
                                 <div class="form-text small text-muted">
                                     شارة مضيئة تظهر بجوار النص لجذب انتباه العميل مباشرة (مثل: OFFER 20% أو عرض محدود).
                                 </div>
                             </div>
-                            <div class="col-12 col-sm-6 col-lg-4" style="min-width: 0;">
+                            <div class="col-12 col-sm-6 col-lg-4" style="min-width: 0; max-width: 100%;">
                                 <label class="form-label small fw-bold text-dark">سرعة حركة الشريط (بالثواني للدورة الكاملة)</label>
-                                <div class="input-group">
+                                <div class="input-group" style="min-width: 0; max-width: 100%;">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-gauge-high text-muted"></i></span>
-                                    <input type="number" min="5" max="120" asp-for="MarqueeSpeedSeconds" id="marqueeSpeedInput" class="form-control font-monospace" />
+                                    <input type="number" min="5" max="120" asp-for="MarqueeSpeedSeconds" id="marqueeSpeedInput" class="form-control font-monospace" style="min-width: 0;" />
                                     <span class="input-group-text bg-light">ثانية</span>
                                 </div>
                                 <div class="form-text small text-muted">
@@ -857,7 +862,7 @@
                                 </div>
                             </div>
                             <!-- Live Interactive Preview with Guaranteed Containment -->
-                            <div class="col-12" style="min-width: 0;">
+                            <div class="col-12" style="min-width: 0; max-width: 100%; overflow: hidden;">
                                 <label class="form-label small fw-bold text-dark mb-2">معاينة حية لشكل الشريط في الصفحة الرئيسية:</label>
                                 <div class="rounded-4 border position-relative overflow-hidden preview-marquee-wrapper" style="background: linear-gradient(90deg, #150f0f 0%, #290808 30%, #3a0606 50%, #290808 70%, #150f0f 100%); color: #EDEBDD; border-color: rgba(223, 177, 91, 0.35) !important;">
                                     <div class="preview-marquee-container" dir="ltr">
