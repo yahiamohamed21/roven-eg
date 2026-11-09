@@ -522,10 +522,52 @@ public class OrdersController : Controller
 
         return Json(new { success = true, timestamp });
     }
+
+    [HttpPost]
+    [IgnoreAntiforgeryToken]
+    public IActionResult ClearReadNotifications([FromBody] ClearReadNotificationsRequest? request)
+    {
+        var timestamp = request?.Timestamp ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        Response.Cookies.Append("roven_notifs_cleared_at", timestamp.ToString(), new CookieOptions
+        {
+            Expires = DateTimeOffset.UtcNow.AddDays(30),
+            HttpOnly = false,
+            SameSite = SameSiteMode.Lax,
+            Path = "/"
+        });
+
+        if (request?.DismissedIds?.Any() == true)
+        {
+            var existing = Request.Cookies["roven_dismissed_orders"] ?? "";
+            var ids = existing.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+            foreach (var id in request.DismissedIds)
+            {
+                if (!string.IsNullOrWhiteSpace(id) && !ids.Contains(id))
+                {
+                    ids.Add(id);
+                }
+            }
+            Response.Cookies.Append("roven_dismissed_orders", string.Join(",", ids), new CookieOptions
+            {
+                Expires = DateTimeOffset.UtcNow.AddDays(30),
+                HttpOnly = false,
+                SameSite = SameSiteMode.Lax,
+                Path = "/"
+            });
+        }
+
+        return Json(new { success = true, timestamp });
+    }
 }
 
 public class MarkNotificationReadRequest
 {
     public long? Timestamp { get; set; }
     public int? OrderId { get; set; }
+}
+
+public class ClearReadNotificationsRequest
+{
+    public long? Timestamp { get; set; }
+    public List<string>? DismissedIds { get; set; }
 }
