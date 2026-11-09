@@ -53,35 +53,73 @@
     .tab-pane-content {
         animation: fadeInTab 0.25s ease-in-out;
     }
+    .tab-content,
+    .tab-pane,
+    .tab-pane-content {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
     @@keyframes fadeInTab {
         from { opacity: 0; transform: translateY(4px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Live Marquee Preview Animation with Fixed Dimensions */
+    /* Live Marquee Preview Animation with Strict Containment & Fixed Dimensions */
     .preview-marquee-wrapper {
-        height: 48px !important;
-        min-height: 48px !important;
-        max-height: 48px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: 46px !important;
+        min-height: 46px !important;
+        max-height: 46px !important;
         overflow: hidden !important;
         white-space: nowrap !important;
         position: relative !important;
-        display: flex !important;
-        align-items: center !important;
+        display: block !important;
         padding: 0 !important;
         box-sizing: border-box !important;
+        contain: paint !important;
+        isolation: isolate !important;
+        border-radius: 12px !important;
+    }
+    .preview-marquee-wrapper::before,
+    .preview-marquee-wrapper::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 36px;
+        z-index: 4;
+        pointer-events: none;
+    }
+    .preview-marquee-wrapper::before {
+        left: 0;
+        background: linear-gradient(to right, #150f0f 0%, transparent 100%);
+    }
+    .preview-marquee-wrapper::after {
+        right: 0;
+        background: linear-gradient(to left, #150f0f 0%, transparent 100%);
     }
     .preview-marquee-container {
         display: flex !important;
+        align-items: center !important;
         overflow: hidden !important;
         white-space: nowrap !important;
         width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: 100% !important;
         user-select: none;
+        contain: paint !important;
+        direction: ltr !important;
     }
     .preview-marquee-track {
         display: flex !important;
         align-items: center !important;
         flex-shrink: 0 !important;
+        height: 100% !important;
+        width: max-content !important;
         animation: previewMarqueeScroll 25s linear infinite;
         will-change: transform;
     }
@@ -93,24 +131,25 @@
         align-items: center !important;
         gap: 0.85rem !important;
         padding: 0 1.25rem !important;
-        height: 48px !important;
+        height: 100% !important;
+        flex-shrink: 0 !important;
     }
     .preview-marquee-badge {
-        height: 26px !important;
-        min-height: 26px !important;
-        max-height: 26px !important;
-        line-height: 26px !important;
+        height: 24px !important;
+        min-height: 24px !important;
+        max-height: 24px !important;
+        line-height: 24px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        padding: 0 0.85rem !important;
+        padding: 0 0.75rem !important;
         border-radius: 9999px !important;
-        font-size: 0.72rem !important;
+        font-size: 0.7rem !important;
         font-weight: 700 !important;
         letter-spacing: 0.5px !important;
         white-space: nowrap !important;
         flex-shrink: 0 !important;
-        max-width: 160px !important;
+        max-width: 150px !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         background: linear-gradient(135deg, #810100 0%, #630000 100%) !important;
@@ -120,7 +159,7 @@
     }
     .preview-marquee-text {
         white-space: nowrap !important;
-        font-size: 0.85rem !important;
+        font-size: 0.84rem !important;
         font-weight: 600 !important;
         color: #EDEBDD !important;
         letter-spacing: 0.35px !important;
@@ -785,8 +824,8 @@
                         </div>
                     </div>
                     <div class="card-body p-4 border-top">
-                        <div class="row g-4">
-                            <div class="col-12 col-md-8">
+                        <div class="row g-3 g-md-4" style="min-width: 0;">
+                            <div class="col-12 col-lg-8" style="min-width: 0;">
                                 <label class="form-label small fw-bold text-dark">نص العرض والإعلانات (Marquee Text)</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-scroll text-muted"></i></span>
@@ -796,7 +835,7 @@
                                     يمكنك كتابة نص العرض واستخدام النقطة الفاصلة (•) بين العبارات للتنقل السلس.
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-sm-6 col-lg-4" style="min-width: 0;">
                                 <label class="form-label small fw-bold text-dark">نص البادج البارز (Badge Text)</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-tag text-warning"></i></span>
@@ -806,7 +845,7 @@
                                     شارة مضيئة تظهر بجوار النص لجذب انتباه العميل مباشرة (مثل: OFFER 20% أو عرض محدود).
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-sm-6 col-lg-4" style="min-width: 0;">
                                 <label class="form-label small fw-bold text-dark">سرعة حركة الشريط (بالثواني للدورة الكاملة)</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="fa-solid fa-gauge-high text-muted"></i></span>
@@ -817,13 +856,13 @@
                                     الافتراضي 25 ثانية (كلما كان الرقم أصغر كانت الحركة أسرع).
                                 </div>
                             </div>
-                            <!-- Live Interactive Preview -->
-                            <div class="col-12">
+                            <!-- Live Interactive Preview with Guaranteed Containment -->
+                            <div class="col-12" style="min-width: 0;">
                                 <label class="form-label small fw-bold text-dark mb-2">معاينة حية لشكل الشريط في الصفحة الرئيسية:</label>
                                 <div class="rounded-4 border position-relative overflow-hidden preview-marquee-wrapper" style="background: linear-gradient(90deg, #150f0f 0%, #290808 30%, #3a0606 50%, #290808 70%, #150f0f 100%); color: #EDEBDD; border-color: rgba(223, 177, 91, 0.35) !important;">
                                     <div class="preview-marquee-container" dir="ltr">
                                         <div class="preview-marquee-track">
-                                            @for (int k = 0; k < 3; k++)
+                                            @for (int k = 0; k < 2; k++)
                                             {
                                                 <div class="preview-marquee-group">
                                                     <span class="preview-marquee-badge">@(string.IsNullOrWhiteSpace(Model.MarqueeBadgeText) ? "OFFER 20%" : Model.MarqueeBadgeText)</span>
@@ -833,7 +872,7 @@
                                             }
                                         </div>
                                         <div class="preview-marquee-track" aria-hidden="true">
-                                            @for (int k = 0; k < 3; k++)
+                                            @for (int k = 0; k < 2; k++)
                                             {
                                                 <div class="preview-marquee-group">
                                                     <span class="preview-marquee-badge">@(string.IsNullOrWhiteSpace(Model.MarqueeBadgeText) ? "OFFER 20%" : Model.MarqueeBadgeText)</span>
