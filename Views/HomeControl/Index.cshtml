@@ -43,25 +43,79 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Live Marquee Preview Animation */
+    /* Live Marquee Preview Animation with Fixed Dimensions */
     .preview-marquee-wrapper {
-        overflow: hidden;
-        white-space: nowrap;
-        position: relative;
+        height: 48px !important;
+        min-height: 48px !important;
+        max-height: 48px !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        position: relative !important;
+        display: flex !important;
+        align-items: center !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+    .preview-marquee-container {
+        display: flex !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        width: 100% !important;
+        user-select: none;
     }
     .preview-marquee-track {
-        display: inline-flex;
-        align-items: center;
-        gap: 1.5rem;
-        width: max-content;
+        display: flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
         animation: previewMarqueeScroll 25s linear infinite;
+        will-change: transform;
     }
     .preview-marquee-wrapper:hover .preview-marquee-track {
         animation-play-state: paused;
     }
+    .preview-marquee-group {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.85rem !important;
+        padding: 0 1.25rem !important;
+        height: 48px !important;
+    }
+    .preview-marquee-badge {
+        height: 26px !important;
+        min-height: 26px !important;
+        max-height: 26px !important;
+        line-height: 26px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 0.85rem !important;
+        border-radius: 9999px !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.5px !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        max-width: 160px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        background: linear-gradient(135deg, #810100 0%, #630000 100%) !important;
+        color: #EDEBDD !important;
+        border: 1px solid rgba(223, 177, 91, 0.45) !important;
+        box-sizing: border-box !important;
+    }
+    .preview-marquee-text {
+        white-space: nowrap !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        color: #EDEBDD !important;
+        letter-spacing: 0.35px !important;
+        line-height: 1 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
     @@keyframes previewMarqueeScroll {
         0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
+        100% { transform: translateX(-100%); }
     }
 
     /* Banner Thumbnail & Action styling */
@@ -754,21 +808,28 @@
                             <!-- Live Interactive Preview -->
                             <div class="col-12">
                                 <label class="form-label small fw-bold text-dark mb-2">معاينة حية لشكل الشريط في الصفحة الرئيسية:</label>
-                                <div class="p-3 rounded-4 border position-relative overflow-hidden preview-marquee-wrapper" style="background: linear-gradient(90deg, #150f0f 0%, #290808 30%, #3a0606 50%, #290808 70%, #150f0f 100%); color: #EDEBDD; border-color: rgba(223, 177, 91, 0.35) !important;">
-                                    <div class="preview-marquee-track">
-                                        <span id="previewMarqueeBadge" class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: linear-gradient(135deg, #810100 0%, #630000 100%); color: #EDEBDD; font-size: 0.75rem; border: 1px solid rgba(223, 177, 91, 0.45); letter-spacing: 1px;">
-                                            @(string.IsNullOrWhiteSpace(Model.MarqueeBadgeText) ? "OFFER 20%" : Model.MarqueeBadgeText)
-                                        </span>
-                                        <span id="previewMarqueeText" class="small fw-semibold" style="color: #EDEBDD; letter-spacing: 0.35px;">
-                                            @(string.IsNullOrWhiteSpace(Model.MarqueeText) ? "OFFER 20% OFF ON ALL LUXURY EXTRAITS • كود الخصم: ROVEN20 • عطور أصلية بتركيز 30% • شحن مجاني ودفع عند الاستلام مع المعاينة في كافة محافظات مصر" : Model.MarqueeText)
-                                        </span>
-                                        <i class="fa-solid fa-gem mx-2" style="color: #dfb15b; font-size: 0.75rem;"></i>
-                                        <span id="previewMarqueeBadge2" class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: linear-gradient(135deg, #810100 0%, #630000 100%); color: #EDEBDD; font-size: 0.75rem; border: 1px solid rgba(223, 177, 91, 0.45); letter-spacing: 1px;">
-                                            @(string.IsNullOrWhiteSpace(Model.MarqueeBadgeText) ? "OFFER 20%" : Model.MarqueeBadgeText)
-                                        </span>
-                                        <span id="previewMarqueeText2" class="small fw-semibold" style="color: #EDEBDD; letter-spacing: 0.35px;">
-                                            @(string.IsNullOrWhiteSpace(Model.MarqueeText) ? "OFFER 20% OFF ON ALL LUXURY EXTRAITS • كود الخصم: ROVEN20 • عطور أصلية بتركيز 30% • شحن مجاني ودفع عند الاستلام مع المعاينة في كافة محافظات مصر" : Model.MarqueeText)
-                                        </span>
+                                <div class="rounded-4 border position-relative overflow-hidden preview-marquee-wrapper" style="background: linear-gradient(90deg, #150f0f 0%, #290808 30%, #3a0606 50%, #290808 70%, #150f0f 100%); color: #EDEBDD; border-color: rgba(223, 177, 91, 0.35) !important;">
+                                    <div class="preview-marquee-container" dir="ltr">
+                                        <div class="preview-marquee-track">
+                                            @for (int k = 0; k < 3; k++)
+                                            {
+                                                <div class="preview-marquee-group">
+                                                    <span class="preview-marquee-badge">@(string.IsNullOrWhiteSpace(Model.MarqueeBadgeText) ? "OFFER 20%" : Model.MarqueeBadgeText)</span>
+                                                    <span class="preview-marquee-text">@(string.IsNullOrWhiteSpace(Model.MarqueeText) ? "OFFER 20% OFF ON ALL LUXURY EXTRAITS • كود الخصم: ROVEN20 • عطور أصلية بتركيز 30% • شحن مجاني ودفع عند الاستلام مع المعاينة في كافة محافظات مصر" : Model.MarqueeText)</span>
+                                                    <i class="fa-solid fa-gem text-warning mx-1" style="font-size: 0.68rem; opacity: 0.85;"></i>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="preview-marquee-track" aria-hidden="true">
+                                            @for (int k = 0; k < 3; k++)
+                                            {
+                                                <div class="preview-marquee-group">
+                                                    <span class="preview-marquee-badge">@(string.IsNullOrWhiteSpace(Model.MarqueeBadgeText) ? "OFFER 20%" : Model.MarqueeBadgeText)</span>
+                                                    <span class="preview-marquee-text">@(string.IsNullOrWhiteSpace(Model.MarqueeText) ? "OFFER 20% OFF ON ALL LUXURY EXTRAITS • كود الخصم: ROVEN20 • عطور أصلية بتركيز 30% • شحن مجاني ودفع عند الاستلام مع المعاينة في كافة محافظات مصر" : Model.MarqueeText)</span>
+                                                    <i class="fa-solid fa-gem text-warning mx-1" style="font-size: 0.68rem; opacity: 0.85;"></i>
+                                                </div>
+                                            }
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1655,23 +1716,21 @@
         // Live Marquee Preview Listeners
         const marqueeTextInput = document.getElementById('marqueeTextInput');
         const marqueeBadgeInput = document.getElementById('marqueeBadgeInput');
-        const previewMarqueeText = document.getElementById('previewMarqueeText');
-        const previewMarqueeText2 = document.getElementById('previewMarqueeText2');
-        const previewMarqueeBadge = document.getElementById('previewMarqueeBadge');
-        const previewMarqueeBadge2 = document.getElementById('previewMarqueeBadge2');
 
         if (marqueeTextInput) {
             marqueeTextInput.addEventListener('input', function () {
                 const val = this.value.trim() || 'OFFER 20% OFF ON ALL LUXURY EXTRAITS • كود الخصم: ROVEN20';
-                if (previewMarqueeText) previewMarqueeText.textContent = val;
-                if (previewMarqueeText2) previewMarqueeText2.textContent = val;
+                document.querySelectorAll('.preview-marquee-text').forEach(function (el) {
+                    el.textContent = val;
+                });
             });
         }
         if (marqueeBadgeInput) {
             marqueeBadgeInput.addEventListener('input', function () {
                 const val = this.value.trim() || 'OFFER 20%';
-                if (previewMarqueeBadge) previewMarqueeBadge.textContent = val;
-                if (previewMarqueeBadge2) previewMarqueeBadge2.textContent = val;
+                document.querySelectorAll('.preview-marquee-badge').forEach(function (el) {
+                    el.textContent = val;
+                });
             });
         }
     });
