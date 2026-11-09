@@ -1,64 +1,90 @@
-@* Reusable Dismissible Alerts Component with SweetAlert2 Integration *@
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
-        <i class="bi bi-check-circle-fill fs-5 me-2"></i>
-        <div>@TempData["SuccessMessage"]</div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (window.StockifyAlert) {
-                StockifyAlert.toastSuccess('@Html.Raw(TempData["SuccessMessage"])');
-            }
-        });
-    </script>
+@* Reusable Luxury Dismissible Alert Bar for Maison ROVEN Admin Dashboard *@
+@{
+    var successMsg = TempData["SuccessMessage"]?.ToString() ?? TempData["Success"]?.ToString();
+    var errorMsg = TempData["ErrorMessage"]?.ToString() ?? TempData["Error"]?.ToString();
+    var warningMsg = TempData["WarningMessage"]?.ToString() ?? TempData["Warning"]?.ToString();
+    var infoMsg = TempData["InfoMessage"]?.ToString() ?? TempData["Info"]?.ToString();
 }
 
-@if (TempData["ErrorMessage"] != null)
+@if (!string.IsNullOrEmpty(successMsg))
 {
-    <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
-        <i class="bi bi-exclamation-octagon-fill fs-5 me-2"></i>
-        <div>@TempData["ErrorMessage"]</div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="roven-global-alert alert alert-dismissible fade show border-0 shadow-sm d-flex align-items-center justify-content-between px-3.5 py-2.5 rounded-4 mb-4"
+         role="alert"
+         style="background: #f0fdf4; border-inline-start: 4px solid #16a34a !important; box-shadow: 0 4px 14px rgba(22, 163, 74, 0.08) !important;">
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                 style="width: 32px; height: 32px; background: rgba(22, 163, 74, 0.15); color: #16a34a; font-size: 0.95rem;">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <span class="fw-semibold" style="color: #1B1717; font-size: 0.88rem; line-height: 1.5;">@successMsg</span>
+        </div>
+        <button type="button" class="btn-close shadow-none p-2" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.72rem; margin-inline-start: 1rem;"></button>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (window.StockifyAlert) {
-                StockifyAlert.toastError('@Html.Raw(TempData["ErrorMessage"])');
-            }
-        });
-    </script>
 }
 
-@if (TempData["WarningMessage"] != null)
+@if (!string.IsNullOrEmpty(errorMsg))
 {
-    <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
-        <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
-        <div>@TempData["WarningMessage"]</div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="roven-global-alert alert alert-dismissible fade show border-0 shadow-sm d-flex align-items-center justify-content-between px-3.5 py-2.5 rounded-4 mb-4"
+         role="alert"
+         style="background: #fef2f2; border-inline-start: 4px solid #dc2626 !important; box-shadow: 0 4px 14px rgba(220, 38, 38, 0.08) !important;">
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                 style="width: 32px; height: 32px; background: rgba(220, 38, 38, 0.15); color: #dc2626; font-size: 0.95rem;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <span class="fw-semibold" style="color: #1B1717; font-size: 0.88rem; line-height: 1.5;">@errorMsg</span>
+        </div>
+        <button type="button" class="btn-close shadow-none p-2" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.72rem; margin-inline-start: 1rem;"></button>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (window.StockifyAlert) {
-                StockifyAlert.toastWarning('@Html.Raw(TempData["WarningMessage"])');
-            }
-        });
-    </script>
 }
 
-@if (TempData["InfoMessage"] != null)
+@if (!string.IsNullOrEmpty(warningMsg))
 {
-    <div class="alert alert-info alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
-        <i class="bi bi-info-circle-fill fs-5 me-2"></i>
-        <div>@TempData["InfoMessage"]</div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="roven-global-alert alert alert-dismissible fade show border-0 shadow-sm d-flex align-items-center justify-content-between px-3.5 py-2.5 rounded-4 mb-4"
+         role="alert"
+         style="background: #fffbeb; border-inline-start: 4px solid #d97706 !important; box-shadow: 0 4px 14px rgba(217, 119, 6, 0.08) !important;">
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                 style="width: 32px; height: 32px; background: rgba(217, 119, 6, 0.15); color: #d97706; font-size: 0.95rem;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            <span class="fw-semibold" style="color: #1B1717; font-size: 0.88rem; line-height: 1.5;">@warningMsg</span>
+        </div>
+        <button type="button" class="btn-close shadow-none p-2" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.72rem; margin-inline-start: 1rem;"></button>
     </div>
+}
+
+@if (!string.IsNullOrEmpty(infoMsg))
+{
+    <div class="roven-global-alert alert alert-dismissible fade show border-0 shadow-sm d-flex align-items-center justify-content-between px-3.5 py-2.5 rounded-4 mb-4"
+         role="alert"
+         style="background: #f0f9ff; border-inline-start: 4px solid #0284c7 !important; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.08) !important;">
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                 style="width: 32px; height: 32px; background: rgba(2, 132, 199, 0.15); color: #0284c7; font-size: 0.95rem;">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <span class="fw-semibold" style="color: #1B1717; font-size: 0.88rem; line-height: 1.5;">@infoMsg</span>
+        </div>
+        <button type="button" class="btn-close shadow-none p-2" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.72rem; margin-inline-start: 1rem;"></button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(successMsg) || !string.IsNullOrEmpty(errorMsg) || !string.IsNullOrEmpty(warningMsg) || !string.IsNullOrEmpty(infoMsg))
+{
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            if (window.StockifyAlert) {
-                StockifyAlert.toastInfo('@Html.Raw(TempData["InfoMessage"])');
-            }
+            // Auto dismiss smoothly after 6 seconds
+            setTimeout(function () {
+                document.querySelectorAll('.roven-global-alert').forEach(function (el) {
+                    try {
+                        var bsAlert = bootstrap.Alert.getOrCreateInstance(el);
+                        if (bsAlert) bsAlert.close();
+                    } catch (e) {
+                        el.remove();
+                    }
+                });
+            }, 6000);
         });
     </script>
 }
