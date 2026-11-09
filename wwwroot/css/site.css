@@ -774,6 +774,30 @@ body.sidebar-closed .sidebar-toggle-btn {
     color: #EDEBDD !important;
 }
 
+.roven-action-btn.roven-action-stockin {
+    background-color: #f0f7f3 !important;
+    border-color: rgba(25, 135, 84, 0.25) !important;
+    color: #198754 !important;
+}
+.roven-action-btn.roven-action-stockin:hover {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #ffffff !important;
+    box-shadow: 0 3px 8px rgba(25, 135, 84, 0.25) !important;
+}
+
+.roven-action-btn.roven-action-adjust {
+    background-color: #fdf8ed !important;
+    border-color: rgba(223, 177, 91, 0.35) !important;
+    color: #b8860b !important;
+}
+.roven-action-btn.roven-action-adjust:hover {
+    background-color: #b8860b !important;
+    border-color: #b8860b !important;
+    color: #ffffff !important;
+    box-shadow: 0 3px 8px rgba(184, 134, 11, 0.25) !important;
+}
+
 .roven-action-btn.roven-action-delete,
 .table td .btn-group form .btn.text-danger,
 .table td .btn-group .btn.text-danger,

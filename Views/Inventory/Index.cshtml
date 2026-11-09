@@ -227,7 +227,7 @@ else
                     <th>Last Movement</th>
                     @if (User.IsInRole(Roles.Admin))
                     {
-                        <th class="text-end pe-3">Actions</th>
+                        <th class="text-end pe-3" style="min-width: 155px;">Actions</th>
                     }
                 </tr>
             </thead>
@@ -288,12 +288,18 @@ else
                             @if (User.IsInRole(Roles.Admin))
                             {
                                 <td class="text-end pe-3">
-                                    <div class="btn-group btn-group-sm">
-                                        <a asp-action="StockIn" asp-route-productId="@item.ProductId" class="btn btn-light border text-primary" title="Stock In">
-                                            <i class="bi bi-plus-lg me-1"></i>In
+                                    <div class="roven-table-actions">
+                                        <a asp-action="StockIn" asp-route-productId="@item.ProductId" class="roven-action-btn roven-action-stockin" title="Stock In (توريد مخزون)">
+                                            <i class="fa-solid fa-plus"></i>
                                         </a>
-                                        <a asp-action="Adjust" asp-route-productId="@item.ProductId" class="btn btn-light border text-warning" title="Adjust or Deduct Stock">
-                                            <i class="bi bi-sliders"></i>
+                                        <a asp-action="Adjust" asp-route-productId="@item.ProductId" class="roven-action-btn roven-action-adjust" title="Adjust Stock (تسوية وتعديل)">
+                                            <i class="fa-solid fa-sliders"></i>
+                                        </a>
+                                        <a asp-action="History" asp-route-productId="@item.ProductId" class="roven-action-btn roven-action-view" title="Stock Movement History (سجل الحركات)">
+                                            <i class="fa-solid fa-clock-rotate-left"></i>
+                                        </a>
+                                        <a asp-controller="Products" asp-action="Edit" asp-route-id="@item.ProductId" class="roven-action-btn roven-action-edit" title="Edit Perfume (تعديل العطر)">
+                                            <i class="fa-solid fa-pen"></i>
                                         </a>
                                     </div>
                                 </td>

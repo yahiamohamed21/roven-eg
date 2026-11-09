@@ -109,20 +109,6 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
-        if (!await context.Customers.AnyAsync())
-        {
-            var customers = new List<Customer>
-            {
-                new() { FullName = "Ahmed Hassan", Email = "ahmed.hassan@example.com", PhoneNumber = "01012345678", Address = "Cairo, Egypt" },
-                new() { FullName = "Fatima Al-Sayed", Email = "fatima.sayed@example.com", PhoneNumber = "01123456789", Address = "Alexandria, Egypt" },
-                new() { FullName = "Mohamed Tarek", Email = "m.tarek@example.com", PhoneNumber = "01234567890", Address = "Giza, Egypt" },
-                new() { FullName = "Sarah Jenkins", Email = "sarah.j@example.com", PhoneNumber = "01555566677", Address = "New Cairo, Egypt" }
-            };
-
-            context.Customers.AddRange(customers);
-            await context.SaveChangesAsync();
-        }
-
         // 5. Seed Egyptian Governorates with Luxury Shipping Rates
         if (!await context.Governorates.AnyAsync())
         {
