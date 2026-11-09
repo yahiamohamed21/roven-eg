@@ -9,15 +9,30 @@
 
 <style>
     /* Tabs Navigation */
+    .roven-tabs {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+    }
+    .roven-tabs .nav-item {
+        flex: 1 1 0;
+        min-width: 0;
+    }
     .roven-tabs .nav-link {
+        width: 100%;
         color: #555;
         font-weight: 600;
         border-radius: 10px;
-        padding: 0.75rem 1.25rem;
+        padding: 0.75rem 0.5rem;
         transition: all 0.2s ease;
         border: 1px solid transparent;
         background: #fff;
         white-space: nowrap;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        font-size: 0.88rem;
     }
     .roven-tabs .nav-link:hover {
         color: #810100;
@@ -136,28 +151,25 @@
     }
 
     /* Mobile Responsive Optimizations */
-    @@media (max-width: 991.98px) {
+    @@media (max-width: 767.98px) {
         .roven-tabs {
             flex-wrap: nowrap !important;
             overflow-x: auto !important;
             -webkit-overflow-scrolling: touch;
-            padding: 0.5rem !important;
-            gap: 0.5rem !important;
+            padding: 0.4rem !important;
+            gap: 0.4rem !important;
             scrollbar-width: none;
         }
         .roven-tabs::-webkit-scrollbar {
             display: none;
         }
         .roven-tabs .nav-item {
-            flex-shrink: 0;
+            flex: 0 0 auto !important;
         }
         .roven-tabs .nav-link {
             font-size: 0.82rem;
-            padding: 0.55rem 0.9rem;
+            padding: 0.55rem 0.85rem;
         }
-    }
-
-    @@media (max-width: 767.98px) {
         .app-content {
             padding: 0.85rem 0.5rem !important;
         }
@@ -232,30 +244,30 @@
         </div>
     }
 
-    <!-- Tabs Navigation Bar -->
+    <!-- Tabs Navigation Bar (4 Side-by-Side English Tabs) -->
     <ul class="nav nav-pills roven-tabs gap-2 mb-4 p-2 bg-light rounded-4 border" id="homeControlTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active d-flex align-items-center gap-2" id="tab-banners-btn" data-bs-toggle="pill" data-bs-target="#tab-banners" type="button" role="tab" aria-controls="tab-banners" aria-selected="true">
+            <button class="nav-link active" id="tab-banners-btn" data-bs-toggle="pill" data-bs-target="#tab-banners" type="button" role="tab" aria-controls="tab-banners" aria-selected="true">
                 <i class="fa-solid fa-images"></i>
-                <span>1. البانرات والسلايدر (Hero Banners)</span>
+                <span>1. Hero Banners</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link d-flex align-items-center gap-2" id="tab-spotlight-btn" data-bs-toggle="pill" data-bs-target="#tab-spotlight" type="button" role="tab" aria-controls="tab-spotlight" aria-selected="false">
+            <button class="nav-link" id="tab-spotlight-btn" data-bs-toggle="pill" data-bs-target="#tab-spotlight" type="button" role="tab" aria-controls="tab-spotlight" aria-selected="false">
                 <i class="fa-solid fa-bolt text-warning"></i>
-                <span>2. العروض والشريط المتحرك (Offers & Marquee)</span>
+                <span>2. Offers & Marquee</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link d-flex align-items-center gap-2" id="tab-sections-btn" data-bs-toggle="pill" data-bs-target="#tab-sections" type="button" role="tab" aria-controls="tab-sections" aria-selected="false">
+            <button class="nav-link" id="tab-sections-btn" data-bs-toggle="pill" data-bs-target="#tab-sections" type="button" role="tab" aria-controls="tab-sections" aria-selected="false">
                 <i class="fa-solid fa-eye"></i>
-                <span>3. ظهور وإخفاء الأقسام (Sections Visibility)</span>
+                <span>3. Sections Visibility</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link d-flex align-items-center gap-2" id="tab-social-btn" data-bs-toggle="pill" data-bs-target="#tab-social" type="button" role="tab" aria-controls="tab-social" aria-selected="false">
+            <button class="nav-link" id="tab-social-btn" data-bs-toggle="pill" data-bs-target="#tab-social" type="button" role="tab" aria-controls="tab-social" aria-selected="false">
                 <i class="fa-solid fa-bullhorn"></i>
-                <span>4. الشريط الإعلاني وروابط السوشيال (Announcement & Social)</span>
+                <span>4. Announcement & Social</span>
             </button>
         </li>
     </ul>
