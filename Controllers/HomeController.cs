@@ -368,7 +368,7 @@ public class HomeController : Controller
         {
             sb.AppendLine("  <url>");
             sb.AppendLine($"    <loc>{baseUrl}/Store/Details/{p.Id}</loc>");
-            sb.AppendLine($"    <lastmod>{(p.UpdatedAt ?? p.CreatedAt):yyyy-MM-dd}</lastmod>");
+            sb.AppendLine($"    <lastmod>{p.CreatedAt:yyyy-MM-dd}</lastmod>");
             sb.AppendLine("    <changefreq>daily</changefreq>");
             sb.AppendLine("    <priority>0.9</priority>");
 
