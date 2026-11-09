@@ -6,6 +6,7 @@
     var monthLabelsJson = JsonSerializer.Serialize(Model.ChartMonthLabels);
     var actualRevenueJson = JsonSerializer.Serialize(Model.ChartActualRevenue);
     var targetRevenueJson = JsonSerializer.Serialize(Model.ChartTargetRevenue);
+    var ordersCountJson = JsonSerializer.Serialize(Model.ChartOrdersCount);
 }
 
 <!-- Header -->
@@ -130,18 +131,141 @@
     </div>
 </div>
 
-<!-- Monthly Sales Target Chart (ROVEN 4-Color Luxury Palette) -->
+<!-- Monthly Sales Target Chart (ROVEN 4-Color Luxury Palette & Live Date Filtering) -->
 <div class="card border-0 shadow-sm rounded-4">
-    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom" style="border-color: #f0ece3 !important;">
-        <div>
-            <span class="fw-bold" style="color: #1B1717;">Monthly Sales Performance vs Benchmark Target</span>
-            <span class="text-muted small ms-2 d-none d-sm-inline">(Live monthly aggregation from database)</span>
+    <div class="card-header bg-white py-3 border-bottom" style="border-color: #f0ece3 !important;">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                    <span class="fw-bold" style="color: #1B1717; font-size: 1.05rem;">
+                        <i class="fa-solid fa-chart-simple me-2" style="color: #630000;"></i>
+                        أداء المبيعات والأهداف البيعية (Sales Performance vs Benchmark Target)
+                    </span>
+                    <span class="badge badge-roven-cream px-2.5 py-1 rounded-pill small" id="chartActivePeriodLabel">سنة @Model.SelectedYear</span>
+                </div>
+                <div class="text-muted small">
+                    <i class="fa-solid fa-database text-success me-1"></i> تجميع حي ومباشر من قاعدة بيانات الطلبات (Orders Database)
+                </div>
+            </div>
+
+            <!-- Date & Period Filter Controls -->
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <!-- Mode Selector -->
+                <div class="input-group input-group-sm shadow-sm" style="width: auto;">
+                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-color: #e5dfd5;">
+                        <i class="fa-solid fa-filter" style="color: #630000;"></i>
+                    </span>
+                    <select id="chartPeriodMode" class="form-select form-select-sm border-start-0 fw-semibold" style="border-color: #e5dfd5; min-width: 140px; color: #1B1717;">
+                        <option value="year" selected="@(Model.FilterMode == "year")">عرض سنوي (بالشهور)</option>
+                        <option value="month" selected="@(Model.FilterMode == "month")">عرض شهري (بالأيام)</option>
+                        <option value="last6" selected="@(Model.FilterMode == "last6")">آخر 6 شهور</option>
+                        <option value="last12" selected="@(Model.FilterMode == "last12")">آخر 12 شهر</option>
+                    </select>
+                </div>
+
+                <!-- Year Selector -->
+                <div id="chartYearContainer" class="input-group input-group-sm shadow-sm @(Model.FilterMode == "last6" || Model.FilterMode == "last12" ? "d-none" : "")" style="width: auto;">
+                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-color: #e5dfd5;">
+                        <i class="fa-regular fa-calendar" style="color: #630000;"></i>
+                    </span>
+                    <select id="chartYearSelect" class="form-select form-select-sm border-start-0 fw-semibold" style="border-color: #e5dfd5; min-width: 95px; color: #1B1717;">
+                        @foreach (var y in Model.AvailableYears)
+                        {
+                            <option value="@y" selected="@(y == Model.SelectedYear)">@y</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Month Selector (visible when mode == 'month') -->
+                <div id="chartMonthContainer" class="input-group input-group-sm shadow-sm @(Model.FilterMode == "month" ? "" : "d-none")" style="width: auto;">
+                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-color: #e5dfd5;">
+                        <i class="fa-regular fa-calendar-days" style="color: #630000;"></i>
+                    </span>
+                    <select id="chartMonthSelect" class="form-select form-select-sm border-start-0 fw-semibold" style="border-color: #e5dfd5; min-width: 125px; color: #1B1717;">
+                        <option value="1" selected="@(Model.SelectedMonth == 1)">01 - يناير (Jan)</option>
+                        <option value="2" selected="@(Model.SelectedMonth == 2)">02 - فبراير (Feb)</option>
+                        <option value="3" selected="@(Model.SelectedMonth == 3)">03 - مارس (Mar)</option>
+                        <option value="4" selected="@(Model.SelectedMonth == 4)">04 - أبريل (Apr)</option>
+                        <option value="5" selected="@(Model.SelectedMonth == 5)">05 - مايو (May)</option>
+                        <option value="6" selected="@(Model.SelectedMonth == 6)">06 - يونيو (Jun)</option>
+                        <option value="7" selected="@(Model.SelectedMonth == 7)">07 - يوليو (Jul)</option>
+                        <option value="8" selected="@(Model.SelectedMonth == 8)">08 - أغسطس (Aug)</option>
+                        <option value="9" selected="@(Model.SelectedMonth == 9)">09 - سبتمبر (Sep)</option>
+                        <option value="10" selected="@(Model.SelectedMonth == 10)">10 - أكتوبر (Oct)</option>
+                        <option value="11" selected="@(Model.SelectedMonth == 11)">11 - نوفمبر (Nov)</option>
+                        <option value="12" selected="@(Model.SelectedMonth == 12)">12 - ديسمبر (Dec)</option>
+                    </select>
+                </div>
+
+                <!-- Refresh / Apply Button -->
+                <button id="btnRefreshChart" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 shadow-sm" title="تحديث وتطبيق الفلتر">
+                    <i class="fa-solid fa-arrows-rotate" id="refreshChartSpinner"></i>
+                    <span class="d-none d-sm-inline">تحديث</span>
+                </button>
+            </div>
         </div>
-        <span class="badge badge-roven-cream px-3 py-1 rounded-pill fw-semibold">Last 6 Months</span>
     </div>
-    <div class="card-body p-4">
-        <div style="height: 320px; position: relative;">
+
+    <!-- Live Performance KPI Strip for Selected Period -->
+    <div class="px-3 px-md-4 pt-3 pb-0">
+        <div class="row g-2 g-md-3">
+            <div class="col-6 col-md-3">
+                <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center gap-2" style="border-color: #f0ece3 !important;">
+                    <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: rgba(99, 0, 0, 0.1); color: #630000;">
+                        <i class="fa-solid fa-coins font-size-sm"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-muted small" style="font-size: 0.72rem;">مبيعات الفترة الحالية</div>
+                        <div class="fw-bold font-monospace text-truncate" id="kpiPeriodRevenue" style="color: #630000; font-size: 0.95rem;">@Model.ChartTotalRevenue.ToString("N2") EGP</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center gap-2" style="border-color: #f0ece3 !important;">
+                    <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: rgba(10, 102, 194, 0.1); color: #0a66c2;">
+                        <i class="fa-solid fa-bag-shopping font-size-sm"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-muted small" style="font-size: 0.72rem;">إجمالي الطلبات بالفترة</div>
+                        <div class="fw-bold font-monospace text-dark text-truncate" id="kpiPeriodOrders" style="font-size: 0.95rem;">@Model.ChartTotalOrders طلب</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center gap-2" style="border-color: #f0ece3 !important;">
+                    <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: rgba(37, 211, 102, 0.1); color: #25d366;">
+                        <i class="fa-solid fa-chart-line font-size-sm"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-muted small" style="font-size: 0.72rem;">متوسط المبيعات</div>
+                        <div class="fw-bold font-monospace text-dark text-truncate" id="kpiPeriodAvg" style="font-size: 0.95rem;">@Model.ChartAverageRevenue.ToString("N2") EGP</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center gap-2" style="border-color: #f0ece3 !important;">
+                    <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: rgba(223, 177, 91, 0.2); color: #810100;">
+                        <i class="fa-solid fa-trophy font-size-sm"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-muted small" style="font-size: 0.72rem;">أعلى فترة مبيعاً</div>
+                        <div class="fw-bold text-truncate" id="kpiPeriodPeak" style="color: #1B1717; font-size: 0.85rem;" title="@Model.ChartPeakPeriod">
+                            @(Model.ChartPeakRevenue > 0 ? $"{Model.ChartPeakPeriod} ({Model.ChartPeakRevenue:N0} EGP)" : "لا توجد مبيعات")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body p-3 p-md-4">
+        <div style="height: 340px; position: relative;">
             <canvas id="reportsMonthlyChart"></canvas>
+            <div id="chartEmptyState" class="@(Model.ChartTotalRevenue == 0 && Model.ChartTotalOrders == 0 ? "" : "d-none") position-absolute top-50 start-50 translate-middle text-center p-3 rounded-3 shadow-sm" style="background: rgba(255,255,255,0.92); border: 1px dashed #dcd7c7; min-width: 250px; pointer-events: none;">
+                <i class="fa-solid fa-chart-column fa-2x mb-2 text-muted" style="opacity: 0.45;"></i>
+                <div class="small fw-bold text-dark">لا توجد مبيعات مسجلة في هذه الفترة</div>
+                <div class="text-muted" style="font-size: 0.75rem;">الرسم البياني يعكس البيانات الحية لقاعدة البيانات (0.00 EGP)</div>
+            </div>
         </div>
     </div>
 </div>
@@ -151,73 +275,177 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const ctx = document.getElementById('reportsMonthlyChart');
-            if (ctx) {
-                const labels = @Html.Raw(monthLabelsJson);
-                const actualData = @Html.Raw(actualRevenueJson);
-                const targetData = @Html.Raw(targetRevenueJson);
+            if (!ctx) return;
 
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Actual Revenue (EGP)',
-                                data: actualData,
-                                backgroundColor: '#630000',
-                                hoverBackgroundColor: '#810100',
-                                borderRadius: 6,
-                                maxBarThickness: 45
-                            },
-                            {
-                                label: 'Benchmark Target (EGP)',
-                                data: targetData,
-                                backgroundColor: 'rgba(237, 235, 221, 0.75)',
-                                borderColor: '#dcd7c7',
-                                borderWidth: 1,
-                                borderRadius: 6,
-                                maxBarThickness: 45
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: {
-                                    boxWidth: 14,
-                                    font: { family: 'system-ui', weight: '600', size: 12 },
-                                    color: '#1B1717'
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return context.dataset.label + ': ' + Number(context.raw).toLocaleString() + ' EGP';
-                                    }
-                                }
+            let currentLabels = @Html.Raw(monthLabelsJson);
+            let currentActual = @Html.Raw(actualRevenueJson);
+            let currentTarget = @Html.Raw(targetRevenueJson);
+            let currentOrders = @Html.Raw(ordersCountJson);
+
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: currentLabels,
+                    datasets: [
+                        {
+                            label: 'Actual Revenue (EGP)',
+                            data: currentActual,
+                            backgroundColor: '#630000',
+                            hoverBackgroundColor: '#810100',
+                            borderRadius: 6,
+                            maxBarThickness: 36
+                        },
+                        {
+                            label: 'Benchmark Target (EGP)',
+                            data: currentTarget,
+                            backgroundColor: 'rgba(237, 235, 221, 0.75)',
+                            borderColor: '#dcd7c7',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            maxBarThickness: 36
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                boxWidth: 14,
+                                font: { family: 'system-ui', weight: '600', size: 12 },
+                                color: '#1B1717'
                             }
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function (val) { return val.toLocaleString() + ' EGP'; },
-                                    color: '#6c6358',
-                                    font: { size: 11 }
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return ' ' + context.dataset.label + ': ' + Number(context.raw).toLocaleString() + ' EGP';
                                 },
-                                grid: { color: 'rgba(232, 227, 213, 0.5)' }
+                                afterBody: function (tooltipItems) {
+                                    if (tooltipItems.length > 0) {
+                                        const idx = tooltipItems[0].dataIndex;
+                                        const count = currentOrders && currentOrders.length > idx ? currentOrders[idx] : 0;
+                                        return ' عدد الطلبات: ' + count + ' طلب';
+                                    }
+                                    return '';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (val) { return Number(val).toLocaleString() + ' EGP'; },
+                                color: '#6c6358',
+                                font: { size: 11 }
                             },
-                            x: {
-                                ticks: { color: '#1B1717', font: { weight: '600' } },
-                                grid: { display: false }
+                            grid: { color: 'rgba(232, 227, 213, 0.5)' }
+                        },
+                        x: {
+                            ticks: { color: '#1B1717', font: { weight: '600', size: 11 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Filter DOM elements
+            const modeSelect = document.getElementById('chartPeriodMode');
+            const yearSelect = document.getElementById('chartYearSelect');
+            const monthSelect = document.getElementById('chartMonthSelect');
+            const yearContainer = document.getElementById('chartYearContainer');
+            const monthContainer = document.getElementById('chartMonthContainer');
+            const refreshBtn = document.getElementById('btnRefreshChart');
+            const spinner = document.getElementById('refreshChartSpinner');
+            const activePeriodLabel = document.getElementById('chartActivePeriodLabel');
+            const emptyState = document.getElementById('chartEmptyState');
+
+            const kpiRev = document.getElementById('kpiPeriodRevenue');
+            const kpiOrders = document.getElementById('kpiPeriodOrders');
+            const kpiAvg = document.getElementById('kpiPeriodAvg');
+            const kpiPeak = document.getElementById('kpiPeriodPeak');
+
+            function updateFilterVisibility() {
+                const mode = modeSelect.value;
+                if (mode === 'month') {
+                    yearContainer.classList.remove('d-none');
+                    monthContainer.classList.remove('d-none');
+                } else if (mode === 'year') {
+                    yearContainer.classList.remove('d-none');
+                    monthContainer.classList.add('d-none');
+                } else {
+                    // last6 or last12
+                    yearContainer.classList.add('d-none');
+                    monthContainer.classList.add('d-none');
+                }
+            }
+
+            async function fetchAndRenderChart() {
+                const mode = modeSelect.value;
+                const year = yearSelect.value;
+                const month = monthSelect.value;
+
+                if (spinner) spinner.classList.add('fa-spin');
+                if (refreshBtn) refreshBtn.disabled = true;
+
+                try {
+                    const url = `/Reports/GetSalesChartData?mode=${encodeURIComponent(mode)}&year=${encodeURIComponent(year)}&month=${encodeURIComponent(month)}`;
+                    const response = await fetch(url, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+
+                    if (!response.ok) throw new Error('Network error');
+                    const data = await response.json();
+
+                    if (data && data.success) {
+                        currentLabels = data.labels;
+                        currentActual = data.actualData;
+                        currentTarget = data.targetData;
+                        currentOrders = data.ordersCount;
+
+                        chart.data.labels = currentLabels;
+                        chart.data.datasets[0].data = currentActual;
+                        chart.data.datasets[1].data = currentTarget;
+                        chart.update();
+
+                        if (activePeriodLabel) activePeriodLabel.textContent = data.periodTitle;
+                        if (kpiRev) kpiRev.textContent = Number(data.totalRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
+                        if (kpiOrders) kpiOrders.textContent = data.totalOrders + ' طلب';
+                        if (kpiAvg) kpiAvg.textContent = Number(data.averageRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
+                        if (kpiPeak) {
+                            kpiPeak.textContent = data.peakRevenue > 0
+                                ? `${data.peakLabel} (${Number(data.peakRevenue).toLocaleString()} EGP)`
+                                : 'لا توجد مبيعات';
+                            kpiPeak.title = data.peakLabel;
+                        }
+
+                        if (emptyState) {
+                            if (data.totalRevenue === 0 && data.totalOrders === 0) {
+                                emptyState.classList.remove('d-none');
+                            } else {
+                                emptyState.classList.add('d-none');
                             }
                         }
                     }
-                });
+                } catch (err) {
+                    console.error('Error fetching chart data:', err);
+                } finally {
+                    if (spinner) spinner.classList.remove('fa-spin');
+                    if (refreshBtn) refreshBtn.disabled = false;
+                }
             }
+
+            modeSelect.addEventListener('change', function () {
+                updateFilterVisibility();
+                fetchAndRenderChart();
+            });
+
+            yearSelect.addEventListener('change', fetchAndRenderChart);
+            monthSelect.addEventListener('change', fetchAndRenderChart);
+            refreshBtn.addEventListener('click', fetchAndRenderChart);
         });
     </script>
 }

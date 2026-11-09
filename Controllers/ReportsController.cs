@@ -20,7 +20,7 @@ public class ReportsController : Controller
     }
 
     // GET: Reports/Index
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string mode = "year", int? year = null, int? month = null)
     {
         var nowEgypt = DateTimeExtensions.EgyptNow;
         var startOfMonthUtc = new DateTime(nowEgypt.Year, nowEgypt.Month, 1).ToUtcFromEgypt();
@@ -88,28 +88,173 @@ public class ReportsController : Controller
             ? Math.Round(vm.TotalRevenueAllTime / vm.ActiveCustomersWithOrders, 2)
             : 0m;
 
-        // 4. Live Monthly Sales Trend (Last 6 Months from Database)
-        for (int i = 5; i >= 0; i--)
+        // 4. Live Dynamic Sales Trend from Database
+        await PopulateChartDataAsync(vm, mode, year, month);
+
+        return View(vm);
+    }
+
+    // GET: Reports/GetSalesChartData (AJAX Endpoint for Dynamic Date Filtering)
+    [HttpGet]
+    public async Task<IActionResult> GetSalesChartData(string mode = "year", int? year = null, int? month = null)
+    {
+        var vm = new ReportsViewModel();
+        await PopulateChartDataAsync(vm, mode, year, month);
+
+        string periodTitle = vm.FilterMode switch
         {
-            var mDate = nowEgypt.AddMonths(-i);
-            var mStartEgypt = new DateTime(mDate.Year, mDate.Month, 1);
+            "month" => new DateTime(vm.SelectedYear, vm.SelectedMonth, 1).ToString("MMMM yyyy"),
+            "last6" => "آخر 6 شهور (Last 6 Months)",
+            "last12" => "آخر 12 شهر (Last 12 Months)",
+            _ => $"سنة {vm.SelectedYear} (Year {vm.SelectedYear})"
+        };
+
+        return Json(new
+        {
+            success = true,
+            labels = vm.ChartMonthLabels,
+            actualData = vm.ChartActualRevenue,
+            targetData = vm.ChartTargetRevenue,
+            ordersCount = vm.ChartOrdersCount,
+            totalRevenue = vm.ChartTotalRevenue,
+            totalOrders = vm.ChartTotalOrders,
+            averageRevenue = vm.ChartAverageRevenue,
+            peakRevenue = vm.ChartPeakRevenue,
+            peakLabel = vm.ChartPeakPeriod,
+            periodTitle
+        });
+    }
+
+    private async Task PopulateChartDataAsync(ReportsViewModel vm, string mode, int? year, int? month)
+    {
+        var nowEgypt = DateTimeExtensions.EgyptNow;
+        int targetYear = year ?? nowEgypt.Year;
+        int targetMonth = month ?? nowEgypt.Month;
+
+        vm.FilterMode = string.IsNullOrWhiteSpace(mode) ? "year" : mode.ToLowerInvariant();
+        vm.SelectedYear = targetYear;
+        vm.SelectedMonth = targetMonth;
+
+        // Populate available years from database orders + current year
+        var minOrderYear = await _context.Orders
+            .OrderBy(o => o.OrderDate)
+            .Select(o => (int?)o.OrderDate.Year)
+            .FirstOrDefaultAsync();
+
+        int currentYear = nowEgypt.Year;
+        int startYear = minOrderYear.HasValue && minOrderYear.Value > 2000 ? Math.Min(minOrderYear.Value, currentYear - 3) : currentYear - 3;
+        vm.AvailableYears = Enumerable.Range(startYear, (currentYear - startYear) + 2).OrderByDescending(y => y).ToList();
+
+        if (vm.FilterMode == "month")
+        {
+            if (targetMonth < 1 || targetMonth > 12) targetMonth = nowEgypt.Month;
+            int daysInMonth = DateTime.DaysInMonth(targetYear, targetMonth);
+            var mStartEgypt = new DateTime(targetYear, targetMonth, 1);
             var mEndEgypt = mStartEgypt.AddMonths(1);
             var mStartUtc = mStartEgypt.ToUtcFromEgypt();
             var mEndUtc = mEndEgypt.ToUtcFromEgypt();
-            var label = mStartEgypt.ToString("MMM yyyy");
 
-            var actualRev = await _context.Orders
+            var orders = await _context.Orders.AsNoTracking()
                 .Where(o => o.Status != OrderStatus.Cancelled && o.OrderDate >= mStartUtc && o.OrderDate < mEndUtc)
-                .SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
+                .Select(o => new { o.OrderDate, o.TotalAmount })
+                .ToListAsync();
 
-            var targetRev = actualRev > 0 ? Math.Round(actualRev * 1.20m, 0) : 25000m;
+            var ordersByDay = orders
+                .Select(o => new { Day = o.OrderDate.ToEgyptTime().Day, o.TotalAmount })
+                .GroupBy(o => o.Day)
+                .ToDictionary(g => g.Key, g => new { Total = g.Sum(x => x.TotalAmount), Count = g.Count() });
 
-            vm.ChartMonthLabels.Add(label);
-            vm.ChartActualRevenue.Add(actualRev);
-            vm.ChartTargetRevenue.Add(targetRev);
+            decimal avgDailyActual = orders.Any() ? orders.Sum(x => x.TotalAmount) / daysInMonth : 0m;
+
+            for (int day = 1; day <= daysInMonth; day++)
+            {
+                var dayDate = new DateTime(targetYear, targetMonth, day);
+                vm.ChartMonthLabels.Add(dayDate.ToString("d MMM"));
+
+                decimal rev = 0m;
+                int count = 0;
+                if (ordersByDay.TryGetValue(day, out var dayData))
+                {
+                    rev = dayData.Total;
+                    count = dayData.Count;
+                }
+
+                vm.ChartActualRevenue.Add(rev);
+                vm.ChartOrdersCount.Add(count);
+
+                decimal target = rev > 0 ? Math.Round(rev * 1.20m, 0) : (avgDailyActual > 0 ? Math.Round(avgDailyActual * 1.15m, 0) : 0m);
+                vm.ChartTargetRevenue.Add(target);
+            }
+        }
+        else if (vm.FilterMode == "last6" || vm.FilterMode == "last12")
+        {
+            int countMonths = vm.FilterMode == "last12" ? 12 : 6;
+            for (int i = countMonths - 1; i >= 0; i--)
+            {
+                var mDate = nowEgypt.AddMonths(-i);
+                var mStartEgypt = new DateTime(mDate.Year, mDate.Month, 1);
+                var mEndEgypt = mStartEgypt.AddMonths(1);
+                var mStartUtc = mStartEgypt.ToUtcFromEgypt();
+                var mEndUtc = mEndEgypt.ToUtcFromEgypt();
+
+                var mOrders = await _context.Orders.AsNoTracking()
+                    .Where(o => o.Status != OrderStatus.Cancelled && o.OrderDate >= mStartUtc && o.OrderDate < mEndUtc)
+                    .Select(o => o.TotalAmount)
+                    .ToListAsync();
+
+                decimal rev = mOrders.Sum();
+                int count = mOrders.Count;
+                decimal target = rev > 0 ? Math.Round(rev * 1.20m, 0) : 0m;
+
+                vm.ChartMonthLabels.Add(mStartEgypt.ToString("MMM yyyy"));
+                vm.ChartActualRevenue.Add(rev);
+                vm.ChartTargetRevenue.Add(target);
+                vm.ChartOrdersCount.Add(count);
+            }
+        }
+        else // default: "year" (12 months of selected year)
+        {
+            vm.FilterMode = "year";
+            for (int m = 1; m <= 12; m++)
+            {
+                var mStartEgypt = new DateTime(targetYear, m, 1);
+                var mEndEgypt = mStartEgypt.AddMonths(1);
+                var mStartUtc = mStartEgypt.ToUtcFromEgypt();
+                var mEndUtc = mEndEgypt.ToUtcFromEgypt();
+
+                var mOrders = await _context.Orders.AsNoTracking()
+                    .Where(o => o.Status != OrderStatus.Cancelled && o.OrderDate >= mStartUtc && o.OrderDate < mEndUtc)
+                    .Select(o => o.TotalAmount)
+                    .ToListAsync();
+
+                decimal rev = mOrders.Sum();
+                int count = mOrders.Count;
+                decimal target = rev > 0 ? Math.Round(rev * 1.20m, 0) : 0m;
+
+                vm.ChartMonthLabels.Add(mStartEgypt.ToString("MMM yyyy"));
+                vm.ChartActualRevenue.Add(rev);
+                vm.ChartTargetRevenue.Add(target);
+                vm.ChartOrdersCount.Add(count);
+            }
         }
 
-        return View(vm);
+        vm.ChartTotalRevenue = vm.ChartActualRevenue.Sum();
+        vm.ChartTotalOrders = vm.ChartOrdersCount.Sum();
+        vm.ChartAverageRevenue = vm.ChartActualRevenue.Count > 0 ? Math.Round(vm.ChartTotalRevenue / vm.ChartActualRevenue.Count, 2) : 0m;
+
+        decimal peakRevenue = 0m;
+        string peakLabel = "-";
+        for (int i = 0; i < vm.ChartActualRevenue.Count; i++)
+        {
+            if (vm.ChartActualRevenue[i] > peakRevenue)
+            {
+                peakRevenue = vm.ChartActualRevenue[i];
+                peakLabel = vm.ChartMonthLabels[i];
+            }
+        }
+
+        vm.ChartPeakRevenue = peakRevenue;
+        vm.ChartPeakPeriod = peakLabel;
     }
 
     // GET: Reports/ExportStatement (Comprehensive 4-Tab Luxury Excel Workbook)

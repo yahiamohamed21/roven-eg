@@ -29,5 +29,17 @@ public class ReportsViewModel
     public List<string> ChartMonthLabels { get; set; } = new();
     public List<decimal> ChartActualRevenue { get; set; } = new();
     public List<decimal> ChartTargetRevenue { get; set; } = new();
+    public List<int> ChartOrdersCount { get; set; } = new();
+
+    // 5. Chart Filters & Live Performance Aggregation
+    public int SelectedYear { get; set; }
+    public int SelectedMonth { get; set; }
+    public string FilterMode { get; set; } = "year";
+    public List<int> AvailableYears { get; set; } = new();
+    public decimal ChartTotalRevenue { get; set; }
+    public int ChartTotalOrders { get; set; }
+    public decimal ChartAverageRevenue { get; set; }
+    public string ChartPeakPeriod { get; set; } = "-";
+    public decimal ChartPeakRevenue { get; set; }
 }
 
