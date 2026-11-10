@@ -21,6 +21,11 @@
             history.scrollRestoration = 'manual';
         }
         window.scrollTo(0, 0);
+        try {
+            if (localStorage.getItem('roven_lead_dismissed') === 'true' && document.cookie.indexOf('roven_lead_dismissed=true') === -1) {
+                document.cookie = "roven_lead_dismissed=true; path=/; max-age=31536000; SameSite=Lax";
+            }
+        } catch(e) {}
     </script>
     @{
         var rawTitle = ViewData["Title"]?.ToString() ?? "";
@@ -2396,6 +2401,11 @@
         })();
     </script>
 
+    @{
+        var isVipLeadDismissed = Context.Request.Cookies["roven_lead_dismissed"] == "true";
+    }
+    @if (!isVipLeadDismissed)
+    {
     <!-- ============================================================== -->
     <!-- MAISON ROVEN — HAUTE PARFUMERIE WHATSAPP VIP OFFERS MODAL       -->
     <!-- ============================================================== -->
@@ -2550,6 +2560,7 @@
                 if (!isForceTesting && isLeadModalDismissed()) {
                     return;
                 }
+                markLeadModalDismissed();
                 setTimeout(openRovenLeadModal, 450);
             };
 
@@ -2663,6 +2674,7 @@
             }, 2400);
         })();
     </script>
+    }
 
     @await RenderSectionAsync("Scripts", required: false)
     <script>
