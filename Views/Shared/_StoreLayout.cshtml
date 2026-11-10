@@ -2475,6 +2475,31 @@
             const modal = document.getElementById('rovenLeadModal');
             if (!modal) return;
 
+            function isLeadModalDismissed() {
+                try {
+                    if (localStorage.getItem('roven_lead_dismissed') === 'true') return true;
+                } catch (e) {}
+                try {
+                    if (sessionStorage.getItem('roven_lead_dismissed') === 'true') return true;
+                } catch (e) {}
+                try {
+                    if (document.cookie.indexOf('roven_lead_dismissed=true') !== -1) return true;
+                } catch (e) {}
+                return false;
+            }
+
+            function markLeadModalDismissed() {
+                try {
+                    localStorage.setItem('roven_lead_dismissed', 'true');
+                } catch (e) {}
+                try {
+                    sessionStorage.setItem('roven_lead_dismissed', 'true');
+                } catch (e) {}
+                try {
+                    document.cookie = "roven_lead_dismissed=true; path=/; max-age=31536000; SameSite=Lax";
+                } catch (e) {}
+            }
+
             function lockScroll() {
                 document.documentElement.classList.add('roven-lead-open');
                 document.body.classList.add('roven-lead-open');
@@ -2485,20 +2510,22 @@
                 document.body.classList.remove('roven-lead-open');
             }
 
-            // Allow force-testing via URL parameters: ?testLead=1 or ?showPromo=1
+            // Optional developer debug flag: ?forceLead=1 forces opening once without resetting storage
+            let isForceTesting = false;
             try {
                 const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.has('showPromo') || urlParams.has('testLead')) {
-                    localStorage.removeItem('roven_lead_dismissed');
+                if (urlParams.has('forceLead')) {
+                    isForceTesting = true;
                 }
             } catch (e) {}
 
             window.openRovenLeadModal = function() {
-                try {
-                    if (localStorage.getItem('roven_lead_dismissed') === 'true') {
-                        return;
-                    }
-                } catch (e) {}
+                if (!isForceTesting && isLeadModalDismissed()) {
+                    return;
+                }
+
+                // Immediately mark as dismissed/seen on this device so refresh never triggers it again
+                markLeadModalDismissed();
 
                 modal.classList.add('active');
                 modal.setAttribute('aria-hidden', 'false');
@@ -2516,17 +2543,13 @@
                 modal.classList.remove('active');
                 modal.setAttribute('aria-hidden', 'true');
                 unlockScroll();
-                try {
-                    localStorage.setItem('roven_lead_dismissed', 'true');
-                } catch (e) {}
+                markLeadModalDismissed();
             };
 
             window.checkAndTriggerVipLeadModal = function() {
-                try {
-                    if (localStorage.getItem('roven_lead_dismissed') === 'true') {
-                        return;
-                    }
-                } catch (e) {}
+                if (!isForceTesting && isLeadModalDismissed()) {
+                    return;
+                }
                 setTimeout(openRovenLeadModal, 450);
             };
 
@@ -2596,9 +2619,7 @@
                     const data = await res.json();
 
                     if (data.success) {
-                        try {
-                            localStorage.setItem('roven_lead_dismissed', 'true');
-                        } catch (e) {}
+                        markLeadModalDismissed();
 
                         document.getElementById('rovenLeadFormView').classList.add('d-none');
                         const successView = document.getElementById('rovenLeadSuccessView');
