@@ -1240,19 +1240,20 @@
             left: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
-            inset: -120px -20px -350px -20px !important;
-            width: calc(100vw + 40px) !important;
-            min-width: 100vw !important;
-            height: calc(100vh + 470px) !important;
-            height: calc(100lvh + 470px) !important;
-            height: calc(100dvh + 470px) !important;
-            min-height: calc(100vh + 470px) !important;
-            min-height: calc(100lvh + 470px) !important;
-            min-height: calc(100dvh + 470px) !important;
+            inset: 0 !important;
+            width: 100vw !important;
+            width: 100% !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            height: 100lvh !important;
+            min-height: 100% !important;
+            min-height: 100vh !important;
+            min-height: 100dvh !important;
+            min-height: 100lvh !important;
             min-height: -webkit-fill-available !important;
             z-index: 2147483647 !important;
             background-color: #1B1717 !important;
-            background: radial-gradient(circle at 50% 45%, rgba(129, 1, 0, 0.55) 0%, rgba(99, 0, 0, 0.28) 32%, rgba(27, 23, 23, 0.99) 72%),
+            background: radial-gradient(circle at 50% 50%, rgba(129, 1, 0, 0.55) 0%, rgba(99, 0, 0, 0.28) 35%, rgba(27, 23, 23, 0.99) 75%),
                         linear-gradient(135deg, #150f0f 0%, #240505 50%, #150f0f 100%) !important;
             display: flex !important;
             align-items: center !important;
@@ -1261,7 +1262,7 @@
             touch-action: none !important;
             overscroll-behavior: none !important;
             margin: 0 !important;
-            padding: 120px 20px 350px 20px !important;
+            padding: 0 !important;
             box-sizing: border-box !important;
             pointer-events: auto !important;
             transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.75s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1278,8 +1279,14 @@
             color: #EDEBDD;
             position: relative;
             z-index: 2;
-            padding: 2rem;
+            padding: 2rem 1.5rem;
             max-width: 440px;
+            width: 100%;
+            margin: auto !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.65s ease;
         }
 
@@ -1740,30 +1747,6 @@
             </div>
         </div>
     </div>
-    <!-- Immediate Mobile / iOS Safari Hardware Viewport Enforcer -->
-    <script>
-        (function() {
-            function enforcePreloaderStretch() {
-                var p = document.getElementById('roven-preloader');
-                if (p && !p.classList.contains('preloader-hidden')) {
-                    var screenH = (window.screen && window.screen.height) ? window.screen.height : 0;
-                    var innerH = window.innerHeight || 0;
-                    var clientH = document.documentElement.clientHeight || 0;
-                    var h = Math.max(screenH, innerH, clientH, 800);
-                    p.style.setProperty('height', (h + 470) + 'px', 'important');
-                    p.style.setProperty('min-height', (h + 470) + 'px', 'important');
-                    p.style.setProperty('top', '-120px', 'important');
-                    p.style.setProperty('bottom', '-350px', 'important');
-                    p.style.setProperty('left', '-20px', 'important');
-                    p.style.setProperty('right', '-20px', 'important');
-                    p.style.setProperty('width', 'calc(100vw + 40px)', 'important');
-                }
-            }
-            enforcePreloaderStretch();
-            window.addEventListener('resize', enforcePreloaderStretch);
-            window.addEventListener('orientationchange', enforcePreloaderStretch);
-        })();
-    </script>
 
     <!-- Top Announcement Bar -->
     @if (siteSetting.AnnouncementActive)
@@ -2331,23 +2314,6 @@
             // Lock viewport to top on initial execution
             window.scrollTo(0, 0);
 
-            // Dynamically fit preloader to full physical screen height on iOS Safari & mobile devices
-            function fitPreloader() {
-                if (preloader && !preloader.classList.contains('preloader-hidden')) {
-                    const h = Math.max(window.innerHeight, document.documentElement.clientHeight, screen.height || 0, 800);
-                    preloader.style.setProperty('height', (h + 470) + 'px', 'important');
-                    preloader.style.setProperty('min-height', (h + 470) + 'px', 'important');
-                    preloader.style.setProperty('top', '-120px', 'important');
-                    preloader.style.setProperty('bottom', '-350px', 'important');
-                    preloader.style.setProperty('left', '-20px', 'important');
-                    preloader.style.setProperty('right', '-20px', 'important');
-                    preloader.style.setProperty('width', 'calc(100vw + 40px)', 'important');
-                }
-            }
-            fitPreloader();
-            window.addEventListener('resize', fitPreloader);
-            window.addEventListener('orientationchange', fitPreloader);
-
             // Prevent touch and wheel gestures from scrolling while preloader is visible
             function preventPreloaderScroll(e) {
                 if (preloader && !preloader.classList.contains('preloader-hidden') && preloader.style.display !== 'none') {
@@ -2371,8 +2337,6 @@
                 preloader.classList.add('preloader-hidden');
                 window.removeEventListener('touchmove', preventPreloaderScroll);
                 window.removeEventListener('wheel', preventPreloaderScroll);
-                window.removeEventListener('resize', fitPreloader);
-                window.removeEventListener('orientationchange', fitPreloader);
 
                 setTimeout(() => {
                     document.documentElement.classList.remove('roven-loading');
