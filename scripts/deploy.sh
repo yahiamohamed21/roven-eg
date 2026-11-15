@@ -44,6 +44,11 @@ chmod +x "$PROJECT_ROOT/scripts/secure-env.sh"
 sudo "$PROJECT_ROOT/scripts/secure-env.sh" >> "$LOG_FILE" 2>&1
 
 # Step 3: Atomic Build & Publish (Zero-Downtime Staging)
+if ! dotnet --list-runtimes 2>/dev/null | grep -q "Microsoft.AspNetCore.App 9\."; then
+    log "Ensuring .NET 9 ASP.NET Core runtime is installed on host..."
+    sudo apt-get update -qq && sudo apt-get install -y -qq aspnetcore-runtime-9.0 2>/dev/null || true
+fi
+
 log "Cleaning staging directory..."
 rm -rf "$PROJECT_ROOT/bin" "$PROJECT_ROOT/obj" "$STAGING_DIR"
 mkdir -p "$STAGING_DIR"
