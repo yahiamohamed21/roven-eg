@@ -59,7 +59,7 @@ body {
     background-color: var(--body-bg);
     color: var(--text-main);
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 /* --------------------------------------------------------------------------

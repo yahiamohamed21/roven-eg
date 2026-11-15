@@ -322,6 +322,7 @@
         html {
             width: 100% !important;
             max-width: 100% !important;
+            overflow-x: clip !important;
             -webkit-text-size-adjust: 100%;
             -webkit-overflow-scrolling: touch;
         }
@@ -335,6 +336,7 @@
             flex-direction: column;
             width: 100% !important;
             max-width: 100% !important;
+            overflow-x: clip !important;
             position: relative;
             -webkit-overflow-scrolling: touch;
         }
@@ -470,15 +472,21 @@
             }
         }
 
+        /* ==========================================================================
+           ROVEN LUXURY STORE HEADER ARCHITECTURE (DESKTOP & MOBILE STABILITY)
+           ========================================================================== */
+        .store-header-wrapper {
+            width: 100% !important;
+            max-width: 100% !important;
+            position: relative;
+            z-index: 1030;
+        }
+
         .store-navbar {
             background: #EDEBDD;
             border-bottom: 2px solid #630000;
             box-shadow: 0 4px 18px rgba(27, 23, 23, 0.08);
             padding: 0.85rem 0;
-            position: -webkit-sticky !important;
-            position: sticky !important;
-            top: 0 !important;
-            z-index: 1030 !important;
             transition: box-shadow 0.25s ease, background-color 0.25s ease;
         }
 
@@ -490,8 +498,40 @@
         }
 
         @@media (max-width: 991.98px) {
+            .store-header-wrapper {
+                position: -webkit-sticky !important;
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 1030 !important;
+            }
+
+            .store-topbar {
+                padding-top: max(4px, env(safe-area-inset-top, 0px)) !important;
+                padding-bottom: 4px !important;
+            }
+
             .store-navbar {
-                padding: 0.55rem 0 0.45rem 0;
+                position: relative !important;
+                top: auto !important;
+                padding: 0.55rem 0 0.45rem 0 !important;
+            }
+
+            /* Fallback: if announcement topbar is not rendered, navbar absorbs safe area */
+            .store-header-wrapper > .store-navbar:first-child {
+                padding-top: max(0.55rem, env(safe-area-inset-top, 0px)) !important;
+            }
+        }
+
+        @@media (min-width: 992px) {
+            .store-header-wrapper {
+                position: static;
+            }
+
+            .store-navbar {
+                position: -webkit-sticky !important;
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 1030 !important;
             }
         }
 
@@ -2015,35 +2055,37 @@
     </div>
     }
 
-    <!-- Top Announcement Bar -->
-    @if (siteSetting.AnnouncementActive)
-    {
-        <div class="store-topbar">
-            <div class="container">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center text-truncate pe-2">
-                        <i class="fa-solid fa-spray-can-sparkles me-2 topbar-icon-gold"></i>
-                        <span class="topbar-announcement-text text-truncate">@siteSetting.AnnouncementText</span>
-                        <span class="topbar-divider d-none d-md-inline-block mx-2">|</span>
-                        <span class="d-none d-md-inline-flex align-items-center text-nowrap">
-                            <i class="fa-solid fa-shield-halved me-1 topbar-icon-gold"></i>
-                            <span>Cash on Delivery Available</span>
-                        </span>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <a asp-controller="OrderTracking" asp-action="Index" class="topbar-track-pill" title="Track Your Order">
-                            <i class="fa-solid fa-box-open me-1 topbar-icon-gold"></i>
-                            <span class="d-none d-sm-inline">Track Your Order</span>
-                            <span class="d-inline d-sm-none">تتبع طلبك</span>
-                        </a>
+    <!-- Unified Store Header Container (Preserves Sticky & Mobile Safe-Area Stability) -->
+    <header class="store-header-wrapper">
+        <!-- Top Announcement Bar -->
+        @if (siteSetting.AnnouncementActive)
+        {
+            <div class="store-topbar">
+                <div class="container">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center text-truncate pe-2">
+                            <i class="fa-solid fa-spray-can-sparkles me-2 topbar-icon-gold"></i>
+                            <span class="topbar-announcement-text text-truncate">@siteSetting.AnnouncementText</span>
+                            <span class="topbar-divider d-none d-md-inline-block mx-2">|</span>
+                            <span class="d-none d-md-inline-flex align-items-center text-nowrap">
+                                <i class="fa-solid fa-shield-halved me-1 topbar-icon-gold"></i>
+                                <span>Cash on Delivery Available</span>
+                            </span>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <a asp-controller="OrderTracking" asp-action="Index" class="topbar-track-pill" title="Track Your Order">
+                                <i class="fa-solid fa-box-open me-1 topbar-icon-gold"></i>
+                                <span class="d-none d-sm-inline">Track Your Order</span>
+                                <span class="d-inline d-sm-none">تتبع طلبك</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
+        }
 
-    <!-- Main Store Navigation Header (ROVEN Haute Parfumerie) -->
-    <header class="store-navbar">
+        <!-- Main Store Navigation Header (ROVEN Haute Parfumerie) -->
+        <nav class="store-navbar">
         <div class="container">
             <div class="row align-items-center g-2 g-xl-3 flex-nowrap">
                 <!-- Left: Mobile Menu Toggle & Brand Logo (Zero Hover Effect) -->
@@ -2109,6 +2151,7 @@
                 </a>
             </div>
         </div>
+        </nav>
     </header>
 
     <!-- Maison ROVEN Luxury Mobile Navigation Drawer -->
