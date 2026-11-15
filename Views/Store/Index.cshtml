@@ -1,12 +1,645 @@
 @model Stockify.ViewModels.Store.StoreCatalogViewModel
 @{
-    Layout = "_StoreLayout";
+    var isAjax = (ViewData["IsAjax"] as bool? == true) || (Context.Request.Headers["X-Requested-With"] == "XMLHttpRequest");
+    Layout = isAjax ? null : "_StoreLayout";
     var catTitle = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "كتالوج عطور روفان الفاخرة | All ROVEN Fragrances" : $"عطور {Model.SelectedCategoryName} | دار روفان ROVEN";
     ViewData["Title"] = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "كتالوج عطور روفان الرسمية | ROVEN Haute Parfumerie" : $"عطور {Model.SelectedCategoryName} | دار روفان ROVEN";
     ViewData["MetaDescription"] = $"تسوق أرقى تشكيلات عطور روفان (Maison ROVEN) الأصلية في مصر. عطور نيش وExtraits de Parfum بتركيز 30% مع ثبات وفوحان فائق يدوم طويلاً، وشحن وتوصيل فوري مع المعاينة قبل الدفع.";
+    var activeFiltersCount = (Model.SelectedCategoryId.HasValue ? 1 : 0) + (Model.InStockOnly ? 1 : 0);
 }
 
-<div class="container py-4">
+<style>
+/* ==========================================================================
+   MAISON ROVEN — HAUTE PARFUMERIE CATALOG FILTER STYLING
+   ========================================================================== */
+.roven-catalog-container {
+    min-height: 70vh;
+    padding-top: 1.5rem !important;
+    padding-bottom: 5.5rem !important;
+    margin-bottom: 2rem !important;
+}
+
+.roven-filter-sidebar-col {
+    position: relative;
+}
+
+.roven-filter-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    border: 1px solid rgba(181, 141, 74, 0.22);
+    box-shadow: 0 10px 32px rgba(27, 23, 23, 0.04);
+    padding: 1.25rem 1.15rem;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.roven-filter-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #810100 0%, #b58d4a 50%, #810100 100%);
+}
+
+.roven-filter-card:hover {
+    border-color: rgba(181, 141, 74, 0.38);
+    box-shadow: 0 14px 40px rgba(27, 23, 23, 0.07);
+}
+
+/* Header */
+.roven-filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(181, 141, 74, 0.16);
+}
+
+.roven-filter-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.roven-filter-icon-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(129, 1, 0, 0.08) 0%, rgba(181, 141, 74, 0.14) 100%);
+    border: 1px solid rgba(181, 141, 74, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #810100;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 8px rgba(181, 141, 74, 0.12);
+}
+
+.roven-filter-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.22rem;
+    font-weight: 700;
+    color: #1B1717;
+    margin: 0;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.roven-filter-active-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #810100;
+    color: #FFFFFF;
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.roven-filter-reset-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #8a6519;
+    text-decoration: none;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(181, 141, 74, 0.08);
+    border: 1px solid rgba(181, 141, 74, 0.2);
+    transition: all 0.25s ease;
+}
+
+.roven-filter-reset-link:hover {
+    color: #810100;
+    background: rgba(129, 1, 0, 0.08);
+    border-color: rgba(129, 1, 0, 0.25);
+    transform: translateY(-1px);
+}
+
+/* Category Section */
+.roven-filter-section-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #8c8278;
+    margin-bottom: 0.85rem;
+}
+
+.roven-category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.roven-category-item {
+    position: relative;
+    cursor: pointer;
+    margin: 0;
+    display: block;
+}
+
+.roven-category-item input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.roven-category-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #4A423D;
+    font-size: 0.86rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    user-select: none;
+}
+
+.roven-category-item:hover .roven-category-label {
+    background: #FAF9F5;
+    color: #1B1717;
+    border-color: rgba(181, 141, 74, 0.2);
+    transform: translateX(2px);
+}
+
+.roven-cat-left {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+/* Custom luxury radio indicator */
+.roven-custom-radio {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(181, 141, 74, 0.45);
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.22s ease;
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    color: #FFFFFF;
+}
+
+.roven-cat-name {
+    letter-spacing: 0.2px;
+    text-transform: capitalize;
+}
+
+.roven-cat-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: rgba(181, 141, 74, 0.1);
+    color: #8a6519;
+    letter-spacing: 0.02em;
+    transition: all 0.22s ease;
+}
+
+/* Checked State */
+.roven-category-item input[type="radio"]:checked + .roven-category-label {
+    background: linear-gradient(135deg, rgba(223, 177, 91, 0.14) 0%, rgba(129, 1, 0, 0.04) 100%);
+    border-color: rgba(181, 141, 74, 0.45);
+    color: #1B1717;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(181, 141, 74, 0.08);
+}
+
+.roven-category-item input[type="radio"]:checked + .roven-category-label .roven-custom-radio {
+    background: #810100;
+    border-color: #810100;
+    box-shadow: 0 0 0 3px rgba(181, 141, 74, 0.28);
+}
+
+.roven-category-item input[type="radio"]:not(:checked) + .roven-category-label .roven-custom-radio i {
+    display: none;
+}
+
+.roven-category-item input[type="radio"]:checked + .roven-category-label .roven-cat-count {
+    background: linear-gradient(135deg, #b58d4a 0%, #8a6519 100%);
+    color: #FFFFFF;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(138, 101, 25, 0.25);
+}
+
+/* In-Stock Toggle Luxury Card */
+.roven-stock-toggle-box {
+    margin-top: 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(181, 141, 74, 0.16);
+}
+
+.roven-stock-toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 12px;
+    border-radius: 14px;
+    background: #FAF9F5;
+    border: 1px solid rgba(181, 141, 74, 0.2);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    user-select: none;
+    margin: 0;
+}
+
+.roven-stock-toggle-label:hover {
+    border-color: rgba(181, 141, 74, 0.45);
+    background: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(27, 23, 23, 0.04);
+}
+
+.roven-stock-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.roven-stock-icon {
+    font-size: 1rem;
+    color: #810100;
+}
+
+.roven-stock-text-main {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #1B1717;
+    display: block;
+    line-height: 1.2;
+}
+
+.roven-stock-text-sub {
+    font-size: 0.7rem;
+    color: #8c8278;
+    display: block;
+    margin-top: 2px;
+}
+
+/* Custom Luxury Toggle Switch */
+.roven-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.roven-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.roven-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ded9cd;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 34px;
+}
+
+.roven-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.roven-switch input:checked + .roven-slider {
+    background: linear-gradient(135deg, #810100 0%, #b58d4a 100%);
+    box-shadow: 0 0 10px rgba(181, 141, 74, 0.35);
+}
+
+.roven-switch input:checked + .roven-slider:before {
+    transform: translateX(20px);
+}
+
+/* Mobile Filter Trigger Button & Collapsible */
+.roven-mobile-filter-bar {
+    display: none;
+    margin-bottom: 1.25rem;
+}
+
+@@media (max-width: 991.98px) {
+    .roven-mobile-filter-bar {
+        display: block;
+    }
+    .roven-filter-sidebar-col {
+        margin-bottom: 0.5rem;
+    }
+    .roven-filter-card {
+        padding: 1.25rem 1.1rem;
+    }
+    .roven-filter-collapse-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 18px;
+        background: #FFFFFF;
+        border: 1px solid rgba(181, 141, 74, 0.28);
+        border-radius: 16px;
+        font-weight: 600;
+        font-size: 0.92rem;
+        color: #1B1717;
+        box-shadow: 0 4px 16px rgba(27, 23, 23, 0.04);
+        transition: all 0.25s ease;
+    }
+    .roven-filter-collapse-btn:hover,
+    .roven-filter-collapse-btn:focus {
+        border-color: var(--rv-gold, #b58d4a);
+        color: #810100;
+    }
+    .roven-filter-card.collapse:not(.show) {
+        display: none !important;
+    }
+    .roven-filter-card.collapse.show {
+        display: block !important;
+        animation: rvFadeIn 0.3s ease;
+    }
+}
+
+@@keyframes rvFadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@@media (min-width: 992px) {
+    .roven-filter-sidebar-col {
+        position: relative;
+    }
+    .roven-filter-card {
+        position: -webkit-sticky !important;
+        position: sticky !important;
+        top: 95px !important;
+        margin-bottom: 0 !important;
+        max-height: calc(100vh - 125px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+    .roven-filter-card::-webkit-scrollbar {
+        width: 4px;
+    }
+    .roven-filter-card::-webkit-scrollbar-thumb {
+        background: rgba(181, 141, 74, 0.3);
+        border-radius: 4px;
+    }
+}
+
+/* ==========================================================================
+   MAISON ROVEN — HAUTE PARFUMERIE LUXURY PRODUCT CARD
+   ========================================================================== */
+.roven-store-flacon-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(181, 141, 74, 0.22);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(27, 23, 23, 0.04);
+    position: relative;
+}
+
+.roven-store-flacon-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(129, 1, 0, 0.08), 0 4px 16px rgba(181, 141, 74, 0.12);
+    border-color: rgba(181, 141, 74, 0.48);
+}
+
+.roven-store-flacon-card .product-image-container {
+    background: radial-gradient(circle at 50% 40%, #FFFFFF 0%, #FAF8F3 100%);
+    overflow: hidden;
+    position: relative;
+    border-bottom: 1px solid rgba(181, 141, 74, 0.14);
+    height: 290px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.roven-store-flacon-card .product-image-container img {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.roven-store-flacon-card:hover .product-image-container img {
+    transform: scale(1.05);
+}
+
+.roven-product-cat-wrap {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.55rem;
+}
+
+.roven-product-cat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    color: #926d2e;
+    background: linear-gradient(135deg, rgba(181, 141, 74, 0.12) 0%, rgba(129, 1, 0, 0.04) 100%);
+    border: 1px solid rgba(181, 141, 74, 0.26);
+    padding: 3.5px 11px;
+    border-radius: 999px;
+    transition: all 0.25s ease;
+    line-height: 1.2;
+}
+
+.roven-cat-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #b58d4a, #810100);
+    box-shadow: 0 0 5px rgba(181, 141, 74, 0.6);
+}
+
+.roven-store-flacon-card:hover .roven-product-cat-badge {
+    background: linear-gradient(135deg, rgba(181, 141, 74, 0.22) 0%, rgba(129, 1, 0, 0.08) 100%);
+    border-color: rgba(181, 141, 74, 0.5);
+    color: #7b591d;
+    transform: translateY(-1px);
+}
+
+.roven-product-title {
+    font-family: 'Playfair Display', Didot, 'Cinzel', Georgia, serif;
+    font-size: 1.32rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.6px;
+    margin: 0 0 0.4rem 0;
+    text-transform: capitalize;
+}
+
+.roven-product-title a {
+    color: #1B1717;
+    text-decoration: none;
+    transition: color 0.25s ease;
+    display: inline-block;
+}
+
+.roven-store-flacon-card:hover .roven-product-title a {
+    color: #810100;
+}
+
+.roven-product-tagline {
+    font-size: 0.72rem;
+    color: #8c8278;
+    letter-spacing: 0.8px;
+    margin-bottom: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.roven-product-tagline::before {
+    content: '';
+    display: inline-block;
+    width: 14px;
+    height: 1px;
+    background: rgba(181, 141, 74, 0.5);
+}
+
+.roven-card-footer {
+    margin-top: auto;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(181, 141, 74, 0.16) !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.roven-price-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #8c8278;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.roven-price-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #810100;
+    line-height: 1;
+}
+
+.roven-price-curr {
+    font-size: 0.74rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #8a6519;
+    font-weight: 700;
+    margin-inline-start: 2px;
+}
+
+.roven-btn-add-bag {
+    background: #1B1717;
+    color: #FAF9F5;
+    border: 1px solid rgba(181, 141, 74, 0.35);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(27, 23, 23, 0.12);
+}
+
+.roven-btn-add-bag:hover {
+    background: #810100;
+    color: #FFFFFF;
+    border-color: #810100;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(129, 1, 0, 0.28);
+}
+
+.roven-badge-featured {
+    background: linear-gradient(135deg, #810100 0%, #b58d4a 100%);
+    color: #FFFFFF;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    box-shadow: 0 4px 12px rgba(129, 1, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    display: inline-flex;
+    align-items: center;
+}
+
+.roven-badge-out-of-stock {
+    background: rgba(27, 23, 23, 0.88);
+    backdrop-filter: blur(6px);
+    color: #ded9cd;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    border: 1px solid rgba(181, 141, 74, 0.25);
+    display: inline-flex;
+    align-items: center;
+}
+</style>
+
+<div class="container roven-catalog-container">
     <!-- Luxury Maison ROVEN Breadcrumb -->
     <nav aria-label="breadcrumb">
         <div class="roven-breadcrumb-nav">
@@ -28,16 +661,52 @@
         </div>
     </nav>
 
+    <!-- Mobile Filter Toggle Bar -->
+    <div class="roven-mobile-filter-bar d-lg-none">
+        <button class="roven-filter-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#rovenFilterCard" aria-expanded="@(activeFiltersCount > 0 ? "true" : "false")" aria-controls="rovenFilterCard">
+            <span class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-sliders" style="color: #810100;"></i>
+                <span>تصفية واختيار العطور (Filters)</span>
+                @if (activeFiltersCount > 0)
+                {
+                    <span class="roven-filter-active-count">@activeFiltersCount</span>
+                }
+            </span>
+            <i class="fa-solid fa-chevron-down text-muted"></i>
+        </button>
+    </div>
+
     <div class="row g-4">
         <!-- Filter Sidebar -->
-        <div class="col-12 col-lg-3">
-            <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 90px; z-index: 10;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-funnel text-primary me-2"></i>Filters</h5>
-                    <a asp-action="Index" class="small text-decoration-none text-muted">Clear All</a>
+        <div class="col-12 col-lg-3 roven-filter-sidebar-col">
+            <div class="roven-filter-card collapse d-lg-block @(activeFiltersCount > 0 ? "show" : "")" id="rovenFilterCard">
+                <div class="roven-filter-header">
+                    <div class="roven-filter-title-wrap">
+                        <div class="roven-filter-icon-badge" aria-hidden="true">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <h5 class="roven-filter-title">
+                            Filters
+                            @if (activeFiltersCount > 0)
+                            {
+                                <span class="roven-filter-active-count" title="@activeFiltersCount فلتر نشط">@activeFiltersCount</span>
+                            }
+                        </h5>
+                    </div>
+                    @if (activeFiltersCount > 0 || !string.IsNullOrWhiteSpace(Model.SearchTerm))
+                    {
+                        <a asp-action="Index" onclick="applyFilterAjax(this.href); return false;" class="roven-filter-reset-link" title="إلغاء جميع الفلاتر">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>Clear All</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="text-muted small" style="font-size: 0.76rem; letter-spacing: 0.5px;">All Filters</span>
+                    }
                 </div>
 
-                <form method="get" asp-action="Index" id="catalog-filter-form">
+                <form method="get" asp-action="Index" id="catalog-filter-form" onsubmit="event.preventDefault(); applyFilterAjax();">
                     <!-- Search Field Preservation -->
                     @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
                     {
@@ -48,43 +717,62 @@
                     <input type="hidden" name="sort" id="form-sort-input" value="@Model.CurrentSort" />
 
                     <!-- Categories Section -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-secondary small text-uppercase mb-2">Category</label>
-                        <div class="d-flex flex-column gap-2">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="categoryId" id="cat-all" value="" @(Model.SelectedCategoryId == null ? "checked" : "") onchange="this.form.submit()" />
-                                <label class="form-check-label small d-flex justify-content-between" for="cat-all">
-                                    <span>All Categories</span>
-                                </label>
-                            </div>
+                    <div class="mb-2">
+                        <div class="roven-filter-section-label">
+                            <span>CATEGORY</span>
+                            <span class="text-muted font-monospace" style="font-size: 0.68rem;">@((Model.Categories?.Count ?? 0) + 1) ITEMS</span>
+                        </div>
+                        <div class="roven-category-list">
+                            <!-- All Categories Item -->
+                            <label class="roven-category-item" for="cat-all">
+                                <input type="radio" name="categoryId" id="cat-all" value="" @(Model.SelectedCategoryId == null ? "checked" : "") onchange="applyFilterAjax()" />
+                                <span class="roven-category-label">
+                                    <span class="roven-cat-left">
+                                        <span class="roven-custom-radio"><i class="fa-solid fa-check"></i></span>
+                                        <span class="roven-cat-name">All Categories</span>
+                                    </span>
+                                    <span class="roven-cat-count">@Model.TotalCount</span>
+                                </span>
+                            </label>
+
                             @foreach (var c in Model.Categories)
                             {
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="categoryId" id="cat-@c.Id" value="@c.Id" @(Model.SelectedCategoryId == c.Id ? "checked" : "") onchange="this.form.submit()" />
-                                    <label class="form-check-label small d-flex justify-content-between" for="cat-@c.Id">
-                                        <span>@c.Name</span>
-                                        <span class="text-muted">(@c.ProductsCount)</span>
-                                    </label>
-                                </div>
+                                <label class="roven-category-item" for="cat-@c.Id">
+                                    <input type="radio" name="categoryId" id="cat-@c.Id" value="@c.Id" @(Model.SelectedCategoryId == c.Id ? "checked" : "") onchange="applyFilterAjax()" />
+                                    <span class="roven-category-label">
+                                        <span class="roven-cat-left">
+                                            <span class="roven-custom-radio"><i class="fa-solid fa-check"></i></span>
+                                            <span class="roven-cat-name">@c.Name</span>
+                                        </span>
+                                        <span class="roven-cat-count">@c.ProductsCount</span>
+                                    </span>
+                                </label>
                             }
                         </div>
                     </div>
 
-                    <!-- In-Stock Only Switch -->
-                    <div class="mb-4 pt-3 border-top">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="inStockOnly" value="true" id="inStockCheck" @(Model.InStockOnly ? "checked" : "") onchange="this.form.submit()" />
-                            <label class="form-check-label small fw-semibold" for="inStockCheck">
-                                In-Stock Only
-                            </label>
-                        </div>
+                    <!-- In-Stock Only Switch Box -->
+                    <div class="roven-stock-toggle-box">
+                        <label class="roven-stock-toggle-label" for="inStockCheck">
+                            <div class="roven-stock-meta">
+                                <span class="roven-stock-icon"><i class="fa-solid fa-boxes-stacked"></i></span>
+                                <div>
+                                    <span class="roven-stock-text-main">In-Stock Only</span>
+                                    <span class="roven-stock-text-sub">جاهز للتوصيل الفوري</span>
+                                </div>
+                            </div>
+                            <div class="roven-switch">
+                                <input type="checkbox" name="inStockOnly" value="true" id="inStockCheck" @(Model.InStockOnly ? "checked" : "") onchange="applyFilterAjax()" />
+                                <span class="roven-slider"></span>
+                            </div>
+                        </label>
                     </div>
                 </form>
             </div>
         </div>
 
         <!-- Product Grid Area -->
-        <div class="col-12 col-lg-9">
+        <div class="col-12 col-lg-9" id="rovenProductGridCol">
             @if (!string.IsNullOrWhiteSpace(Model.SearchCorrectionNotice))
             {
                 <div class="alert border-0 shadow-xs rounded-4 mb-3 d-flex align-items-center gap-3 p-3" style="background: linear-gradient(135deg, rgba(99, 0, 0, 0.08) 0%, rgba(129, 1, 0, 0.04) 100%); border-right: 4px solid #630000 !important;">
@@ -166,21 +854,21 @@
                         {
                             <span class="badge bg-light text-dark border d-flex align-items-center gap-1">
                                 Search: @Model.SearchTerm
-                                <a asp-action="Index" asp-route-categoryId="@Model.SelectedCategoryId" asp-route-sort="@Model.CurrentSort" class="text-secondary text-decoration-none"><i class="bi bi-x"></i></a>
+                                <a asp-action="Index" asp-route-categoryId="@Model.SelectedCategoryId" asp-route-sort="@Model.CurrentSort" onclick="applyFilterAjax(this.href); return false;" class="text-secondary text-decoration-none"><i class="bi bi-x"></i></a>
                             </span>
                         }
                         @if (Model.SelectedCategoryId.HasValue)
                         {
                             <span class="badge bg-light text-dark border d-flex align-items-center gap-1">
                                 Category: @Model.SelectedCategoryName
-                                <a asp-action="Index" asp-route-search="@Model.SearchTerm" asp-route-sort="@Model.CurrentSort" class="text-secondary text-decoration-none"><i class="bi bi-x"></i></a>
+                                <a asp-action="Index" asp-route-search="@Model.SearchTerm" asp-route-sort="@Model.CurrentSort" onclick="applyFilterAjax(this.href); return false;" class="text-secondary text-decoration-none"><i class="bi bi-x"></i></a>
                             </span>
                         }
                         @if (Model.InStockOnly)
                         {
                             <span class="badge bg-light text-dark border d-flex align-items-center gap-1">
                                 In Stock Only
-                                <a asp-action="Index" asp-route-categoryId="@Model.SelectedCategoryId" asp-route-search="@Model.SearchTerm" asp-route-sort="@Model.CurrentSort" class="text-secondary text-decoration-none"><i class="bi bi-x"></i></a>
+                                <a asp-action="Index" asp-route-categoryId="@Model.SelectedCategoryId" asp-route-search="@Model.SearchTerm" asp-route-sort="@Model.CurrentSort" onclick="applyFilterAjax(this.href); return false;" class="text-secondary text-decoration-none"><i class="bi bi-x"></i></a>
                             </span>
                         }
                     </div>
@@ -188,94 +876,317 @@
             </div>
 
             <!-- Products Grid -->
-            @if (Model.Products.Any())
-            {
-                <div class="row g-4">
-                    @foreach (var product in Model.Products)
-                    {
-                        <div class="col-12 col-sm-6 col-xl-4">
-                            <div class="product-card" data-details-url="@Url.Action("Details", "Store", new { id = product.Id })">
-                                <a asp-action="Details" asp-route-id="@product.Id" class="product-image-container d-block text-decoration-none position-relative" title="عرض تفاصيل عطر @product.Name">
-                                    @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
-                                    {
-                                        <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='/images/products/perfume_default.svg'" />
-                                    }
-                                    else
-                                    {
-                                        <i class="fa-solid fa-spray-can-sparkles text-muted display-4"></i>
-                                    }
+            @{
+                var catalogList = (Model.AllProducts != null && Model.AllProducts.Any()) ? Model.AllProducts : Model.Products;
+                var hasVisibleProducts = Model.Products != null && Model.Products.Any();
+            }
+            <div class="row g-4" id="rovenProductGridRow">
+                @foreach (var product in catalogList)
+                {
+                    var isInitiallyVisible = (!Model.SelectedCategoryId.HasValue || product.CategoryId == Model.SelectedCategoryId.Value)
+                                          && (!Model.InStockOnly || !product.IsOutOfStock)
+                                          && (string.IsNullOrWhiteSpace(Model.SearchTerm) || product.Name.Contains(Model.SearchTerm, StringComparison.OrdinalIgnoreCase));
+                    <div class="col-12 col-sm-6 col-xl-4 roven-catalog-card-col"
+                         data-product-id="@product.Id"
+                         data-category-id="@product.CategoryId"
+                         data-in-stock="@(!product.IsOutOfStock ? "true" : "false")"
+                         data-price="@product.Price"
+                         data-name="@product.Name.ToLowerInvariant()"
+                         style="@(isInitiallyVisible ? "" : "display: none;")">
+                        <div class="product-card roven-store-flacon-card" data-details-url="@Url.Action("Details", "Store", new { id = product.Id })">
+                            <a asp-action="Details" asp-route-id="@product.Id" class="product-image-container d-block text-decoration-none position-relative" title="عرض تفاصيل عطر @product.Name">
+                                @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                                {
+                                    <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='/images/products/perfume_default.svg'" />
+                                }
+                                else
+                                {
+                                    <i class="fa-solid fa-spray-can-sparkles text-muted display-4"></i>
+                                }
 
-                                    @if (product.IsFeatured)
-                                    {
-                                        <div class="position-absolute top-0 end-0 m-2">
-                                            <span class="badge shadow-sm" style="background-color: #630000; color: #EDEBDD;"><i class="fa-solid fa-gem me-1" style="color: #EDEBDD;"></i>Featured</span>
+                                @if (product.IsFeatured)
+                                {
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <span class="roven-badge-featured"><i class="fa-solid fa-gem me-1 text-warning"></i>Featured</span>
+                                    </div>
+                                }
+
+                                @if (product.IsOutOfStock)
+                                {
+                                    <div class="position-absolute bottom-0 start-0 m-2">
+                                        <span class="roven-badge-out-of-stock"><i class="fa-solid fa-clock-rotate-left me-1"></i>Allocated</span>
+                                    </div>
+                                }
+                            </a>
+
+                            <div class="p-3 d-flex flex-column flex-grow-1">
+                                <div class="roven-product-cat-wrap">
+                                    <span class="roven-product-cat-badge">
+                                        <span class="roven-cat-dot" aria-hidden="true"></span>
+                                        <span>@product.CategoryName</span>
+                                    </span>
+                                </div>
+
+                                <h4 class="roven-product-title">
+                                    <a asp-action="Details" asp-route-id="@product.Id" title="عرض تفاصيل عطر @product.Name">
+                                        @product.Name
+                                    </a>
+                                </h4>
+
+                                <div class="roven-product-tagline">
+                                    <span>@(string.IsNullOrWhiteSpace(product.FragranceTagline) ? Model.DefaultFragranceTagline : product.FragranceTagline)</span>
+                                </div>
+
+                                <div class="roven-card-footer">
+                                    <div>
+                                        <div class="roven-price-label">Price</div>
+                                        <div class="roven-price-val">
+                                            @product.Price.ToString("N2") <span class="roven-price-curr">EGP</span>
                                         </div>
-                                    }
+                                    </div>
 
                                     @if (product.IsOutOfStock)
                                     {
-                                        <div class="position-absolute bottom-0 start-0 m-2">
-                                            <span class="badge bg-secondary shadow-sm">Allocated</span>
-                                        </div>
+                                        <button class="btn btn-sm btn-secondary rounded-pill px-3 py-1" disabled style="font-size: 0.78rem;">Unavailable</button>
                                     }
-                                </a>
-
-                                <div class="p-3 d-flex flex-column flex-grow-1">
-                                    <div class="small mb-1" style="color: #6c6358;">@product.CategoryName</div>
-                                    <h6 class="fw-bold mb-1 line-clamp-2">
-                                        <a asp-action="Details" asp-route-id="@product.Id" class="text-decoration-none" style="color: #1B1717;">
-                                            @product.Name
-                                        </a>
-                                    </h6>
-                                    <div class="font-monospace small mb-2" style="color: #8c8374;">SKU: @product.Sku</div>
-
-                                    <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between" style="border-color: #e8e3d5 !important;">
-                                        <div>
-                                            <div class="small" style="color: #6c6358;">Price</div>
-                                            <div class="fw-bold fs-5" style="color: #630000;">@product.Price.ToString("N2") <span class="fs-6 fw-normal" style="color: #6c6358;">EGP</span></div>
-                                        </div>
-
-                                        @if (product.IsOutOfStock)
-                                        {
-                                            <button class="btn btn-sm btn-secondary" disabled>Unavailable</button>
-                                        }
-                                        else
-                                        {
-                                            <button type="button" class="btn btn-sm px-3 py-1 rounded-pill d-inline-flex align-items-center gap-1 shadow-xs" style="background-color: #630000; color: #EDEBDD; border: 1px solid #810100;" onclick="window.addStoreItemToCart(@product.Id, 1, this)" title="Add to Bag">
-                                                <i class="fa-solid fa-bag-shopping"></i> Add
-                                            </button>
-                                        }
-                                    </div>
+                                    else
+                                    {
+                                        <button type="button" class="roven-btn-add-bag" onclick="window.addStoreItemToCart(@product.Id, 1, this)" title="Add to Bag">
+                                            <i class="fa-solid fa-bag-shopping"></i><span>Add</span>
+                                        </button>
+                                    }
                                 </div>
                             </div>
                         </div>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="card border-0 shadow-sm p-5 text-center">
-                    <i class="bi bi-search text-muted display-3 mb-3"></i>
-                    <h4 class="fw-bold text-dark">No Products Found</h4>
-                    <p class="text-muted mb-4">We couldn't find any products matching your selected filters or search terms.</p>
-                    <div>
-                        <a asp-action="Index" class="btn btn-outline-primary">
-                            <i class="bi bi-arrow-counterclockwise me-1"></i>Reset All Filters
-                        </a>
+                    </div>
+                }
+
+                <!-- Empty State (Shown when 0 cards match current filters) -->
+                <div class="col-12 roven-empty-state" style="@(hasVisibleProducts ? "display: none;" : "")">
+                    <div class="card border-0 shadow-sm p-5 text-center">
+                        <i class="bi bi-search text-muted display-3 mb-3"></i>
+                        <h4 class="fw-bold text-dark">No Products Found</h4>
+                        <p class="text-muted mb-4">We couldn't find any products matching your selected filters or search terms.</p>
+                        <div>
+                            <a asp-action="Index" onclick="resetAllFiltersFast(); return false;" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i>Reset All Filters
+                            </a>
+                        </div>
                     </div>
                 </div>
-            }
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
 <script>
-    function applySorting(sortValue) {
+    function resetAllFiltersFast() {
         const form = document.getElementById('catalog-filter-form');
-        document.getElementById('form-sort-input').value = sortValue;
-        form.submit();
+        if (form) {
+            const allRadio = document.getElementById('cat-all');
+            if (allRadio) allRadio.checked = true;
+            const inStock = document.getElementById('inStockCheck');
+            if (inStock) inStock.checked = false;
+            const searchInput = form.querySelector('input[name="search"]');
+            if (searchInput) searchInput.value = '';
+            applyFilterAjax('/Store');
+        }
     }
+
+    function applySorting(sortValue) {
+        const sortInput = document.getElementById('form-sort-input');
+        if (sortInput) sortInput.value = sortValue;
+        applyFilterAjax();
+    }
+
+    function applyFilterAjax(customUrl = null) {
+        const form = document.getElementById('catalog-filter-form');
+        if (!form && !customUrl) return;
+
+        let selectedCatId = '';
+        let inStockOnly = false;
+        let sortValue = 'newest';
+        let searchTerm = '';
+
+        if (customUrl) {
+            try {
+                const urlObj = new URL(customUrl, window.location.origin);
+                selectedCatId = urlObj.searchParams.get('categoryId') || '';
+                inStockOnly = urlObj.searchParams.get('inStockOnly') === 'true';
+                sortValue = urlObj.searchParams.get('sort') || 'newest';
+                searchTerm = urlObj.searchParams.get('search') || '';
+
+                if (form) {
+                    const radios = form.querySelectorAll('input[name="categoryId"]');
+                    radios.forEach(r => { r.checked = (r.value === selectedCatId); });
+                    const stockCb = document.getElementById('inStockCheck');
+                    if (stockCb) stockCb.checked = inStockOnly;
+                    const sortInput = document.getElementById('form-sort-input');
+                    if (sortInput) sortInput.value = sortValue;
+                    const sortSelect = document.querySelector('select[onchange*="applySorting"]');
+                    if (sortSelect) sortSelect.value = sortValue;
+                }
+            } catch(e) {}
+        } else if (form) {
+            const catRadio = form.querySelector('input[name="categoryId"]:checked');
+            if (catRadio) selectedCatId = catRadio.value;
+            const stockCb = document.getElementById('inStockCheck');
+            if (stockCb) stockCb.checked = stockCb.checked;
+            const sortInput = document.getElementById('form-sort-input');
+            if (sortInput) sortValue = sortInput.value || 'newest';
+            const searchInput = form.querySelector('input[name="search"]');
+            if (searchInput) searchTerm = searchInput.value || '';
+        }
+
+        // ======================================================================
+        // 1. INSTANT CLIENT-SIDE FILTERING (0 MILLISECONDS LATENCY)
+        // ======================================================================
+        const cards = Array.from(document.querySelectorAll('.roven-catalog-card-col'));
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const cardCat = card.dataset.categoryId;
+            const cardInStock = card.dataset.inStock === 'true';
+            const cardName = card.dataset.name || '';
+
+            const catMatch = !selectedCatId || (cardCat === selectedCatId);
+            const stockMatch = !inStockOnly || cardInStock;
+            const searchMatch = !searchTerm || cardName.includes(searchTerm.toLowerCase());
+
+            if (catMatch && stockMatch && searchMatch) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Instant sorting in DOM if needed
+        const gridRow = document.getElementById('rovenProductGridRow');
+        if (gridRow && cards.length > 0) {
+            cards.sort((a, b) => {
+                const priceA = parseFloat(a.dataset.price) || 0;
+                const priceB = parseFloat(b.dataset.price) || 0;
+                const nameA = a.dataset.name || '';
+                const nameB = b.dataset.name || '';
+                const idA = parseInt(a.dataset.productId) || 0;
+                const idB = parseInt(b.dataset.productId) || 0;
+
+                if (sortValue === 'price_asc') return priceA - priceB;
+                if (sortValue === 'price_desc') return priceB - priceA;
+                if (sortValue === 'name_asc') return nameA.localeCompare(nameB);
+                if (sortValue === 'name_desc') return nameB.localeCompare(nameA);
+                return idB - idA;
+            });
+            cards.forEach(c => gridRow.appendChild(c));
+        }
+
+        // Update counter & title instantly
+        const countText = document.querySelector('#rovenProductGridCol .small.text-muted');
+        if (countText) {
+            countText.innerHTML = `Showing <strong>${visibleCount}</strong> product${visibleCount === 1 ? '' : 's'}${searchTerm ? ` matching "<strong>${searchTerm}</strong>"` : ''}`;
+        }
+
+        const headerTitle = document.querySelector('#rovenProductGridCol h4');
+        if (headerTitle) {
+            if (!selectedCatId) {
+                headerTitle.textContent = 'All Products';
+            } else {
+                const checkedRadio = document.querySelector(`input[name="categoryId"][value="${selectedCatId}"]`);
+                if (checkedRadio) {
+                    const label = checkedRadio.closest('label');
+                    const catNameEl = label ? label.querySelector('.roven-cat-name') : null;
+                    if (catNameEl) headerTitle.textContent = catNameEl.textContent.trim();
+                }
+            }
+        }
+
+        // Toggle empty state instantly
+        const emptyState = document.querySelector('.roven-empty-state');
+        if (emptyState) {
+            emptyState.style.display = (visibleCount === 0) ? '' : 'none';
+        }
+
+        // Update Clear All link in filter header
+        const filterHeader = document.querySelector('.roven-filter-head');
+        if (filterHeader) {
+            const hasActiveFilters = Boolean(selectedCatId || inStockOnly || searchTerm);
+            let clearLink = filterHeader.querySelector('.roven-filter-reset-link');
+            if (hasActiveFilters && !clearLink) {
+                const allFiltersSpan = filterHeader.querySelector('span.text-muted');
+                if (allFiltersSpan) allFiltersSpan.remove();
+                clearLink = document.createElement('a');
+                clearLink.className = 'roven-filter-reset-link';
+                clearLink.href = '/Store';
+                clearLink.onclick = function() { resetAllFiltersFast(); return false; };
+                clearLink.title = 'إلغاء جميع الفلاتر';
+                clearLink.innerHTML = '<i class="fa-solid fa-rotate-left"></i><span>Clear All</span>';
+                filterHeader.appendChild(clearLink);
+            } else if (!hasActiveFilters && clearLink) {
+                clearLink.remove();
+                const span = document.createElement('span');
+                span.className = 'text-muted small';
+                span.style.cssText = 'font-size: 0.76rem; letter-spacing: 0.5px;';
+                span.textContent = 'All Filters';
+                filterHeader.appendChild(span);
+            }
+        }
+
+        // ======================================================================
+        // 2. URL HISTORY UPDATE
+        // ======================================================================
+        let targetUrl;
+        if (customUrl) {
+            targetUrl = customUrl;
+        } else {
+            const params = new URLSearchParams();
+            if (selectedCatId) params.append('categoryId', selectedCatId);
+            if (inStockOnly) params.append('inStockOnly', 'true');
+            if (sortValue && sortValue !== 'newest') params.append('sort', sortValue);
+            if (searchTerm) params.append('search', searchTerm);
+            const qs = params.toString();
+            targetUrl = '/Store' + (qs ? ('?' + qs) : '');
+        }
+
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState({ url: targetUrl }, '', targetUrl);
+        }
+
+        // ======================================================================
+        // 3. SILENT BACKGROUND SYNC (Non-blocking, zero dimming, pure speed)
+        // ======================================================================
+        fetch(targetUrl, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.text();
+        })
+        .then(html => {
+            // Update active filters strip if present
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            const currentActiveTags = document.querySelector('#rovenProductGridCol .border-top.d-flex.flex-wrap');
+            const newActiveTags = doc.querySelector('#rovenProductGridCol .border-top.d-flex.flex-wrap');
+            if (currentActiveTags && newActiveTags) {
+                currentActiveTags.innerHTML = newActiveTags.innerHTML;
+            } else if (!currentActiveTags && newActiveTags) {
+                const headerCard = document.querySelector('#rovenProductGridCol .card');
+                if (headerCard) headerCard.appendChild(newActiveTags);
+            } else if (currentActiveTags && !newActiveTags) {
+                currentActiveTags.remove();
+            }
+        })
+        .catch(err => {
+            console.warn('Background filter sync note:', err);
+        });
+    }
+
+    window.addEventListener('popstate', function() {
+        applyFilterAjax(window.location.href);
+    });
 </script>
 }
 

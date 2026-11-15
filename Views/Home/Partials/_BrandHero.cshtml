@@ -1,0 +1,32 @@
+@model Stockify.ViewModels.Store.StoreHomeViewModel
+
+<!-- ======================================================================== -->
+<!-- 1. DEDICATED MAIN BRAND HERO SECTION (Full-Bleed Ultra-HD Luxury Visual) -->
+<!-- ======================================================================== -->
+<section id="mainBrandHero" class="main-brand-hero-section w-100 p-0 m-0 overflow-hidden position-relative">
+    <div class="main-brand-hero-wrapper w-100 p-0 m-0 position-relative overflow-hidden">
+        <a href="/Store" class="main-brand-hero-link d-block w-100 position-relative text-decoration-none" title="ROVEN FRAGRANCES — Your Safest Choice • Explore the Collection">
+            <picture class="main-brand-hero-picture d-block w-100">
+                <!-- Mobile / Small Screens (<= 768px): Approved Mobile Portrait Design -->
+                <source media="(max-width: 768px)" type="image/webp" srcset="/images/banners/roven-hero-main-sm.webp">
+                <source media="(max-width: 768px)" type="image/png" srcset="/images/banners/roven-hero-main-sm.png">
+
+                <!-- Desktop / Large Screens (>= 769px): Approved Desktop Landscape Design -->
+                <source media="(min-width: 769px)" type="image/webp" srcset="/images/banners/roven-hero-main.webp">
+                <source media="(min-width: 769px)" type="image/png" srcset="/images/banners/roven-hero-main.png">
+
+                <!-- Fallback Image for Legacy Browsers / SEO Crawlers -->
+                <img src="/images/banners/roven-hero-main.png" 
+                     alt="ROVEN FRAGRANCES — Your Safest Choice • Explore the Collection" 
+                     class="main-brand-hero-image d-block w-100" 
+                     width="1975"
+                     height="796"
+                     loading="eager" 
+                     fetchpriority="high"
+                     decoding="async" 
+                     draggable="false" 
+                     onerror="this.src='/images/banners/roven-hero-main.png'" />
+            </picture>
+        </a>
+    </div>
+</section>

@@ -1,0 +1,86 @@
+﻿@model Stockify.ViewModels.Store.StoreHomeViewModel
+@if (Model.Settings?.ShowFaqSection != false)
+{
+<section class="py-5 bg-white border-top border-bottom overflow-hidden w-100" style="border-color: #e8e3d5 !important;">
+    <div class="container" style="max-width: 860px;">
+        <div class="text-center mb-5">
+            <span class="badge badge-roven-cream px-3 py-2 rounded-pill fw-bold mb-2 shadow-sm d-inline-flex align-items-center gap-2">
+                <i class="fa-solid fa-gem" style="color: #630000;"></i>
+                <span>Maison ROVEN Clarifications</span>
+            </span>
+            <h3 class="fw-extrabold mb-1" style="color: #1B1717;">Frequently Asked Questions</h3>
+            <p class="small mb-0" style="color: #6c6358;">Everything you need to know about concentrations, parcel inspection, and authenticity</p>
+        </div>
+
+        <div class="accordion" id="homeFaqAccordion">
+            <!-- FAQ 1 -->
+            <div class="roven-faq-card">
+                <h2 class="accordion-header" id="faq-heading-1">
+                    <button class="accordion-button roven-faq-btn" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-1" aria-expanded="true" aria-controls="faq-collapse-1">
+                        <span class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-droplet" style="color: #810100;"></i>
+                            <span>What distinguishes an Extrait de Parfum from Eau de Parfum?</span>
+                        </span>
+                    </button>
+                </h2>
+                <div id="faq-collapse-1" class="accordion-collapse collapse show" aria-labelledby="faq-heading-1" data-bs-parent="#homeFaqAccordion">
+                    <div class="accordion-body roven-faq-body">
+                        ROVEN Extraits de Parfum contain <strong>30% or higher</strong> concentrations of pure perfume oil essences, offering an exceptionally rich and intimate sillage that endures for 24+ hours on fabrics and skin. Our Eaux de Parfum are concentrated at 20%, engineered for vibrant projection and refined daytime versatility.
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ 2 -->
+            <div class="roven-faq-card">
+                <h2 class="accordion-header" id="faq-heading-2">
+                    <button class="accordion-button roven-faq-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-2" aria-expanded="false" aria-controls="faq-collapse-2">
+                        <span class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-shield-halved" style="color: #630000;"></i>
+                            <span>How does Cash on Delivery (COD) inspection work?</span>
+                        </span>
+                    </button>
+                </h2>
+                <div id="faq-collapse-2" class="accordion-collapse collapse" aria-labelledby="faq-heading-2" data-bs-parent="#homeFaqAccordion">
+                    <div class="accordion-body roven-faq-body">
+                        No online credit card is required. You can complete your order instantly as a guest without creating an account. When the courier arrives, you have the right to inspect the parcel seal and external luxury packaging condition before handing over the payment in Egyptian Pounds (EGP).
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ 3 -->
+            <div class="roven-faq-card">
+                <h2 class="accordion-header" id="faq-heading-3">
+                    <button class="accordion-button roven-faq-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-3" aria-expanded="false" aria-controls="faq-collapse-3">
+                        <span class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-truck-fast" style="color: #810100;"></i>
+                            <span>What is the expected delivery timeframe?</span>
+                        </span>
+                    </button>
+                </h2>
+                <div id="faq-collapse-3" class="accordion-collapse collapse" aria-labelledby="faq-heading-3" data-bs-parent="#homeFaqAccordion">
+                    <div class="accordion-body roven-faq-body">
+                        Orders placed for Cairo and Giza are fulfilled within <strong>24 to 48 hours</strong>. Shipments to Alexandria, Delta, and Upper Egypt governorates are fulfilled within <strong>48 to 72 hours</strong> with real-time status updates and SMS notification.
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ 4 -->
+            <div class="roven-faq-card">
+                <h2 class="accordion-header" id="faq-heading-4">
+                    <button class="accordion-button roven-faq-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-collapse-4" aria-expanded="false" aria-controls="faq-collapse-4">
+                        <span class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-box-open" style="color: #630000;"></i>
+                            <span>How can I track my fragrance delivery?</span>
+                        </span>
+                    </button>
+                </h2>
+                <div id="faq-collapse-4" class="accordion-collapse collapse" aria-labelledby="faq-heading-4" data-bs-parent="#homeFaqAccordion">
+                    <div class="accordion-body roven-faq-body">
+                        Upon order confirmation, you receive a distinct tracking reference number (e.g. <code>ORD-20261105-XXXX</code>). Visit the <a asp-controller="OrderTracking" asp-action="Index" style="color: #630000; font-weight: 700; text-decoration: underline;">Track Order</a> page anytime to view the live multi-stage dispatch timeline of your flacon.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+}

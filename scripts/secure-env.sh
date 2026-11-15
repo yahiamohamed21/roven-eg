@@ -25,10 +25,10 @@ ConnectionStrings__DefaultConnection=Server=127.0.0.1,1433;Database=RovenEG;User
 ASPNETCORE_ENVIRONMENT=Production
 ASPNETCORE_URLS=http://127.0.0.1:5050
 
-# --- Cloudinary WebP Image Storage ---
-Cloudinary__CloudName=kwpsnuke
-Cloudinary__ApiKey=211752328484753
-Cloudinary__ApiSecret=Q7g0VQjOqWkOh_QUQqEieDo-2NE
+# --- Cloudinary WebP Image Storage (Injected from Environment / Secrets Manager) ---
+Cloudinary__CloudName=\${CLOUDINARY_CLOUD_NAME:-\"YOUR_CLOUDINARY_CLOUD_NAME\"}
+Cloudinary__ApiKey=\${CLOUDINARY_API_KEY:-\"YOUR_CLOUDINARY_API_KEY\"}
+Cloudinary__ApiSecret=\${CLOUDINARY_API_SECRET:-\"YOUR_CLOUDINARY_API_SECRET\"}
 EOF"
     echo "Secure environment file created successfully."
 else

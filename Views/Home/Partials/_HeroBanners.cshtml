@@ -1,0 +1,81 @@
+@model Stockify.ViewModels.Store.StoreHomeViewModel
+
+@{
+    var banners = Model.HeroBanners?
+        .Where(b => b.IsActive && 
+                    !b.DesktopImageUrl.Contains("roven_hero_ultrahd") && 
+                    !b.DesktopImageUrl.Contains("roven-hero-main"))
+        .ToList();
+
+    if (banners == null || banners.Count == 0)
+    {
+        banners = Model.HeroBanners?.Where(b => b.IsActive).ToList();
+    }
+}
+
+@if (banners != null && banners.Count > 0)
+{
+    <!-- ======================================================================== -->
+    <!-- PROMOTIONAL HERO BANNERS CAROUSEL (Contained In-Between Section)         -->
+    <!-- ======================================================================== -->
+    <section class="hero-banners-contained-section py-3 py-md-4">
+        <div class="container px-3 px-sm-4">
+            <div class="hero-banners-contained-wrapper rounded-4 overflow-hidden shadow-sm position-relative" style="border: 1px solid rgba(129, 1, 0, 0.12); background-color: #120909;">
+                @if (banners.Count > 1)
+                {
+                    <div id="heroHomeCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4500" data-bs-pause="hover" data-bs-touch="true">
+                        <!-- Carousel Indicators -->
+                        <div class="carousel-indicators mb-2 mb-md-3">
+                            @for (int i = 0; i < banners.Count; i++)
+                            {
+                                <button type="button" data-bs-target="#heroHomeCarousel" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)"></button>
+                            }
+                        </div>
+
+                        <!-- Carousel Slides -->
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < banners.Count; i++)
+                            {
+                                var banner = banners[i];
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <a href="@(string.IsNullOrWhiteSpace(banner.RedirectLink) ? "/Store" : banner.RedirectLink)" class="hero-banner-link d-block w-100" title="@banner.Title">
+                                        <picture>
+                                            @if (!string.IsNullOrWhiteSpace(banner.MobileImageUrl))
+                                            {
+                                                <source media="(max-width: 768px)" srcset="@banner.MobileImageUrl">
+                                            }
+                                            <img src="@banner.DesktopImageUrl" alt="@(string.IsNullOrWhiteSpace(banner.AltText) ? banner.Title : banner.AltText)" class="hero-banner-responsive-img d-block w-100" loading="@(i == 0 ? "eager" : "lazy")" draggable="false" onerror="this.src='/images/banners/roven-hero-main.png'" />
+                                        </picture>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Carousel Navigation Controls -->
+                        <button class="carousel-control-prev" type="button" data-bs-target="#heroHomeCarousel" data-bs-slide="prev" aria-label="Previous Banner">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#heroHomeCarousel" data-bs-slide="next" aria-label="Next Banner">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    var singleBanner = banners[0];
+                    <div class="w-100 p-0 m-0">
+                        <a href="@(string.IsNullOrWhiteSpace(singleBanner.RedirectLink) ? "/Store" : singleBanner.RedirectLink)" class="hero-banner-link d-block w-100" title="@singleBanner.Title">
+                            <picture>
+                                @if (!string.IsNullOrWhiteSpace(singleBanner.MobileImageUrl))
+                                {
+                                    <source media="(max-width: 768px)" srcset="@singleBanner.MobileImageUrl">
+                                }
+                                <img src="@singleBanner.DesktopImageUrl" alt="@(string.IsNullOrWhiteSpace(singleBanner.AltText) ? singleBanner.Title : singleBanner.AltText)" class="hero-banner-responsive-img d-block w-100" loading="eager" draggable="false" onerror="this.src='/images/banners/roven-hero-main.png'" />
+                            </picture>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}

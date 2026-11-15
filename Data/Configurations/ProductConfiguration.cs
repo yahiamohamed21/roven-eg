@@ -39,6 +39,9 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(p => p.IsFeatured)
             .HasDefaultValue(false);
+
+        builder.Property(p => p.IsBestSeller)
+            .HasDefaultValue(false);
     }
 }
 

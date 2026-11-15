@@ -1,0 +1,39 @@
+﻿@model Stockify.ViewModels.Store.StoreHomeViewModel
+@if (Model.Settings?.ShowNewsletterSection != false)
+{
+<section class="py-5 overflow-hidden w-100" style="background-color: #FAF9F5;">
+    <div class="container">
+        <div class="newsletter-card text-center">
+            <!-- Decorative Accent Badge -->
+            <span class="badge px-3 py-2 rounded-pill fw-semibold mb-3 shadow-sm d-inline-flex align-items-center gap-2" style="background-color: rgba(99, 0, 0, 0.45); color: #EDEBDD; border: 1px solid rgba(237, 235, 221, 0.25);">
+                <i class="fa-solid fa-gem" style="color: #EDEBDD;"></i>
+                <span>Exclusive ROVEN Privileges</span>
+            </span>
+
+            <h2 class="display-6 fw-extrabold mb-2 tracking-tight" style="color: #EDEBDD;">Unlock 10% Off Your First Flacon</h2>
+            <p class="small mb-4 mx-auto leading-relaxed" style="color: #EDEBDD; opacity: 0.85; max-width: 520px;">
+                Join the circle of ROVEN fragrance connoisseurs across Egypt. Receive private batch releases, private salon invitations, and exclusive discovery vouchers.
+            </p>
+
+            <!-- Sleek Unified Pill Input Bar -->
+            <div class="mx-auto" style="max-width: 540px;">
+                <form class="newsletter-pill-form" onsubmit="handleNewsletterSubmit(event)">
+                    <i class="fa-solid fa-envelope fs-5 ms-1 me-2 d-none d-sm-inline-block" style="color: #630000;"></i>
+                    <input type="email" id="newsletter-email" class="form-control" placeholder="Enter your email for private salon access..." required autocomplete="email" />
+                    <button type="submit" class="newsletter-btn d-flex align-items-center gap-2">
+                        <span>Get 10% Off</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Trust Features List -->
+            <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 gap-sm-4 mt-4 small" style="color: #EDEBDD; opacity: 0.85;">
+                <span class="d-flex align-items-center gap-1"><i class="fa-solid fa-circle-check fs-6" style="color: #EDEBDD;"></i> Zero spam guarantee</span>
+                <span class="d-flex align-items-center gap-1"><i class="fa-solid fa-bolt fs-6" style="color: #810100;"></i> Instant bespoke voucher</span>
+                <span class="d-flex align-items-center gap-1"><i class="fa-solid fa-circle-xmark fs-6" style="color: #EDEBDD;"></i> Unsubscribe anytime</span>
+            </div>
+        </div>
+    </div>
+</section>
+}

@@ -1,0 +1,32 @@
+﻿@model Stockify.ViewModels.Store.StoreHomeViewModel
+@if (Model.Settings?.MarqueeActive != false && !string.IsNullOrWhiteSpace(Model.Settings?.MarqueeText))
+{
+    var rawMarqueeText = Model.Settings?.MarqueeText ?? "OFFER 20% OFF ON ALL LUXURY EXTRAITS • كود الخصم: ROVEN20 • عطور أصلية بتركيز 30% زيوت نقية • شحن مجاني ودفع عند الاستلام مع المعاينة في كافة محافظات مصر";
+    var marqueeBadge = string.IsNullOrWhiteSpace(Model.Settings?.MarqueeBadgeText) ? "OFFER 20%" : Model.Settings.MarqueeBadgeText;
+    var speedSeconds = (Model.Settings?.MarqueeSpeedSeconds > 0) ? Model.Settings.MarqueeSpeedSeconds : 25;
+
+    <div class="roven-marquee-strip-wrapper w-100" style="--marquee-duration: @(speedSeconds)s;">
+        <div class="roven-marquee-container" dir="ltr" aria-label="Special Offers and Announcements">
+            <div class="roven-marquee-track">
+                @for (int i = 0; i < 4; i++)
+                {
+                    <div class="roven-marquee-group">
+                        <span class="roven-marquee-badge">@marqueeBadge</span>
+                        <span class="roven-marquee-text" dir="auto">@rawMarqueeText</span>
+                        <i class="fa-solid fa-gem roven-marquee-sparkle"></i>
+                    </div>
+                }
+            </div>
+            <div class="roven-marquee-track" aria-hidden="true">
+                @for (int i = 0; i < 4; i++)
+                {
+                    <div class="roven-marquee-group">
+                        <span class="roven-marquee-badge">@marqueeBadge</span>
+                        <span class="roven-marquee-text" dir="auto">@rawMarqueeText</span>
+                        <i class="fa-solid fa-gem roven-marquee-sparkle"></i>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

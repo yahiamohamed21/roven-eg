@@ -1,0 +1,56 @@
+@model Stockify.ViewModels.Store.StoreHomeViewModel
+@if (Model.Settings?.ShowTrustBadges != false)
+{
+    <!-- ======================================================================== -->
+    <!-- MAISON ROVEN TRUST & SERVICE GUARANTEES — STATIC 4-CARD SHOWCASE         -->
+    <!-- ======================================================================== -->
+    <section class="roven-trust-static-section py-3 py-md-4 w-100" aria-label="Maison Roven Trust &amp; Service Guarantees">
+        <div class="container px-3 px-sm-4">
+            <div class="row g-2 g-sm-3 g-lg-4">
+                <!-- 1. Complimentary Shipping -->
+                <div class="col-6 col-lg-3">
+                    <div class="roven-trust-static-card h-100">
+                        <div class="roven-trust-static-icon" style="background-color: rgba(99, 0, 0, 0.08); color: #630000;">
+                            <i class="fa-solid fa-truck-fast"></i>
+                        </div>
+                        <h6 class="roven-trust-static-title">Complimentary Shipping</h6>
+                        <p class="roven-trust-static-subtitle">Cairo &amp; Giza in 24h &bull; All in 48h</p>
+                    </div>
+                </div>
+
+                <!-- 2. COD Inspection -->
+                <div class="col-6 col-lg-3">
+                    <div class="roven-trust-static-card h-100">
+                        <div class="roven-trust-static-icon" style="background-color: rgba(129, 1, 0, 0.08); color: #810100;">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h6 class="roven-trust-static-title">COD Inspection</h6>
+                        <p class="roven-trust-static-subtitle">Verify parcel before payment</p>
+                    </div>
+                </div>
+
+                <!-- 3. 30% Pure Essences -->
+                <div class="col-6 col-lg-3">
+                    <div class="roven-trust-static-card h-100">
+                        <div class="roven-trust-static-icon" style="background-color: rgba(99, 0, 0, 0.08); color: #630000;">
+                            <i class="fa-solid fa-droplet"></i>
+                        </div>
+                        <h6 class="roven-trust-static-title">30% Pure Essences</h6>
+                        <p class="roven-trust-static-subtitle">Highest perfume concentration</p>
+                    </div>
+                </div>
+
+                <!-- 4. Fragrance Concierge -->
+                <div class="col-6 col-lg-3">
+                    <div class="roven-trust-static-card h-100">
+                        <div class="roven-trust-static-icon" style="background-color: rgba(27, 23, 23, 0.08); color: #1B1717;">
+                            <i class="fa-solid fa-gem"></i>
+                        </div>
+                        <h6 class="roven-trust-static-title">Fragrance Concierge</h6>
+                        <p class="roven-trust-static-subtitle">Direct phone &amp; WhatsApp styling</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}

@@ -21,6 +21,10 @@ public class ProductCreateViewModel
     [Display(Name = "Description")]
     public string? Description { get; set; }
 
+    [StringLength(200, ErrorMessage = "Fragrance tagline cannot exceed 200 characters.")]
+    [Display(Name = "تركيز العطر / الجملة التعريفية (Fragrance Tagline / Concentration)")]
+    public string? FragranceTagline { get; set; }
+
     [Required(ErrorMessage = "Price is required.")]
     [Range(0.01, 10000000.00, ErrorMessage = "Price must be greater than zero.")]
     [Display(Name = "Selling Price (EGP)")]
@@ -43,6 +47,12 @@ public class ProductCreateViewModel
     [Display(Name = "Product Image")]
     public IFormFile? ImageFile { get; set; }
 
+    [Display(Name = "Featured Product (عطر مميز)")]
+    public bool IsFeatured { get; set; } = false;
+
+    [Display(Name = "Best Seller (الأكثر طلباً)")]
+    public bool IsBestSeller { get; set; } = false;
+
     public IEnumerable<SelectListItem> CategoriesList { get; set; } = new List<SelectListItem>();
 }
 
@@ -64,6 +74,10 @@ public class ProductEditViewModel
     [Display(Name = "Description")]
     public string? Description { get; set; }
 
+    [StringLength(200, ErrorMessage = "Fragrance tagline cannot exceed 200 characters.")]
+    [Display(Name = "تركيز العطر / الجملة التعريفية (Fragrance Tagline / Concentration)")]
+    public string? FragranceTagline { get; set; }
+
     [Required(ErrorMessage = "Price is required.")]
     [Range(0.01, 10000000.00, ErrorMessage = "Price must be greater than zero.")]
     [Display(Name = "Selling Price (EGP)")]
@@ -83,6 +97,12 @@ public class ProductEditViewModel
 
     [Display(Name = "Product Status")]
     public bool IsActive { get; set; } = true;
+
+    [Display(Name = "Featured Product (عطر مميز)")]
+    public bool IsFeatured { get; set; } = false;
+
+    [Display(Name = "Best Seller (الأكثر طلباً)")]
+    public bool IsBestSeller { get; set; } = false;
 
     public string? ExistingImageUrl { get; set; }
 

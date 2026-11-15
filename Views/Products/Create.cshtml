@@ -67,6 +67,13 @@
                         </div>
 
                         <div class="col-12">
+                            <label asp-for="FragranceTagline" class="form-label small fw-semibold text-secondary">تركيز العطر / الجملة التعريفية (Fragrance Tagline / Concentration)</label>
+                            <input asp-for="FragranceTagline" class="form-control" placeholder="Extrait de Parfum • 30% Pure Oil" />
+                            <span asp-validation-for="FragranceTagline" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">الجملة التي تظهر أسفل اسم العطر في المتجر والكتالوج (مثل: Extrait de Parfum • 30% Pure Oil)</small>
+                        </div>
+
+                        <div class="col-12">
                             <label asp-for="Description" class="form-label small fw-semibold text-secondary"></label>
                             <textarea asp-for="Description" class="form-control" rows="3" placeholder="Detailed technical specifications, warranty, or product highlights..."></textarea>
                             <span asp-validation-for="Description" class="text-danger small"></span>

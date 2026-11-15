@@ -14,6 +14,10 @@ public class HomeSetting
     public string AnnouncementText { get; set; } = "Maison ROVEN • Complimentary Nationwide Delivery Across Egypt";
     public bool AnnouncementActive { get; set; } = true;
 
+    // Default Fragrance Tagline for Catalog & Products
+    [MaxLength(200)]
+    public string DefaultFragranceTagline { get; set; } = "Extrait de Parfum • 30% Pure Oil";
+
     // Hero Section (Slide 1)
     [MaxLength(300)]
     public string HeroTitle { get; set; } = "L'Art de l'Extrait • 30% Pure Oil Concentration";
@@ -55,6 +59,16 @@ public class HomeSetting
     public int SpotlightRemainingCount { get; set; } = 51;
     public bool SpotlightActive { get; set; } = true;
 
+    // Spotlight / Special Offers Section Customization
+    [MaxLength(150)]
+    public string SpotlightBadgeText { get; set; } = "EXCLUSIVE ATELIER OFFERS & DEALS";
+
+    [MaxLength(300)]
+    public string SpotlightTitle { get; set; } = "عروض وتخفيضات دار روفين الحصرية";
+
+    [MaxLength(600)]
+    public string SpotlightSubtitle { get; set; } = "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";
+
     // Infinite Moving Marquee Announcement Tape (Under Hero Banners)
     [MaxLength(500)]
     public string MarqueeText { get; set; } = "OFFER 20% OFF ON ALL LUXURY EXTRAITS • كود الخصم: ROVEN20 • عطور أصلية بتركيز 30% زيوت نقية • شحن مجاني ودفع عند الاستلام مع المعاينة في كافة محافظات مصر";
@@ -72,7 +86,21 @@ public class HomeSetting
     [MaxLength(300)]
     public string InstagramUrl { get; set; } = "https://instagram.com/roven.parfums";
     [MaxLength(100)]
-    public string WhatsAppNumber { get; set; } = "+201008889999";
+    public string WhatsAppNumber { get; set; } = "+201006856199";
+
+    [NotMapped]
+    public string NormalizedWhatsAppNumber => NormalizeWhatsAppNumber(WhatsAppNumber);
+
+    public static string NormalizeWhatsAppNumber(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return "201006856199";
+        var digits = new string(input.Where(char.IsDigit).ToArray());
+        if (string.IsNullOrEmpty(digits)) return "201006856199";
+        if (digits.StartsWith("00")) digits = digits.Substring(2);
+        if (digits.Length == 11 && digits.StartsWith("01")) digits = "2" + digits;
+        else if (digits.Length == 10 && (digits.StartsWith("10") || digits.StartsWith("11") || digits.StartsWith("12") || digits.StartsWith("15"))) digits = "20" + digits;
+        return digits;
+    }
     [MaxLength(100)]
     public string ContactPhone { get; set; } = "+20 (02) 19888";
     [MaxLength(150)]
@@ -83,6 +111,33 @@ public class HomeSetting
     public string AtelierName { get; set; } = "Zamalek & New Cairo Salons";
     [MaxLength(200)]
     public string AtelierAddress { get; set; } = "Cairo & Giza, Arab Republic of Egypt";
+
+    // Best Sellers Section Customization
+    [MaxLength(150)]
+    public string BestSellersBadgeText { get; set; } = "Most Requested";
+
+    [MaxLength(300)]
+    public string BestSellersTitle { get; set; } = "Top Acclaimed ROVEN Parfums";
+
+    public string BestSellersSubtitle { get; set; } = "The fragrances most cherished by our clientele across Egypt this month";
+
+    [MaxLength(500)]
+    public string? BestSellersProductIds { get; set; } = null;
+
+    // Featured Section Customization
+    [MaxLength(150)]
+    public string FeaturedBadgeText { get; set; } = "Master Distillations";
+
+    [MaxLength(300)]
+    public string FeaturedTitle { get; set; } = "Featured ROVEN Parfums";
+
+    public string FeaturedSubtitle { get; set; } = "Our most acclaimed fragrant creations formulated with precious Grasse and oriental oils";
+
+    [MaxLength(150)]
+    public string FeaturedExploreText { get; set; } = "Explore Full Collection";
+
+    [MaxLength(500)]
+    public string? FeaturedProductIds { get; set; } = null;
 
     // Section Toggles
     public bool ShowTrustBadges { get; set; } = true;

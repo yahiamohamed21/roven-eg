@@ -18,15 +18,18 @@ public class OrdersController : Controller
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IOrderService _orderService;
+    private readonly IStoreCacheService _storeCacheService;
 
     public OrdersController(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
-        IOrderService orderService)
+        IOrderService orderService,
+        IStoreCacheService storeCacheService)
     {
         _context = context;
         _userManager = userManager;
         _orderService = orderService;
+        _storeCacheService = storeCacheService;
     }
 
     // GET: Orders
@@ -420,6 +423,7 @@ public class OrdersController : Controller
 
             var previousStatus = order.Status;
             var currentUserId = _userManager.GetUserId(User);
+            bool stockChanged = false;
 
             // Business Rule: If an active order is Cancelled, restore all inventory back to stock!
             if (previousStatus != OrderStatus.Cancelled && newStatus == OrderStatus.Cancelled)
@@ -440,6 +444,7 @@ public class OrdersController : Controller
                             Notes = $"Restocked from cancelled order #{order.OrderNumber}",
                             UserId = currentUserId
                         });
+                        stockChanged = true;
                     }
                 }
             }
@@ -469,6 +474,7 @@ public class OrdersController : Controller
                             Notes = $"Deducted stock on reactivating order #{order.OrderNumber}",
                             UserId = currentUserId
                         });
+                        stockChanged = true;
                     }
                 }
             }
@@ -477,6 +483,12 @@ public class OrdersController : Controller
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
+
+            // Only invalidate catalog cache when inventory actually changed and transaction committed
+            if (stockChanged)
+            {
+                _storeCacheService.InvalidateCatalogCache();
+            }
 
             TempData["SuccessMessage"] = $"Order #{order.OrderNumber} status successfully updated to '{newStatus}'!";
             return RedirectToAction(nameof(Details), new { id });
@@ -490,7 +502,7 @@ public class OrdersController : Controller
     }
 
     [HttpPost]
-    [IgnoreAntiforgeryToken]
+    [ValidateAntiForgeryToken]
     public IActionResult MarkNotificationsAsRead([FromBody] MarkNotificationReadRequest? request)
     {
         var timestamp = request?.Timestamp ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
@@ -524,7 +536,7 @@ public class OrdersController : Controller
     }
 
     [HttpPost]
-    [IgnoreAntiforgeryToken]
+    [ValidateAntiForgeryToken]
     public IActionResult ClearReadNotifications([FromBody] ClearReadNotificationsRequest? request)
     {
         var timestamp = request?.Timestamp ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();

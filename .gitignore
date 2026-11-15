@@ -33,6 +33,14 @@ seed_sample_order.sql
 audit_test_results.json
 db_schema_audit.json
 
+## Local secrets & environment overrides
+appsettings.Local.json
+*.local.json
+appsettings.*.local.json
+.env
+.env.*
+/etc/roven.env
+
 ## Python files & virtual environments
 *.py
 *.pyc

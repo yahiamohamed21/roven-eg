@@ -1,0 +1,1843 @@
+    /* -------------------------------------------------------------
+       ROVEN 4-Color Luxury Perfume Palette:
+       1. #630000 (Deep Burgundy / Wine)
+       2. #810100 (Rich Crimson / Ruby Carmine)
+       3. #1B1717 (Deep Charcoal Jet / Off-Black)
+       4. #EDEBDD (Warm Linen / Cream / Ivory)
+       ------------------------------------------------------------- */
+
+    /* Global Mobile Scroll & Overflow Protection */
+    section {
+        overflow-x: clip;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.5em;
+        line-height: 1.25;
+    }
+
+    #heroHomeCarousel,
+    .carousel,
+    .carousel-inner {
+        overflow: hidden !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* ========================================================================
+       1. MAIN BRAND HERO (Dedicated Full-Bleed Section with Approved Image)
+       ======================================================================== */
+    .main-brand-hero-section {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        background-color: #120909;
+        line-height: 0;
+    }
+
+    .main-brand-hero-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 0;
+    }
+
+    .main-brand-hero-link {
+        display: block !important;
+        width: 100% !important;
+        line-height: 0;
+        cursor: pointer;
+    }
+
+    .main-brand-hero-image {
+        width: 100% !important;
+        height: auto !important;
+        display: block !important;
+        object-fit: cover !important;
+        max-width: 100% !important;
+        aspect-ratio: 1975 / 796;
+    }
+
+    @media (max-width: 768px) {
+        .main-brand-hero-image {
+            aspect-ratio: 941 / 1672 !important;
+        }
+    }
+
+    /* ========================================================================
+       2. HERO BANNERS CAROUSEL (Separate Dynamic Banners Section)
+       ======================================================================== */
+    .hero-banner-section {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        background-color: #140a0a;
+        line-height: 0;
+    }
+
+    .hero-banner-frame {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 0;
+    }
+
+    .hero-banner-link {
+        display: block !important;
+        width: 100% !important;
+        line-height: 0;
+        cursor: pointer;
+    }
+
+    .hero-banner-responsive-img {
+        width: 100% !important;
+        height: auto !important;
+        display: block !important;
+        object-fit: cover !important;
+        max-width: 100% !important;
+    }
+
+    /* ========================================================================
+       MAISON ROVEN — ROVEN INTENSE FLAGSHIP 3D HERO
+       ======================================================================== */
+    .roven-intense-hero {
+        --rv-bg: #0b0907;
+        --rv-bg2: #16110c;
+        --rv-gold: #d4af6a;
+        --rv-gold-hi: #f3dca3;
+        --rv-amber: #b5722c;
+        --rv-text: #f2ebe0;
+        --rv-muted: #b3a894;
+        --rv-line: rgba(212, 175, 106, 0.22);
+        position: relative;
+        overflow: hidden;
+        padding: clamp(48px, 6vw, 90px) 0 40px;
+        background: radial-gradient(900px 520px at 50% 62%, rgba(181, 114, 44, 0.22), transparent 70%),
+                    linear-gradient(180deg, var(--rv-bg), var(--rv-bg2) 60%, var(--rv-bg));
+        color: var(--rv-text);
+    }
+
+    .roven-intense-container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .roven-intense-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 18px;
+        border: 1px solid var(--rv-line);
+        border-radius: 999px;
+        font-size: 0.78rem;
+        letter-spacing: 0.14em;
+        color: var(--rv-gold);
+        background: rgba(212, 175, 106, 0.06);
+    }
+
+    .sparkle-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--rv-gold);
+        box-shadow: 0 0 10px var(--rv-gold);
+        animation: rvPulse 2.4s ease-in-out infinite;
+    }
+
+    .roven-intense-heading {
+        margin: 18px 0 10px;
+        font-size: clamp(2.4rem, 6.5vw, 4.5rem);
+        font-weight: 300;
+        letter-spacing: 0.18em;
+        line-height: 1.05;
+        font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    .gold-text {
+        background: linear-gradient(100deg, #a8773a, var(--rv-gold-hi) 45%, #b98a45 70%, var(--rv-gold-hi));
+        background-size: 220% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: rvShine 7s linear infinite;
+        font-weight: 700;
+        font-style: italic;
+    }
+
+    .roven-intense-desc {
+        max-width: 640px;
+        margin: 0 auto 22px;
+        color: var(--rv-muted);
+        line-height: 1.85;
+        font-size: 1rem;
+    }
+
+    .roven-intense-notes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .roven-note-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        border: 1px solid var(--rv-line);
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(6px);
+        color: var(--rv-text);
+    }
+
+    .roven-note-chip i {
+        color: var(--rv-gold);
+    }
+
+    /* 3D Bottle Stage */
+    .roven-bottle-stage-wrapper {
+        max-width: 580px;
+        margin: 0 auto;
+    }
+
+    .roven-bottle-stage {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1 / 1.05;
+        max-height: 560px;
+        margin: 0 auto;
+        cursor: grab;
+        touch-action: pan-y !important;
+        user-select: none;
+        -webkit-user-select: none;
+        outline: none;
+        perspective: 1200px;
+        border-radius: 28px;
+    }
+
+    .roven-bottle-stage.is-dragging {
+        cursor: grabbing;
+    }
+
+    .roven-bottle-stage:focus-visible {
+        box-shadow: 0 0 0 2px var(--rv-gold), 0 0 0 6px rgba(212, 175, 106, 0.25);
+    }
+
+    .roven-bottle-halo {
+        position: absolute;
+        left: 50%;
+        top: 46%;
+        width: 78%;
+        aspect-ratio: 1;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(243, 220, 163, 0.30), rgba(181, 114, 44, 0.14) 45%, transparent 70%);
+        filter: blur(18px);
+        opacity: calc(0.75 + var(--rv-glow, 0) * 0.25);
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+
+    .roven-dust {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .roven-orbit {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 5%;
+        width: 100%;
+        height: auto;
+        pointer-events: none;
+        overflow: visible;
+    }
+
+    .roven-orbit-track {
+        fill: none;
+        stroke: var(--rv-line);
+        stroke-width: 1;
+        stroke-dasharray: 2 7;
+    }
+
+    .roven-orbit-dot {
+        fill: var(--rv-gold-hi);
+        filter: drop-shadow(0 0 8px var(--rv-gold));
+    }
+
+    .roven-bottle-podium {
+        position: absolute;
+        left: 50%;
+        bottom: 9%;
+        width: 48%;
+        height: 7%;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        background: radial-gradient(ellipse, rgba(0, 0, 0, 0.85), transparent 70%);
+        filter: blur(6px);
+        pointer-events: none;
+    }
+
+    .roven-bottle-rig {
+        position: absolute;
+        inset: 3% 12% 12%;
+        transform-style: preserve-3d;
+        transform: rotateX(var(--rv-tx, 0deg)) rotateY(var(--rv-ty, 0deg)) translateY(var(--rv-float, 0px));
+        will-change: transform;
+    }
+
+    .roven-bottle-pic {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        margin: 0;
+        padding: 0;
+        pointer-events: none;
+    }
+
+    .roven-bottle-layer {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        opacity: 0;
+        pointer-events: none;
+        will-change: transform, opacity;
+        filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.55));
+        transition: opacity 0.1s ease;
+    }
+
+    .roven-bottle-layer.active {
+        opacity: 1;
+    }
+
+    .roven-sheen {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        mix-blend-mode: soft-light;
+        opacity: 0.55;
+        background: linear-gradient(105deg, transparent calc(var(--rv-sheen, 50%) - 14%), rgba(255, 244, 214, 0.55) var(--rv-sheen, 50%), transparent calc(var(--rv-sheen, 50%) + 14%));
+    }
+
+    .roven-angle-readout {
+        position: absolute;
+        top: 10px;
+        inset-inline-end: 14px;
+        font-size: 0.82rem;
+        color: var(--rv-muted);
+        letter-spacing: 0.12em;
+        font-variant-numeric: tabular-nums;
+        font-family: monospace;
+    }
+
+    .roven-angle-readout b {
+        color: var(--rv-gold);
+        font-weight: 600;
+    }
+
+    /* Controls */
+    .roven-bottle-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        margin-top: 4px;
+    }
+
+    .roven-bottle-hint {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--rv-muted);
+        font-size: 0.9rem;
+        transition: opacity 0.5s;
+    }
+
+    .roven-bottle-hint i {
+        color: var(--rv-gold);
+        animation: rvNudge 1.8s ease-in-out infinite;
+    }
+
+    .roven-bottle-stage.has-interacted ~ .roven-bottle-controls .roven-bottle-hint {
+        opacity: 0.45;
+    }
+
+    .roven-angle-pills {
+        display: inline-flex;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 999px;
+        border: 1px solid var(--rv-line);
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(8px);
+    }
+
+    .roven-angle-pill-btn {
+        border: 0;
+        background: transparent;
+        color: var(--rv-muted);
+        padding: 8px 16px;
+        border-radius: 999px;
+        font: inherit;
+        font-size: 0.84rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.25s, background 0.25s;
+    }
+
+    .roven-angle-pill-btn:hover {
+        color: var(--rv-text);
+    }
+
+    .roven-angle-pill-btn:focus-visible {
+        outline: 2px solid var(--rv-gold);
+        outline-offset: 2px;
+    }
+
+    .roven-angle-pill-btn.active {
+        color: #1a1208;
+        background: linear-gradient(135deg, var(--rv-gold-hi), var(--rv-gold));
+        font-weight: 600;
+    }
+
+    /* CTAs */
+    .roven-intense-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .roven-btn-primary, .roven-btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 13px 28px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.92rem;
+        transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+
+    .roven-btn-primary {
+        color: #1a1208;
+        background: linear-gradient(135deg, var(--rv-gold-hi), var(--rv-gold) 60%, #b98a45);
+        box-shadow: 0 10px 25px rgba(181, 114, 44, 0.35);
+    }
+
+    .roven-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 34px rgba(181, 114, 44, 0.5);
+        color: #1a1208;
+    }
+
+    .roven-btn-secondary {
+        color: var(--rv-text);
+        border: 1px solid var(--rv-line);
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .roven-btn-secondary:hover {
+        background: rgba(212, 175, 106, 0.1);
+        transform: translateY(-2px);
+        color: var(--rv-text);
+    }
+
+    .roven-btn-primary:focus-visible, .roven-btn-secondary:focus-visible {
+        outline: 2px solid var(--rv-gold);
+        outline-offset: 3px;
+    }
+
+    @keyframes rvShine {
+        to { background-position: -220% 0; }
+    }
+    @keyframes rvPulse {
+        50% { opacity: 0.4; transform: scale(0.7); }
+    }
+    @keyframes rvNudge {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(5px); }
+    }
+
+    /* Hero Carousel Luxury Styling */
+    .hero-carousel-item {
+        min-height: 580px;
+        display: flex;
+        align-items: center;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        overflow: hidden !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .hero-slide-1 {
+        background: radial-gradient(circle at 75% 35%, rgba(129, 1, 0, 0.55) 0%, rgba(27, 23, 23, 0.98) 65%),
+                    linear-gradient(135deg, #150f0f 0%, #2b0404 45%, #630000 100%);
+    }
+
+    .hero-slide-2 {
+        background: radial-gradient(circle at 75% 35%, rgba(184, 115, 51, 0.38) 0%, rgba(99, 0, 0, 0.6) 45%, rgba(27, 23, 23, 0.98) 75%),
+                    linear-gradient(135deg, #150f0f 0%, #300c02 50%, #810100 100%);
+    }
+
+    .hero-slide-3 {
+        background: radial-gradient(circle at 75% 35%, rgba(129, 1, 0, 0.5) 0%, rgba(27, 23, 23, 0.98) 65%),
+                    linear-gradient(135deg, #1a0a0a 0%, #3a0808 45%, #630000 100%);
+    }
+
+    .hero-pill-eyebrow {
+        background: rgba(237, 235, 221, 0.12);
+        border: 1px solid rgba(237, 235, 221, 0.3);
+        color: #EDEBDD;
+        backdrop-filter: blur(8px);
+        letter-spacing: 1.5px;
+        font-size: 0.78rem;
+    }
+
+    .hero-sparkle-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #810100;
+        box-shadow: 0 0 8px #810100, 0 0 12px #810100;
+        display: inline-block;
+    }
+
+    .hero-title {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-weight: 700;
+        font-size: clamp(2.1rem, 4.4vw, 3.5rem);
+        line-height: 1.15;
+        letter-spacing: -0.5px;
+        color: #EDEBDD;
+    }
+
+    .hero-title-accent {
+        background: linear-gradient(135deg, #EDEBDD 0%, #e8c688 50%, #EDEBDD 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-style: italic;
+    }
+
+    .hero-spec-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(237, 235, 221, 0.1);
+        border: 1px solid rgba(237, 235, 221, 0.22);
+        color: #EDEBDD;
+        padding: 0.5rem 0.85rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        backdrop-filter: blur(6px);
+        transition: all 0.2s ease;
+    }
+
+    .hero-spec-pill:hover {
+        background: rgba(237, 235, 221, 0.18);
+        border-color: rgba(237, 235, 221, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .btn-roven-hero-primary {
+        background: linear-gradient(135deg, #810100 0%, #630000 100%);
+        border: 1px solid rgba(232, 198, 136, 0.45);
+        color: #EDEBDD !important;
+        box-shadow: 0 10px 25px rgba(99, 0, 0, 0.45);
+        transition: all 0.25s ease;
+    }
+
+    .btn-roven-hero-primary:hover {
+        background: linear-gradient(135deg, #630000 0%, #810100 100%);
+        color: #EDEBDD !important;
+        transform: translateY(-2px);
+        box-shadow: 0 14px 30px rgba(129, 1, 0, 0.6);
+        border-color: rgba(232, 198, 136, 0.7);
+    }
+
+    .btn-roven-hero-secondary {
+        background: rgba(237, 235, 221, 0.08);
+        border: 1.5px solid rgba(237, 235, 221, 0.5);
+        color: #EDEBDD !important;
+        backdrop-filter: blur(8px);
+        transition: all 0.25s ease;
+    }
+
+    .btn-roven-hero-secondary:hover {
+        background: #EDEBDD;
+        color: #1B1717 !important;
+        border-color: #EDEBDD;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    }
+
+    .hero-glass-card {
+        background: linear-gradient(145deg, rgba(32, 24, 24, 0.82) 0%, rgba(18, 14, 14, 0.92) 100%);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(237, 235, 221, 0.2);
+        border-radius: 24px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.65);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+    }
+
+    .hero-glass-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 36px 70px rgba(99, 0, 0, 0.4);
+    }
+
+    .flacon-presentation-frame {
+        position: relative;
+        max-width: 250px;
+        height: 220px;
+        margin: 0 auto 1rem;
+        border-radius: 18px;
+        overflow: hidden;
+        background: radial-gradient(circle, rgba(129, 1, 0, 0.35) 0%, rgba(0, 0, 0, 0.85) 80%);
+        border: 1px solid rgba(237, 235, 221, 0.15);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    }
+
+    .flacon-presentation-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .hero-glass-card:hover .flacon-presentation-frame img {
+        transform: scale(1.05);
+    }
+
+    .hero-note-tag {
+        display: inline-block;
+        background: rgba(237, 235, 221, 0.08);
+        border: 1px solid rgba(237, 235, 221, 0.18);
+        color: #EDEBDD;
+        font-size: 0.72rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 50px;
+        margin: 2px;
+    }
+
+    .hero-lead-text {
+        color: #EDEBDD;
+        opacity: 0.92;
+        max-width: 580px;
+        line-height: 1.65;
+        font-size: clamp(0.92rem, 1.8vw, 1.1rem);
+    }
+
+    .carousel-indicators {
+        margin-bottom: 0.85rem !important;
+        gap: 6px !important;
+        z-index: 5;
+    }
+
+    .carousel-indicators [data-bs-target] {
+        width: 28px !important;
+        height: 5px !important;
+        border-radius: 4px !important;
+        background-color: rgba(237, 235, 221, 0.35) !important;
+        border: none !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .carousel-indicators .active {
+        width: 46px !important;
+        background-color: #810100 !important;
+        box-shadow: 0 0 10px rgba(129, 1, 0, 0.8) !important;
+    }
+
+    .carousel-control-prev, .carousel-control-next {
+        width: 50px;
+        height: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(27, 23, 23, 0.75);
+        border-radius: 50%;
+        border: 1px solid rgba(237, 235, 221, 0.25);
+        backdrop-filter: blur(8px);
+        margin: 0 20px;
+        opacity: 0.85;
+        color: #EDEBDD;
+        transition: all 0.2s;
+    }
+
+    .carousel-control-prev:hover, .carousel-control-next:hover {
+        background: #630000;
+        border-color: #810100;
+        opacity: 1;
+        box-shadow: 0 0 20px rgba(99, 0, 0, 0.6);
+        color: #EDEBDD;
+    }
+
+    /* ========================================================================
+       MAISON ROVEN — TRUST BADGES STATIC 4-CARD SHOWCASE
+       ======================================================================== */
+    .roven-trust-static-section {
+        background-color: #FAF9F5;
+        border-bottom: 1px solid #ECE7E1;
+        width: 100%;
+        position: relative;
+        z-index: 3;
+    }
+
+    .roven-trust-static-card {
+        background: #ffffff;
+        border: 1.5px solid #EFEAE4;
+        border-radius: 16px;
+        padding: 1.35rem 1.15rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(27, 23, 23, 0.03);
+        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+                    box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), 
+                    border-color 0.22s ease;
+        box-sizing: border-box;
+        cursor: default;
+    }
+
+    .roven-trust-static-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(99, 0, 0, 0.09);
+        border-color: #810100;
+    }
+
+    .roven-trust-static-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        margin-bottom: 12px;
+        transition: transform 0.25s ease;
+    }
+
+    .roven-trust-static-card:hover .roven-trust-static-icon {
+        transform: scale(1.08);
+    }
+
+    .roven-trust-static-title {
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+        font-weight: 700;
+        color: #1B1717;
+        margin: 0 0 4px 0;
+        line-height: 1.3;
+    }
+
+    .roven-trust-static-subtitle {
+        font-size: clamp(0.72rem, 0.95vw, 0.78rem);
+        color: #6c6358;
+        margin: 0;
+        line-height: 1.35;
+    }
+
+    .trust-icon-box {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        flex-shrink: 0;
+    }
+
+    /* Category Showcase Cards */
+    .cat-showcase-card {
+        background: #ffffff;
+        border: 1px solid #e8e3d5;
+        border-radius: 20px;
+        padding: 1.5rem;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(27, 23, 23, 0.03);
+    }
+
+    .cat-showcase-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #630000, #810100);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+
+    .cat-showcase-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(129, 1, 0, 0.35);
+        box-shadow: 0 18px 36px rgba(99, 0, 0, 0.1);
+    }
+
+    .cat-showcase-card:hover::before {
+        opacity: 1;
+    }
+
+    .cat-icon-container {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background-color: #EDEBDD;
+        color: #630000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        border: 1px solid rgba(99, 0, 0, 0.12);
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .cat-showcase-card:hover .cat-icon-container {
+        background-color: #630000;
+        color: #EDEBDD;
+        border-color: #810100;
+        transform: scale(1.08) rotate(-3deg);
+    }
+
+    .cat-count-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        background-color: #FAF9F5;
+        color: #630000;
+        border: 1px solid #e8e3d5;
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    .cat-card-title {
+        color: #1B1717;
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+        margin-top: 0.75rem;
+        transition: color 0.2s ease;
+    }
+
+    .cat-showcase-card:hover .cat-card-title {
+        color: #630000;
+    }
+
+    .cat-card-desc {
+        color: #6c6358;
+        font-size: 0.85rem;
+        line-height: 1.55;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .cat-card-footer {
+        border-top: 1px solid #f0ecdf;
+        padding-top: 0.85rem;
+    }
+
+    .cat-explore-text {
+        color: #630000;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .cat-arrow-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #EDEBDD;
+        color: #630000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        transition: all 0.25s ease;
+        border: 1px solid rgba(99, 0, 0, 0.1);
+    }
+
+    .cat-showcase-card:hover .cat-arrow-circle {
+        background-color: #630000;
+        color: #EDEBDD;
+        border-color: #810100;
+        transform: translateX(4px);
+    }
+
+    /* Flash Deal Timer Box */
+    .timer-unit-box {
+        background: #1B1717;
+        color: #EDEBDD;
+        border-radius: 10px;
+        padding: 0.5rem 0.6rem;
+        text-align: center;
+        min-width: 52px;
+        flex: 1 1 0;
+        box-shadow: 0 4px 10px rgba(27, 23, 23, 0.2);
+        border: 1px solid rgba(237, 235, 221, 0.15);
+    }
+
+    .timer-unit-num {
+        font-size: 1.35rem;
+        font-weight: 800;
+        font-family: monospace;
+        line-height: 1;
+        color: #EDEBDD;
+    }
+
+    .timer-unit-lbl {
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        color: #EDEBDD;
+        opacity: 0.75;
+        margin-top: 3px;
+        letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 991.98px) {
+        .hero-carousel-item {
+            min-height: auto !important;
+            padding: 1.5rem 0 2.5rem !important;
+        }
+        .hero-title {
+            font-size: clamp(1.55rem, 5.2vw, 2.2rem) !important;
+            line-height: 1.18 !important;
+            letter-spacing: -0.3px !important;
+        }
+        .hero-pill-eyebrow {
+            font-size: 0.7rem !important;
+            padding: 0.25rem 0.65rem !important;
+            letter-spacing: 0.8px !important;
+        }
+        .hero-lead-text {
+            font-size: 0.86rem !important;
+            line-height: 1.5 !important;
+            max-width: min(480px, 100%) !important;
+            width: 100% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+        .hero-spec-pill {
+            font-size: 0.72rem !important;
+            padding: 0.35rem 0.65rem !important;
+        }
+        .hero-glass-card {
+            padding: 1.1rem 0.95rem !important;
+            border-radius: 18px !important;
+            max-width: min(390px, 100%) !important;
+            width: 100% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6) !important;
+            overflow: hidden !important;
+        }
+        .flacon-presentation-frame {
+            height: 145px !important;
+            max-width: 160px !important;
+            border-radius: 14px !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .hero-card-title {
+            font-size: 1.05rem !important;
+            margin-bottom: 0.25rem !important;
+        }
+        .hero-note-tag {
+            font-size: 0.66rem !important;
+            padding: 0.15rem 0.45rem !important;
+        }
+        .hero-card-price {
+            font-size: 1.2rem !important;
+        }
+        .carousel-control-prev, .carousel-control-next {
+            display: none !important;
+        }
+
+        .trust-title {
+            font-size: 0.82rem !important;
+            word-break: break-word;
+        }
+        .trust-subtitle {
+            font-size: 0.7rem !important;
+            line-height: 1.25 !important;
+            word-break: break-word;
+        }
+        .trust-icon-box {
+            width: 36px !important;
+            height: 36px !important;
+            font-size: 1.05rem !important;
+            border-radius: 10px !important;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        /* Category Showcase 2x2 Grid Optimization for Mobile */
+        .cat-showcase-card {
+            padding: 0.95rem 0.85rem !important;
+            border-radius: 16px !important;
+            min-height: 220px !important;
+            overflow: hidden !important;
+            word-break: break-word;
+        }
+        .cat-icon-container {
+            width: 38px !important;
+            height: 38px !important;
+            font-size: 1.05rem !important;
+            border-radius: 10px !important;
+        }
+        .cat-count-badge {
+            font-size: 0.68rem !important;
+            padding: 0.22rem 0.5rem !important;
+            font-weight: 700 !important;
+        }
+        .cat-card-title {
+            font-size: 0.92rem !important;
+            line-height: 1.25 !important;
+            margin-top: 0.55rem !important;
+            min-height: 2.35rem !important;
+            display: flex !important;
+            align-items: center !important;
+            word-break: break-word;
+        }
+        .cat-card-desc {
+            font-size: 0.74rem !important;
+            line-height: 1.35 !important;
+            margin-bottom: 0.6rem !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            word-break: break-word;
+        }
+        .cat-card-footer {
+            margin-top: auto !important;
+        }
+        .cat-explore-text {
+            font-size: 0.75rem !important;
+            font-weight: 700 !important;
+        }
+        .cat-arrow-circle {
+            width: 26px !important;
+            height: 26px !important;
+            font-size: 0.7rem !important;
+        }
+
+        /* Spotlight Deal Mobile Refinement */
+        .spotlight-deal-card {
+            border-radius: 18px !important;
+            overflow: hidden !important;
+            max-width: 100% !important;
+        }
+        .spotlight-actions {
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 10px !important;
+        }
+        .spotlight-actions .btn {
+            width: 100% !important;
+            justify-content: center !important;
+            font-size: clamp(0.82rem, 3.6vw, 0.95rem) !important;
+            padding: 0.8rem 1rem !important;
+            white-space: normal !important;
+            border-radius: 50px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            word-break: break-word !important;
+        }
+        .spotlight-actions .btn span {
+            white-space: normal !important;
+        }
+        .spotlight-timer-boxes {
+            display: flex !important;
+            gap: 8px !important;
+            justify-content: flex-start !important;
+        }
+        .timer-unit-box {
+            width: 58px !important;
+            height: 54px !important;
+            border-radius: 12px !important;
+        }
+        .timer-unit-num {
+            font-size: 1.2rem !important;
+        }
+        .timer-unit-lbl {
+            font-size: 0.62rem !important;
+        }
+        .spotlight-meter-header {
+            flex-wrap: wrap !important;
+            gap: 6px !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+        }
+        .spotlight-meter-header span {
+            font-size: 0.78rem !important;
+            white-space: normal !important;
+        }
+
+        /* Luxury VIP Newsletter Mobile Refinement */
+        .newsletter-card {
+            padding: 2.5rem 1.15rem !important;
+            border-radius: 20px !important;
+            overflow: hidden !important;
+        }
+        .newsletter-pill-form {
+            flex-direction: column !important;
+            padding: 8px !important;
+            border-radius: 20px !important;
+            gap: 8px !important;
+            background: #EDEBDD !important;
+        }
+        .newsletter-pill-form .form-control {
+            text-align: center !important;
+            font-size: 16px !important; /* Prevents iOS auto-zoom */
+            padding: 0.5rem !important;
+            width: 100% !important;
+        }
+        .newsletter-btn {
+            width: 100% !important;
+            justify-content: center !important;
+            padding: 0.65rem 1rem !important;
+            font-size: 0.9rem !important;
+        }
+
+        /* Luxury FAQ Mobile Refinement */
+        .roven-faq-btn {
+            padding: 0.95rem 1rem !important;
+            font-size: 0.92rem !important;
+        }
+        .roven-faq-body {
+            padding: 0.95rem 1rem !important;
+            font-size: 0.88rem !important;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        /* Section Spacing & Containers for Small Phones */
+        section {
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+        }
+
+        .container {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+        }
+
+        /* 1. Trust Value Cards Static Showcase (2x2 Grid on Mobile) */
+        .roven-trust-static-card {
+            padding: 0.95rem 0.65rem !important;
+            border-radius: 13px !important;
+            min-height: 100% !important;
+        }
+        .roven-trust-static-icon {
+            width: 38px !important;
+            height: 38px !important;
+            font-size: 1.05rem !important;
+            margin-bottom: 8px !important;
+            border-radius: 10px !important;
+        }
+        .roven-trust-static-title {
+            font-size: 0.8rem !important;
+            margin-bottom: 3px !important;
+            line-height: 1.25 !important;
+        }
+        .roven-trust-static-subtitle {
+            font-size: 0.68rem !important;
+            line-height: 1.25 !important;
+        }
+
+        /* 2. Category Showcase (2x2 Grid) */
+        .cat-showcase-card {
+            padding: 0.8rem 0.65rem !important;
+            border-radius: 14px !important;
+            min-height: 190px !important;
+        }
+        .cat-icon-container {
+            width: 34px !important;
+            height: 34px !important;
+            font-size: 0.95rem !important;
+            border-radius: 8px !important;
+        }
+        .cat-count-badge {
+            font-size: 0.62rem !important;
+            padding: 0.15rem 0.4rem !important;
+        }
+        .cat-card-title {
+            font-size: 0.86rem !important;
+            min-height: 2.1rem !important;
+            line-height: 1.25 !important;
+            margin-top: 0.4rem !important;
+        }
+        .cat-card-desc {
+            font-size: 0.7rem !important;
+            line-height: 1.3 !important;
+            margin-bottom: 0.35rem !important;
+        }
+        .cat-explore-text {
+            font-size: 0.7rem !important;
+        }
+        .cat-arrow-circle {
+            width: 24px !important;
+            height: 24px !important;
+            font-size: 0.65rem !important;
+        }
+
+        /* 3. Special Offers & Duo Bundles */
+        .special-offer-card {
+            border-radius: 16px !important;
+        }
+        .special-offer-duo-img {
+            max-height: 125px !important;
+        }
+        .special-offer-single-img {
+            max-height: 160px !important;
+        }
+        .special-offer-plus-badge {
+            width: 26px !important;
+            height: 26px !important;
+            font-size: 0.85rem !important;
+        }
+        .special-offer-actions .btn {
+            font-size: 0.8rem !important;
+            padding: 0.55rem 0.75rem !important;
+        }
+
+        /* 4. Spotlight Deal of the Day */
+        .spotlight-deal-card {
+            border-radius: 16px !important;
+        }
+        .spotlight-deal-card img {
+            max-height: 220px !important;
+        }
+        .spotlight-timer-boxes {
+            justify-content: center !important;
+        }
+        .timer-unit-box {
+            width: 52px !important;
+            height: 48px !important;
+            padding: 0.35rem 0.4rem !important;
+            border-radius: 10px !important;
+        }
+        .timer-unit-num {
+            font-size: 1.1rem !important;
+        }
+        .timer-unit-lbl {
+            font-size: 0.58rem !important;
+        }
+
+        /* 5. Product Cards (Featured & Best Sellers) */
+        .product-card {
+            border-radius: 14px !important;
+        }
+        .product-image-container {
+            height: 200px !important;
+        }
+        .product-card .p-3 {
+            padding: 0.85rem !important;
+        }
+        .product-card h6 {
+            font-size: 0.95rem !important;
+            line-height: 1.3 !important;
+        }
+        .product-card .fw-bold.fs-5 {
+            font-size: 1.05rem !important;
+        }
+        .product-card .btn-sm {
+            font-size: 0.8rem !important;
+            padding: 0.35rem 0.7rem !important;
+        }
+
+        /* 6. Client Testimonials */
+        .testimonial-card {
+            padding: 1.15rem 0.95rem !important;
+            border-radius: 14px !important;
+        }
+        .testimonial-card p {
+            font-size: 0.82rem !important;
+            line-height: 1.5 !important;
+        }
+
+        /* 7. FAQ Accordion */
+        .roven-faq-card {
+            border-radius: 12px !important;
+            margin-bottom: 8px !important;
+        }
+        .roven-faq-btn {
+            padding: 0.85rem 0.95rem !important;
+            font-size: 0.88rem !important;
+            line-height: 1.35 !important;
+        }
+        .roven-faq-body {
+            padding: 0.85rem 0.95rem !important;
+            font-size: 0.82rem !important;
+            line-height: 1.5 !important;
+        }
+
+        /* 8. VIP Newsletter Card */
+        .newsletter-card {
+            padding: 2.2rem 1rem !important;
+            border-radius: 18px !important;
+        }
+        .newsletter-card h2 {
+            font-size: 1.35rem !important;
+            line-height: 1.3 !important;
+        }
+        .newsletter-card p {
+            font-size: 0.8rem !important;
+            line-height: 1.5 !important;
+        }
+        .newsletter-pill-form {
+            padding: 6px !important;
+            border-radius: 16px !important;
+            gap: 6px !important;
+        }
+        .newsletter-pill-form .form-control {
+            font-size: 16px !important; /* CRITICAL: Prevents iOS auto-zoom */
+            height: 44px !important;
+        }
+        .newsletter-btn {
+            height: 44px !important;
+            font-size: 0.88rem !important;
+            padding: 0.6rem 1rem !important;
+        }
+    }
+
+    /* Star Rating */
+    .star-rating {
+        color: #810100;
+        font-size: 0.85rem;
+    }
+
+    /* Luxury VIP Newsletter Card */
+    .newsletter-card {
+        background: radial-gradient(circle at 15% 20%, rgba(129, 1, 0, 0.45) 0%, transparent 45%),
+                    radial-gradient(circle at 85% 80%, rgba(99, 0, 0, 0.5) 0%, transparent 45%),
+                    linear-gradient(135deg, #1B1717 0%, #2e0606 50%, #1B1717 100%);
+        border-radius: 28px;
+        padding: 4.5rem 2rem;
+        color: #EDEBDD;
+        border: 1px solid rgba(237, 235, 221, 0.2);
+        box-shadow: 0 25px 50px -12px rgba(27, 23, 23, 0.55);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .newsletter-pill-form {
+        background: #EDEBDD;
+        padding: 6px 6px 6px 18px;
+        border-radius: 50px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        border: 2px solid rgba(237, 235, 221, 0.9);
+        transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .newsletter-pill-form:focus-within {
+        box-shadow: 0 12px 30px rgba(99, 0, 0, 0.45);
+        border-color: #810100;
+    }
+
+    .newsletter-pill-form .form-control {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        color: #1B1717;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .newsletter-pill-form .form-control::placeholder {
+        color: #78716c;
+    }
+
+    .newsletter-btn {
+        background-color: #630000;
+        color: #EDEBDD;
+        border: 1px solid #810100;
+        border-radius: 50px;
+        padding: 0.75rem 1.85rem;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(99, 0, 0, 0.35);
+    }
+
+    .newsletter-btn:hover {
+        background-color: #810100;
+        border-color: #810100;
+        transform: scale(1.02);
+        box-shadow: 0 6px 16px rgba(129, 1, 0, 0.5);
+        color: #EDEBDD;
+    }
+
+    /* Roven Styled Badges & Buttons */
+    .badge-roven-cream {
+        background-color: #EDEBDD;
+        color: #630000;
+        border: 1px solid rgba(99, 0, 0, 0.2);
+    }
+
+    .badge-roven-burgundy {
+        background-color: #630000;
+        color: #EDEBDD;
+    }
+
+    .badge-roven-crimson {
+        background-color: #810100;
+        color: #EDEBDD;
+    }
+
+    .btn-roven-wine {
+        background-color: #630000;
+        border: 1px solid #810100;
+        color: #EDEBDD;
+        transition: all 0.2s;
+    }
+
+    .btn-roven-wine:hover {
+        background-color: #810100;
+        border-color: #810100;
+        color: #EDEBDD;
+        transform: translateY(-1px);
+    }
+
+    .fragrance-note-pill {
+        display: inline-block;
+        background: rgba(237, 235, 221, 0.12);
+        border: 1px solid rgba(237, 235, 221, 0.25);
+        color: #EDEBDD;
+        font-size: 0.75rem;
+        border-radius: 50px;
+        padding: 0.35rem 0.8rem;
+    }
+
+    /* Luxury Accordion Styling (Zero Blue, 100% ROVEN Luxury Palette) */
+    .roven-faq-card {
+        border: 1px solid #e8e3d5 !important;
+        border-radius: 16px !important;
+        background: #ffffff;
+        margin-bottom: 14px;
+        overflow: hidden;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 12px rgba(27, 23, 23, 0.03);
+    }
+
+    .roven-faq-card:hover {
+        border-color: rgba(99, 0, 0, 0.35) !important;
+        box-shadow: 0 8px 24px rgba(99, 0, 0, 0.08);
+        transform: translateY(-2px);
+    }
+
+    .roven-faq-btn {
+        background-color: #ffffff !important;
+        color: #1B1717 !important;
+        font-weight: 700 !important;
+        font-size: 1.05rem;
+        padding: 1.25rem 1.6rem !important;
+        border: none !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .roven-faq-btn:not(.collapsed) {
+        background-color: #EDEBDD !important;
+        color: #630000 !important;
+        box-shadow: none !important;
+        border-bottom: 1px solid rgba(99, 0, 0, 0.12) !important;
+    }
+
+    .roven-faq-btn:focus {
+        box-shadow: none !important;
+        border-color: transparent !important;
+    }
+
+    .roven-faq-btn::after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23630000'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E") !important;
+        transition: transform 0.25s ease;
+        flex-shrink: 0;
+    }
+
+    .roven-faq-btn:not(.collapsed)::after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23810100'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E") !important;
+        transform: rotate(-180deg);
+    }
+
+    .roven-faq-body {
+        background-color: #FAF9F5;
+        color: #595252;
+        padding: 1.25rem 1.6rem;
+        line-height: 1.7;
+        font-size: 0.95rem;
+    }
+    /* Dynamic Hero Banners — Full-Bleed Luxury Edge-to-Edge Cover */
+    .hero-banner-section {
+        background-color: #0B0606;
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .hero-banner-frame {
+        border-radius: 0 !important;
+        overflow: hidden;
+        position: relative;
+        background-color: #0B0606;
+        border: none !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        cursor: pointer;
+    }
+
+    .hero-banner-frame:active {
+        cursor: pointer;
+    }
+
+    .hero-banner-frame:hover {
+        border-color: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .hero-banner-link {
+        display: block;
+        width: 100%;
+        line-height: 0;
+        text-decoration: none;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+    }
+
+    .hero-banner-responsive-img {
+        width: 100% !important;
+        height: auto;
+        display: block;
+        object-fit: cover;
+        border-radius: 0 !important;
+        max-height: none !important;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+        transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+        -webkit-user-drag: none;
+        user-drag: none;
+        pointer-events: none;
+    }
+
+    .hero-banner-link:hover .hero-banner-responsive-img {
+        transform: scale(1.004);
+    }
+
+    /* Silky-Smooth Carousel Transition */
+    #heroHomeCarousel .carousel-item {
+        transition: transform 0.65s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    }
+
+    #heroHomeCarousel .carousel-indicators {
+        bottom: 14px !important;
+        margin-bottom: 0 !important;
+        z-index: 10;
+    }
+
+    #heroHomeCarousel .carousel-indicators [data-bs-target] {
+        width: 28px !important;
+        height: 4px !important;
+        border-radius: 4px !important;
+        background-color: rgba(237, 235, 221, 0.45) !important;
+        border: none !important;
+        margin: 0 4px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+
+    #heroHomeCarousel .carousel-indicators .active {
+        width: 48px !important;
+        background-color: #dfb15b !important;
+        box-shadow: 0 0 12px rgba(223, 177, 91, 0.8) !important;
+    }
+
+    /* Navigation Arrows: Always accessible, visible & touch-friendly on both Desktop & Mobile */
+    #heroHomeCarousel .carousel-control-prev,
+    #heroHomeCarousel .carousel-control-next {
+        display: flex !important;
+        width: 44px;
+        height: 44px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(20, 8, 8, 0.72) !important;
+        border-radius: 50%;
+        border: 1px solid rgba(223, 177, 91, 0.35);
+        backdrop-filter: blur(8px);
+        margin: 0 16px;
+        opacity: 0.85;
+        transition: all 0.25s ease;
+        color: #fdf4dc !important;
+        z-index: 10;
+    }
+
+    #heroHomeCarousel:hover .carousel-control-prev,
+    #heroHomeCarousel:hover .carousel-control-next {
+        opacity: 1;
+    }
+
+    #heroHomeCarousel .carousel-control-prev:hover,
+    #heroHomeCarousel .carousel-control-next:hover {
+        background: #810100 !important;
+        border-color: #dfb15b;
+        box-shadow: 0 0 16px rgba(129, 1, 0, 0.7);
+        color: #ffffff !important;
+    }
+
+    @media (max-width: 768px) {
+        .hero-banner-section {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        .hero-banner-frame {
+            border-radius: 0 !important;
+        }
+
+        .hero-banner-responsive-img {
+            max-height: none !important;
+            border-radius: 0 !important;
+        }
+
+        #heroHomeCarousel .carousel-control-prev,
+        #heroHomeCarousel .carousel-control-next {
+            display: flex !important;
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 0.75rem !important;
+            margin: 0 6px !important;
+            background: rgba(20, 8, 8, 0.65) !important;
+            opacity: 0.85 !important;
+        }
+
+        #heroHomeCarousel .carousel-indicators [data-bs-target] {
+            width: 18px !important;
+            height: 3px !important;
+            margin: 0 3px !important;
+        }
+
+        #heroHomeCarousel .carousel-indicators .active {
+            width: 32px !important;
+        }
+    }
+
+    /* ========================================================================
+       MAISON ROVEN — LUXURY INFINITE MARQUEE TICKER TAPE
+       ======================================================================== */
+    .roven-marquee-strip-wrapper {
+        background: #1B1717;
+        background: linear-gradient(90deg, #150f0f 0%, #290808 30%, #3a0606 50%, #290808 70%, #150f0f 100%);
+        border-top: 1px solid rgba(223, 177, 91, 0.35);
+        border-bottom: 1px solid rgba(223, 177, 91, 0.35);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+        overflow: hidden !important;
+        position: relative;
+        z-index: 5;
+        height: 44px;
+        min-height: 44px;
+        max-height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 0;
+        margin-bottom: 0.5rem;
+        box-sizing: border-box;
+    }
+
+    /* Edge Fade Gradients for Luxury Blend */
+    .roven-marquee-strip-wrapper::before,
+    .roven-marquee-strip-wrapper::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 48px;
+        z-index: 3;
+        pointer-events: none;
+    }
+
+    .roven-marquee-strip-wrapper::before {
+        left: 0;
+        background: linear-gradient(to right, #150f0f 0%, transparent 100%);
+    }
+
+    .roven-marquee-strip-wrapper::after {
+        right: 0;
+        background: linear-gradient(to left, #150f0f 0%, transparent 100%);
+    }
+
+    .roven-marquee-container {
+        display: flex;
+        overflow: hidden !important;
+        white-space: nowrap;
+        user-select: none;
+        width: 100%;
+        height: 100%;
+        align-items: center;
+    }
+
+    .roven-marquee-track {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        height: 100%;
+        animation: rovenMarqueeScroll var(--marquee-duration, 25s) linear infinite;
+        will-change: transform;
+    }
+
+    .roven-marquee-container:hover .roven-marquee-track {
+        animation-play-state: paused;
+    }
+
+    @keyframes rovenMarqueeScroll {
+        from {
+            transform: translateX(0);
+        }
+        to {
+            transform: translateX(-100%);
+        }
+    }
+
+    .roven-marquee-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0 1.5rem;
+        height: 100%;
+    }
+
+    .roven-marquee-badge {
+        background: linear-gradient(135deg, #810100 0%, #630000 100%);
+        color: #EDEBDD;
+        font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 0 0.75rem;
+        height: 26px;
+        min-height: 26px;
+        max-height: 26px;
+        line-height: 26px;
+        max-width: 160px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        border: 1px solid rgba(223, 177, 91, 0.45);
+        box-shadow: 0 0 10px rgba(129, 1, 0, 0.6), inset 0 0 4px rgba(223, 177, 91, 0.2);
+        text-transform: uppercase;
+        flex-shrink: 0;
+        white-space: nowrap;
+        box-sizing: border-box;
+    }
+
+    .roven-marquee-text {
+        color: #EDEBDD;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        font-size: 0.86rem;
+        font-weight: 600;
+        letter-spacing: 0.35px;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+        line-height: 1;
+    }
+
+    .roven-marquee-sparkle {
+        color: #dfb15b;
+        font-size: 0.72rem;
+        opacity: 0.9;
+        margin: 0 0.5rem;
+        filter: drop-shadow(0 0 4px rgba(223, 177, 91, 0.6));
+    }
+
+    @media (max-width: 575.98px) {
+        .roven-marquee-strip-wrapper {
+            height: 38px;
+            min-height: 38px;
+            max-height: 38px;
+            margin-bottom: 0.25rem;
+        }
+        .roven-marquee-group {
+            gap: 0.55rem;
+            padding: 0 0.85rem;
+        }
+        .roven-marquee-badge {
+            font-size: 0.64rem;
+            padding: 0 0.5rem;
+            height: 22px;
+            min-height: 22px;
+            max-height: 22px;
+            line-height: 22px;
+            max-width: 130px;
+            letter-spacing: 0.5px;
+        }
+        .roven-marquee-text {
+            font-size: 0.76rem;
+        }
+        .roven-marquee-sparkle {
+            font-size: 0.62rem;
+            margin: 0 0.25rem;
+        }
+    }

@@ -603,6 +603,12 @@ body.sidebar-closed .sidebar-toggle-btn {
     border: 1px solid rgba(99, 0, 0, 0.15);
 }
 
+.badge-roven-crimson {
+    background-color: #EDEBDD;
+    color: #630000;
+    border: 1px solid rgba(99, 0, 0, 0.15);
+}
+
 /* Auth Pages (Login, AccessDenied) */
 .auth-wrapper {
     min-height: 100vh;

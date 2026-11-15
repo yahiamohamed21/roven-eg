@@ -69,20 +69,23 @@
                         </div>
 
                         <div class="col-12">
+                            <label asp-for="FragranceTagline" class="form-label small fw-semibold text-secondary">تركيز العطر / الجملة التعريفية (Fragrance Tagline / Concentration)</label>
+                            <input asp-for="FragranceTagline" class="form-control" placeholder="Extrait de Parfum • 30% Pure Oil" />
+                            <span asp-validation-for="FragranceTagline" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">الجملة التي تظهر أسفل اسم العطر في المتجر والكتالوج (مثل: Extrait de Parfum • 30% Pure Oil)</small>
+                        </div>
+
+                        <div class="col-12">
                             <label asp-for="Description" class="form-label small fw-semibold text-secondary"></label>
                             <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                             <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
 
-                        <div class="col-12 col-md-6">
-                            <label class="form-label small fw-semibold text-secondary">Active Status</label>
-                            <div class="form-check form-switch mt-2">
-                                <input asp-for="IsActive" class="form-check-input" type="checkbox" id="isActiveSwitch" />
-                                <label class="form-check-label" for="isActiveSwitch">Product is active and available for sales</label>
-                            </div>
-                        </div>
+                        <input type="hidden" asp-for="IsActive" />
+                        <input type="hidden" asp-for="IsFeatured" />
+                        <input type="hidden" asp-for="IsBestSeller" />
 
-                        <div class="col-12 col-md-6">
+                        <div class="col-12">
                             <label asp-for="ImageFile" class="form-label small fw-semibold text-secondary"></label>
                             <input asp-for="ImageFile" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
                             <span asp-validation-for="ImageFile" class="text-danger small"></span>

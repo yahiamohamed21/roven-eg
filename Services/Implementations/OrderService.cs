@@ -11,11 +11,16 @@ public class OrderService : IOrderService
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<OrderService> _logger;
+    private readonly IStoreCacheService _storeCacheService;
 
-    public OrderService(ApplicationDbContext context, ILogger<OrderService> logger)
+    public OrderService(
+        ApplicationDbContext context,
+        ILogger<OrderService> logger,
+        IStoreCacheService storeCacheService)
     {
         _context = context;
         _logger = logger;
+        _storeCacheService = storeCacheService;
     }
 
     public async Task<CreateOrderResult> CreateOrderAsync(CreateOrderRequest request)
@@ -331,6 +336,16 @@ public class OrderService : IOrderService
 
                 _logger.LogInformation("Order {OrderNumber} successfully created via {OrderSource}. Total: {TotalAmount} EGP.",
                     order.OrderNumber, order.OrderSource, order.TotalAmount);
+
+                // Invalidate store catalog cache AFTER database transaction is safely committed
+                try
+                {
+                    _storeCacheService.InvalidateCatalogCache();
+                }
+                catch (Exception cacheEx)
+                {
+                    _logger.LogError(cacheEx, "Failed to invalidate store catalog cache after order {OrderNumber} creation.", order.OrderNumber);
+                }
 
                 return new CreateOrderResult
                 {

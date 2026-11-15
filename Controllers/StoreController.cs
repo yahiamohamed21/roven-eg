@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Stockify.Data;
 using Stockify.Models.Entities;
 using Stockify.ViewModels.Store;
@@ -9,6 +10,7 @@ namespace Stockify.Controllers;
 public class StoreController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMemoryCache _cache;
 
     // Brand aliases and common phonetic misspellings for search expansion
     private static readonly HashSet<string> BrandAliases = new(StringComparer.OrdinalIgnoreCase)
@@ -58,18 +60,69 @@ public class StoreController : Controller
         return d[n, m];
     }
 
-    public StoreController(ApplicationDbContext context)
+    public StoreController(ApplicationDbContext context, IMemoryCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     // GET: /Store or /Store?categoryId=2&search=Dell&sort=price_asc&inStockOnly=true
     public async Task<IActionResult> Index(int? categoryId, string? search, string? sort = "newest", bool inStockOnly = false)
     {
-        var query = _context.Products
-            .Include(p => p.Category)
-            .Where(p => p.IsActive && p.IsPublished)
-            .AsQueryable();
+        // 1. Fetch cached published catalog (in-memory, blazing fast)
+        var allProducts = await _cache.GetOrCreateAsync("Roven_Store_AllProducts", async entry =>
+        {
+            entry.SlidingExpiration = TimeSpan.FromMinutes(5);
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
+            return await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && p.IsPublished)
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(p => new StoreProductCardViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Sku = p.Sku ?? "",
+                    Description = p.Description,
+                    FragranceTagline = p.FragranceTagline,
+                    Price = p.Price,
+                    StockQuantity = p.StockQuantity,
+                    ImageUrl = p.ImageUrl,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category != null ? p.Category.Name : "General",
+                    IsFeatured = p.IsFeatured
+                })
+                .ToListAsync();
+        }) ?? new List<StoreProductCardViewModel>();
+
+        // 2. Fetch cached categories with product counts
+        var categories = await _cache.GetOrCreateAsync("Roven_Store_Categories", async entry =>
+        {
+            entry.SlidingExpiration = TimeSpan.FromMinutes(5);
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
+            return await _context.Categories
+                .Select(c => new StoreCategoryViewModel
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Description = c.Description,
+                    ProductsCount = c.Products.Count(p => p.IsActive && p.IsPublished)
+                })
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+        }) ?? new List<StoreCategoryViewModel>();
+
+        // 3. Fetch cached home settings for default tagline
+        var homeSetting = await _cache.GetOrCreateAsync("Roven_Store_HomeSettings", async entry =>
+        {
+            entry.SlidingExpiration = TimeSpan.FromMinutes(10);
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+            return await _context.HomeSettings.AsNoTracking().FirstOrDefaultAsync();
+        });
+        var defaultTagline = homeSetting?.DefaultFragranceTagline ?? "Extrait de Parfum • 30% Pure Oil";
+
+        // Filter in-memory
+        IEnumerable<StoreProductCardViewModel> query = allProducts;
 
         // Filter by Category
         if (categoryId.HasValue && categoryId.Value > 0)
@@ -85,19 +138,14 @@ public class StoreController : Controller
             var rawTerm = search.Trim();
             var normalizedTerm = NormalizeArabic(rawTerm);
 
-            // 1. Is this a search for the ROVEN brand name or its misspellings/aliases?
             if (BrandAliases.Contains(rawTerm) || BrandAliases.Contains(normalizedTerm))
             {
-                // The customer searched for the brand itself (e.g. "roven", "rovn", "روفين", "روبن")
-                // In the official boutique, all products belong to the brand!
                 searchCorrectionNotice = $"عرض كافة عطور دار Maison ROVEN الفاخرة (مطابقة لبحث: \"{rawTerm}\")";
             }
             else
             {
-                // 2. Check if the query contains a brand keyword plus specific notes/names (e.g. "roven noir", "عطر روفين عود")
                 var words = rawTerm.Split(new[] { ' ', '+', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
                 var specificWords = words.Where(w => !BrandAliases.Contains(w) && !BrandAliases.Contains(NormalizeArabic(w))).ToList();
-
                 var effectiveTerms = specificWords.Count > 0 ? specificWords : words.ToList();
                 if (specificWords.Count > 0 && specificWords.Count < words.Length)
                 {
@@ -106,12 +154,12 @@ public class StoreController : Controller
 
                 foreach (var term in effectiveTerms)
                 {
-                    var tLower = term.ToLower();
+                    var tLower = term.ToLowerInvariant();
                     query = query.Where(p =>
-                        p.Name.ToLower().Contains(tLower) ||
-                        (p.Sku != null && p.Sku.ToLower().Contains(tLower)) ||
-                        (p.Description != null && p.Description.ToLower().Contains(tLower)) ||
-                        (p.Category != null && p.Category.Name.ToLower().Contains(tLower)));
+                        p.Name.ToLowerInvariant().Contains(tLower) ||
+                        p.Sku.ToLowerInvariant().Contains(tLower) ||
+                        (p.Description != null && p.Description.ToLowerInvariant().Contains(tLower)) ||
+                        p.CategoryName.ToLowerInvariant().Contains(tLower));
                 }
             }
         }
@@ -119,7 +167,7 @@ public class StoreController : Controller
         // In-Stock Only filter
         if (inStockOnly)
         {
-            query = query.Where(p => p.StockQuantity > 0);
+            query = query.Where(p => !p.IsOutOfStock);
         }
 
         // Sorting
@@ -129,45 +177,29 @@ public class StoreController : Controller
             "price_desc" => query.OrderByDescending(p => p.Price),
             "name_asc" => query.OrderBy(p => p.Name),
             "name_desc" => query.OrderByDescending(p => p.Name),
-            _ => query.OrderByDescending(p => p.CreatedAt)
+            _ => query.OrderByDescending(p => p.Id)
         };
 
-        var products = await query
-            .Select(p => new StoreProductCardViewModel
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Sku = p.Sku ?? "",
-                Description = p.Description,
-                Price = p.Price,
-                StockQuantity = p.StockQuantity,
-                ImageUrl = p.ImageUrl,
-                CategoryId = p.CategoryId,
-                CategoryName = p.Category != null ? p.Category.Name : "General",
-                IsFeatured = p.IsFeatured
-            })
-            .ToListAsync();
+        var products = query.ToList();
 
         // 3. Typo Fallback: If 0 results found for a fragrance search, run in-memory fuzzy matching
         if (products.Count == 0 && !string.IsNullOrWhiteSpace(search))
         {
             var rawTerm = search.Trim();
-            var allCandidates = await _context.Products
-                .Include(p => p.Category)
-                .Where(p => p.IsActive && p.IsPublished)
-                .Where(p => !categoryId.HasValue || p.CategoryId == categoryId.Value)
-                .Where(p => !inStockOnly || p.StockQuantity > 0)
-                .ToListAsync();
-
             var searchTokens = rawTerm.Split(new[] { ' ', '-', '_' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(t => t.ToLowerInvariant())
                 .ToList();
 
-            var fuzzyMatches = new List<Product>();
+            var fuzzyCandidates = allProducts
+                .Where(p => !categoryId.HasValue || p.CategoryId == categoryId.Value)
+                .Where(p => !inStockOnly || !p.IsOutOfStock)
+                .ToList();
 
-            foreach (var candidate in allCandidates)
+            var fuzzyMatches = new List<StoreProductCardViewModel>();
+
+            foreach (var candidate in fuzzyCandidates)
             {
-                var targetText = $"{candidate.Name} {candidate.Description} {candidate.Category?.Name}".ToLowerInvariant();
+                var targetText = $"{candidate.Name} {candidate.Description} {candidate.CategoryName}".ToLowerInvariant();
                 var targetWords = targetText.Split(new[] { ' ', ',', '.', '(', ')', '-', '—', '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
 
                 bool isMatch = false;
@@ -195,36 +227,10 @@ public class StoreController : Controller
 
             if (fuzzyMatches.Count > 0)
             {
-                products = fuzzyMatches.Select(p => new StoreProductCardViewModel
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Sku = p.Sku ?? "",
-                    Description = p.Description,
-                    Price = p.Price,
-                    StockQuantity = p.StockQuantity,
-                    ImageUrl = p.ImageUrl,
-                    CategoryId = p.CategoryId,
-                    CategoryName = p.Category != null ? p.Category.Name : "General",
-                    IsFeatured = p.IsFeatured
-                }).ToList();
-
+                products = fuzzyMatches;
                 searchCorrectionNotice = $"عرض النتائج المقترحة الأقرب لبحثك: \"{rawTerm}\"";
             }
         }
-
-        var totalCount = products.Count;
-
-        var categories = await _context.Categories
-            .Select(c => new StoreCategoryViewModel
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                ProductsCount = c.Products.Count(p => p.IsActive && p.IsPublished)
-            })
-            .OrderBy(c => c.Name)
-            .ToListAsync();
 
         string? selectedCategoryName = null;
         if (categoryId.HasValue)
@@ -232,9 +238,16 @@ public class StoreController : Controller
             selectedCategoryName = categories.FirstOrDefault(c => c.Id == categoryId.Value)?.Name;
         }
 
+        var isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+        if (isAjax)
+        {
+            ViewData["IsAjax"] = true;
+        }
+
         var model = new StoreCatalogViewModel
         {
             Products = products,
+            AllProducts = allProducts,
             Categories = categories,
             SelectedCategoryId = categoryId,
             SelectedCategoryName = selectedCategoryName,
@@ -242,7 +255,8 @@ public class StoreController : Controller
             SearchCorrectionNotice = searchCorrectionNotice,
             CurrentSort = sort ?? "newest",
             InStockOnly = inStockOnly,
-            TotalCount = totalCount
+            DefaultFragranceTagline = defaultTagline,
+            TotalCount = products.Count
         };
 
         return View(model);
@@ -260,6 +274,7 @@ public class StoreController : Controller
                 Name = p.Name,
                 Sku = p.Sku ?? "",
                 Description = p.Description,
+                FragranceTagline = p.FragranceTagline,
                 Price = p.Price,
                 StockQuantity = p.StockQuantity,
                 ImageUrl = p.ImageUrl,
@@ -286,6 +301,7 @@ public class StoreController : Controller
                 Name = p.Name,
                 Sku = p.Sku ?? "",
                 Description = p.Description,
+                FragranceTagline = p.FragranceTagline,
                 Price = p.Price,
                 StockQuantity = p.StockQuantity,
                 ImageUrl = p.ImageUrl,
@@ -317,12 +333,22 @@ public class StoreController : Controller
                     ImageUrl = p.ImageUrl,
                     CategoryId = p.CategoryId,
                     CategoryName = p.Category != null ? p.Category.Name : "General",
+                    FragranceTagline = p.FragranceTagline,
                     IsFeatured = p.IsFeatured
                 })
                 .ToListAsync();
 
             related.AddRange(additional);
         }
+
+        // HomeSettings for default fragrance tagline and concierge info
+        var homeSetting = await _cache.GetOrCreateAsync("Roven_Store_HomeSettings", async entry =>
+        {
+            entry.SlidingExpiration = TimeSpan.FromMinutes(10);
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+            return await _context.HomeSettings.AsNoTracking().FirstOrDefaultAsync();
+        });
+        var defaultTagline = homeSetting?.DefaultFragranceTagline ?? "Extrait de Parfum • 30% Pure Oil";
 
         // Approved reviews for this product
         var reviews = await _context.ProductReviews
@@ -342,7 +368,9 @@ public class StoreController : Controller
         {
             Product = product,
             RelatedProducts = related,
-            Reviews = reviews
+            Reviews = reviews,
+            DefaultFragranceTagline = defaultTagline,
+            WhatsAppNumber = homeSetting?.WhatsAppNumber ?? ""
         };
 
         return View(model);

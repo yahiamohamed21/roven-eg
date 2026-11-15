@@ -165,6 +165,7 @@ public class CheckoutController : Controller
     // POST: /Checkout/CaptureAbandonedCheckout
     // Real-time asynchronous capture of customer checkout info before order finalization
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CaptureAbandonedCheckout([FromBody] AbandonedCheckoutDraftDto draft)
     {
         if (draft == null || string.IsNullOrWhiteSpace(draft.CustomerPhone))

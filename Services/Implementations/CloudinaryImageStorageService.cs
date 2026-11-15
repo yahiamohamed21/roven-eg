@@ -57,6 +57,13 @@ public class CloudinaryImageStorageService : IImageStorageService
             throw new ArgumentException("Uploaded file cannot be null or empty.", nameof(file));
         }
 
+        bool allowSvg = folder.Contains("banners", StringComparison.OrdinalIgnoreCase);
+        if (!Stockify.Common.Security.ImageSecurityValidator.Validate(file, out var validationError, allowSvg))
+        {
+            _logger.LogWarning("Rejected invalid image upload ({FileName}): {Error}", file.FileName, validationError);
+            throw new ArgumentException(validationError ?? "Invalid image file.", nameof(file));
+        }
+
         if (_isConfigured && _cloudinary != null)
         {
             await using var stream = file.OpenReadStream();
@@ -132,12 +139,15 @@ public class CloudinaryImageStorageService : IImageStorageService
                 var uploadIndex = Array.IndexOf(segments, "upload");
                 if (uploadIndex >= 0 && uploadIndex < segments.Length - 1)
                 {
-                    var pathSegments = segments.Skip(uploadIndex + 1).Where(s => !s.StartsWith("v") || !long.TryParse(s[1..], out _)).ToArray();
+                    var pathSegments = segments.Skip(uploadIndex + 1)
+                        .Where(s => (!s.StartsWith("v") || !long.TryParse(s[1..], out _)) && !s.Contains(','))
+                        .ToArray();
                     var publicIdWithExt = string.Join("/", pathSegments);
                     var publicId = Path.ChangeExtension(publicIdWithExt, null);
 
                     var deletionParams = new DeletionParams(publicId);
                     var result = await _cloudinary.DestroyAsync(deletionParams);
+                    _logger.LogInformation("Cloudinary asset deletion result ({PublicId}): {Result}", publicId, result.Result);
                     return result.Result == "ok";
                 }
             }

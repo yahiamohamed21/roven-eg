@@ -193,8 +193,8 @@ public static class DbInitializer
                 new()
                 {
                     Title = "Hero Banner Slide #1 • Rouge Velours Extrait",
-                    DesktopImageUrl = "/images/banners/hero_slide_1.svg",
-                    MobileImageUrl = "/images/banners/hero_slide_1_mobile.svg",
+                    DesktopImageUrl = "/images/banners/roven-hero-main.png",
+                    MobileImageUrl = "/images/banners/roven-hero-main-sm.png",
                     RedirectLink = "/Store?categoryId=1",
                     AltText = "Maison ROVEN Rouge Velours Extrait - 30% Pure Oil Concentration",
                     DisplayOrder = 1,
@@ -204,8 +204,8 @@ public static class DbInitializer
                 new()
                 {
                     Title = "Hero Banner Slide #2 • Royal Amber & Assam Oud",
-                    DesktopImageUrl = "/images/banners/hero_slide_2.svg",
-                    MobileImageUrl = "/images/banners/hero_slide_2_mobile.svg",
+                    DesktopImageUrl = "/images/banners/roven-hero-main.png",
+                    MobileImageUrl = "/images/banners/roven-hero-main-sm.png",
                     RedirectLink = "/Store?categoryId=3",
                     AltText = "Maison ROVEN Private Reserve - Aged Assam Agarwood & Golden Resins",
                     DisplayOrder = 2,
@@ -215,8 +215,8 @@ public static class DbInitializer
                 new()
                 {
                     Title = "Hero Banner Slide #3 • The Discovery Coffret",
-                    DesktopImageUrl = "/images/banners/hero_slide_3.svg",
-                    MobileImageUrl = "/images/banners/hero_slide_3_mobile.svg",
+                    DesktopImageUrl = "/images/banners/roven-hero-main.png",
+                    MobileImageUrl = "/images/banners/roven-hero-main-sm.png",
                     RedirectLink = "/Store",
                     AltText = "Maison ROVEN The Grand Discovery Coffret - 5 Bespoke Travel Flacons",
                     DisplayOrder = 3,

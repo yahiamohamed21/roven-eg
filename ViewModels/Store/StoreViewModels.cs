@@ -17,6 +17,7 @@ public class StoreHomeViewModel
     public int TotalCustomersCount { get; set; }
     public int TotalOrdersCompleted { get; set; }
     public HomeSetting? Settings { get; set; }
+    public string DefaultFragranceTagline => Settings?.DefaultFragranceTagline ?? "Extrait de Parfum • 30% Pure Oil";
 }
 
 public class HomeOfferItemViewModel
@@ -72,6 +73,7 @@ public class StoreProductCardViewModel
     public string? ImageUrl { get; set; }
     public int CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
+    public string? FragranceTagline { get; set; }
     public bool IsFeatured { get; set; }
     public bool IsOutOfStock => StockQuantity <= 0;
     public bool IsLowStock => StockQuantity > 0 && StockQuantity <= 5;
@@ -80,6 +82,7 @@ public class StoreProductCardViewModel
 public class StoreCatalogViewModel
 {
     public List<StoreProductCardViewModel> Products { get; set; } = new();
+    public List<StoreProductCardViewModel> AllProducts { get; set; } = new();
     public List<StoreCategoryViewModel> Categories { get; set; } = new();
     public int? SelectedCategoryId { get; set; }
     public string? SelectedCategoryName { get; set; }
@@ -87,6 +90,7 @@ public class StoreCatalogViewModel
     public string? SearchCorrectionNotice { get; set; }
     public string CurrentSort { get; set; } = "newest";
     public bool InStockOnly { get; set; }
+    public string DefaultFragranceTagline { get; set; } = "Extrait de Parfum • 30% Pure Oil";
     public int TotalCount { get; set; }
 }
 
@@ -95,6 +99,9 @@ public class StoreProductDetailsViewModel
     public StoreProductCardViewModel Product { get; set; } = new();
     public List<StoreProductCardViewModel> RelatedProducts { get; set; } = new();
     public List<ProductReviewViewModel> Reviews { get; set; } = new();
+    public string DefaultFragranceTagline { get; set; } = "Extrait de Parfum • 30% Pure Oil";
+    public string WhatsAppNumber { get; set; } = string.Empty;
+    public string NormalizedWhatsAppNumber => Stockify.Models.Entities.HomeSetting.NormalizeWhatsAppNumber(WhatsAppNumber);
     public double AverageRating => Reviews.Any() ? Math.Round(Reviews.Average(r => r.Rating), 1) : 5.0;
     public int ReviewsCount => Reviews.Count;
 }

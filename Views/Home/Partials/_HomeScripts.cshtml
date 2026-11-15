@@ -1,0 +1,214 @@
+﻿<script>
+    // ========================================================================
+    // HERO BANNERS SCROLL & SWIPE CONTROLLER (Touch + Mouse Drag + Autoplay)
+    // ========================================================================
+    (function () {
+        const heroEl = document.getElementById('heroHomeCarousel');
+        if (!heroEl) return;
+
+        let carouselInstance = null;
+
+        function getCarousel() {
+            if (!carouselInstance && window.bootstrap && window.bootstrap.Carousel) {
+                carouselInstance = window.bootstrap.Carousel.getOrCreateInstance(heroEl, {
+                    interval: 4500,
+                    ride: 'carousel',
+                    pause: false, // Prevents mobile touch from freezing the carousel
+                    wrap: true,
+                    touch: true
+                });
+            }
+            return carouselInstance;
+        }
+
+        // Start cycling immediately and on load
+        function startCycle() {
+            const inst = getCarousel();
+            if (inst) {
+                inst.cycle();
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startCycle);
+        } else {
+            startCycle();
+        }
+
+        window.addEventListener('load', startCycle);
+        window.addEventListener('rovenPreloaderDismissed', startCycle);
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) startCycle();
+        });
+
+        // --------------------------------------------------------------------
+        // Gesture Engine: Seamless Touch Swipe (Mobile) & Mouse Drag (Desktop)
+        // --------------------------------------------------------------------
+        let startX = 0;
+        let startY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        let isPointerDown = false;
+        let isDragging = false;
+        let movedDistance = 0;
+
+        function slideNext() {
+            const inst = getCarousel();
+            if (inst) inst.next();
+            else heroEl.querySelector('.carousel-control-next')?.click();
+        }
+
+        function slidePrev() {
+            const inst = getCarousel();
+            if (inst) inst.prev();
+            else heroEl.querySelector('.carousel-control-prev')?.click();
+        }
+
+        // Touch Listeners (Mobile / Tablets)
+        heroEl.addEventListener('touchstart', function (e) {
+            if (!e.touches || e.touches.length === 0) return;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            currentX = startX;
+            currentY = startY;
+            isDragging = true;
+            movedDistance = 0;
+        }, { passive: true });
+
+        heroEl.addEventListener('touchmove', function (e) {
+            if (!isDragging || !e.touches || e.touches.length === 0) return;
+            currentX = e.touches[0].clientX;
+            currentY = e.touches[0].clientY;
+            movedDistance = Math.abs(currentX - startX);
+        }, { passive: true });
+
+        heroEl.addEventListener('touchend', function () {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const deltaX = currentX - startX;
+            const deltaY = currentY - startY;
+
+            // Horizontal swipe threshold: 30px & horizontal intent > vertical
+            if (Math.abs(deltaX) > 30 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX < 0) {
+                    slideNext(); // Swiped left -> next
+                } else {
+                    slidePrev(); // Swiped right -> prev
+                }
+            }
+        }, { passive: true });
+
+        // Mouse Drag Listeners (Desktop / Mouse Emulation)
+        heroEl.addEventListener('mousedown', function (e) {
+            // Ignore button/dot clicks
+            if (e.target.closest('.carousel-indicators') || e.target.closest('.carousel-control-prev') || e.target.closest('.carousel-control-next')) {
+                return;
+            }
+            isPointerDown = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            currentX = startX;
+            currentY = startY;
+            movedDistance = 0;
+            heroEl.style.cursor = 'grabbing';
+        });
+
+        window.addEventListener('mousemove', function (e) {
+            if (!isPointerDown) return;
+            currentX = e.clientX;
+            currentY = e.clientY;
+            movedDistance = Math.abs(currentX - startX);
+        });
+
+        window.addEventListener('mouseup', function () {
+            if (!isPointerDown) return;
+            isPointerDown = false;
+            heroEl.style.cursor = '';
+
+            const deltaX = currentX - startX;
+            const deltaY = currentY - startY;
+
+            if (Math.abs(deltaX) > 35 && Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX < 0) {
+                    slideNext();
+                } else {
+                    slidePrev();
+                }
+            }
+        });
+
+        // Trackpad Horizontal Wheel Scroll
+        let wheelLocked = false;
+        heroEl.addEventListener('wheel', function (e) {
+            if (Math.abs(e.deltaX) > 25) {
+                if (wheelLocked) return;
+                wheelLocked = true;
+                if (e.deltaX > 0) {
+                    slideNext();
+                } else {
+                    slidePrev();
+                }
+                setTimeout(() => { wheelLocked = false; }, 500);
+            }
+        }, { passive: true });
+
+        // Prevent accidental link clicking during a drag or swipe gesture
+        heroEl.querySelectorAll('a.hero-banner-link').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                if (movedDistance > 12) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    movedDistance = 0;
+                }
+            });
+        });
+    })();
+
+    // Live Countdown Timer for Spotlight Fragrance
+    (function () {
+        let totalSeconds = (9 * 3600) + (34 * 60) + 50;
+
+        function updateCountdown() {
+            if (totalSeconds <= 0) {
+                totalSeconds = 24 * 3600; // Reset for daily loop
+            }
+
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const hEl = document.getElementById('countdown-hours');
+            const mEl = document.getElementById('countdown-mins');
+            const sEl = document.getElementById('countdown-secs');
+
+            if (hEl && mEl && sEl) {
+                hEl.textContent = hours.toString().padStart(2, '0');
+                mEl.textContent = minutes.toString().padStart(2, '0');
+                sEl.textContent = seconds.toString().padStart(2, '0');
+            }
+
+            totalSeconds--;
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+    })();
+
+    // Newsletter handler
+    function handleNewsletterSubmit(e) {
+        e.preventDefault();
+        const email = document.getElementById('newsletter-email').value;
+        if (!email) return;
+
+        Swal.fire({
+            icon: 'success',
+            iconColor: '#630000',
+            title: '<i class="fa-solid fa-gem me-2" style="color: #630000;"></i>Welcome to ROVEN Circle!',
+            text: `We've dispatched an exclusive 10% voucher code to ${email}. Apply it at checkout!`,
+            confirmButtonColor: '#630000'
+        });
+
+        document.getElementById('newsletter-email').value = '';
+    }
+</script>

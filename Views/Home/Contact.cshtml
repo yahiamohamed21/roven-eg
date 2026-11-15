@@ -159,11 +159,11 @@
                         <div>
                             <div class="text-uppercase small fw-bold" style="color: #810100; font-size: 0.75rem; letter-spacing: 0.5px;">WhatsApp Concierge</div>
                             @{
-                                var waRaw = !string.IsNullOrWhiteSpace(Model?.WhatsAppNumber) ? Model.WhatsAppNumber : "+20 100 888 9999";
-                                var waDigits = waRaw.Replace("+", "").Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
-                                var waLinkUrl = waRaw.StartsWith("http") ? waRaw : $"https://wa.me/{waDigits}";
+                                var rawWa = !string.IsNullOrWhiteSpace(Model?.WhatsAppNumber) ? Model.WhatsAppNumber : "+201006856199";
+                                var cleanWa = Stockify.Models.Entities.HomeSetting.NormalizeWhatsAppNumber(rawWa);
+                                var waLinkUrl = $"https://wa.me/{cleanWa}";
                             }
-                            <a href="@waLinkUrl" target="_blank" rel="noopener noreferrer" class="fs-6 fw-bold text-decoration-none" style="color: #1B1717;">@waRaw</a>
+                            <a href="@waLinkUrl" target="_blank" rel="noopener noreferrer" class="fs-6 fw-bold text-decoration-none" style="color: #1B1717;">@rawWa</a>
                             <div class="small text-muted">Instant advisory & flacon dispatch status</div>
                         </div>
                     </div>
@@ -209,7 +209,11 @@
                         
                         <div class="d-flex flex-column">
                             <!-- Facebook -->
-                            <a href="@(Model?.FacebookUrl ?? "https://facebook.com/roven.parfumerie")" target="_blank" class="social-link-pill" rel="noopener noreferrer">
+                            @{
+                                var fbUrl = !string.IsNullOrWhiteSpace(Model?.FacebookUrl) ? Model.FacebookUrl : "https://facebook.com/roven.parfumerie";
+                                var igUrl = !string.IsNullOrWhiteSpace(Model?.InstagramUrl) ? Model.InstagramUrl : "https://instagram.com/roven.parfums";
+                            }
+                            <a href="@fbUrl" target="_blank" class="social-link-pill" rel="noopener noreferrer">
                                 <span class="social-ico ico-facebook"><i class="fa-brands fa-facebook-f"></i></span>
                                 <div class="flex-grow-1">
                                     <div class="fw-bold small" style="color: #1B1717;">Facebook Atelier</div>
@@ -219,7 +223,7 @@
                             </a>
 
                             <!-- Instagram -->
-                            <a href="@(Model?.InstagramUrl ?? "https://instagram.com/roven.parfums")" target="_blank" class="social-link-pill" rel="noopener noreferrer">
+                            <a href="@igUrl" target="_blank" class="social-link-pill" rel="noopener noreferrer">
                                 <span class="social-ico ico-instagram"><i class="fa-brands fa-instagram"></i></span>
                                 <div class="flex-grow-1">
                                     <div class="fw-bold small" style="color: #1B1717;">Instagram Maison</div>
@@ -230,10 +234,9 @@
 
                             <!-- WhatsApp -->
                             @{
-                                var rawWa = Model?.WhatsAppNumber ?? "+201008889999";
-                                var waLink = rawWa.StartsWith("http") ? rawWa : $"https://wa.me/{rawWa.Replace("+", "").Replace(" ", "").Replace("-", "")}";
+                                var socialWaLink = $"https://wa.me/{cleanWa}";
                             }
-                            <a href="@waLink" target="_blank" class="social-link-pill" rel="noopener noreferrer">
+                            <a href="@socialWaLink" target="_blank" class="social-link-pill" rel="noopener noreferrer">
                                 <span class="social-ico ico-whatsapp"><i class="fa-brands fa-whatsapp"></i></span>
                                 <div class="flex-grow-1">
                                     <div class="fw-bold small" style="color: #1B1717;">WhatsApp Concierge</div>

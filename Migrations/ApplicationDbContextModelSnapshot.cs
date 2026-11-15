@@ -17,7 +17,7 @@ namespace Stockify.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.14")
+                .HasAnnotation("ProductVersion", "9.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -220,7 +220,7 @@ namespace Stockify.Migrations
 
                     b.HasIndex("RecoveredOrderId");
 
-                    b.ToTable("AbandonedCheckouts", (string)null);
+                    b.ToTable("AbandonedCheckouts");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.ApplicationUser", b =>
@@ -324,7 +324,7 @@ namespace Stockify.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.ContactMessage", b =>
@@ -369,7 +369,7 @@ namespace Stockify.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactMessages", (string)null);
+                    b.ToTable("ContactMessages");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.Coupon", b =>
@@ -421,7 +421,7 @@ namespace Stockify.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Coupons", (string)null);
+                    b.ToTable("Coupons");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.Customer", b =>
@@ -455,7 +455,7 @@ namespace Stockify.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.Governorate", b =>
@@ -494,7 +494,7 @@ namespace Stockify.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Governorates", (string)null);
+                    b.ToTable("Governorates");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.HeroBanner", b =>
@@ -542,7 +542,7 @@ namespace Stockify.Migrations
 
                     b.HasIndex("IsActive");
 
-                    b.ToTable("HeroBanners", (string)null);
+                    b.ToTable("HeroBanners");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.HomeOffer", b =>
@@ -598,7 +598,7 @@ namespace Stockify.Migrations
 
                     b.HasIndex("SecondProductId");
 
-                    b.ToTable("HomeOffers", (string)null);
+                    b.ToTable("HomeOffers");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.HomeSetting", b =>
@@ -616,6 +616,16 @@ namespace Stockify.Migrations
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("AtelierAddress")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("AtelierName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("Banner2Active")
                         .HasColumnType("bit");
@@ -661,6 +671,24 @@ namespace Stockify.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
+                    b.Property<string>("BestSellersBadgeText")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("BestSellersProductIds")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("BestSellersSubtitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BestSellersTitle")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
                     b.Property<string>("ContactEmail")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -671,7 +699,40 @@ namespace Stockify.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("ContactWorkingHours")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("DefaultFragranceTagline")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("FacebookUrl")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("FeaturedBadgeText")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("FeaturedExploreText")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("FeaturedProductIds")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("FeaturedSubtitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FeaturedTitle")
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
@@ -694,6 +755,22 @@ namespace Stockify.Migrations
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
+
+                    b.Property<bool>("MarqueeActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MarqueeBadgeText")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("MarqueeSpeedSeconds")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MarqueeText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("ShowBestSellersSection")
                         .HasColumnType("bit");
@@ -719,6 +796,11 @@ namespace Stockify.Migrations
                     b.Property<int>("SpotlightAllocatedPercent")
                         .HasColumnType("int");
 
+                    b.Property<string>("SpotlightBadgeText")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
                     b.Property<DateTime?>("SpotlightEndTime")
                         .HasColumnType("datetime2");
 
@@ -731,6 +813,16 @@ namespace Stockify.Migrations
                     b.Property<int>("SpotlightRemainingCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("SpotlightSubtitle")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("nvarchar(600)");
+
+                    b.Property<string>("SpotlightTitle")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
                     b.Property<string>("WhatsAppNumber")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -738,7 +830,7 @@ namespace Stockify.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HomeSettings", (string)null);
+                    b.ToTable("HomeSettings");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.InventoryTransaction", b =>
@@ -779,7 +871,7 @@ namespace Stockify.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("InventoryTransactions", (string)null);
+                    b.ToTable("InventoryTransactions");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.Order", b =>
@@ -862,7 +954,7 @@ namespace Stockify.Migrations
                     b.HasIndex("OrderNumber")
                         .IsUnique();
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.OrderItem", b =>
@@ -891,7 +983,7 @@ namespace Stockify.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.Product", b =>
@@ -912,6 +1004,9 @@ namespace Stockify.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<string>("FragranceTagline")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
@@ -920,6 +1015,11 @@ namespace Stockify.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
+
+                    b.Property<bool>("IsBestSeller")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsFeatured")
                         .ValueGeneratedOnAdd()
@@ -957,7 +1057,56 @@ namespace Stockify.Migrations
                     b.HasIndex("Sku")
                         .IsUnique();
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("Stockify.Models.Entities.ProductReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomerEmail")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CustomerPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("IsApproved");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductReviews");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.SiteVisit", b =>
@@ -996,7 +1145,7 @@ namespace Stockify.Migrations
 
                     b.HasIndex("VisitedAt");
 
-                    b.ToTable("SiteVisits", (string)null);
+                    b.ToTable("SiteVisits");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1150,6 +1299,17 @@ namespace Stockify.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Stockify.Models.Entities.ProductReview", b =>
+                {
+                    b.HasOne("Stockify.Models.Entities.Product", "Product")
+                        .WithMany("Reviews")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Stockify.Models.Entities.Category", b =>
                 {
                     b.Navigation("Products");
@@ -1177,6 +1337,8 @@ namespace Stockify.Migrations
                     b.Navigation("InventoryTransactions");
 
                     b.Navigation("OrderItems");
+
+                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

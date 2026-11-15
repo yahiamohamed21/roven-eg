@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Stockify.Common.Constants;
 using Stockify.Data;
 using Stockify.Models.Entities;
+using Stockify.Services.Interfaces;
 using Stockify.ViewModels.Categories;
 
 namespace Stockify.Controllers;
@@ -12,10 +14,17 @@ namespace Stockify.Controllers;
 public class CategoriesController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly IStoreCacheService _storeCacheService;
 
-    public CategoriesController(ApplicationDbContext context)
+    public CategoriesController(ApplicationDbContext context, IStoreCacheService storeCacheService)
     {
         _context = context;
+        _storeCacheService = storeCacheService;
+    }
+
+    private void InvalidateStoreCache()
+    {
+        _storeCacheService.InvalidateAll();
     }
 
     // GET: Categories
@@ -72,6 +81,8 @@ public class CategoriesController : Controller
 
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
+
+        InvalidateStoreCache();
 
         TempData["SuccessMessage"] = $"Category '{category.Name}' created successfully!";
         return RedirectToAction(nameof(Index));
@@ -136,6 +147,8 @@ public class CategoriesController : Controller
         _context.Categories.Update(category);
         await _context.SaveChangesAsync();
 
+        InvalidateStoreCache();
+
         TempData["SuccessMessage"] = $"Category '{category.Name}' updated successfully!";
         return RedirectToAction(nameof(Index));
     }
@@ -179,6 +192,8 @@ public class CategoriesController : Controller
 
         _context.Categories.Remove(category);
         await _context.SaveChangesAsync();
+
+        InvalidateStoreCache();
 
         TempData["SuccessMessage"] = $"Category '{category.Name}' deleted successfully!";
         return RedirectToAction(nameof(Index));

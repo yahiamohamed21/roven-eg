@@ -304,6 +304,7 @@ public class CartController : Controller
 
     // POST: /Cart/RemoveFromCart
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult RemoveFromCart(int productId)
     {
         var cart = GetCartFromSession();
@@ -327,6 +328,7 @@ public class CartController : Controller
 
     // POST: /Cart/ClearCart
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult ClearCart()
     {
         HttpContext.Session.Remove(CartSessionKey);
@@ -335,6 +337,7 @@ public class CartController : Controller
 
     // POST: /Cart/ApplyCoupon
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> ApplyCoupon(string couponCode)
     {
         if (string.IsNullOrWhiteSpace(couponCode))
@@ -408,6 +411,7 @@ public class CartController : Controller
 
     // POST: /Cart/RemoveCoupon
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult RemoveCoupon()
     {
         var cart = GetCartFromSession();

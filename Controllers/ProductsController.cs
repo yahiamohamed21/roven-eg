@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Stockify.Common.Constants;
 using Stockify.Data;
 using Stockify.Models.Entities;
 using Stockify.Models.Enums;
+using Stockify.Services.Interfaces;
 using Stockify.ViewModels.Products;
 
 namespace Stockify.Controllers;
@@ -16,15 +18,29 @@ public class ProductsController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _environment;
     private readonly Stockify.Services.Interfaces.IImageStorageService _imageStorageService;
+    private readonly IStoreCacheService _storeCacheService;
+    private readonly IMediaDeletionQueue _mediaDeletionQueue;
+    private readonly ILogger<ProductsController>? _logger;
 
     public ProductsController(
         ApplicationDbContext context, 
         IWebHostEnvironment environment,
-        Stockify.Services.Interfaces.IImageStorageService imageStorageService)
+        Stockify.Services.Interfaces.IImageStorageService imageStorageService,
+        IStoreCacheService storeCacheService,
+        IMediaDeletionQueue mediaDeletionQueue,
+        ILogger<ProductsController>? logger = null)
     {
         _context = context;
         _environment = environment;
         _imageStorageService = imageStorageService;
+        _storeCacheService = storeCacheService;
+        _mediaDeletionQueue = mediaDeletionQueue;
+        _logger = logger;
+    }
+
+    private void InvalidateStoreCache()
+    {
+        _storeCacheService.InvalidateAll();
     }
 
     // GET: Products
@@ -142,7 +158,17 @@ public class ProductsController : Controller
         string? imageUrl = null;
         if (model.ImageFile != null)
         {
-            imageUrl = await SaveUploadedImageAsync(model.ImageFile);
+            try
+            {
+                imageUrl = await SaveUploadedImageAsync(model.ImageFile);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to upload image for new product: {Name}", model.Name);
+                ModelState.AddModelError("ImageFile", "فشل رفع الصورة إلى التخزين السحابي. يرجى المحاولة مرة أخرى.");
+                model.CategoriesList = await GetCategoriesSelectListAsync();
+                return View(model);
+            }
         }
 
         var product = new Product
@@ -150,12 +176,15 @@ public class ProductsController : Controller
             Name = model.Name.Trim(),
             Sku = normalizedSku,
             Description = model.Description?.Trim(),
+            FragranceTagline = string.IsNullOrWhiteSpace(model.FragranceTagline) ? null : model.FragranceTagline.Trim(),
             Price = model.Price,
             StockQuantity = model.StockQuantity,
             ReorderLevel = model.ReorderLevel,
             CategoryId = model.CategoryId,
             ImageUrl = imageUrl,
             IsActive = true,
+            IsFeatured = model.IsFeatured,
+            IsBestSeller = model.IsBestSeller,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -175,6 +204,8 @@ public class ProductsController : Controller
             });
             await _context.SaveChangesAsync();
         }
+
+        InvalidateStoreCache();
 
         TempData["SuccessMessage"] = $"Product '{product.Name}' added successfully!";
         return RedirectToAction(nameof(Index));
@@ -196,11 +227,14 @@ public class ProductsController : Controller
             Name = product.Name,
             Sku = product.Sku,
             Description = product.Description,
+            FragranceTagline = product.FragranceTagline,
             Price = product.Price,
             StockQuantity = product.StockQuantity,
             ReorderLevel = product.ReorderLevel,
             CategoryId = product.CategoryId,
             IsActive = product.IsActive,
+            IsFeatured = product.IsFeatured,
+            IsBestSeller = product.IsBestSeller,
             ExistingImageUrl = product.ImageUrl,
             CategoriesList = await GetCategoriesSelectListAsync()
         };
@@ -243,21 +277,66 @@ public class ProductsController : Controller
             return View(model);
         }
 
+        string? oldImageUrl = product.ImageUrl;
+        string? newlyUploadedUrl = null;
+
         if (model.ImageFile != null)
         {
-            product.ImageUrl = await SaveUploadedImageAsync(model.ImageFile);
+            try
+            {
+                newlyUploadedUrl = await SaveUploadedImageAsync(model.ImageFile);
+                product.ImageUrl = newlyUploadedUrl;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to upload replacement image for product {Id}", id);
+                ModelState.AddModelError("ImageFile", "فشل رفع الصورة البديلة إلى التخزين السحابي. يرجى المحاولة مرة أخرى.");
+                model.ExistingImageUrl = product.ImageUrl;
+                model.CategoriesList = await GetCategoriesSelectListAsync();
+                return View(model);
+            }
         }
 
         product.Name = model.Name.Trim();
         product.Sku = normalizedSku;
         product.Description = model.Description?.Trim();
+        product.FragranceTagline = string.IsNullOrWhiteSpace(model.FragranceTagline) ? null : model.FragranceTagline.Trim();
         product.Price = model.Price;
         product.ReorderLevel = model.ReorderLevel;
         product.CategoryId = model.CategoryId;
         product.IsActive = model.IsActive;
+        product.IsFeatured = model.IsFeatured;
+        product.IsBestSeller = model.IsBestSeller;
 
-        _context.Products.Update(product);
-        await _context.SaveChangesAsync();
+        try
+        {
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Database update failed after image upload for product {Id}. Preserving existing image reference.", id);
+            if (!string.IsNullOrWhiteSpace(newlyUploadedUrl))
+            {
+                _logger?.LogWarning("Orphaned Cloudinary asset identified: {Url}", newlyUploadedUrl);
+            }
+            product.ImageUrl = oldImageUrl;
+            ModelState.AddModelError("", "حدث خطأ أثناء حفظ بيانات العطر في قاعدة البيانات.");
+            model.ExistingImageUrl = oldImageUrl;
+            model.CategoriesList = await GetCategoriesSelectListAsync();
+            return View(model);
+        }
+
+        InvalidateStoreCache();
+
+        // Safe cleanup: Enqueue old Cloudinary image to background deletion queue
+        if (!string.IsNullOrWhiteSpace(newlyUploadedUrl) &&
+            !string.IsNullOrWhiteSpace(oldImageUrl) &&
+            !string.Equals(oldImageUrl, newlyUploadedUrl, StringComparison.OrdinalIgnoreCase) &&
+            oldImageUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+        {
+            await _mediaDeletionQueue.EnqueueAsync(oldImageUrl);
+        }
 
         TempData["SuccessMessage"] = $"Product '{product.Name}' updated successfully!";
         return RedirectToAction(nameof(Index));
@@ -301,12 +380,23 @@ public class ProductsController : Controller
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
 
+            InvalidateStoreCache();
+
             TempData["WarningMessage"] = $"Product '{product.Name}' has existing sales order history and cannot be permanently deleted. It has been archived (IsActive = false).";
             return RedirectToAction(nameof(Index));
         }
 
+        var imageUrl = product.ImageUrl;
         _context.Products.Remove(product);
         await _context.SaveChangesAsync();
+
+        InvalidateStoreCache();
+
+        // Safe cleanup: Enqueue deleted product image to background deletion queue
+        if (!string.IsNullOrWhiteSpace(imageUrl) && imageUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+        {
+            await _mediaDeletionQueue.EnqueueAsync(imageUrl);
+        }
 
         TempData["SuccessMessage"] = $"Product '{product.Name}' permanently deleted successfully!";
         return RedirectToAction(nameof(Index));
@@ -328,24 +418,7 @@ public class ProductsController : Controller
 
     private static bool ValidateUploadedImage(IFormFile file, out string? error)
     {
-        error = null;
-        string[] allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
-        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-
-        if (!allowedExtensions.Contains(ext))
-        {
-            error = "Only JPG, PNG, and WebP image formats are permitted.";
-            return false;
-        }
-
-        const long maxBytes = 3 * 1024 * 1024; // 3MB limit
-        if (file.Length > maxBytes)
-        {
-            error = "Image file size cannot exceed 3MB.";
-            return false;
-        }
-
-        return true;
+        return Stockify.Common.Security.ImageSecurityValidator.Validate(file, out error, allowSvg: false, maxSizeBytes: 5 * 1024 * 1024);
     }
 
     private async Task<string> SaveUploadedImageAsync(IFormFile file)

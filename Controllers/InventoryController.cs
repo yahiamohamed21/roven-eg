@@ -7,6 +7,7 @@ using Stockify.Common.Constants;
 using Stockify.Data;
 using Stockify.Models.Entities;
 using Stockify.Models.Enums;
+using Stockify.Services.Interfaces;
 using Stockify.ViewModels.Inventory;
 
 namespace Stockify.Controllers;
@@ -16,11 +17,16 @@ public class InventoryController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IStoreCacheService _storeCacheService;
 
-    public InventoryController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public InventoryController(
+        ApplicationDbContext context,
+        UserManager<ApplicationUser> userManager,
+        IStoreCacheService storeCacheService)
     {
         _context = context;
         _userManager = userManager;
+        _storeCacheService = storeCacheService;
     }
 
     // GET: Inventory
@@ -182,6 +188,8 @@ public class InventoryController : Controller
         _context.InventoryTransactions.Add(transaction);
         await _context.SaveChangesAsync();
 
+        _storeCacheService.InvalidateCatalogCache();
+
         TempData["SuccessMessage"] = $"Stock In recorded successfully! Received +{model.Quantity} units for '{product.Name}'. Current stock is now {product.StockQuantity} units.";
         return RedirectToAction(nameof(Index));
     }
@@ -256,6 +264,8 @@ public class InventoryController : Controller
 
         _context.InventoryTransactions.Add(transaction);
         await _context.SaveChangesAsync();
+
+        _storeCacheService.InvalidateCatalogCache();
 
         TempData["SuccessMessage"] = $"Inventory adjustment recorded successfully for '{product.Name}'. New stock balance: {product.StockQuantity} units.";
         return RedirectToAction(nameof(Index));

@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Stockify.Common.Constants;
 using Stockify.Data;
 using Stockify.Models.Entities;
+using Stockify.Services.Interfaces;
 
 namespace Stockify.Controllers;
 
@@ -19,15 +21,26 @@ public class HomeControlController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _environment;
     private readonly Stockify.Services.Interfaces.IImageStorageService _imageStorageService;
+    private readonly IStoreCacheService _storeCacheService;
+    private readonly IMediaDeletionQueue _mediaDeletionQueue;
 
     public HomeControlController(
         ApplicationDbContext context, 
         IWebHostEnvironment environment,
-        Stockify.Services.Interfaces.IImageStorageService imageStorageService)
+        Stockify.Services.Interfaces.IImageStorageService imageStorageService,
+        IStoreCacheService storeCacheService,
+        IMediaDeletionQueue mediaDeletionQueue)
     {
         _context = context;
         _environment = environment;
         _imageStorageService = imageStorageService;
+        _storeCacheService = storeCacheService;
+        _mediaDeletionQueue = mediaDeletionQueue;
+    }
+
+    private void InvalidateStoreCache()
+    {
+        _storeCacheService.InvalidateAll();
     }
 
     // GET: /HomeControl
@@ -39,6 +52,29 @@ public class HomeControlController : Controller
             settings = new HomeSetting();
             _context.HomeSettings.Add(settings);
             await _context.SaveChangesAsync();
+        }
+        else
+        {
+            bool needsSave = false;
+            if (string.IsNullOrWhiteSpace(settings.SpotlightBadgeText))
+            {
+                settings.SpotlightBadgeText = "EXCLUSIVE ATELIER OFFERS & DEALS";
+                needsSave = true;
+            }
+            if (string.IsNullOrWhiteSpace(settings.SpotlightTitle))
+            {
+                settings.SpotlightTitle = "عروض وتخفيضات دار روفين الحصرية";
+                needsSave = true;
+            }
+            if (string.IsNullOrWhiteSpace(settings.SpotlightSubtitle))
+            {
+                settings.SpotlightSubtitle = "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";
+                needsSave = true;
+            }
+            if (needsSave)
+            {
+                await _context.SaveChangesAsync();
+            }
         }
 
         ViewBag.HeroBanners = await _context.HeroBanners
@@ -58,6 +94,53 @@ public class HomeControlController : Controller
             .ThenByDescending(o => o.CreatedAt)
             .ToListAsync();
 
+        var selectedIds = new HashSet<int>();
+        if (!string.IsNullOrWhiteSpace(settings.BestSellersProductIds))
+        {
+            foreach (var item in settings.BestSellersProductIds.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                if (int.TryParse(item, out var id)) selectedIds.Add(id);
+            }
+        }
+        else
+        {
+            // If not set yet, check if any products have IsBestSeller flag
+            var bestSellerProducts = await _context.Products
+                .Where(p => p.IsActive && p.IsPublished && p.IsBestSeller)
+                .Select(p => p.Id)
+                .ToListAsync();
+            foreach (var id in bestSellerProducts) selectedIds.Add(id);
+        }
+        ViewBag.SelectedBestSellerIds = selectedIds;
+
+        if (string.IsNullOrWhiteSpace(settings.FeaturedBadgeText))
+            settings.FeaturedBadgeText = "Master Distillations";
+        if (string.IsNullOrWhiteSpace(settings.FeaturedTitle))
+            settings.FeaturedTitle = "Featured ROVEN Parfums";
+        if (string.IsNullOrWhiteSpace(settings.FeaturedSubtitle))
+            settings.FeaturedSubtitle = "Our most acclaimed fragrant creations formulated with precious Grasse and oriental oils";
+        if (string.IsNullOrWhiteSpace(settings.FeaturedExploreText))
+            settings.FeaturedExploreText = "Explore Full Collection";
+
+        var selectedFeaturedIds = new HashSet<int>();
+        if (!string.IsNullOrWhiteSpace(settings.FeaturedProductIds))
+        {
+            foreach (var item in settings.FeaturedProductIds.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                if (int.TryParse(item, out var id)) selectedFeaturedIds.Add(id);
+            }
+        }
+        else
+        {
+            // If not set yet, check if any products have IsFeatured flag
+            var featuredProducts = await _context.Products
+                .Where(p => p.IsActive && p.IsPublished && p.IsFeatured)
+                .Select(p => p.Id)
+                .ToListAsync();
+            foreach (var id in featuredProducts) selectedFeaturedIds.Add(id);
+        }
+        ViewBag.SelectedFeaturedProductIds = selectedFeaturedIds;
+
         return View(settings);
     }
 
@@ -67,10 +150,13 @@ public class HomeControlController : Controller
     {
         if (file == null || file.Length == 0) return null;
 
-        string[] allowedExtensions = [".jpg", ".jpeg", ".png", ".webp", ".svg"];
-        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (!allowedExtensions.Contains(ext)) return null;
+        if (!Stockify.Common.Security.ImageSecurityValidator.Validate(file, out var error, allowSvg: false, maxSizeBytes: 10 * 1024 * 1024))
+        {
+            TempData["ErrorMessage"] = error ?? "الملف المرفوع للبانر غير صالح.";
+            return null;
+        }
 
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
         var customFileName = $"{prefix}_{Guid.NewGuid():N}{ext}";
         return await _imageStorageService.UploadImageAsync(file, "roven/banners", customFileName);
     }
@@ -96,7 +182,10 @@ public class HomeControlController : Controller
 
         if (string.IsNullOrWhiteSpace(finalDesktopUrl))
         {
-            TempData["ErrorMessage"] = "يرجى رفع صورة الديسكتوب للبانر (Desktop Image) أو إدخال مسارها.";
+            if (TempData["ErrorMessage"] == null)
+            {
+                TempData["ErrorMessage"] = "يرجى رفع صورة الديسكتوب للبانر (Desktop Image) أو إدخال مسارها.";
+            }
             return RedirectToAction(nameof(Index));
         }
 
@@ -124,6 +213,8 @@ public class HomeControlController : Controller
         await _context.SaveChangesAsync();
         await AutoSyncLocalImagesToCloudinaryAsync();
 
+        InvalidateStoreCache();
+
         TempData["SuccessMessage"] = $"تمت إضافة البانر '{banner.Title}' بنجاح!";
         return RedirectToAction(nameof(Index));
     }
@@ -150,20 +241,31 @@ public class HomeControlController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var newDesktop = await SaveBannerFileAsync(desktopImage, "desktop");
-        if (!string.IsNullOrWhiteSpace(newDesktop))
+        var oldDesktopUrl = banner.DesktopImageUrl;
+        var oldMobileUrl = banner.MobileImageUrl;
+
+        string? newDesktop = null;
+        if (desktopImage != null && desktopImage.Length > 0)
         {
-            banner.DesktopImageUrl = newDesktop;
+            newDesktop = await SaveBannerFileAsync(desktopImage, "desktop");
+            if (!string.IsNullOrWhiteSpace(newDesktop))
+            {
+                banner.DesktopImageUrl = newDesktop;
+            }
         }
         else if (!string.IsNullOrWhiteSpace(desktopImageUrl))
         {
             banner.DesktopImageUrl = desktopImageUrl.Trim();
         }
 
-        var newMobile = await SaveBannerFileAsync(mobileImage, "mobile");
-        if (!string.IsNullOrWhiteSpace(newMobile))
+        string? newMobile = null;
+        if (mobileImage != null && mobileImage.Length > 0)
         {
-            banner.MobileImageUrl = newMobile;
+            newMobile = await SaveBannerFileAsync(mobileImage, "mobile");
+            if (!string.IsNullOrWhiteSpace(newMobile))
+            {
+                banner.MobileImageUrl = newMobile;
+            }
         }
         else if (!string.IsNullOrWhiteSpace(mobileImageUrl))
         {
@@ -181,6 +283,26 @@ public class HomeControlController : Controller
 
         await _context.SaveChangesAsync();
         await AutoSyncLocalImagesToCloudinaryAsync();
+
+        InvalidateStoreCache();
+
+        // Safe cleanup for replaced desktop image via background deletion queue
+        if (!string.IsNullOrWhiteSpace(newDesktop) &&
+            !string.IsNullOrWhiteSpace(oldDesktopUrl) &&
+            !string.Equals(oldDesktopUrl, newDesktop, StringComparison.OrdinalIgnoreCase) &&
+            oldDesktopUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+        {
+            await _mediaDeletionQueue.EnqueueAsync(oldDesktopUrl);
+        }
+
+        // Safe cleanup for replaced mobile image via background deletion queue
+        if (!string.IsNullOrWhiteSpace(newMobile) &&
+            !string.IsNullOrWhiteSpace(oldMobileUrl) &&
+            !string.Equals(oldMobileUrl, newMobile, StringComparison.OrdinalIgnoreCase) &&
+            oldMobileUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+        {
+            await _mediaDeletionQueue.EnqueueAsync(oldMobileUrl);
+        }
 
         TempData["SuccessMessage"] = $"تم تحديث بيانات البانر '{banner.Title}' بنجاح!";
         return RedirectToAction(nameof(Index));
@@ -200,6 +322,8 @@ public class HomeControlController : Controller
 
         banner.IsActive = !banner.IsActive;
         await _context.SaveChangesAsync();
+
+        InvalidateStoreCache();
 
         TempData["SuccessMessage"] = $"تم {(banner.IsActive ? "تفعيل" : "إيقاف")} ظهور البانر '{banner.Title}' في المتجر.";
         return RedirectToAction(nameof(Index));
@@ -231,6 +355,7 @@ public class HomeControlController : Controller
                 prev.DisplayOrder = currentIndex + 1;
             }
             await _context.SaveChangesAsync();
+            InvalidateStoreCache();
         }
         else if (direction == "down" && currentIndex < banners.Count - 1)
         {
@@ -246,6 +371,7 @@ public class HomeControlController : Controller
                 next.DisplayOrder = currentIndex + 1;
             }
             await _context.SaveChangesAsync();
+            InvalidateStoreCache();
         }
 
         return RedirectToAction(nameof(Index));
@@ -264,8 +390,24 @@ public class HomeControlController : Controller
         }
 
         var title = banner.Title;
+        var desktopUrl = banner.DesktopImageUrl;
+        var mobileUrl = banner.MobileImageUrl;
+
         _context.HeroBanners.Remove(banner);
         await _context.SaveChangesAsync();
+
+        InvalidateStoreCache();
+
+        // Safe cleanup for deleted banner images via background deletion queue
+        if (!string.IsNullOrWhiteSpace(desktopUrl) && desktopUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+        {
+            await _mediaDeletionQueue.EnqueueAsync(desktopUrl);
+        }
+
+        if (!string.IsNullOrWhiteSpace(mobileUrl) && mobileUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+        {
+            await _mediaDeletionQueue.EnqueueAsync(mobileUrl);
+        }
 
         TempData["SuccessMessage"] = $"تم حذف البانر '{title}' بنجاح.";
         return RedirectToAction(nameof(Index));
@@ -276,7 +418,7 @@ public class HomeControlController : Controller
     // POST: /HomeControl/Update
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(HomeSetting model)
+    public async Task<IActionResult> Update(HomeSetting model, int[]? selectedBestSellerIds, int[]? selectedFeaturedProductIds)
     {
         var settings = await _context.HomeSettings.FirstOrDefaultAsync();
         if (settings == null)
@@ -287,6 +429,68 @@ public class HomeControlController : Controller
 
         settings.AnnouncementText = model.AnnouncementText?.Trim() ?? "";
         settings.AnnouncementActive = model.AnnouncementActive;
+        settings.DefaultFragranceTagline = !string.IsNullOrWhiteSpace(model.DefaultFragranceTagline) ? model.DefaultFragranceTagline.Trim() : "Extrait de Parfum • 30% Pure Oil";
+
+        // Best Sellers Section Customization
+        settings.BestSellersBadgeText = !string.IsNullOrWhiteSpace(model.BestSellersBadgeText) ? model.BestSellersBadgeText.Trim() : "Most Requested";
+        settings.BestSellersTitle = !string.IsNullOrWhiteSpace(model.BestSellersTitle) ? model.BestSellersTitle.Trim() : "Top Acclaimed ROVEN Parfums";
+        settings.BestSellersSubtitle = !string.IsNullOrWhiteSpace(model.BestSellersSubtitle) ? model.BestSellersSubtitle.Trim() : "The fragrances most cherished by our clientele across Egypt this month";
+
+        if (selectedBestSellerIds != null && selectedBestSellerIds.Length > 0)
+        {
+            settings.BestSellersProductIds = string.Join(",", selectedBestSellerIds);
+
+            // Synchronize Product.IsBestSeller
+            var allProds = await _context.Products.ToListAsync();
+            foreach (var prod in allProds)
+            {
+                prod.IsBestSeller = selectedBestSellerIds.Contains(prod.Id);
+            }
+        }
+        else if (selectedBestSellerIds != null && selectedBestSellerIds.Length == 0)
+        {
+            settings.BestSellersProductIds = "";
+            var bestSellerProds = await _context.Products.Where(p => p.IsBestSeller).ToListAsync();
+            foreach (var prod in bestSellerProds)
+            {
+                prod.IsBestSeller = false;
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(model.BestSellersProductIds))
+        {
+            settings.BestSellersProductIds = model.BestSellersProductIds.Trim();
+        }
+
+        // Featured Section Customization
+        settings.FeaturedBadgeText = !string.IsNullOrWhiteSpace(model.FeaturedBadgeText) ? model.FeaturedBadgeText.Trim() : "Master Distillations";
+        settings.FeaturedTitle = !string.IsNullOrWhiteSpace(model.FeaturedTitle) ? model.FeaturedTitle.Trim() : "Featured ROVEN Parfums";
+        settings.FeaturedSubtitle = !string.IsNullOrWhiteSpace(model.FeaturedSubtitle) ? model.FeaturedSubtitle.Trim() : "Our most acclaimed fragrant creations formulated with precious Grasse and oriental oils";
+        settings.FeaturedExploreText = !string.IsNullOrWhiteSpace(model.FeaturedExploreText) ? model.FeaturedExploreText.Trim() : "Explore Full Collection";
+
+        if (selectedFeaturedProductIds != null && selectedFeaturedProductIds.Length > 0)
+        {
+            settings.FeaturedProductIds = string.Join(",", selectedFeaturedProductIds);
+
+            // Synchronize Product.IsFeatured
+            var allProds = await _context.Products.ToListAsync();
+            foreach (var prod in allProds)
+            {
+                prod.IsFeatured = selectedFeaturedProductIds.Contains(prod.Id);
+            }
+        }
+        else if (selectedFeaturedProductIds != null && selectedFeaturedProductIds.Length == 0)
+        {
+            settings.FeaturedProductIds = "";
+            var featuredProds = await _context.Products.Where(p => p.IsFeatured).ToListAsync();
+            foreach (var prod in featuredProds)
+            {
+                prod.IsFeatured = false;
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(model.FeaturedProductIds))
+        {
+            settings.FeaturedProductIds = model.FeaturedProductIds.Trim();
+        }
 
         settings.HeroTitle = model.HeroTitle?.Trim() ?? "";
         settings.HeroSubtitle = model.HeroSubtitle?.Trim() ?? "";
@@ -313,19 +517,22 @@ public class HomeControlController : Controller
         settings.SpotlightRemainingCount = model.SpotlightRemainingCount;
         settings.SpotlightActive = model.SpotlightActive;
 
+        settings.SpotlightBadgeText = !string.IsNullOrWhiteSpace(model.SpotlightBadgeText) 
+            ? model.SpotlightBadgeText.Trim() 
+            : "EXCLUSIVE ATELIER OFFERS & DEALS";
+        settings.SpotlightTitle = !string.IsNullOrWhiteSpace(model.SpotlightTitle) 
+            ? model.SpotlightTitle.Trim() 
+            : "عروض وتخفيضات دار روفين الحصرية";
+        settings.SpotlightSubtitle = !string.IsNullOrWhiteSpace(model.SpotlightSubtitle) 
+            ? model.SpotlightSubtitle.Trim() 
+            : "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";
+
         settings.MarqueeActive = model.MarqueeActive;
         settings.MarqueeText = model.MarqueeText?.Trim() ?? "";
         settings.MarqueeBadgeText = model.MarqueeBadgeText?.Trim() ?? "";
         settings.MarqueeSpeedSeconds = model.MarqueeSpeedSeconds > 0 ? model.MarqueeSpeedSeconds : 25;
 
-        settings.FacebookUrl = model.FacebookUrl?.Trim() ?? "";
-        settings.InstagramUrl = model.InstagramUrl?.Trim() ?? "";
-        settings.WhatsAppNumber = model.WhatsAppNumber?.Trim() ?? "";
-        settings.ContactPhone = model.ContactPhone?.Trim() ?? "";
-        settings.ContactEmail = model.ContactEmail?.Trim() ?? "";
-        settings.ContactWorkingHours = !string.IsNullOrWhiteSpace(model.ContactWorkingHours) ? model.ContactWorkingHours.Trim() : "Daily: 10:00 AM – 11:00 PM CLT";
-        settings.AtelierName = !string.IsNullOrWhiteSpace(model.AtelierName) ? model.AtelierName.Trim() : "Zamalek & New Cairo Salons";
-        settings.AtelierAddress = !string.IsNullOrWhiteSpace(model.AtelierAddress) ? model.AtelierAddress.Trim() : "Cairo & Giza, Arab Republic of Egypt";
+        // Note: Social media, WhatsApp and Contact info are managed exclusively via MessagesController
 
         settings.ShowTrustBadges = model.ShowTrustBadges;
         settings.ShowCategoriesShowcase = model.ShowCategoriesShowcase;
@@ -337,8 +544,37 @@ public class HomeControlController : Controller
         await _context.SaveChangesAsync();
         await AutoSyncLocalImagesToCloudinaryAsync();
 
+        InvalidateStoreCache();
+
         TempData["SuccessMessage"] = "تم تحديث وتثبيت إعدادات الواجهة الرئيسية بنجاح!";
         return RedirectToAction(nameof(Index));
+    }
+
+    // POST: /HomeControl/UpdateWhatsAppDirect
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateWhatsAppDirect([FromForm] string whatsAppNumber)
+    {
+        var settings = await _context.HomeSettings.FirstOrDefaultAsync();
+        if (settings == null)
+        {
+            settings = new HomeSetting();
+            _context.HomeSettings.Add(settings);
+        }
+
+        settings.WhatsAppNumber = whatsAppNumber?.Trim() ?? "";
+        await _context.SaveChangesAsync();
+
+        InvalidateStoreCache();
+
+        var normalized = HomeSetting.NormalizeWhatsAppNumber(settings.WhatsAppNumber);
+        return Json(new 
+        { 
+            success = true, 
+            raw = settings.WhatsAppNumber, 
+            normalized = normalized, 
+            message = "تم حفظ وتفعيل رقم الواتساب بنجاح، وتم ربطه فورياً بكافة أزرار الطلب في صفحات تفاصيل العطور والفوتر!" 
+        });
     }
 
     // POST: /HomeControl/AddHomeOffer
@@ -386,6 +622,8 @@ public class HomeControlController : Controller
         _context.HomeOffers.Add(newOffer);
         await _context.SaveChangesAsync();
 
+        InvalidateStoreCache();
+
         var successTitle = secondProduct != null ? $"عرض العطرين ({product.Name} + {secondProduct.Name})" : $"العطر '{product.Name}'";
         TempData["SuccessMessage"] = $"تمت إضافة {successTitle} بنجاح إلى قسم العروض بسعر {offerPrice:N0} ج.م!";
         return RedirectToAction(nameof(Index));
@@ -432,6 +670,8 @@ public class HomeControlController : Controller
 
         await _context.SaveChangesAsync();
 
+        InvalidateStoreCache();
+
         TempData["SuccessMessage"] = "تم تحديث بيانات العرض بنجاح!";
         return RedirectToAction(nameof(Index));
     }
@@ -450,6 +690,8 @@ public class HomeControlController : Controller
 
         offer.IsActive = !offer.IsActive;
         await _context.SaveChangesAsync();
+
+        InvalidateStoreCache();
 
         TempData["SuccessMessage"] = $"تم {(offer.IsActive ? "تفعيل" : "إيقاف")} عرض '{offer.Product?.Name ?? "المنتج"}' في قسم العروض.";
         return RedirectToAction(nameof(Index));
@@ -470,6 +712,8 @@ public class HomeControlController : Controller
         var prodName = offer.Product?.Name ?? "المنتج";
         _context.HomeOffers.Remove(offer);
         await _context.SaveChangesAsync();
+
+        InvalidateStoreCache();
 
         TempData["SuccessMessage"] = $"تم حذف '{prodName}' من قسم العروض بنجاح.";
         return RedirectToAction(nameof(Index));
@@ -567,6 +811,7 @@ public class HomeControlController : Controller
         }
 
         await _context.SaveChangesAsync();
+        InvalidateStoreCache();
 
         var mbSaved = Math.Round((double)bytesSaved / (1024 * 1024), 2);
         return Json(new

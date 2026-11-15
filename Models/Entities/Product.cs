@@ -8,6 +8,7 @@ public class Product
     public string Name { get; set; } = string.Empty;
     public string Sku { get; set; } = string.Empty;
     public string? Description { get; set; }
+    public string? FragranceTagline { get; set; }
 
     [Column(TypeName = "decimal(18,2)")]
     public decimal Price { get; set; }
@@ -18,6 +19,7 @@ public class Product
     public bool IsActive { get; set; } = true;
     public bool IsPublished { get; set; } = true;
     public bool IsFeatured { get; set; } = false;
+    public bool IsBestSeller { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public int CategoryId { get; set; }

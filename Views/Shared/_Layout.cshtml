@@ -130,12 +130,12 @@
     <!-- Custom Theme CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     
-    <!-- Favicon & Touch Icons (Crisp 1:1 ROVEN Monogram) -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=roven3" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png?v=roven3" />
-    <link rel="icon" type="image/png" sizes="64x64" href="/images/favicon-64.png?v=roven3" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=roven3" />
-    <link rel="shortcut icon" href="/favicon.ico?v=roven3" />
+    <!-- Favicon & Touch Icons (Crisp 1:1 ROVEN Haute Parfumerie Monogram) -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=roven_royal_2026" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png?v=roven_royal_2026" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/images/favicon-64.png?v=roven_royal_2026" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=roven_royal_2026" />
+    <link rel="shortcut icon" href="/favicon.ico?v=roven_royal_2026" />
     
     @await RenderSectionAsync("Styles", required: false)
 </head>
@@ -518,6 +518,7 @@
                                 </a>
                             </li>
                         </ul>
+                        <form id="adminNotifsAntiforgeryForm" class="d-none">@Html.AntiForgeryToken()</form>
                     </div>
 
                     <!-- User Profile Dropdown -->
@@ -555,23 +556,6 @@
                 <partial name="_AlertsPartial" />
                 @RenderBody()
             </main>
-
-            <!-- Footer -->
-            <footer class="app-footer d-flex flex-column align-items-center justify-content-center gap-2 py-3 px-3 text-center">
-                <div class="small" style="word-break: break-word; max-width: 100%;">&copy; @DateTime.UtcNow.Year <span class="fw-bold" style="color: #630000;">ROVEN</span> Haute Parfumerie – Atelier & Boutique Management System</div>
-                <div class="developer-box d-inline-flex align-items-center justify-content-center flex-wrap gap-2 px-3 py-1 rounded-pill shadow-sm" style="background-color: #EDEBDD; border: 1px solid rgba(99, 0, 0, 0.18); max-width: 100%;">
-                    <span class="small" style="color: #630000; font-weight: 500;">
-                        Created by <strong style="color: #1B1717;">Yahia Mohamed</strong>
-                    </span>
-                    <span class="vr mx-1" style="height: 16px; opacity: 0.35; background-color: #630000;"></span>
-                    <a href="https://www.linkedin.com/in/yahia-mohamed-b8b440372/" target="_blank" rel="noopener noreferrer" class="d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none shadow-sm" style="width: 24px; height: 24px; background-color: #0a66c2; color: #ffffff; font-size: 0.75rem;" title="LinkedIn Profile">
-                        <i class="fa-brands fa-linkedin-in"></i>
-                    </a>
-                    <a href="https://wa.me/201090411612" target="_blank" rel="noopener noreferrer" class="d-inline-flex align-items-center justify-content-center rounded-circle text-decoration-none shadow-sm" style="width: 24px; height: 24px; background-color: #25d366; color: #ffffff; font-size: 0.85rem;" title="WhatsApp">
-                        <i class="fa-brands fa-whatsapp"></i>
-                    </a>
-                </div>
-            </footer>
         </div>
     </div>
 
@@ -599,6 +583,12 @@
     {
         <script>
             (function() {
+                function getNotifsCsrfToken() {
+                    return document.querySelector('#adminNotifsAntiforgeryForm input[name="__RequestVerificationToken"]')?.value
+                        || document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                        || '';
+                }
+
                 window.markAllNotificationsAsRead = function(e) {
                     if (e) {
                         e.preventDefault();
@@ -649,7 +639,8 @@
                     fetch('/Orders/MarkNotificationsAsRead', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': getNotifsCsrfToken()
                         },
                         body: JSON.stringify({ timestamp: now })
                     }).catch(() => {});
@@ -708,7 +699,8 @@
                     fetch('/Orders/MarkNotificationsAsRead', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': getNotifsCsrfToken()
                         },
                         body: JSON.stringify({ orderId: orderId })
                     }).catch(() => {});
@@ -770,7 +762,8 @@
                     fetch('/Orders/ClearReadNotifications', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': getNotifsCsrfToken()
                         },
                         body: JSON.stringify({ dismissedIds: dismissedIds, timestamp: now })
                     }).catch(function() {});

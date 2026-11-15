@@ -10,17 +10,28 @@
 
 <style>
     .product-details-img-box {
-        background: radial-gradient(circle, #1a1a1a 0%, #000000 100%);
-        min-height: 320px;
-        max-height: 440px;
-        transition: transform 0.3s ease;
+        background: radial-gradient(circle at 50% 40%, #FFFFFF 0%, #FAF8F3 100%);
+        border: 1px solid rgba(181, 141, 74, 0.2);
+        border-radius: 1.25rem !important;
+        overflow: hidden;
+        position: relative;
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 !important;
+        box-shadow: 0 10px 30px rgba(99, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     .product-details-img {
-        max-height: 380px;
-        width: auto;
-        object-fit: contain;
-        filter: drop-shadow(0 12px 24px rgba(0,0,0,0.45));
-        transition: transform 0.4s ease;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .product-details-img-box:hover .product-details-img {
         transform: scale(1.04);
@@ -51,12 +62,12 @@
             display: none;
         }
         .product-details-img-box {
-            min-height: 260px !important;
-            max-height: 320px !important;
-            padding: 1rem !important;
+            max-width: 360px !important;
+            aspect-ratio: 1 / 1 !important;
+            padding: 0 !important;
         }
         .product-details-img {
-            max-height: 270px !important;
+            max-height: 360px !important;
         }
         .star-rating-box {
             font-size: 1.6rem !important;
@@ -91,10 +102,10 @@
         <div class="row g-4 g-lg-5 align-items-center">
             <!-- Left: Product Image with Luxury Radial Frame -->
             <div class="col-12 col-md-6 text-center">
-                <div class="rounded-4 p-3 p-sm-4 d-flex align-items-center justify-content-center shadow-sm position-relative overflow-hidden product-details-img-box">
+                <div class="rounded-4 d-flex align-items-center justify-content-center position-relative overflow-hidden product-details-img-box">
                     @if (!string.IsNullOrWhiteSpace(p.ImageUrl))
                     {
-                        <img src="@p.ImageUrl" alt="@p.Name" class="img-fluid rounded-3 product-details-img" />
+                        <img src="@p.ImageUrl" alt="@p.Name" class="product-details-img" />
                     }
                     else
                     {
@@ -129,9 +140,18 @@
                 </div>
 
                 <!-- Product Name with Fluid Typography -->
-                <h1 class="fw-extrabold mb-2" style="color: #1B1717; font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 4vw, 2.2rem); line-height: 1.25;">
+                <h1 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 4vw, 2.2rem); line-height: 1.25;">
                     @p.Name
                 </h1>
+
+                <!-- Fragrance Concentration / Tagline -->
+                @{
+                    var perfumeTagline = !string.IsNullOrWhiteSpace(p.FragranceTagline) ? p.FragranceTagline : Model.DefaultFragranceTagline;
+                }
+                <div class="roven-details-tagline mb-3 d-flex align-items-center gap-2">
+                    <span class="roven-tagline-dash" style="display: inline-block; width: 14px; height: 1.5px; background: rgba(181, 141, 74, 0.7);"></span>
+                    <span class="text-uppercase fw-semibold" style="color: #8c8278; font-size: 0.82rem; letter-spacing: 0.8px;">@perfumeTagline</span>
+                </div>
 
                 <!-- Rating badge & link to reviews -->
                 <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
@@ -217,13 +237,23 @@
 
                         <!-- Direct WhatsApp Concierge Ordering -->
                         @{
-                            var waStorePhone = "201008889999";
+                            var siteWaPhone = !string.IsNullOrWhiteSpace(Model.WhatsAppNumber) 
+                                ? Model.WhatsAppNumber 
+                                : "201006856199";
+                            var cleanWaPhone = Stockify.Models.Entities.HomeSetting.NormalizeWhatsAppNumber(siteWaPhone);
                             var productUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Store/Details/{p.Id}";
-                            var waMessage = Uri.EscapeDataString($"مرحباً دار روڤين، أود طلب عطر {p.Name} بسعر {p.Price:N0} ج.م.\nالرابط: {productUrl}");
+                            var perfumeConcentration = !string.IsNullOrWhiteSpace(p.FragranceTagline) ? p.FragranceTagline : Model.DefaultFragranceTagline;
+                            var defaultWaMessage = Uri.EscapeDataString($"مرحباً دار روڤين، أود طلب عطر {p.Name} ({perfumeConcentration}) بسعر {p.Price:N0} ج.م.\nالرابط: {productUrl}");
                         }
                         <div class="mb-3">
-                            <a href="https://wa.me/@waStorePhone?text=@waMessage" target="_blank" rel="noopener noreferrer" class="btn btn-outline-success w-100 py-2 rounded-pill fw-bold d-inline-flex align-items-center justify-content-center gap-2" style="font-size: 0.86rem; border-width: 1.5px;">
-                                <i class="fa-brands fa-whatsapp fs-5"></i>
+                            <a id="btnDirectWhatsAppOrder"
+                               href="https://wa.me/@cleanWaPhone?text=@defaultWaMessage" 
+                               target="_blank" 
+                               rel="noopener noreferrer" 
+                               onclick="handleDirectWhatsAppOrder(event)" 
+                               class="btn btn-outline-success w-100 py-2.5 rounded-pill fw-bold d-inline-flex align-items-center justify-content-center gap-2 shadow-xs" 
+                               style="font-size: 0.88rem; border-width: 1.5px; border-color: #25d366; color: #128c7e; background: rgba(37, 211, 102, 0.05); transition: all 0.25s ease;">
+                                <i class="fa-brands fa-whatsapp fs-5 text-success"></i>
                                 <span>طلب فوري مباشر عبر الواتساب</span>
                             </a>
                         </div>
@@ -422,11 +452,11 @@
                 @foreach (var related in Model.RelatedProducts)
                 {
                     <div class="@(Model.RelatedProducts.Count == 1 ? "col-12 col-sm-8 col-md-6 col-lg-4" : (Model.RelatedProducts.Count == 2 ? "col-6 col-md-6 col-lg-4" : "col-6 col-lg-3"))">
-                        <div class="product-card h-100 d-flex flex-column shadow-xs" data-details-url="@Url.Action("Details", "Store", new { id = related.Id })" style="border-radius: 14px; overflow: hidden; background: #ffffff; border: 1px solid #e8e3d5;">
-                            <a asp-action="Details" asp-route-id="@related.Id" class="product-image-container d-block position-relative text-decoration-none" style="background: #000000; height: 180px; overflow: hidden;" title="عرض تفاصيل عطر @related.Name">
+                        <div class="product-card roven-store-flacon-card" data-details-url="@Url.Action("Details", "Store", new { id = related.Id })">
+                            <a asp-action="Details" asp-route-id="@related.Id" class="product-image-container d-block position-relative text-decoration-none" title="عرض تفاصيل عطر @related.Name">
                                 @if (!string.IsNullOrWhiteSpace(related.ImageUrl))
                                 {
-                                    <img src="@related.ImageUrl" alt="@related.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='/images/products/perfume_default.svg'" style="object-fit: contain; width: 100%; height: 100%; padding: 8px;" />
+                                    <img src="@related.ImageUrl" alt="@related.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='/images/products/perfume_default.svg'" />
                                 }
                                 else
                                 {
@@ -437,35 +467,49 @@
 
                                 @if (related.IsFeatured)
                                 {
-                                    <span class="position-absolute top-0 start-0 m-2 badge px-2 py-1 rounded-pill" style="background: linear-gradient(135deg, #810100 0%, #630000 100%); color: #EDEBDD; font-size: 0.65rem;">
-                                        <i class="fa-solid fa-gem me-0.5 text-warning"></i>مميز
-                                    </span>
+                                    <div class="position-absolute top-0 end-0 m-3 z-2">
+                                        <span class="badge roven-badge-featured shadow-xs">
+                                            <i class="fa-solid fa-gem me-1"></i>Featured
+                                        </span>
+                                    </div>
                                 }
                             </a>
-                            <div class="p-2.5 p-sm-3 d-flex flex-column flex-grow-1">
-                                <div class="d-flex align-items-center justify-content-between mb-1">
-                                    <span class="badge px-2 py-0.5 rounded-pill" style="background-color: #EDEBDD; color: #630000; font-size: 0.68rem; font-weight: 600;">
-                                        @related.CategoryName
+                            <div class="p-3 d-flex flex-column flex-grow-1">
+                                <div class="roven-product-cat-wrap">
+                                    <span class="roven-product-cat-badge">
+                                        <span class="roven-cat-dot" aria-hidden="true"></span>
+                                        <span>@related.CategoryName</span>
                                     </span>
-                                    <div class="text-warning small" style="font-size: 0.7rem;">
-                                        <i class="fa-solid fa-star"></i>
-                                        <span class="fw-bold text-dark ms-0.5" style="font-size: 0.72rem;">5.0</span>
-                                    </div>
                                 </div>
 
-                                <h6 class="fw-bold text-dark mb-2" style="font-size: 0.88rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.4em;">
-                                    <a asp-action="Details" asp-route-id="@related.Id" class="text-dark text-decoration-none">
+                                <h4 class="roven-product-title">
+                                    <a asp-action="Details" asp-route-id="@related.Id" title="عرض تفاصيل عطر @related.Name">
                                         @related.Name
                                     </a>
-                                </h6>
+                                </h4>
 
-                                <div class="mt-auto pt-2 border-top d-flex align-items-center justify-content-between flex-wrap gap-1" style="border-color: #f0ece3 !important;">
-                                    <div class="fw-extrabold" style="color: #630000; font-size: 0.92rem; font-family: 'Playfair Display', serif;">
-                                        @related.Price.ToString("N0") <span class="fw-normal text-muted" style="font-size: 0.7rem;">ج.م</span>
+                                <div class="roven-product-tagline">
+                                    <span>@(string.IsNullOrWhiteSpace(related.FragranceTagline) ? Model.DefaultFragranceTagline : related.FragranceTagline)</span>
+                                </div>
+
+                                <div class="roven-card-footer">
+                                    <div>
+                                        <div class="roven-price-label">Price</div>
+                                        <div class="roven-price-val">
+                                            @related.Price.ToString("N2") <span class="roven-price-curr">EGP</span>
+                                        </div>
                                     </div>
-                                    <a asp-action="Details" asp-route-id="@related.Id" class="btn btn-sm btn-outline-dark rounded-pill px-2.5 py-1 fw-bold text-nowrap" style="font-size: 0.72rem; border-color: #d1c9b8;">
-                                        <span>عرض العطر</span>
-                                    </a>
+
+                                    @if (related.IsOutOfStock)
+                                    {
+                                        <button class="btn btn-sm btn-secondary rounded-pill px-3 py-1" disabled style="font-size: 0.78rem;">Unavailable</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="roven-btn-add-bag" onclick="window.addStoreItemToCart(@related.Id, 1, this)" title="Add to Bag">
+                                            <i class="fa-solid fa-bag-shopping"></i><span>Add</span>
+                                        </button>
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -493,6 +537,32 @@
         const input = document.getElementById('purchase-qty');
         const qty = parseInt(input.value) || 1;
         window.addStoreItemToCart(@p.Id, qty);
+    }
+
+    function handleDirectWhatsAppOrder(e) {
+        if (e) e.preventDefault();
+        const input = document.getElementById('purchase-qty');
+        const qty = parseInt(input ? input.value : '1') || 1;
+        const unitPrice = @p.Price;
+        const totalPrice = (unitPrice * qty).toLocaleString('en-US');
+        const productName = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(p.Name));
+        const concentration = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(!string.IsNullOrWhiteSpace(p.FragranceTagline) ? p.FragranceTagline : Model.DefaultFragranceTagline));
+        const cleanPhone = '@Stockify.Models.Entities.HomeSetting.NormalizeWhatsAppNumber(!string.IsNullOrWhiteSpace(Model.WhatsAppNumber) ? Model.WhatsAppNumber : "201006856199")';
+        const pageUrl = window.location.href;
+
+        let msg = `مرحباً دار روڤين، أود طلب عطر ${productName}`;
+        if (qty > 1) {
+            msg += ` (الكمية: ${qty} زجاجات - الإجمالي: ${totalPrice} ج.م)`;
+        } else {
+            msg += ` بسعر ${totalPrice} ج.م`;
+        }
+        if (concentration) {
+            msg += `\nالتركيز: ${concentration}`;
+        }
+        msg += `\nرابط العطر: ${pageUrl}`;
+
+        const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+        window.open(waUrl, '_blank', 'noopener,noreferrer');
     }
 
     // Star Rating interactive selection

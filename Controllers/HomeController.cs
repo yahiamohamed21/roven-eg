@@ -22,35 +22,32 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        // 1. Featured Products (active and published)
-        var featured = await _context.Products
-            .Include(p => p.Category)
-            .Where(p => p.IsActive && p.IsPublished && p.IsFeatured)
-            .OrderByDescending(p => p.CreatedAt)
-            .Take(8)
-            .Select(p => new StoreProductCardViewModel
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Sku = p.Sku ?? "",
-                Description = p.Description,
-                Price = p.Price,
-                StockQuantity = p.StockQuantity,
-                ImageUrl = p.ImageUrl,
-                CategoryId = p.CategoryId,
-                CategoryName = p.Category != null ? p.Category.Name : "General",
-                IsFeatured = p.IsFeatured
-            })
-            .ToListAsync();
+        var settings = await _context.HomeSettings.FirstOrDefaultAsync() ?? new HomeSetting();
+        if (string.IsNullOrWhiteSpace(settings.SpotlightBadgeText))
+            settings.SpotlightBadgeText = "EXCLUSIVE ATELIER OFFERS & DEALS";
+        if (string.IsNullOrWhiteSpace(settings.SpotlightTitle))
+            settings.SpotlightTitle = "عروض وتخفيضات دار روفين الحصرية";
+        if (string.IsNullOrWhiteSpace(settings.SpotlightSubtitle))
+            settings.SpotlightSubtitle = "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";
 
-        // If not enough featured, fill with latest products
-        if (featured.Count < 4)
+        // 1. Featured Products (Custom curated selection from Dashboard or fallback to IsFeatured)
+        List<StoreProductCardViewModel> featured = new();
+
+        var customFeaturedIds = new List<int>();
+        if (!string.IsNullOrWhiteSpace(settings.FeaturedProductIds))
         {
-            var fallback = await _context.Products
+            customFeaturedIds = settings.FeaturedProductIds
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(s => int.TryParse(s, out var id) ? id : 0)
+                .Where(id => id > 0)
+                .ToList();
+        }
+
+        if (customFeaturedIds.Any())
+        {
+            var customProducts = await _context.Products
                 .Include(p => p.Category)
-                .Where(p => p.IsActive && p.IsPublished && !featured.Select(f => f.Id).Contains(p.Id))
-                .OrderByDescending(p => p.CreatedAt)
-                .Take(8 - featured.Count)
+                .Where(p => p.IsActive && p.IsPublished && customFeaturedIds.Contains(p.Id))
                 .Select(p => new StoreProductCardViewModel
                 {
                     Id = p.Id,
@@ -62,11 +59,69 @@ public class HomeController : Controller
                     ImageUrl = p.ImageUrl,
                     CategoryId = p.CategoryId,
                     CategoryName = p.Category != null ? p.Category.Name : "General",
+                    FragranceTagline = p.FragranceTagline,
                     IsFeatured = p.IsFeatured
                 })
                 .ToListAsync();
 
-            featured.AddRange(fallback);
+            // Maintain exact custom admin ordering
+            featured = customFeaturedIds
+                .Select(id => customProducts.FirstOrDefault(p => p.Id == id))
+                .Where(p => p != null)
+                .Select(p => p!)
+                .ToList();
+        }
+        else
+        {
+            var flaggedFeatured = await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && p.IsPublished && p.IsFeatured)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(8)
+                .Select(p => new StoreProductCardViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Sku = p.Sku ?? "",
+                    Description = p.Description,
+                    Price = p.Price,
+                    StockQuantity = p.StockQuantity,
+                    ImageUrl = p.ImageUrl,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category != null ? p.Category.Name : "General",
+                    FragranceTagline = p.FragranceTagline,
+                    IsFeatured = p.IsFeatured
+                })
+                .ToListAsync();
+
+            featured = flaggedFeatured;
+
+            // If not enough featured, fill with latest products
+            if (featured.Count < 4)
+            {
+                var fallback = await _context.Products
+                    .Include(p => p.Category)
+                    .Where(p => p.IsActive && p.IsPublished && !featured.Select(f => f.Id).Contains(p.Id))
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Take(8 - featured.Count)
+                    .Select(p => new StoreProductCardViewModel
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Sku = p.Sku ?? "",
+                        Description = p.Description,
+                        Price = p.Price,
+                        StockQuantity = p.StockQuantity,
+                        ImageUrl = p.ImageUrl,
+                        CategoryId = p.CategoryId,
+                        CategoryName = p.Category != null ? p.Category.Name : "General",
+                        FragranceTagline = p.FragranceTagline,
+                        IsFeatured = p.IsFeatured
+                    })
+                    .ToListAsync();
+
+                featured.AddRange(fallback);
+            }
         }
 
         // 2. Latest Arrivals
@@ -86,31 +141,106 @@ public class HomeController : Controller
                 ImageUrl = p.ImageUrl,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category != null ? p.Category.Name : "General",
+                FragranceTagline = p.FragranceTagline,
                 IsFeatured = p.IsFeatured
             })
             .ToListAsync();
 
-        // 3. Best Sellers (Based on completed order volume or high stock products)
-        var bestSellers = await _context.Products
-            .Include(p => p.Category)
-            .Where(p => p.IsActive && p.IsPublished && p.StockQuantity > 0)
-            .OrderByDescending(p => p.OrderItems.Count)
-            .ThenByDescending(p => p.StockQuantity)
-            .Take(4)
-            .Select(p => new StoreProductCardViewModel
+        // 3. Best Sellers (Custom curated selection from Dashboard or automated volume fallback)
+        List<StoreProductCardViewModel> bestSellers = new();
+
+        var customBestSellerIds = new List<int>();
+        if (!string.IsNullOrWhiteSpace(settings.BestSellersProductIds))
+        {
+            customBestSellerIds = settings.BestSellersProductIds
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(s => int.TryParse(s, out var id) ? id : 0)
+                .Where(id => id > 0)
+                .ToList();
+        }
+
+        if (customBestSellerIds.Any())
+        {
+            var customProducts = await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && p.IsPublished && customBestSellerIds.Contains(p.Id))
+                .Select(p => new StoreProductCardViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Sku = p.Sku ?? "",
+                    Description = p.Description,
+                    Price = p.Price,
+                    StockQuantity = p.StockQuantity,
+                    ImageUrl = p.ImageUrl,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category != null ? p.Category.Name : "General",
+                    FragranceTagline = p.FragranceTagline,
+                    IsFeatured = p.IsFeatured
+                })
+                .ToListAsync();
+
+            // Maintain exact custom admin ordering
+            bestSellers = customBestSellerIds
+                .Select(id => customProducts.FirstOrDefault(p => p.Id == id))
+                .Where(p => p != null)
+                .Select(p => p!)
+                .ToList();
+        }
+        else
+        {
+            // Check if any products have IsBestSeller checked
+            var flaggedBestSellers = await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && p.IsPublished && p.IsBestSeller)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(8)
+                .Select(p => new StoreProductCardViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Sku = p.Sku ?? "",
+                    Description = p.Description,
+                    Price = p.Price,
+                    StockQuantity = p.StockQuantity,
+                    ImageUrl = p.ImageUrl,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category != null ? p.Category.Name : "General",
+                    FragranceTagline = p.FragranceTagline,
+                    IsFeatured = p.IsFeatured
+                })
+                .ToListAsync();
+
+            if (flaggedBestSellers.Any())
             {
-                Id = p.Id,
-                Name = p.Name,
-                Sku = p.Sku ?? "",
-                Description = p.Description,
-                Price = p.Price,
-                StockQuantity = p.StockQuantity,
-                ImageUrl = p.ImageUrl,
-                CategoryId = p.CategoryId,
-                CategoryName = p.Category != null ? p.Category.Name : "General",
-                IsFeatured = p.IsFeatured
-            })
-            .ToListAsync();
+                bestSellers = flaggedBestSellers;
+            }
+            else
+            {
+                // Fallback: Automatic top order volume
+                bestSellers = await _context.Products
+                    .Include(p => p.Category)
+                    .Where(p => p.IsActive && p.IsPublished && p.StockQuantity > 0)
+                    .OrderByDescending(p => p.OrderItems.Count)
+                    .ThenByDescending(p => p.StockQuantity)
+                    .Take(4)
+                    .Select(p => new StoreProductCardViewModel
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Sku = p.Sku ?? "",
+                        Description = p.Description,
+                        Price = p.Price,
+                        StockQuantity = p.StockQuantity,
+                        ImageUrl = p.ImageUrl,
+                        CategoryId = p.CategoryId,
+                        CategoryName = p.Category != null ? p.Category.Name : "General",
+                        FragranceTagline = p.FragranceTagline,
+                        IsFeatured = p.IsFeatured
+                    })
+                    .ToListAsync();
+            }
+        }
 
         // 4. Deal of the Day / Special Offers (Supports Single Perfume and Duo / 2 Perfumes Bundle Offers)
         var activeOffers = await _context.HomeOffers
@@ -169,8 +299,6 @@ public class HomeController : Controller
         var totalCustomers = await _context.Customers.CountAsync();
         var totalCompleted = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Completed);
 
-        var settings = await _context.HomeSettings.FirstOrDefaultAsync() ?? new HomeSetting();
-
         // If a custom spotlight product is configured in HomeSettings, use it
         if (settings.SpotlightActive && settings.SpotlightProductId.HasValue)
         {
@@ -226,6 +354,12 @@ public class HomeController : Controller
         ViewData["Title"] = "Contact Us & Concierge — Maison ROVEN";
         ViewData["MetaDescription"] = "Connect with Maison ROVEN fragrance curators. Inquiries about bespoke flacons, private orders, corporate gifting, and order tracking across Egypt.";
         var settings = await _context.HomeSettings.FirstOrDefaultAsync() ?? new HomeSetting();
+        if (string.IsNullOrWhiteSpace(settings.SpotlightBadgeText))
+            settings.SpotlightBadgeText = "EXCLUSIVE ATELIER OFFERS & DEALS";
+        if (string.IsNullOrWhiteSpace(settings.SpotlightTitle))
+            settings.SpotlightTitle = "عروض وتخفيضات دار روفين الحصرية";
+        if (string.IsNullOrWhiteSpace(settings.SpotlightSubtitle))
+            settings.SpotlightSubtitle = "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";
         return View(settings);
     }
 
@@ -262,6 +396,7 @@ public class HomeController : Controller
 
     // POST: /Home/SubscribeLead (Storefront VIP Lead Capture & WhatsApp Offers Subscription)
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> SubscribeLead(string? phone, string? email, string? fullName)
     {
         if (string.IsNullOrWhiteSpace(phone))

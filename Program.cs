@@ -6,8 +6,13 @@ using Stockify.Data;
 using Stockify.Data.Seed;
 using Stockify.Models.Entities;
 using Stockify.Services.Identity;
+using Stockify.Services.Implementations;
+using Stockify.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load optional local secrets configuration (ignored in source control)
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 // 1. Add MVC Controllers and Views
 builder.Services.AddControllersWithViews();
@@ -18,7 +23,8 @@ builder.Services.AddAntiforgery(options =>
     options.HeaderName = "RequestVerificationToken";
 });
 
-// Add Distributed Cache & Session support for Shopping Cart
+// Add Memory Cache & Session support for Shopping Cart & Storefront Caching
+builder.Services.AddMemoryCache();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -75,7 +81,11 @@ var forwardedOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
 };
+#if NET10_0_OR_GREATER
 forwardedOptions.KnownIPNetworks.Clear();
+#else
+forwardedOptions.KnownNetworks.Clear();
+#endif
 forwardedOptions.KnownProxies.Clear();
 app.UseForwardedHeaders(forwardedOptions);
 
@@ -103,9 +113,8 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

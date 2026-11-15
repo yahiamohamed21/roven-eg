@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Stockify.Common.Constants;
 using Stockify.Data;
 using Stockify.Models.Entities;
+using Stockify.Services.Interfaces;
 
 namespace Stockify.Controllers;
 
@@ -11,10 +13,12 @@ namespace Stockify.Controllers;
 public class MessagesController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly IStoreCacheService _storeCacheService;
 
-    public MessagesController(ApplicationDbContext context)
+    public MessagesController(ApplicationDbContext context, IStoreCacheService storeCacheService)
     {
         _context = context;
+        _storeCacheService = storeCacheService;
     }
 
     // GET: /Messages
@@ -116,7 +120,15 @@ public class MessagesController : Controller
     // POST: /Messages/UpdateSocialLinks
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateSocialLinks(string facebookUrl, string instagramUrl, string whatsAppNumber, string? contactPhone, string? contactEmail, string? contactWorkingHours, string? atelierName, string? atelierAddress)
+    public async Task<IActionResult> UpdateSocialLinks(
+        string? facebookUrl, 
+        string? instagramUrl, 
+        string? whatsAppNumber, 
+        string? contactPhone, 
+        string? contactEmail, 
+        string? contactWorkingHours, 
+        string? atelierName, 
+        string? atelierAddress)
     {
         var settings = await _context.HomeSettings.FirstOrDefaultAsync();
         if (settings == null)
@@ -127,7 +139,7 @@ public class MessagesController : Controller
 
         settings.FacebookUrl = facebookUrl?.Trim() ?? "";
         settings.InstagramUrl = instagramUrl?.Trim() ?? "";
-        settings.WhatsAppNumber = whatsAppNumber?.Trim() ?? "";
+        settings.WhatsAppNumber = HomeSetting.NormalizeWhatsAppNumber(whatsAppNumber);
         settings.ContactPhone = contactPhone?.Trim() ?? "";
         settings.ContactEmail = contactEmail?.Trim() ?? "";
         settings.ContactWorkingHours = !string.IsNullOrWhiteSpace(contactWorkingHours) ? contactWorkingHours.Trim() : "Daily: 10:00 AM – 11:00 PM CLT";
@@ -136,8 +148,11 @@ public class MessagesController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = "تم حفظ وتحديث لينكات السوشيال ميديا وأرقام التواصل بنجاح!";
-        return RedirectToAction(nameof(Index));
+        // Invalidate store cache immediately via centralized cache service so changes reflect everywhere
+        _storeCacheService.InvalidateAll();
+
+        TempData["SuccessMessage"] = "تم حفظ وتحديث بيانات التواصل والسوشيال ميديا وأرقام الواتساب بنجاح، وتفعيلها فوراً في كامل صفحات المتجر والفوتر!";
+        return RedirectToAction(nameof(Index), new { tab = "contact_settings" });
     }
 
     // POST: /Messages/ToggleApproveReview/5

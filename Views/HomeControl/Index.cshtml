@@ -266,8 +266,8 @@
         </div>
     </div>
 
-    <!-- Tabs Navigation Bar (4 Side-by-Side English Tabs) -->
-    <ul class="nav nav-pills roven-tabs gap-2 mb-4 p-2 bg-light rounded-4 border" id="homeControlTabs" role="tablist">
+    <!-- Tabs Navigation Bar (Side-by-Side Clean Tabs) -->
+    <ul class="nav nav-pills roven-tabs gap-2 mb-4 p-2 bg-light rounded-4 border d-flex flex-wrap align-items-center" id="homeControlTabs" role="tablist" style="overflow-x: auto;">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="tab-banners-btn" data-bs-toggle="pill" data-bs-target="#tab-banners" type="button" role="tab" aria-controls="tab-banners" aria-selected="true">
                 <i class="fa-solid fa-images"></i>
@@ -281,15 +281,27 @@
             </button>
         </li>
         <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-bestsellers-btn" data-bs-toggle="pill" data-bs-target="#tab-bestsellers" type="button" role="tab" aria-controls="tab-bestsellers" aria-selected="false">
+                <i class="fa-solid fa-fire text-danger"></i>
+                <span>3. Best Sellers</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-featured-btn" data-bs-toggle="pill" data-bs-target="#tab-featured" type="button" role="tab" aria-controls="tab-featured" aria-selected="false">
+                <i class="fa-solid fa-crown" style="color: #630000;"></i>
+                <span>4. Featured Parfums</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
             <button class="nav-link" id="tab-sections-btn" data-bs-toggle="pill" data-bs-target="#tab-sections" type="button" role="tab" aria-controls="tab-sections" aria-selected="false">
                 <i class="fa-solid fa-eye"></i>
-                <span>3. Sections Visibility</span>
+                <span>5. Sections Visibility</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="tab-social-btn" data-bs-toggle="pill" data-bs-target="#tab-social" type="button" role="tab" aria-controls="tab-social" aria-selected="false">
-                <i class="fa-solid fa-bullhorn"></i>
-                <span>4. Announcement & Social</span>
+                <i class="fa-solid fa-bullhorn text-danger fs-6"></i>
+                <span>6. Top Announcement</span>
             </button>
         </li>
     </ul>
@@ -340,7 +352,7 @@
                                             <!-- Left: Image Preview & Details -->
                                             <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-3 w-100 flex-grow-1" style="min-width: 0;">
                                                 <div class="position-relative overflow-hidden rounded-3 border flex-shrink-0 banner-thumb-container">
-                                                    <img src="@banner.DesktopImageUrl" alt="@banner.Title" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/banners/hero_slide_1.svg'" />
+                                                    <img src="@banner.DesktopImageUrl" alt="@banner.Title" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/banners/roven-hero-main.png'" />
                                                     <span class="badge position-absolute bottom-0 start-0 m-1 font-monospace" style="background: rgba(27,23,23,0.85); font-size: 0.65rem; padding: 0.2rem 0.4rem; color: #EDEBDD;">#@banner.DisplayOrder</span>
                                                 </div>
                                                 <div class="flex-grow-1" style="min-width: 0; width: 100%;">
@@ -422,8 +434,81 @@
 
                         <!-- TAB 2: SPECIAL OFFERS & DEALS (MULTI-PRODUCT)                  -->
             <!-- ============================================================== -->
+            <!-- TAB 2: SPECIAL OFFERS & DEALS MANAGEMENT                      -->
+            <!-- ============================================================== -->
             <div class="tab-pane fade tab-pane-content" id="tab-spotlight" role="tabpanel" aria-labelledby="tab-spotlight-btn">
                 
+                <!-- Section Header Copywriting Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+                    <div class="card-setting-header p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white border-bottom">
+                        <div>
+                            <span class="fw-bold fs-5 d-inline-flex align-items-center gap-2" style="color: #1B1717;">
+                                <i class="fa-solid fa-pen-nib text-warning"></i>
+                                <span>نصوص وعناوين سكشن العروض (Offers Section Copywriting)</span>
+                            </span>
+                            <div class="text-muted small mt-1">
+                                تحكم كامل في الشارة الذهبية، العنوان الرئيسي، والوصف التوضيحي الظاهر في واجهة متجر دار روفان.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4 align-items-center">
+                            <!-- Inputs Column -->
+                            <div class="col-12 col-lg-7">
+                                <div class="mb-3">
+                                    <label asp-for="SpotlightBadgeText" class="form-label small fw-bold text-secondary">
+                                        نص الشارة الذهبية العلوية (Badge Text)
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light text-warning"><i class="fa-solid fa-bolt"></i></span>
+                                        <input asp-for="SpotlightBadgeText" id="inputSpotlightBadge" class="form-control" placeholder="EXCLUSIVE ATELIER OFFERS & DEALS" />
+                                    </div>
+                                    <small class="text-muted d-block mt-1">النص داخل الشارة البيضاوية الذهبية أعلى السكشن (افتراضي: EXCLUSIVE ATELIER OFFERS & DEALS)</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="SpotlightTitle" class="form-label small fw-bold text-secondary">
+                                        العنوان الرئيسي للسكشن (Section Title)
+                                    </label>
+                                    <input asp-for="SpotlightTitle" id="inputSpotlightTitle" class="form-control fw-bold" placeholder="عروض وتخفيضات دار روفين الحصرية" />
+                                    <small class="text-muted d-block mt-1">العنوان الرئيسي العريض للسكشن (افتراضي: عروض وتخفيضات دار روفين الحصرية)</small>
+                                </div>
+
+                                <div class="mb-0">
+                                    <label asp-for="SpotlightSubtitle" class="form-label small fw-bold text-secondary">
+                                        الوصف والسطر التوضيحي (Section Subtitle)
+                                    </label>
+                                    <textarea asp-for="SpotlightSubtitle" id="inputSpotlightSubtitle" class="form-control" rows="2" placeholder="إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام."></textarea>
+                                    <small class="text-muted d-block mt-1">الجملة التي تشرح مميزات العروض والتوصيل والمعاينة أسفل العنوان</small>
+                                </div>
+                            </div>
+
+                            <!-- Live Header Preview -->
+                            <div class="col-12 col-lg-5">
+                                <div class="p-3.5 p-md-4 rounded-4 border text-center shadow-xs position-relative overflow-hidden" style="background: #FAF9F5; border: 1px solid rgba(181, 141, 74, 0.25) !important;">
+                                    <div class="position-absolute top-0 start-0 end-0" style="height: 3px; background: linear-gradient(90deg, #810100 0%, #b58d4a 50%, #810100 100%);"></div>
+                                    <div class="small text-muted fw-bold text-uppercase mb-3" style="font-size: 0.72rem; letter-spacing: 1px; color: #8a6519 !important;">
+                                        <i class="fa-solid fa-eye me-1"></i>معاينة حية كما تظهر لعملاء المتجر
+                                    </div>
+
+                                    <div class="my-2">
+                                        <span class="badge px-3 py-1.5 rounded-pill fw-bold mb-2 d-inline-flex align-items-center gap-2 shadow-xs" id="previewSpotlightBadge" style="background: rgba(181, 141, 74, 0.12); color: #8a6519; border: 1px solid rgba(181, 141, 74, 0.35); font-size: 0.75rem;">
+                                            <i class="fa-solid fa-bolt text-warning"></i>
+                                            <span>@(string.IsNullOrWhiteSpace(Model.SpotlightBadgeText) ? "EXCLUSIVE ATELIER OFFERS & DEALS" : Model.SpotlightBadgeText)</span>
+                                        </span>
+                                        <h3 class="fw-extrabold mb-2" id="previewSpotlightTitle" style="font-family: 'Playfair Display', serif; color: #1B1717; font-size: 1.35rem;">
+                                            @(string.IsNullOrWhiteSpace(Model.SpotlightTitle) ? "عروض وتخفيضات دار روفين الحصرية" : Model.SpotlightTitle)
+                                        </h3>
+                                        <p class="text-muted small mx-auto mb-0" id="previewSpotlightSubtitle" style="max-width: 420px; font-size: 0.82rem; line-height: 1.5;">
+                                            @(string.IsNullOrWhiteSpace(Model.SpotlightSubtitle) ? "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام." : Model.SpotlightSubtitle)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Main Offers Management Card -->
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-setting-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white">
@@ -874,7 +959,391 @@
             </div>
 
             <!-- ============================================================== -->
-            <!-- TAB 3: SECTIONS VISIBILITY (SHOW / HIDE)                       -->
+            <!-- TAB 3: BEST SELLERS SECTION CUSTOMIZATION                      -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade tab-pane-content" id="tab-bestsellers" role="tabpanel" aria-labelledby="tab-bestsellers-btn">
+                
+                <!-- 1. Header Card with Toggle -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+                    <div class="card-setting-header p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white border-bottom">
+                        <div>
+                            <span class="fw-bold fs-5 d-inline-flex align-items-center gap-2" style="color: #1B1717;">
+                                <i class="fa-solid fa-fire text-danger"></i>
+                                <span>تخصيص سكشن الأكثر طلباً (Best Sellers Section)</span>
+                            </span>
+                            <div class="text-muted small mt-1">
+                                تحكم كامل في النصوص والبادج والعطور المعروضة في سكشن الأكثر مبيعاً بالصفحة الرئيسية للمتجر.
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="form-check form-switch mb-0 d-flex align-items-center gap-2">
+                                <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowBestSellersSection" id="bsSectionToggle" style="cursor: pointer; width: 2.5em; height: 1.3em;">
+                                <label class="form-check-label fw-bold small" for="bsSectionToggle">إظهار السكشن في المتجر</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <!-- Text Copywriting Fields -->
+                            <div class="col-12 col-lg-7">
+                                <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-pen-nib text-danger"></i>
+                                    <span>نصوص وعناوين السكشن (Section Copywriting)</span>
+                                </h6>
+
+                                <div class="mb-3">
+                                    <label asp-for="BestSellersBadgeText" class="form-label small fw-bold text-secondary">
+                                        نص البادج الصغير (Badge Text)
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light text-danger"><i class="fa-solid fa-fire"></i></span>
+                                        <input asp-for="BestSellersBadgeText" id="inputBsBadge" class="form-control" placeholder="Most Requested" />
+                                    </div>
+                                    <small class="text-muted d-block mt-1">النص المكتوب داخل الشارة الحمراء الصغيرة (افتراضي: Most Requested)</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="BestSellersTitle" class="form-label small fw-bold text-secondary">
+                                        العنوان الرئيسي للسكشن (Section Title)
+                                    </label>
+                                    <input asp-for="BestSellersTitle" id="inputBsTitle" class="form-control fw-bold" placeholder="Top Acclaimed ROVEN Parfums" />
+                                    <small class="text-muted d-block mt-1">العنوان الرئيسي العريض (افتراضي: Top Acclaimed ROVEN Parfums)</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="BestSellersSubtitle" class="form-label small fw-bold text-secondary">
+                                        الوصف والسطر التوضيحي (Section Subtitle)
+                                    </label>
+                                    <textarea asp-for="BestSellersSubtitle" id="inputBsSubtitle" class="form-control" rows="2" placeholder="The fragrances most cherished by our clientele across Egypt this month"></textarea>
+                                    <small class="text-muted d-block mt-1">الجملة التي تظهر أسفل العنوان الرئيسي (افتراضي: The fragrances most cherished by our clientele across Egypt this month)</small>
+                                </div>
+                            </div>
+
+                            <!-- Live Header Preview -->
+                            <div class="col-12 col-lg-5">
+                                <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-eye text-primary"></i>
+                                    <span>معاينة حية لشكل العنوان في المتجر</span>
+                                </h6>
+
+                                <div class="p-3.5 rounded-4 border bg-white shadow-xs position-relative" style="background: #faf8f5 !important; border-color: #e8e3d5 !important;">
+                                    <div class="mb-3">
+                                        <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-semibold d-inline-flex align-items-center gap-2 shadow-xs" id="previewBsBadge" style="background-color: #EDEBDD !important; color: #630000 !important; border: 1px solid rgba(99, 0, 0, 0.2) !important; font-size: 0.78rem;">
+                                            <i class="fa-solid fa-fire text-danger"></i>
+                                            <span style="color: #630000 !important; font-weight: 700;">@(string.IsNullOrWhiteSpace(Model.BestSellersBadgeText) ? "Most Requested" : Model.BestSellersBadgeText)</span>
+                                        </span>
+                                    </div>
+                                    <h4 class="fw-extrabold mb-1" id="previewBsTitle" style="color: #1B1717; font-family: 'Playfair Display', serif;">
+                                        @(string.IsNullOrWhiteSpace(Model.BestSellersTitle) ? "Top Acclaimed ROVEN Parfums" : Model.BestSellersTitle)
+                                    </h4>
+                                    <p class="mb-0 small text-muted" id="previewBsSubtitle">
+                                        @(string.IsNullOrWhiteSpace(Model.BestSellersSubtitle) ? "The fragrances most cherished by our clientele across Egypt this month" : Model.BestSellersSubtitle)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Products Selector Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+                    <div class="card-setting-header p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white border-bottom">
+                        <div>
+                            <span class="fw-bold fs-5 d-inline-flex align-items-center gap-2" style="color: #1B1717;">
+                                <i class="fa-solid fa-spray-can-sparkles text-danger"></i>
+                                <span>تحديد العطور المعروضة في سكشن Best Sellers</span>
+                            </span>
+                            <div class="text-muted small mt-1">
+                                حدد العطور التي تريد ظهورها في هذا السكشن. إذا لم يتم تحديد أي عطر، سيقوم النظام تلقائياً بعرض العطور الأكثر طلباً ومبيعاً.
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge rounded-pill px-3 py-2 fw-semibold" id="bsSelectionCounter" style="background: rgba(129, 1, 0, 0.1); color: #810100; border: 1px solid rgba(129, 1, 0, 0.2);">
+                                0 عطور مختارة
+                            </span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="btnSelectAllBs">
+                                <i class="fa-solid fa-check-double me-1"></i>تحديد الكل
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="btnClearAllBs">
+                                <i class="fa-solid fa-xmark me-1"></i>إلغاء التحديد
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <!-- Quick Search Filter -->
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                                <input type="text" id="bsSearchInput" class="form-control border-start-0" placeholder="بحث سريع في العطور بالاسم أو الكود (SKU)..." />
+                            </div>
+                        </div>
+
+                        <!-- Product Selector Cards Grid -->
+                        @{
+                            var allCatalogProducts = (IEnumerable<Stockify.Models.Entities.Product>)(ViewBag.Products ?? new List<Stockify.Models.Entities.Product>());
+                            var checkedIds = (HashSet<int>)(ViewBag.SelectedBestSellerIds ?? new HashSet<int>());
+                        }
+
+                        <div class="row g-3" id="bsProductsGrid">
+                            @foreach (var prod in allCatalogProducts)
+                            {
+                                var isChecked = checkedIds.Contains(prod.Id);
+                                <div class="col-12 col-sm-6 col-md-4 col-xl-3 bs-product-col" data-name="@prod.Name.ToLower()" data-sku="@(prod.Sku?.ToLower() ?? "")">
+                                    <div class="card h-100 border rounded-4 p-3 bs-product-card @(isChecked ? "border-danger bg-danger-subtle shadow-xs" : "bg-white")" style="cursor: pointer; transition: all 0.2s ease;">
+                                        <div class="d-flex align-items-start gap-3">
+                                            <div class="form-check mt-1">
+                                                <input class="form-check-input bs-checkbox" type="checkbox" name="selectedBestSellerIds" value="@prod.Id" id="bs_prod_@prod.Id" @(isChecked ? "checked" : "") style="cursor: pointer; width: 1.25em; height: 1.25em;">
+                                            </div>
+
+                                            <div class="position-relative flex-shrink-0" style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; background: #faf8f5; border: 1px solid #e8e3d5;">
+                                                @if (!string.IsNullOrWhiteSpace(prod.ImageUrl))
+                                                {
+                                                    <img src="@prod.ImageUrl" alt="@prod.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/products/perfume_default.svg'" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                                        <i class="fa-solid fa-spray-can-sparkles"></i>
+                                                    </div>
+                                                }
+                                            </div>
+
+                                            <div class="flex-grow-1 min-w-0">
+                                                <div class="fw-bold text-truncate text-dark" style="font-size: 0.9rem;" title="@prod.Name">
+                                                    @prod.Name
+                                                </div>
+                                                <div class="text-muted small text-truncate" style="font-size: 0.75rem;">
+                                                    @(prod.Category?.Name ?? "General") • SKU: @prod.Sku
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mt-1">
+                                                    <span class="fw-bold text-danger" style="font-size: 0.85rem;">
+                                                        @prod.Price.ToString("N0") <span style="font-size: 0.7rem;">ج.م</span>
+                                                    </span>
+                                                    @if (prod.StockQuantity <= 0)
+                                                    {
+                                                        <span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.65rem;">نفد</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem;">متوفر (@prod.StockQuantity)</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 4: FEATURED PRODUCTS SECTION CUSTOMIZATION                 -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade tab-pane-content" id="tab-featured" role="tabpanel" aria-labelledby="tab-featured-btn">
+                
+                <!-- 1. Header Card with Toggle -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+                    <div class="card-setting-header p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white border-bottom">
+                        <div>
+                            <span class="fw-bold fs-5 d-inline-flex align-items-center gap-2" style="color: #1B1717;">
+                                <i class="fa-solid fa-crown" style="color: #630000;"></i>
+                                <span>تخصيص سكشن العطور المميزة (Featured Parfums Section)</span>
+                            </span>
+                            <div class="text-muted small mt-1">
+                                تحكم كامل في النصوص والشارة (Badge) وزر الاستعراض والعطور المعروضة في سكشن Master Distillations.
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="form-check form-switch mb-0 d-flex align-items-center gap-2">
+                                <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowFeaturedSection" id="featSectionToggle" style="cursor: pointer; width: 2.5em; height: 1.3em;">
+                                <label class="form-check-label fw-bold small" for="featSectionToggle">إظهار السكشن في المتجر</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <!-- Text Copywriting Fields -->
+                            <div class="col-12 col-lg-7">
+                                <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-pen-nib" style="color: #630000;"></i>
+                                    <span>نصوص وعناوين السكشن (Section Copywriting)</span>
+                                </h6>
+
+                                <div class="mb-3">
+                                    <label asp-for="FeaturedBadgeText" class="form-label small fw-bold text-secondary">
+                                        نص البادج الصغير (Badge Text)
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="fa-solid fa-crown" style="color: #630000;"></i></span>
+                                        <input asp-for="FeaturedBadgeText" id="inputFeatBadge" class="form-control" placeholder="Master Distillations" />
+                                    </div>
+                                    <small class="text-muted d-block mt-1">النص المكتوب داخل الشارة العاجية الصغيرة مع التاج (افتراضي: Master Distillations)</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="FeaturedTitle" class="form-label small fw-bold text-secondary">
+                                        العنوان الرئيسي للسكشن (Section Title)
+                                    </label>
+                                    <input asp-for="FeaturedTitle" id="inputFeatTitle" class="form-control fw-bold" placeholder="Featured ROVEN Parfums" />
+                                    <small class="text-muted d-block mt-1">العنوان الرئيسي العريض (افتراضي: Featured ROVEN Parfums)</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="FeaturedSubtitle" class="form-label small fw-bold text-secondary">
+                                        الوصف والسطر التوضيحي (Section Subtitle)
+                                    </label>
+                                    <textarea asp-for="FeaturedSubtitle" id="inputFeatSubtitle" class="form-control" rows="2" placeholder="Our most acclaimed fragrant creations formulated with precious Grasse and oriental oils"></textarea>
+                                    <small class="text-muted d-block mt-1">الجملة التي تظهر أسفل العنوان الرئيسي (افتراضي: Our most acclaimed fragrant creations formulated with precious Grasse and oriental oils)</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="FeaturedExploreText" class="form-label small fw-bold text-secondary">
+                                        نص زر التوجيه للمتجر (CTA Button Text)
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="fa-solid fa-arrow-right text-muted"></i></span>
+                                        <input asp-for="FeaturedExploreText" id="inputFeatExplore" class="form-control" placeholder="Explore Full Collection" />
+                                    </div>
+                                    <small class="text-muted d-block mt-1">نص الزر الدائري على الجانب (افتراضي: Explore Full Collection)</small>
+                                </div>
+                            </div>
+
+                            <!-- Live Header Preview -->
+                            <div class="col-12 col-lg-5">
+                                <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-eye text-primary"></i>
+                                    <span>معاينة حية لشكل العنوان في المتجر</span>
+                                </h6>
+
+                                <div class="p-3.5 rounded-4 border bg-white shadow-xs position-relative" style="background: #faf9f5 !important; border-color: #e8e3d5 !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                                        <div>
+                                            <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-semibold d-inline-flex align-items-center gap-2 mb-2 shadow-xs" id="previewFeatBadge" style="background-color: #EDEBDD !important; color: #630000 !important; border: 1px solid rgba(99, 0, 0, 0.2) !important; font-size: 0.78rem;">
+                                                <i class="fa-solid fa-crown" style="color: #630000;"></i>
+                                                <span style="color: #630000 !important; font-weight: 700;">@(string.IsNullOrWhiteSpace(Model.FeaturedBadgeText) ? "Master Distillations" : Model.FeaturedBadgeText)</span>
+                                            </span>
+                                            <h4 class="fw-extrabold mb-1" id="previewFeatTitle" style="color: #1B1717; font-family: 'Playfair Display', serif;">
+                                                @(string.IsNullOrWhiteSpace(Model.FeaturedTitle) ? "Featured ROVEN Parfums" : Model.FeaturedTitle)
+                                            </h4>
+                                            <p class="mb-0 small text-muted" id="previewFeatSubtitle">
+                                                @(string.IsNullOrWhiteSpace(Model.FeaturedSubtitle) ? "Our most acclaimed fragrant creations formulated with precious Grasse and oriental oils" : Model.FeaturedSubtitle)
+                                            </p>
+                                        </div>
+                                        <span class="btn btn-sm fw-semibold px-3 py-1 rounded-pill d-none d-sm-inline-flex align-items-center gap-2 text-nowrap" style="border: 1px solid #630000; color: #630000; background: transparent; font-size: 0.78rem;">
+                                            <span id="previewFeatExplore">@(string.IsNullOrWhiteSpace(Model.FeaturedExploreText) ? "Explore Full Collection" : Model.FeaturedExploreText)</span>
+                                            <i class="fa-solid fa-arrow-right"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Products Selector Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+                    <div class="card-setting-header p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white border-bottom">
+                        <div>
+                            <span class="fw-bold fs-5 d-inline-flex align-items-center gap-2" style="color: #1B1717;">
+                                <i class="fa-solid fa-gem" style="color: #630000;"></i>
+                                <span>تحديد العطور المعروضة في سكشن Featured Parfums</span>
+                            </span>
+                            <div class="text-muted small mt-1">
+                                حدد العطور التي تريد ظهورها في هذا السكشن. إذا لم تحدد أي عطر، سيقوم النظام بعرض العطور المميزة المفعلة كـ Featured تلقائياً.
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge rounded-pill px-3 py-2 fw-semibold" id="featSelectionCounter" style="background: rgba(99, 0, 0, 0.1); color: #630000; border: 1px solid rgba(99, 0, 0, 0.2);">
+                                0 عطور مختارة
+                            </span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="btnSelectAllFeat">
+                                <i class="fa-solid fa-check-double me-1"></i>تحديد الكل
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="btnClearAllFeat">
+                                <i class="fa-solid fa-xmark me-1"></i>إلغاء التحديد
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <!-- Quick Search Filter -->
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+                                <input type="text" id="featSearchInput" class="form-control border-start-0" placeholder="بحث سريع في العطور بالاسم أو الكود (SKU)..." />
+                            </div>
+                        </div>
+
+                        <!-- Product Selector Cards Grid -->
+                        @{
+                            var checkedFeatIds = (HashSet<int>)(ViewBag.SelectedFeaturedProductIds ?? new HashSet<int>());
+                        }
+
+                        <div class="row g-3" id="featProductsGrid">
+                            @foreach (var prod in allCatalogProducts)
+                            {
+                                var isChecked = checkedFeatIds.Contains(prod.Id);
+                                <div class="col-12 col-sm-6 col-md-4 col-xl-3 feat-product-col" data-name="@prod.Name.ToLower()" data-sku="@(prod.Sku?.ToLower() ?? "")">
+                                    <div class="card h-100 border rounded-4 p-3 feat-product-card @(isChecked ? "border-danger bg-danger-subtle shadow-xs" : "bg-white")" style="cursor: pointer; transition: all 0.2s ease;">
+                                        <div class="d-flex align-items-start gap-3">
+                                            <div class="form-check mt-1">
+                                                <input class="form-check-input feat-checkbox" type="checkbox" name="selectedFeaturedProductIds" value="@prod.Id" id="feat_prod_@prod.Id" @(isChecked ? "checked" : "") style="cursor: pointer; width: 1.25em; height: 1.25em;">
+                                            </div>
+
+                                            <div class="position-relative flex-shrink-0" style="width: 50px; height: 50px; border-radius: 8px; overflow: hidden; background: #faf8f5; border: 1px solid #e8e3d5;">
+                                                @if (!string.IsNullOrWhiteSpace(prod.ImageUrl))
+                                                {
+                                                    <img src="@prod.ImageUrl" alt="@prod.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/products/perfume_default.svg'" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                                        <i class="fa-solid fa-spray-can-sparkles"></i>
+                                                    </div>
+                                                }
+                                            </div>
+
+                                            <div class="flex-grow-1 min-w-0">
+                                                <div class="fw-bold text-truncate text-dark" style="font-size: 0.9rem;" title="@prod.Name">
+                                                    @prod.Name
+                                                </div>
+                                                <div class="text-muted small text-truncate" style="font-size: 0.75rem;">
+                                                    @(prod.Category?.Name ?? "General") • SKU: @prod.Sku
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-between mt-1">
+                                                    <span class="fw-bold text-danger" style="font-size: 0.85rem;">
+                                                        @prod.Price.ToString("N0") <span style="font-size: 0.7rem;">ج.م</span>
+                                                    </span>
+                                                    @if (prod.StockQuantity <= 0)
+                                                    {
+                                                        <span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.65rem;">نفد</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-success-subtle text-success" style="font-size: 0.65rem;">متوفر (@prod.StockQuantity)</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- TAB 5: SECTIONS VISIBILITY (SHOW / HIDE)                       -->
             <!-- ============================================================== -->
             <div class="tab-pane fade tab-pane-content" id="tab-sections" role="tabpanel" aria-labelledby="tab-sections-btn">
                 <div class="card border-0 shadow-sm rounded-4">
@@ -1008,101 +1477,50 @@
             </div>
 
             <!-- ============================================================== -->
-            <!-- TAB 4: ANNOUNCEMENT & SOCIAL & CONCIERGE                        -->
+            <!-- TAB 6: TOP ANNOUNCEMENT BAR                                    -->
             <!-- ============================================================== -->
             <div class="tab-pane fade tab-pane-content" id="tab-social" role="tabpanel" aria-labelledby="tab-social-btn">
                 <div class="row g-4">
                     <!-- Top Announcement Bar -->
                     <div class="col-12">
                         <div class="card border-0 shadow-sm rounded-4">
-                            <div class="card-setting-header d-flex justify-content-between align-items-center bg-white">
-                                <span class="fw-bold" style="color: #1B1717;">
+                            <div class="card-setting-header d-flex justify-content-between align-items-center bg-white p-3 p-md-4 border-bottom">
+                                <span class="fw-bold fs-5" style="color: #1B1717;">
                                     <i class="fa-solid fa-bullhorn text-danger me-2"></i>الشريط الإعلاني العلوي (Top Announcement Bar)
                                 </span>
                                 <div class="form-check form-switch mb-0">
-                                    <input class="form-check-input" type="checkbox" role="switch" asp-for="AnnouncementActive" id="announcementSwitch" style="cursor: pointer;">
-                                    <label class="form-check-label small fw-semibold" for="announcementSwitch">تفعيل الشريط العلوي</label>
+                                    <input class="form-check-input" type="checkbox" role="switch" asp-for="AnnouncementActive" id="announcementSwitch" style="cursor: pointer; width: 2.5em; height: 1.3em;">
+                                    <label class="form-check-label small fw-semibold ms-2" for="announcementSwitch">تفعيل الشريط العلوي في المتجر</label>
                                 </div>
                             </div>
                             <div class="card-body p-4">
-                                <label class="form-label small fw-bold text-dark">نص الإعلان الترويجي</label>
-                                <input type="text" asp-for="AnnouncementText" class="form-control rounded-3" placeholder="Maison ROVEN • Complimentary Nationwide Delivery Across Egypt" />
-                                <div class="form-text small">يظهر هذا النص في الشريط العلوي المتحرك أعلى كافة صفحات المتجر الإلكتروني.</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Social Media Links -->
-                    <div class="col-12 col-md-6">
-                        <div class="card border-0 shadow-sm rounded-4 h-100">
-                            <div class="card-setting-header bg-white">
-                                <span class="fw-bold" style="color: #1B1717;">
-                                    <i class="fa-solid fa-share-nodes text-primary me-2"></i>روابط منصات التواصل الاجتماعي (Social Media)
-                                </span>
-                            </div>
-                            <div class="card-body p-4">
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-dark">
-                                        <i class="fa-brands fa-facebook text-primary me-1"></i> رابط صفحة الفيسبوك (Facebook Page URL)
-                                    </label>
-                                    <input type="url" asp-for="FacebookUrl" class="form-control rounded-3 font-monospace" placeholder="https://facebook.com/roven.parfumerie" />
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-dark">
-                                        <i class="fa-brands fa-instagram text-danger me-1"></i> رابط حساب انستغرام (Instagram Profile URL)
-                                    </label>
-                                    <input type="url" asp-for="InstagramUrl" class="form-control rounded-3 font-monospace" placeholder="https://instagram.com/roven.parfums" />
-                                </div>
-                                <div class="mb-0">
-                                    <label class="form-label small fw-bold text-dark">
-                                        <i class="fa-brands fa-whatsapp text-success me-1"></i> رقم الواتساب المباشر (WhatsApp Direct Number)
-                                    </label>
-                                    <input type="text" asp-for="WhatsAppNumber" class="form-control rounded-3 font-monospace" placeholder="+201008889999" />
-                                    <div class="form-text small">يُستخدم لفتح محادثة واتساب فورية مع خدمة العملاء والكونسيرج.</div>
+                                <label class="form-label small fw-bold text-dark mb-1">نص الإعلان الترويجي</label>
+                                <input type="text" asp-for="AnnouncementText" class="form-control rounded-3 py-2" placeholder="Maison ROVEN • Complimentary Nationwide Delivery Across Egypt" />
+                                <div class="form-text small mt-2 text-muted">
+                                    <i class="fa-solid fa-circle-info me-1"></i>
+                                    يظهر هذا النص في الشريط العلوي المتحرك أعلى كافة صفحات المتجر الإلكتروني.
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Concierge & Direct Contact Info -->
-                    <div class="col-12 col-md-6">
-                        <div class="card border-0 shadow-sm rounded-4 h-100">
-                            <div class="card-setting-header bg-white">
-                                <span class="fw-bold" style="color: #1B1717;">
-                                    <i class="fa-solid fa-headset text-danger me-2"></i>معلومات الاتصال المباشر والكونسيرج (Contact Info)
-                                </span>
-                            </div>
-                            <div class="card-body p-4">
-                                <input type="hidden" asp-for="ContactPhone" value="" />
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-dark">
-                                        <i class="fa-solid fa-envelope text-muted me-1"></i> البريد الإلكتروني للاستفسارات (Contact Email)
-                                    </label>
-                                    <input type="email" asp-for="ContactEmail" class="form-control rounded-3 font-monospace" placeholder="concierge@roven.local" />
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label small fw-bold text-dark">
-                                        <i class="fa-solid fa-clock text-muted me-1"></i> مواعيد العمل وخدمة الكونسيرج (Working Hours)
-                                    </label>
-                                    <input type="text" asp-for="ContactWorkingHours" class="form-control rounded-3" placeholder="Daily: 10:00 AM – 11:00 PM CLT" />
-                                </div>
-                                <div class="row g-2 mb-3">
-                                    <div class="col-12 col-sm-6">
-                                        <label class="form-label small fw-bold text-dark">
-                                            <i class="fa-solid fa-building text-muted me-1"></i> اسم المعرض / الصالون (Atelier)
-                                        </label>
-                                        <input type="text" asp-for="AtelierName" class="form-control rounded-3" placeholder="Zamalek & New Cairo Salons" />
+                    <!-- Notice Card directing to Store Messages & Inquiries -->
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm rounded-4 p-4" style="background: linear-gradient(135deg, #FAF8F5 0%, #FFFFFF 100%); border: 1.5px dashed rgba(99, 0, 0, 0.2) !important;">
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 44px; height: 44px; background: rgba(99, 0, 0, 0.08); color: #630000; font-size: 1.25rem;">
+                                        <i class="fa-brands fa-whatsapp"></i>
                                     </div>
-                                    <div class="col-12 col-sm-6">
-                                        <label class="form-label small fw-bold text-dark">
-                                            <i class="fa-solid fa-location-dot text-muted me-1"></i> المدينة / العنوان (Location)
-                                        </label>
-                                        <input type="text" asp-for="AtelierAddress" class="form-control rounded-3" placeholder="Cairo & Giza, Arab Republic of Egypt" />
+                                    <div>
+                                        <div class="fw-bold text-dark mb-0.5">إدارة أرقام الواتساب ولينكات السوشيال ميديا وبيانات الكونسيرج</div>
+                                        <div class="text-muted small">تم نقل وتوحيد إدارة رقم الواتساب الرسمي ولينكات Facebook & Instagram وبيانات التواصل إلى صفحة <strong>رسائل واستفسارات المتجر</strong>.</div>
                                     </div>
                                 </div>
-                                <div class="alert alert-light border small text-muted mb-0">
-                                    <i class="fa-solid fa-circle-info me-1"></i> تنعكس هذه الروابط والأرقام تلقائياً في فوتر الموقع، وفي صفحة تواصل معنا (Contact Us).
-                                </div>
+                                <a asp-controller="Messages" asp-action="Index" asp-route-tab="contact_settings" class="btn btn-outline-dark btn-sm rounded-pill px-3 py-2 fw-bold text-nowrap d-inline-flex align-items-center gap-2">
+                                    <span>الانتقال لصفحة رسائل واستفسارات المتجر</span>
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -1762,6 +2180,259 @@
                     el.textContent = val;
                 });
             });
+        }
+
+        // Spotlight Offers Live Preview Handlers
+        const inputSpotlightBadge = document.getElementById('inputSpotlightBadge');
+        const inputSpotlightTitle = document.getElementById('inputSpotlightTitle');
+        const inputSpotlightSubtitle = document.getElementById('inputSpotlightSubtitle');
+
+        const previewSpotlightBadge = document.querySelector('#previewSpotlightBadge span');
+        const previewSpotlightTitle = document.getElementById('previewSpotlightTitle');
+        const previewSpotlightSubtitle = document.getElementById('previewSpotlightSubtitle');
+
+        if (inputSpotlightBadge && previewSpotlightBadge) {
+            inputSpotlightBadge.addEventListener('input', function() {
+                previewSpotlightBadge.textContent = this.value.trim() || 'EXCLUSIVE ATELIER OFFERS & DEALS';
+            });
+        }
+        if (inputSpotlightTitle && previewSpotlightTitle) {
+            inputSpotlightTitle.addEventListener('input', function() {
+                previewSpotlightTitle.textContent = this.value.trim() || 'عروض وتخفيضات دار روفين الحصرية';
+            });
+        }
+        if (inputSpotlightSubtitle && previewSpotlightSubtitle) {
+            inputSpotlightSubtitle.addEventListener('input', function() {
+                previewSpotlightSubtitle.textContent = this.value.trim() || 'إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.';
+            });
+        }
+
+        // Best Sellers Live Preview & Product Selection Handlers
+        const inputBsBadge = document.getElementById('inputBsBadge');
+        const inputBsTitle = document.getElementById('inputBsTitle');
+        const inputBsSubtitle = document.getElementById('inputBsSubtitle');
+
+        const previewBsBadge = document.querySelector('#previewBsBadge span');
+        const previewBsTitle = document.getElementById('previewBsTitle');
+        const previewBsSubtitle = document.getElementById('previewBsSubtitle');
+
+        if (inputBsBadge && previewBsBadge) {
+            inputBsBadge.addEventListener('input', function() {
+                previewBsBadge.textContent = this.value.trim() || 'Most Requested';
+            });
+        }
+        if (inputBsTitle && previewBsTitle) {
+            inputBsTitle.addEventListener('input', function() {
+                previewBsTitle.textContent = this.value.trim() || 'Top Acclaimed ROVEN Parfums';
+            });
+        }
+        if (inputBsSubtitle && previewBsSubtitle) {
+            inputBsSubtitle.addEventListener('input', function() {
+                previewBsSubtitle.textContent = this.value.trim() || 'The fragrances most cherished by our clientele across Egypt this month';
+            });
+        }
+
+        // Product Selection & Counter Logic
+        function updateBsCounter() {
+            const checkedBoxes = document.querySelectorAll('.bs-checkbox:checked');
+            const counter = document.getElementById('bsSelectionCounter');
+            if (counter) {
+                counter.textContent = `${checkedBoxes.length} عطور مختارة`;
+            }
+        }
+
+        document.querySelectorAll('.bs-product-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.classList.contains('bs-checkbox')) {
+                    const cb = e.target;
+                    card.classList.toggle('border-danger', cb.checked);
+                    card.classList.toggle('bg-danger-subtle', cb.checked);
+                    card.classList.toggle('shadow-xs', cb.checked);
+                    card.classList.toggle('bg-white', !cb.checked);
+                    updateBsCounter();
+                    return;
+                }
+                const cb = card.querySelector('.bs-checkbox');
+                if (cb) {
+                    cb.checked = !cb.checked;
+                    card.classList.toggle('border-danger', cb.checked);
+                    card.classList.toggle('bg-danger-subtle', cb.checked);
+                    card.classList.toggle('shadow-xs', cb.checked);
+                    card.classList.toggle('bg-white', !cb.checked);
+                    updateBsCounter();
+                }
+            });
+        });
+
+        const btnSelectAll = document.getElementById('btnSelectAllBs');
+        if (btnSelectAll) {
+            btnSelectAll.addEventListener('click', function() {
+                document.querySelectorAll('.bs-product-card').forEach(card => {
+                    const cb = card.querySelector('.bs-checkbox');
+                    if (cb) cb.checked = true;
+                    card.classList.add('border-danger', 'bg-danger-subtle', 'shadow-xs');
+                    card.classList.remove('bg-white');
+                });
+                updateBsCounter();
+            });
+        }
+
+        const btnClearAll = document.getElementById('btnClearAllBs');
+        if (btnClearAll) {
+            btnClearAll.addEventListener('click', function() {
+                document.querySelectorAll('.bs-product-card').forEach(card => {
+                    const cb = card.querySelector('.bs-checkbox');
+                    if (cb) cb.checked = false;
+                    card.classList.remove('border-danger', 'bg-danger-subtle', 'shadow-xs');
+                    card.classList.add('bg-white');
+                });
+                updateBsCounter();
+            });
+        }
+
+        // Live Search Filter
+        const bsSearchInput = document.getElementById('bsSearchInput');
+        if (bsSearchInput) {
+            bsSearchInput.addEventListener('input', function() {
+                const term = this.value.trim().toLowerCase();
+                document.querySelectorAll('.bs-product-col').forEach(col => {
+                    const name = col.getAttribute('data-name') || '';
+                    const sku = col.getAttribute('data-sku') || '';
+                    if (!term || name.includes(term) || sku.includes(term)) {
+                        col.style.display = '';
+                    } else {
+                        col.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Initial counter call
+        updateBsCounter();
+
+        // ==============================================================
+        // FEATURED PRODUCTS SECTION LIVE PREVIEW & SELECTION LOGIC
+        // ==============================================================
+        const inputFeatBadge = document.getElementById('inputFeatBadge');
+        const inputFeatTitle = document.getElementById('inputFeatTitle');
+        const inputFeatSubtitle = document.getElementById('inputFeatSubtitle');
+        const inputFeatExplore = document.getElementById('inputFeatExplore');
+
+        const previewFeatBadge = document.querySelector('#previewFeatBadge span');
+        const previewFeatTitle = document.getElementById('previewFeatTitle');
+        const previewFeatSubtitle = document.getElementById('previewFeatSubtitle');
+        const previewFeatExplore = document.getElementById('previewFeatExplore');
+
+        if (inputFeatBadge && previewFeatBadge) {
+            inputFeatBadge.addEventListener('input', function() {
+                previewFeatBadge.textContent = this.value.trim() || 'Master Distillations';
+            });
+        }
+        if (inputFeatTitle && previewFeatTitle) {
+            inputFeatTitle.addEventListener('input', function() {
+                previewFeatTitle.textContent = this.value.trim() || 'Featured ROVEN Parfums';
+            });
+        }
+        if (inputFeatSubtitle && previewFeatSubtitle) {
+            inputFeatSubtitle.addEventListener('input', function() {
+                previewFeatSubtitle.textContent = this.value.trim() || 'Our most acclaimed fragrant creations formulated with precious Grasse and oriental oils';
+            });
+        }
+        if (inputFeatExplore && previewFeatExplore) {
+            inputFeatExplore.addEventListener('input', function() {
+                previewFeatExplore.textContent = this.value.trim() || 'Explore Full Collection';
+            });
+        }
+
+        // Featured Product Selection & Counter Logic
+        function updateFeatCounter() {
+            const checkedBoxes = document.querySelectorAll('.feat-checkbox:checked');
+            const counter = document.getElementById('featSelectionCounter');
+            if (counter) {
+                counter.textContent = `${checkedBoxes.length} عطور مختارة`;
+            }
+        }
+
+        document.querySelectorAll('.feat-product-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.classList.contains('feat-checkbox')) {
+                    const cb = e.target;
+                    card.classList.toggle('border-danger', cb.checked);
+                    card.classList.toggle('bg-danger-subtle', cb.checked);
+                    card.classList.toggle('shadow-xs', cb.checked);
+                    card.classList.toggle('bg-white', !cb.checked);
+                    updateFeatCounter();
+                    return;
+                }
+                const cb = card.querySelector('.feat-checkbox');
+                if (cb) {
+                    cb.checked = !cb.checked;
+                    card.classList.toggle('border-danger', cb.checked);
+                    card.classList.toggle('bg-danger-subtle', cb.checked);
+                    card.classList.toggle('shadow-xs', cb.checked);
+                    card.classList.toggle('bg-white', !cb.checked);
+                    updateFeatCounter();
+                }
+            });
+        });
+
+        const btnSelectAllFeat = document.getElementById('btnSelectAllFeat');
+        if (btnSelectAllFeat) {
+            btnSelectAllFeat.addEventListener('click', function() {
+                document.querySelectorAll('.feat-product-card').forEach(card => {
+                    const cb = card.querySelector('.feat-checkbox');
+                    if (cb) cb.checked = true;
+                    card.classList.add('border-danger', 'bg-danger-subtle', 'shadow-xs');
+                    card.classList.remove('bg-white');
+                });
+                updateFeatCounter();
+            });
+        }
+
+        const btnClearAllFeat = document.getElementById('btnClearAllFeat');
+        if (btnClearAllFeat) {
+            btnClearAllFeat.addEventListener('click', function() {
+                document.querySelectorAll('.feat-product-card').forEach(card => {
+                    const cb = card.querySelector('.feat-checkbox');
+                    if (cb) cb.checked = false;
+                    card.classList.remove('border-danger', 'bg-danger-subtle', 'shadow-xs');
+                    card.classList.add('bg-white');
+                });
+                updateFeatCounter();
+            });
+        }
+
+        // Live Search Filter for Featured
+        const featSearchInput = document.getElementById('featSearchInput');
+        if (featSearchInput) {
+            featSearchInput.addEventListener('input', function() {
+                const term = this.value.trim().toLowerCase();
+                document.querySelectorAll('.feat-product-col').forEach(col => {
+                    const name = col.getAttribute('data-name') || '';
+                    const sku = col.getAttribute('data-sku') || '';
+                    if (!term || name.includes(term) || sku.includes(term)) {
+                        col.style.display = '';
+                    } else {
+                        col.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Initial counter call for Featured
+        updateFeatCounter();
+
+        // Handle URL Hash navigation to specific tab (e.g. #tab-social)
+        if (window.location.hash) {
+            const targetTabBtn = document.querySelector(`button[data-bs-target="${window.location.hash}"]`);
+            if (targetTabBtn) {
+                const tabTrigger = new bootstrap.Tab(targetTabBtn);
+                tabTrigger.show();
+                setTimeout(() => {
+                    const el = document.querySelector(window.location.hash);
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 150);
+            }
         }
     });
 </script>
