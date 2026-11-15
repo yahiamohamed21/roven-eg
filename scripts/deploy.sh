@@ -59,6 +59,9 @@ dotnet restore Stockify.csproj >> "$LOG_FILE" 2>&1
 log "Publishing .NET project in Release mode to staging..."
 dotnet publish Stockify.csproj -c Release -o "$STAGING_DIR" >> "$LOG_FILE" 2>&1
 
+# Remove any build-generated uploads folder in staging to prevent symlink collision
+rm -rf "$STAGING_DIR/wwwroot/uploads"
+
 # Step 4: Swap Published Binaries with Minimal Downtime
 log "Stopping roven-web service to apply published update..."
 sudo systemctl stop roven-web >> "$LOG_FILE" 2>&1 || true
@@ -67,12 +70,15 @@ log "Swapping published files into production directory..."
 sudo chown -R "$CURRENT_USER":www-data "$PUBLISH_DIR" 2>/dev/null || true
 sudo chmod -R 775 "$PUBLISH_DIR" 2>/dev/null || true
 
+# Explicitly remove existing uploads symlink before copying to avoid cp collision
+rm -rf "$PUBLISH_DIR/wwwroot/uploads"
+
 # Remove old files except wwwroot
 find "$PUBLISH_DIR" -mindepth 1 -maxdepth 1 ! -name 'wwwroot' -exec rm -rf {} + >> "$LOG_FILE" 2>&1 || true
 
-# In wwwroot, remove old static assets while preserving uploads
+# In wwwroot, remove old static assets
 if [ -d "$PUBLISH_DIR/wwwroot" ]; then
-    find "$PUBLISH_DIR/wwwroot" -mindepth 1 -maxdepth 1 ! -name 'uploads' -exec rm -rf {} + >> "$LOG_FILE" 2>&1 || true
+    find "$PUBLISH_DIR/wwwroot" -mindepth 1 -maxdepth 1 -exec rm -rf {} + >> "$LOG_FILE" 2>&1 || true
 fi
 
 # Copy newly published files into published directory
@@ -82,14 +88,15 @@ rm -rf "$STAGING_DIR"
 # Step 5: Preserve persistent uploads
 log "Configuring persistent uploads directory..."
 # Copy initial uploads if persistent folder is empty
-if [ ! "$(ls -A $UPLOADS_DIR/banners 2>/dev/null)" ] && [ -d "$PUBLISH_DIR/wwwroot/uploads/banners" ]; then
-    sudo cp -rn "$PUBLISH_DIR/wwwroot/uploads/banners/"* "$UPLOADS_DIR/banners/" 2>/dev/null || true
+if [ ! "$(ls -A $UPLOADS_DIR/banners 2>/dev/null)" ] && [ -d "$PROJECT_ROOT/wwwroot/uploads/banners" ]; then
+    sudo cp -rn "$PROJECT_ROOT/wwwroot/uploads/banners/"* "$UPLOADS_DIR/banners/" 2>/dev/null || true
 fi
-if [ ! "$(ls -A $UPLOADS_DIR/products 2>/dev/null)" ] && [ -d "$PUBLISH_DIR/wwwroot/uploads/products" ]; then
-    sudo cp -rn "$PUBLISH_DIR/wwwroot/uploads/products/"* "$UPLOADS_DIR/products/" 2>/dev/null || true
+if [ ! "$(ls -A $UPLOADS_DIR/products 2>/dev/null)" ] && [ -d "$PROJECT_ROOT/wwwroot/uploads/products" ]; then
+    sudo cp -rn "$PROJECT_ROOT/wwwroot/uploads/products/"* "$UPLOADS_DIR/products/" 2>/dev/null || true
 fi
 
 # Symlink uploads directory to published wwwroot/uploads
+mkdir -p "$PUBLISH_DIR/wwwroot"
 sudo rm -rf "$PUBLISH_DIR/wwwroot/uploads"
 sudo ln -sfn "$UPLOADS_DIR" "$PUBLISH_DIR/wwwroot/uploads"
 
