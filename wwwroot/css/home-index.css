@@ -1230,22 +1230,19 @@
 
         /* 3. Special Offers & Duo Bundles */
         .special-offer-card {
-            border-radius: 16px !important;
+            border-radius: 18px !important;
         }
-        .special-offer-duo-img {
-            max-height: 125px !important;
-        }
-        .special-offer-single-img {
-            max-height: 160px !important;
+        .special-offer-img-wrap {
+            height: 240px !important;
         }
         .special-offer-plus-badge {
-            width: 26px !important;
-            height: 26px !important;
-            font-size: 0.85rem !important;
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 1rem !important;
         }
         .special-offer-actions .btn {
-            font-size: 0.8rem !important;
-            padding: 0.55rem 0.75rem !important;
+            font-size: 0.85rem !important;
+            padding: 0.65rem 1rem !important;
         }
 
         /* 4. Spotlight Deal of the Day */
