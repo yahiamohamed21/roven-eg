@@ -3,6 +3,7 @@ set -e
 
 PROJECT_ROOT="/var/www/roven-eg.online"
 PUBLISH_DIR="$PROJECT_ROOT/published"
+STAGING_DIR="$PROJECT_ROOT/published_staging"
 LOGS_DIR="$PROJECT_ROOT/logs/deploy"
 UPLOADS_DIR="$PROJECT_ROOT/uploads"
 
@@ -24,9 +25,9 @@ log "Starting ROVEN Production Deployment (roven-eg.online)"
 log "=================================================="
 
 # Step 1: Pull latest source
-TARGET_BRANCH="${1:-Production}"
+TARGET_BRANCH="${1:-main}"
 if [ -z "$TARGET_BRANCH" ] || [ "$TARGET_BRANCH" = "HEAD" ]; then
-    TARGET_BRANCH="Production"
+    TARGET_BRANCH="main"
 fi
 
 cd "$PROJECT_ROOT"
@@ -42,26 +43,43 @@ log "Configuring environment and verifying database..."
 chmod +x "$PROJECT_ROOT/scripts/secure-env.sh"
 sudo "$PROJECT_ROOT/scripts/secure-env.sh" >> "$LOG_FILE" 2>&1
 
-# Step 3: Clean, Restore & Publish .NET 10 Application
-log "Stopping roven-web service before publish to release file locks..."
-sudo systemctl stop roven-web >> "$LOG_FILE" 2>&1 || true
+# Step 3: Atomic Build & Publish (Zero-Downtime Staging)
+log "Cleaning staging directory..."
+rm -rf "$PROJECT_ROOT/bin" "$PROJECT_ROOT/obj" "$STAGING_DIR"
+mkdir -p "$STAGING_DIR"
 
-log "Cleaning old build and published binaries..."
-rm -rf "$PROJECT_ROOT/bin" "$PROJECT_ROOT/obj"
-find "$PUBLISH_DIR" -mindepth 1 -maxdepth 1 ! -name 'wwwroot' -exec rm -rf {} + >> "$LOG_FILE" 2>&1 || true
-
-# Ensure deploy user has write permissions to publish directory
+# Ensure deploy user has write permissions to staging directory
 CURRENT_USER=$(whoami)
-sudo chown -R "$CURRENT_USER":www-data "$PUBLISH_DIR" 2>/dev/null || true
-sudo chmod -R 775 "$PUBLISH_DIR" 2>/dev/null || true
+sudo chown -R "$CURRENT_USER":www-data "$STAGING_DIR" 2>/dev/null || true
+sudo chmod -R 775 "$STAGING_DIR" 2>/dev/null || true
 
 log "Restoring NuGet packages..."
 dotnet restore Stockify.csproj >> "$LOG_FILE" 2>&1
 
-log "Publishing .NET 10 project in Release mode..."
-dotnet publish Stockify.csproj -c Release -o "$PUBLISH_DIR" >> "$LOG_FILE" 2>&1
+log "Publishing .NET project in Release mode to staging..."
+dotnet publish Stockify.csproj -c Release -o "$STAGING_DIR" >> "$LOG_FILE" 2>&1
 
-# Step 4: Preserve persistent uploads
+# Step 4: Swap Published Binaries with Minimal Downtime
+log "Stopping roven-web service to apply published update..."
+sudo systemctl stop roven-web >> "$LOG_FILE" 2>&1 || true
+
+log "Swapping published files into production directory..."
+sudo chown -R "$CURRENT_USER":www-data "$PUBLISH_DIR" 2>/dev/null || true
+sudo chmod -R 775 "$PUBLISH_DIR" 2>/dev/null || true
+
+# Remove old files except wwwroot
+find "$PUBLISH_DIR" -mindepth 1 -maxdepth 1 ! -name 'wwwroot' -exec rm -rf {} + >> "$LOG_FILE" 2>&1 || true
+
+# In wwwroot, remove old static assets while preserving uploads
+if [ -d "$PUBLISH_DIR/wwwroot" ]; then
+    find "$PUBLISH_DIR/wwwroot" -mindepth 1 -maxdepth 1 ! -name 'uploads' -exec rm -rf {} + >> "$LOG_FILE" 2>&1 || true
+fi
+
+# Copy newly published files into published directory
+cp -a "$STAGING_DIR/." "$PUBLISH_DIR/"
+rm -rf "$STAGING_DIR"
+
+# Step 5: Preserve persistent uploads
 log "Configuring persistent uploads directory..."
 # Copy initial uploads if persistent folder is empty
 if [ ! "$(ls -A $UPLOADS_DIR/banners 2>/dev/null)" ] && [ -d "$PUBLISH_DIR/wwwroot/uploads/banners" ]; then
@@ -80,12 +98,12 @@ sudo chown -R www-data:www-data "$PUBLISH_DIR"
 sudo chown -R www-data:www-data "$UPLOADS_DIR"
 sudo chmod -R 775 "$UPLOADS_DIR"
 
-# Step 5: Restart Systemd service
+# Step 6: Restart Systemd service
 log "Restarting roven-web systemd service..."
 sudo systemctl daemon-reload
 sudo systemctl restart roven-web >> "$LOG_FILE" 2>&1
 
-# Step 6: Health check with retry loop (waiting up to 30s for Kestrel & DB)
+# Step 7: Health check with retry loop (waiting up to 30s for Kestrel & DB)
 log "Running health check on port 5050 (waiting for startup)..."
 HEALTH_PASSED=false
 for i in {1..15}; do
@@ -106,7 +124,13 @@ else
     exit 1
 fi
 
+# Step 8: Storefront Verification
+if curl --fail --silent --show-error --connect-timeout 5 http://127.0.0.1:5050/ > /dev/null 2>&1; then
+    log "Storefront Check: PASSED (http://127.0.0.1:5050/ returned HTTP 200)"
+else
+    log "Storefront Check: WARNING - Home page returned non-200. Check logs."
+fi
+
 log "=================================================="
 log "ROVEN Deployment Completed Successfully!"
 log "=================================================="
-

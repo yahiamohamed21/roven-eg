@@ -3,6 +3,7 @@ name: Production Deployment
 on:
   push:
     branches:
+      - main
       - Production
   workflow_dispatch:
 
@@ -11,8 +12,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  build-and-verify:
+    name: Build & Verify Application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore Stockify.csproj
+
+      - name: Build Application (Release)
+        run: dotnet build Stockify.csproj -c Release --no-restore
+
   deploy:
-    name: Deploy to VPS
+    name: Deploy to Production VPS
+    needs: build-and-verify
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -29,4 +49,3 @@ jobs:
             cd /var/www/roven-eg.online
             chmod +x scripts/deploy.sh
             sudo ./scripts/deploy.sh "${{ github.ref_name }}" || ./scripts/deploy.sh "${{ github.ref_name }}"
-
