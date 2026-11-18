@@ -26,7 +26,7 @@ public class HomeController : Controller
         if (string.IsNullOrWhiteSpace(settings.SpotlightBadgeText))
             settings.SpotlightBadgeText = "EXCLUSIVE ATELIER OFFERS & DEALS";
         if (string.IsNullOrWhiteSpace(settings.SpotlightTitle))
-            settings.SpotlightTitle = "عروض وتخفيضات دار روفين الحصرية";
+            settings.SpotlightTitle = "عروض وتخفيضات دار Roven الحصرية";
         if (string.IsNullOrWhiteSpace(settings.SpotlightSubtitle))
             settings.SpotlightSubtitle = "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";
 
@@ -364,7 +364,7 @@ public class HomeController : Controller
         if (string.IsNullOrWhiteSpace(settings.SpotlightBadgeText))
             settings.SpotlightBadgeText = "EXCLUSIVE ATELIER OFFERS & DEALS";
         if (string.IsNullOrWhiteSpace(settings.SpotlightTitle))
-            settings.SpotlightTitle = "عروض وتخفيضات دار روفين الحصرية";
+            settings.SpotlightTitle = "عروض وتخفيضات دار Roven الحصرية";
         if (string.IsNullOrWhiteSpace(settings.SpotlightSubtitle))
             settings.SpotlightSubtitle = "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";
         return View(settings);
@@ -397,7 +397,7 @@ public class HomeController : Controller
         return Json(new
         {
             success = true,
-            message = "تم تسجيل رسالتك بنجاح لدى كونسيرج دار روڤين، وسيقوم مستشار العطور بالتواصل معك في أقرب وقت."
+            message = "تم تسجيل رسالتك بنجاح لدى كونسيرج دار Roven، وسيقوم مستشار العطور بالتواصل معك في أقرب وقت."
         });
     }
 
@@ -444,7 +444,7 @@ public class HomeController : Controller
                 hasOrders = hasOrders,
                 phone = cleanPhone,
                 customerName = existingCustomer.FullName,
-                message = $"أهلاً بك مجدداً في دار روڤين! رقمك مسجل لدينا بالفعل وسيتم إرسال كافة العروض والخصومات الحصرية لرقم الواتساب ({cleanPhone})."
+                message = $"أهلاً بك مجدداً في دار Roven! رقمك مسجل لدينا بالفعل وسيتم إرسال كافة العروض والخصومات الحصرية لرقم الواتساب ({cleanPhone})."
             });
         }
 

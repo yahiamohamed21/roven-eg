@@ -357,7 +357,7 @@
                                         <td class="text-end pe-4 text-nowrap">
                                             <div class="d-inline-flex gap-1 align-items-center">
                                                 <!-- WhatsApp Direct Reply -->
-                                                <a href="https://wa.me/@cleanPhone?text=@Uri.EscapeDataString($"مرحباً {msg.FullName}، نرحب بك من دار روڤين للعطور (Maison ROVEN). بخصوص استفسارك: {msg.Subject}")" target="_blank" class="btn btn-sm btn-outline-success rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="رد سريع عبر الواتساب">
+                                                <a href="https://wa.me/@cleanPhone?text=@Uri.EscapeDataString($"مرحباً {msg.FullName}، نرحب بك من دار Roven للعطور (Maison ROVEN). بخصوص استفسارك: {msg.Subject}")" target="_blank" class="btn btn-sm btn-outline-success rounded-circle" style="width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;" title="رد سريع عبر الواتساب">
                                                     <i class="fa-brands fa-whatsapp"></i>
                                                 </a>
 
@@ -749,7 +749,7 @@
         if (digits.startsWith('00')) digits = digits.substring(2);
         if (digits.length === 11 && digits.startsWith('01')) digits = '2' + digits;
         else if (digits.length === 10 && (digits.startsWith('10') || digits.startsWith('11') || digits.startsWith('12') || digits.startsWith('15'))) digits = '20' + digits;
-        window.open(`https://wa.me/${digits}?text=${encodeURIComponent('مرحباً دار روڤين، هذه رسالة تجربة لرقم الواتساب الرسمي.')}`, '_blank');
+        window.open(`https://wa.me/${digits}?text=${encodeURIComponent('مرحباً دار Roven، هذه رسالة تجربة لرقم الواتساب الرسمي.')}`, '_blank');
     }
 </script>
 }

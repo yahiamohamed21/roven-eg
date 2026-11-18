@@ -425,7 +425,7 @@ public class StoreController : Controller
         return Json(new
         {
             success = true,
-            message = "شكراً لتقييمك! تم استلام تقييمك بنجاح وسيظهر في صفحة العطر فور اعتماده من إدارة روڤين."
+            message = "شكراً لتقييمك! تم استلام تقييمك بنجاح وسيظهر في صفحة العطر فور اعتماده من إدارة Roven."
         });
     }
 }

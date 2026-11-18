@@ -576,8 +576,8 @@
                                     <label asp-for="SpotlightTitle" class="form-label small fw-bold text-secondary">
                                         العنوان الرئيسي للسكشن (Section Title)
                                     </label>
-                                    <input asp-for="SpotlightTitle" id="inputSpotlightTitle" class="form-control fw-bold" placeholder="عروض وتخفيضات دار روفين الحصرية" />
-                                    <small class="text-muted d-block mt-1">العنوان الرئيسي العريض للسكشن (افتراضي: عروض وتخفيضات دار روفين الحصرية)</small>
+                                    <input asp-for="SpotlightTitle" id="inputSpotlightTitle" class="form-control fw-bold" placeholder="عروض وتخفيضات دار Roven الحصرية" />
+                                    <small class="text-muted d-block mt-1">العنوان الرئيسي العريض للسكشن (افتراضي: عروض وتخفيضات دار Roven الحصرية)</small>
                                 </div>
 
                                 <div class="mb-0">
@@ -603,7 +603,7 @@
                                             <span>@(string.IsNullOrWhiteSpace(Model.SpotlightBadgeText) ? "EXCLUSIVE ATELIER OFFERS & DEALS" : Model.SpotlightBadgeText)</span>
                                         </span>
                                         <h3 class="fw-extrabold mb-2" id="previewSpotlightTitle" style="font-family: 'Playfair Display', serif; color: #1B1717; font-size: 1.35rem;">
-                                            @(string.IsNullOrWhiteSpace(Model.SpotlightTitle) ? "عروض وتخفيضات دار روفين الحصرية" : Model.SpotlightTitle)
+                                            @(string.IsNullOrWhiteSpace(Model.SpotlightTitle) ? "عروض وتخفيضات دار Roven الحصرية" : Model.SpotlightTitle)
                                         </h3>
                                         <p class="text-muted small mx-auto mb-0" id="previewSpotlightSubtitle" style="max-width: 420px; font-size: 0.82rem; line-height: 1.5;">
                                             @(string.IsNullOrWhiteSpace(Model.SpotlightSubtitle) ? "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام." : Model.SpotlightSubtitle)
@@ -1696,7 +1696,7 @@
                                             </div>
                                             <div>
                                                 <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
-                                                    <span>عروض وتخفيضات دار روفين الحصرية</span>
+                                                    <span>عروض وتخفيضات دار Roven الحصرية</span>
                                                     <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Special Offers</span>
                                                 </div>
                                                 <div class="text-muted small" style="font-size: 0.78rem;">
@@ -1998,7 +1998,7 @@
                                 <i class="fa-solid fa-circle-question text-info me-2"></i>إعدادات عنوان ونصوص سكشن الأسئلة الشائعة (FAQ Header)
                             </span>
                             <div class="text-muted small mt-1">
-                                تحكم في الشارة العلوية، العنوان الرئيسي، والنص التوضيحي الظاهر أعلى سكشن الأسئلة الشائعة في متجر دار روفين.
+                                تحكم في الشارة العلوية، العنوان الرئيسي، والنص التوضيحي الظاهر أعلى سكشن الأسئلة الشائعة في متجر دار Roven.
                             </div>
                         </div>
                     </div>
@@ -3112,7 +3112,7 @@
         }
         if (inputSpotlightTitle && previewSpotlightTitle) {
             inputSpotlightTitle.addEventListener('input', function() {
-                previewSpotlightTitle.textContent = this.value.trim() || 'عروض وتخفيضات دار روفين الحصرية';
+                previewSpotlightTitle.textContent = this.value.trim() || 'عروض وتخفيضات دار Roven الحصرية';
             });
         }
         if (inputSpotlightSubtitle && previewSpotlightSubtitle) {

@@ -209,7 +209,7 @@
                     </h6>
                     <p class="leading-relaxed mb-0" style="color: #4a4545; line-height: 1.8; font-size: 0.94rem;">
                         @(string.IsNullOrWhiteSpace(p.Description) 
-                            ? "تحفة عطرية من دار روڤين بتركيز إكستري دي بارفان 30% من الزيوت النقية المستخلصة في غراس بفرنسا، لثبات يدوم طويلاً وفوحان أخّاذ يأسر الحواس." 
+                            ? "تحفة عطرية من دار Roven بتركيز إكستري دي بارفان 30% من الزيوت النقية المستخلصة في غراس بفرنسا، لثبات يدوم طويلاً وفوحان أخّاذ يأسر الحواس." 
                             : p.Description)
                     </p>
                 </div>
@@ -243,7 +243,7 @@
                             var cleanWaPhone = Stockify.Models.Entities.HomeSetting.NormalizeWhatsAppNumber(siteWaPhone);
                             var productUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Store/Details/{p.Id}";
                             var perfumeConcentration = !string.IsNullOrWhiteSpace(p.FragranceTagline) ? p.FragranceTagline : Model.DefaultFragranceTagline;
-                            var defaultWaMessage = Uri.EscapeDataString($"مرحباً دار روڤين، أود طلب عطر {p.Name} ({perfumeConcentration}) بسعر {p.Price:N0} ج.م.\nالرابط: {productUrl}");
+                            var defaultWaMessage = Uri.EscapeDataString($"مرحباً دار Roven، أود طلب عطر {p.Name} ({perfumeConcentration}) بسعر {p.Price:N0} ج.م.\nالرابط: {productUrl}");
                         }
                         <div class="mb-3">
                             <a id="btnDirectWhatsAppOrder"
@@ -292,7 +292,7 @@
                     <span>CLIENT EXPERIENCES & REVIEWS</span>
                 </div>
                 <h3 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif; font-size: clamp(1.25rem, 3.5vw, 1.75rem);">آراء وتقييمات العملاء</h3>
-                <p class="small text-muted mb-0">تجارب حقيقية لعملاء دار روڤين مع عطر <strong>@p.Name</strong> وثباته وفوحانه.</p>
+                <p class="small text-muted mb-0">تجارب حقيقية لعملاء دار Roven مع عطر <strong>@p.Name</strong> وثباته وفوحانه.</p>
             </div>
             <div class="d-flex flex-wrap align-items-center gap-3 w-100 w-md-auto justify-content-between justify-content-md-end">
                 <div class="text-start text-md-end">
@@ -320,7 +320,7 @@
                         <i class="fa-solid fa-award" style="color: #630000;"></i>
                         <h5 class="fw-bold mb-0" style="color: #1B1717; font-size: 1.05rem;">شاركنا رأيك في العطر</h5>
                     </div>
-                    <p class="small text-muted mb-3" style="font-size: 0.8rem;">تقييمك يساعد عملاء دار روڤين في اختيار العطر المناسب لذوقهم.</p>
+                    <p class="small text-muted mb-3" style="font-size: 0.8rem;">تقييمك يساعد عملاء دار Roven في اختيار العطر المناسب لذوقهم.</p>
 
                     <form id="productReviewForm" asp-controller="Store" asp-action="SubmitReview" method="post">
                         @Html.AntiForgeryToken()
@@ -440,7 +440,7 @@
                     <h4 class="fw-bold text-dark mb-1" style="font-family: 'Playfair Display', serif; font-size: clamp(1.15rem, 3vw, 1.5rem);">
                         عطور أخرى قد تنال إعجابك
                     </h4>
-                    <p class="small text-muted mb-0">تشكيلة مختارة بعناية من أرقى إصدارات دار روڤين</p>
+                    <p class="small text-muted mb-0">تشكيلة مختارة بعناية من أرقى إصدارات دار Roven</p>
                 </div>
                 <a asp-action="Index" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1.5 d-none d-sm-inline-flex align-items-center gap-1.5" style="font-size: 0.78rem;">
                     <span>عرض كافة العطور</span>
@@ -550,7 +550,7 @@
         const cleanPhone = '@Stockify.Models.Entities.HomeSetting.NormalizeWhatsAppNumber(!string.IsNullOrWhiteSpace(Model.WhatsAppNumber) ? Model.WhatsAppNumber : "201006856199")';
         const pageUrl = window.location.href;
 
-        let msg = `مرحباً دار روڤين، أود طلب عطر ${productName}`;
+        let msg = `مرحباً دار Roven، أود طلب عطر ${productName}`;
         if (qty > 1) {
             msg += ` (الكمية: ${qty} زجاجات - الإجمالي: ${totalPrice} ج.م)`;
         } else {

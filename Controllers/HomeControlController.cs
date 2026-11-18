@@ -63,7 +63,7 @@ public class HomeControlController : Controller
             }
             if (string.IsNullOrWhiteSpace(settings.SpotlightTitle))
             {
-                settings.SpotlightTitle = "عروض وتخفيضات دار روفين الحصرية";
+                settings.SpotlightTitle = "عروض وتخفيضات دار Roven الحصرية";
                 needsSave = true;
             }
             if (string.IsNullOrWhiteSpace(settings.SpotlightSubtitle))
@@ -733,7 +733,7 @@ public class HomeControlController : Controller
             : "EXCLUSIVE ATELIER OFFERS & DEALS";
         settings.SpotlightTitle = !string.IsNullOrWhiteSpace(model.SpotlightTitle) 
             ? model.SpotlightTitle.Trim() 
-            : "عروض وتخفيضات دار روفين الحصرية";
+            : "عروض وتخفيضات دار Roven الحصرية";
         settings.SpotlightSubtitle = !string.IsNullOrWhiteSpace(model.SpotlightSubtitle) 
             ? model.SpotlightSubtitle.Trim() 
             : "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";

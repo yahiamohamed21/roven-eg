@@ -45,7 +45,7 @@
     @{
         var rawTitle = ViewData["Title"]?.ToString() ?? "";
         var tabTitle = string.IsNullOrWhiteSpace(rawTitle) || rawTitle == "Storefront" || rawTitle.Equals("ROVEN", StringComparison.OrdinalIgnoreCase)
-            ? "ROVEN Haute Parfumerie | دار روڤين / روفان للعطور الفاخرة — الموقع الرسمي"
+            ? "ROVEN Haute Parfumerie | دار Roven للعطور الفاخرة — الموقع الرسمي"
             : (rawTitle.Contains("ROVEN") ? rawTitle : $"{rawTitle} | ROVEN Haute Parfumerie");
         var canonicalHost = "roven-eg.online";
         var currentPath = Context.Request.Path.Value ?? "/";
@@ -70,7 +70,7 @@
     <link rel="alternate" hreflang="x-default" href="@canonicalUrl" />
     
     <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
-    <meta property="og:site_name" content="Maison ROVEN (روڤين / روفان)" />
+    <meta property="og:site_name" content="Maison ROVEN" />
     <meta property="og:type" content="@(ViewData["OgType"] ?? "website")" />
     <meta property="og:title" content="@tabTitle" />
     <meta property="og:description" content="@(ViewData["MetaDescription"] ?? "Official Maison ROVEN Haute Parfumerie. Handcrafted luxury Extraits de Parfum, royal oud, and eternal sillage with Cash on Delivery in Egypt. دار روڤين / روفان للعطور.")" />

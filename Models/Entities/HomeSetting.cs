@@ -80,7 +80,7 @@ public class HomeSetting
     public string SpotlightBadgeText { get; set; } = "EXCLUSIVE ATELIER OFFERS & DEALS";
 
     [MaxLength(300)]
-    public string SpotlightTitle { get; set; } = "عروض وتخفيضات دار روفين الحصرية";
+    public string SpotlightTitle { get; set; } = "عروض وتخفيضات دار Roven الحصرية";
 
     [MaxLength(600)]
     public string SpotlightSubtitle { get; set; } = "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";
