@@ -5,6 +5,7 @@
     var products = ViewBag.Products as List<Stockify.Models.Entities.Product> ?? new();
     var homeOffers = ViewBag.HomeOffers as List<Stockify.Models.Entities.HomeOffer> ?? new();
     var heroBanners = ViewBag.HeroBanners as List<Stockify.Models.Entities.HeroBanner> ?? new();
+    var faqItems = ViewBag.FaqItems as List<Stockify.Models.Entities.HomeFaqItem> ?? new();
 }
 
 <style>
@@ -302,6 +303,12 @@
             <button class="nav-link" id="tab-social-btn" data-bs-toggle="pill" data-bs-target="#tab-social" type="button" role="tab" aria-controls="tab-social" aria-selected="false">
                 <i class="fa-solid fa-bullhorn text-danger fs-6"></i>
                 <span>6. Top Announcement</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-faq-btn" data-bs-toggle="pill" data-bs-target="#tab-faq" type="button" role="tab" aria-controls="tab-faq" aria-selected="false">
+                <i class="fa-solid fa-circle-question text-info fs-6"></i>
+                <span>7. FAQ Clarifications</span>
             </button>
         </li>
     </ul>
@@ -1855,6 +1862,10 @@
                                                 <div class="text-muted small" style="font-size: 0.78rem;">
                                                     قائمة الأسئلة الشائعة والأكورديون عن التراكيز ومعاينة الشحنات والتوصيل.
                                                 </div>
+                                                <button type="button" class="btn btn-outline-info btn-sm rounded-pill px-2.5 py-0.5 fw-bold d-inline-flex align-items-center gap-1 mt-1.5" style="font-size: 0.72rem;" onclick="document.getElementById('tab-faq-btn').click();">
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                    <span>تعديل وإدارة الأسئلة والأجوبة (FAQ)</span>
+                                                </button>
                                             </div>
                                         </div>
                                         <div class="form-check form-switch mb-0">
@@ -1974,6 +1985,183 @@
                 </div>
             </div>
 
+            <!-- ============================================================== -->
+            <!-- TAB 7: FAQ CLARIFICATIONS & ACCORDION MANAGEMENT               -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade tab-pane-content" id="tab-faq" role="tabpanel" aria-labelledby="tab-faq-btn">
+                
+                <!-- Section Header Settings Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-setting-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 border-bottom">
+                        <div>
+                            <span class="fw-bold fs-6" style="color: #1B1717;">
+                                <i class="fa-solid fa-circle-question text-info me-2"></i>إعدادات عنوان ونصوص سكشن الأسئلة الشائعة (FAQ Header)
+                            </span>
+                            <div class="text-muted small mt-1">
+                                تحكم في الشارة العلوية، العنوان الرئيسي، والنص التوضيحي الظاهر أعلى سكشن الأسئلة الشائعة في متجر دار روفين.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4 align-items-center">
+                            <div class="col-12 col-lg-7">
+                                <div class="mb-3">
+                                    <label asp-for="FaqBadgeText" class="form-label small fw-bold text-secondary">
+                                        نص الشارة العلوية (Badge Text)
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light text-danger"><i class="fa-solid fa-gem"></i></span>
+                                        <input asp-for="FaqBadgeText" id="inputFaqBadge" class="form-control" placeholder="Maison ROVEN Clarifications" />
+                                    </div>
+                                    <small class="text-muted d-block mt-1">النص داخل الشارة البيضاوية أعلى السكشن (افتراضي: Maison ROVEN Clarifications)</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="FaqTitle" class="form-label small fw-bold text-secondary">
+                                        العنوان الرئيسي للسكشن (Section Title)
+                                    </label>
+                                    <input asp-for="FaqTitle" id="inputFaqTitle" class="form-control fw-bold" placeholder="Frequently Asked Questions" />
+                                    <small class="text-muted d-block mt-1">العنوان الرئيسي العريض (افتراضي: Frequently Asked Questions)</small>
+                                </div>
+
+                                <div class="mb-0">
+                                    <label asp-for="FaqSubtitle" class="form-label small fw-bold text-secondary">
+                                        الوصف التوضيحي للسكشن (Section Subtitle)
+                                    </label>
+                                    <textarea asp-for="FaqSubtitle" id="inputFaqSubtitle" class="form-control" rows="2" placeholder="Everything you need to know about concentrations, parcel inspection, and authenticity"></textarea>
+                                    <small class="text-muted d-block mt-1">الجملة التوضيحية أسفل العنوان عن التراكيز ومعاينة الطرد</small>
+                                </div>
+                            </div>
+
+                            <!-- Live Header Preview -->
+                            <div class="col-12 col-lg-5">
+                                <div class="p-3.5 p-md-4 rounded-4 border text-center shadow-xs position-relative overflow-hidden" style="background: #FAF9F5; border: 1px solid rgba(181, 141, 74, 0.25) !important;">
+                                    <div class="position-absolute top-0 start-0 end-0" style="height: 3px; background: linear-gradient(90deg, #810100 0%, #b58d4a 50%, #810100 100%);"></div>
+                                    <div class="small text-muted fw-bold text-uppercase mb-3" style="font-size: 0.72rem; letter-spacing: 1px; color: #8a6519 !important;">
+                                        <i class="fa-solid fa-eye me-1"></i>معاينة مباشرة في المتجر
+                                    </div>
+
+                                    <div class="my-2">
+                                        <span class="badge px-3 py-1.5 rounded-pill fw-bold mb-2 d-inline-flex align-items-center gap-2 shadow-xs" id="previewFaqBadge" style="background: rgba(181, 141, 74, 0.12); color: #8a6519; border: 1px solid rgba(181, 141, 74, 0.35); font-size: 0.75rem;">
+                                            <i class="fa-solid fa-gem text-danger"></i>
+                                            <span>@(string.IsNullOrWhiteSpace(Model.FaqBadgeText) ? "Maison ROVEN Clarifications" : Model.FaqBadgeText)</span>
+                                        </span>
+                                        <h4 class="fw-extrabold mb-2" id="previewFaqTitle" style="font-family: 'Playfair Display', serif; color: #1B1717; font-size: 1.25rem;">
+                                            @(string.IsNullOrWhiteSpace(Model.FaqTitle) ? "Frequently Asked Questions" : Model.FaqTitle)
+                                        </h4>
+                                        <p class="text-muted small mx-auto mb-0" id="previewFaqSubtitle" style="max-width: 420px; font-size: 0.82rem; line-height: 1.5;">
+                                            @(string.IsNullOrWhiteSpace(Model.FaqSubtitle) ? "Everything you need to know about concentrations, parcel inspection, and authenticity" : Model.FaqSubtitle)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main FAQ Items Management Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-setting-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white border-bottom">
+                        <div>
+                            <span class="fw-bold fs-6" style="color: #1B1717;">
+                                <i class="fa-solid fa-list-check text-success me-2"></i>قائمة الأسئلة والأجوبة (FAQ Questions & Answers)
+                            </span>
+                            <div class="text-muted small mt-1">
+                                يمكنك إضافة أسئلة جديدة، تعديل نص أي سؤال أو إجابته، إعادة ترتيبها تصاعدياً، أو تفعيلها وإلغاء تفعيلها.
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <button type="button" class="btn btn-primary btn-sm px-3.5 py-2 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-1.5 text-white" style="background: #810100; border-color: #810100; width: auto !important;" data-bs-toggle="modal" data-bs-target="#addFaqModal">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>إضافة سؤال جديد +</span>
+                            </button>
+                            <button type="submit" form="resetDefaultFaqForm" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill fw-semibold shadow-xs" title="استعادة الأسئلة الافتراضية" onclick="return confirm('هل أنت متأكد من استعادة الأسئلة الشائعة الافتراضية الأربعة المعتمدة للدار؟');">
+                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                                <span class="d-none d-sm-inline ms-1">استعادة الافتراضية</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-3 p-md-4">
+                        @if (faqItems.Any())
+                        {
+                            <div class="d-flex flex-column gap-3">
+                                @for (int i = 0; i < faqItems.Count; i++)
+                                {
+                                    var item = faqItems[i];
+                                    var itemIcon = !string.IsNullOrWhiteSpace(item.IconClass) ? item.IconClass : "fa-solid fa-circle-question";
+
+                                    <div class="card border p-3 rounded-4 bg-white shadow-xs position-relative" style="border-color: #e8e3d5 !important;">
+                                        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                                            
+                                            <!-- Question & Answer Preview -->
+                                            <div class="d-flex align-items-start gap-3 flex-grow-1" style="min-width: 0;">
+                                                <div class="rounded-circle d-flex align-items-center justify-content-center bg-light border flex-shrink-0" style="width: 40px; height: 40px;">
+                                                    <i class="@itemIcon" style="color: #810100; font-size: 1rem;"></i>
+                                                </div>
+                                                <div class="flex-grow-1" style="min-width: 0;">
+                                                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                                        <span class="badge font-monospace text-white px-2 py-0.5 rounded-pill" style="background: #810100; font-size: 0.7rem;">#@item.DisplayOrder</span>
+                                                        <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem;">@item.Question</h6>
+                                                    </div>
+                                                    <div class="text-muted small" style="font-size: 0.8rem; line-height: 1.5; max-height: 2.8em; overflow: hidden;">
+                                                        @Html.Raw(item.Answer)
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Controls -->
+                                            <div class="d-flex align-items-center justify-content-between justify-content-md-end gap-2 w-100 w-md-auto pt-2 pt-md-0 border-top border-md-top-0" style="border-color: #f1ece4 !important;">
+                                                <!-- Status Toggle -->
+                                                <button type="submit" form="toggleFaqForm_@item.Id" class="badge rounded-pill px-3 py-2 fw-bold text-decoration-none border-0 shadow-xs" style="background-color: @(item.IsActive ? "#198754" : "#6c757d"); color: #ffffff; cursor: pointer; font-size: 0.74rem;">
+                                                    @(item.IsActive ? "ACTIVE" : "INACTIVE")
+                                                </button>
+
+                                                <div class="d-flex align-items-center gap-1.5">
+                                                    <!-- Move Up -->
+                                                    <button type="submit" form="moveFaqUpForm_@item.Id" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == 0 ? "disabled" : "")" style="width: 32px; height: 32px;" title="تحريك لأعلى">
+                                                        <i class="fa-solid fa-arrow-up" style="font-size: 0.75rem;"></i>
+                                                    </button>
+
+                                                    <!-- Move Down -->
+                                                    <button type="submit" form="moveFaqDownForm_@item.Id" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == faqItems.Count - 1 ? "disabled" : "")" style="width: 32px; height: 32px;" title="تحريك لأسفل">
+                                                        <i class="fa-solid fa-arrow-down" style="font-size: 0.75rem;"></i>
+                                                    </button>
+
+                                                    <!-- Edit Button -->
+                                                    <button type="button" class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center text-primary" style="width: 32px; height: 32px;" title="تعديل السؤال"
+                                                            onclick="openEditFaqModal(@item.Id, @Html.Raw(System.Text.Json.JsonSerializer.Serialize(item.Question)), @Html.Raw(System.Text.Json.JsonSerializer.Serialize(item.Answer)), @Html.Raw(System.Text.Json.JsonSerializer.Serialize(item.IconClass ?? "")), @item.DisplayOrder, @(item.IsActive ? "true" : "false"));">
+                                                        <i class="fa-solid fa-pen-to-square" style="font-size: 0.78rem;"></i>
+                                                    </button>
+
+                                                    <!-- Delete Button -->
+                                                    <button type="submit" form="deleteFaqForm_@item.Id" class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center text-danger" style="width: 32px; height: 32px;" title="حذف السؤال" onclick="return confirm('هل أنت متأكد من حذف هذا السؤال؟');">
+                                                        <i class="fa-solid fa-trash-can" style="font-size: 0.78rem;"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3 bg-light" style="width: 60px; height: 60px;">
+                                    <i class="fa-solid fa-circle-question text-muted fs-3"></i>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-1">لا توجد أسئلة مضافة حالياً</h6>
+                                <p class="text-muted small mb-3">يمكنك إضافة سؤال جديد أو استعادة الأسئلة الافتراضية للدار بنقرة واحدة.</p>
+                                <button type="button" class="btn btn-primary btn-sm px-4 py-2 rounded-pill fw-bold text-white" style="background: #810100; border-color: #810100;" data-bs-toggle="modal" data-bs-target="#addFaqModal">
+                                    <i class="fa-solid fa-plus me-1"></i> إضافة سؤال جديد
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- Sticky Bottom Save Bar -->
@@ -2040,6 +2228,33 @@
 <form id="resetMainBrandHeroForm" asp-controller="HomeControl" asp-action="ResetMainBrandHero" method="post" class="d-none" onsubmit="return confirm('هل أنت متأكد من استعادة صور وإعدادات الهيرو الأصلية الافتراضية للدار؟');">
     @Html.AntiForgeryToken()
 </form>
+
+<!-- Hidden Action Forms for FAQ Items -->
+<form id="resetDefaultFaqForm" asp-controller="HomeControl" asp-action="ResetDefaultFaqItems" method="post" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
+
+@foreach (var f in faqItems)
+{
+    <form id="toggleFaqForm_@f.Id" asp-controller="HomeControl" asp-action="ToggleFaqItem" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@f.Id" />
+    </form>
+    <form id="moveFaqUpForm_@f.Id" asp-controller="HomeControl" asp-action="MoveFaqItem" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@f.Id" />
+        <input type="hidden" name="direction" value="up" />
+    </form>
+    <form id="moveFaqDownForm_@f.Id" asp-controller="HomeControl" asp-action="MoveFaqItem" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@f.Id" />
+        <input type="hidden" name="direction" value="down" />
+    </form>
+    <form id="deleteFaqForm_@f.Id" asp-controller="HomeControl" asp-action="DeleteFaqItem" method="post" class="d-none">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@f.Id" />
+    </form>
+}
 
 <!-- Modal: Edit Main Brand Hero (Section #1 - Desktop & Mobile) -->
 <div class="modal fade" id="editMainBrandHeroModal" tabindex="-1" aria-labelledby="editMainBrandHeroModalLabel" aria-hidden="true">
@@ -2341,6 +2556,155 @@
                     <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold" onclick="executeDeleteBanner()">تأكيد الحذف</button>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Add FAQ Item -->
+<div class="modal fade" id="addFaqModal" tabindex="-1" aria-labelledby="addFaqModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg bg-white">
+            <div class="modal-header border-bottom pb-3 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="modal-title fw-bold" id="addFaqModalLabel" style="color: #1B1717; font-family: 'Playfair Display', serif;">
+                    <i class="fa-solid fa-circle-question text-info me-2"></i>إضافة سؤال جديد في سكشن FAQ
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="HomeControl" asp-action="AddFaqItem" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-3">
+                        <div>
+                            <label class="form-label small fw-bold text-dark mb-1">
+                                نص السؤال (Question) <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="question" class="form-control rounded-3" placeholder="مثال: كيف يمكنني تتبع طلبي؟ أو ما الذي يميز تركيز الإكستريت؟" required />
+                        </div>
+
+                        <div>
+                            <label class="form-label small fw-bold text-dark mb-1">
+                                نص الإجابة والتوضيح (Answer) <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="answer" class="form-control rounded-3" rows="4" placeholder="اكتب نص الإجابة الوافي بالتفصيل... (يدعم تنسيق HTML البسيط مثل <strong> أو <code>)" required></textarea>
+                            <small class="text-muted" style="font-size: 0.75rem;">يمكنك كتابة نص عادي أو تضمين كلمات عريضة عبر &lt;strong&gt;كلمة&lt;/strong&gt; أو روابط.</small>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">
+                                    أيقونة السؤال (FontAwesome Icon)
+                                </label>
+                                <select name="iconClass" class="form-select rounded-3">
+                                    <option value="fa-solid fa-circle-question">fa-circle-question (سؤال افتراضي)</option>
+                                    <option value="fa-solid fa-droplet">fa-droplet (قطرة عطر / تراكيز)</option>
+                                    <option value="fa-solid fa-shield-halved">fa-shield-halved (ضمان / معاينة COD)</option>
+                                    <option value="fa-solid fa-truck-fast">fa-truck-fast (شحن وتوصيل)</option>
+                                    <option value="fa-solid fa-box-open">fa-box-open (تتبع شحنة / طرد)</option>
+                                    <option value="fa-solid fa-gem">fa-gem (جودة وفخامة)</option>
+                                    <option value="fa-solid fa-spray-can-sparkles">fa-spray-can-sparkles (عطور وفوحان)</option>
+                                    <option value="fa-solid fa-clock">fa-clock (مواعيد وساعات)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">
+                                    ترتيب الظهور (Display Order)
+                                </label>
+                                <input type="number" name="displayOrder" class="form-control rounded-3" value="@(faqItems.Count + 1)" min="1" max="99" />
+                            </div>
+                        </div>
+
+                        <div class="form-check form-switch mt-2">
+                            <input type="checkbox" name="isActive" class="form-check-input" value="true" checked id="addFaqActiveCheck" style="cursor: pointer; width: 2.2em; height: 1.2em;" />
+                            <label class="form-check-label small fw-bold ms-2 pt-1" for="addFaqActiveCheck">
+                                تفعيل السؤال مباشرة في المتجر
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 pb-4 px-4 d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-outline-secondary px-4 py-2.5 rounded-pill" data-bs-dismiss="modal">
+                        إلغاء
+                    </button>
+                    <button type="submit" class="btn fw-bold px-4 py-2.5 rounded-pill shadow-sm text-white" style="background: #810100; border: none;">
+                        <i class="fa-solid fa-plus me-1"></i> إضافة السؤال
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Edit FAQ Item -->
+<div class="modal fade" id="editFaqModal" tabindex="-1" aria-labelledby="editFaqModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg bg-white">
+            <div class="modal-header border-bottom pb-3 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="modal-title fw-bold" id="editFaqModalLabel" style="color: #1B1717; font-family: 'Playfair Display', serif;">
+                    <i class="fa-solid fa-pen-to-square text-primary me-2"></i>تعديل السؤال والإجابة (Edit FAQ Item)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="HomeControl" asp-action="UpdateFaqItem" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="editFaqId" />
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-3">
+                        <div>
+                            <label class="form-label small fw-bold text-dark mb-1">
+                                نص السؤال (Question) <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="question" id="editFaqQuestion" class="form-control rounded-3" required />
+                        </div>
+
+                        <div>
+                            <label class="form-label small fw-bold text-dark mb-1">
+                                نص الإجابة والتوضيح (Answer) <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="answer" id="editFaqAnswer" class="form-control rounded-3" rows="4" required></textarea>
+                            <small class="text-muted" style="font-size: 0.75rem;">يمكنك كتابة نص عادي أو تضمين كلمات عريضة عبر &lt;strong&gt;كلمة&lt;/strong&gt; أو روابط.</small>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">
+                                    أيقونة السؤال (FontAwesome Icon)
+                                </label>
+                                <select name="iconClass" id="editFaqIconClass" class="form-select rounded-3">
+                                    <option value="fa-solid fa-circle-question">fa-circle-question (سؤال افتراضي)</option>
+                                    <option value="fa-solid fa-droplet">fa-droplet (قطرة عطر / تراكيز)</option>
+                                    <option value="fa-solid fa-shield-halved">fa-shield-halved (ضمان / معاينة COD)</option>
+                                    <option value="fa-solid fa-truck-fast">fa-truck-fast (شحن وتوصيل)</option>
+                                    <option value="fa-solid fa-box-open">fa-box-open (تتبع شحنة / طرد)</option>
+                                    <option value="fa-solid fa-gem">fa-gem (جودة وفخامة)</option>
+                                    <option value="fa-solid fa-spray-can-sparkles">fa-spray-can-sparkles (عطور وفوحان)</option>
+                                    <option value="fa-solid fa-clock">fa-clock (مواعيد وساعات)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">
+                                    ترتيب الظهور (Display Order)
+                                </label>
+                                <input type="number" name="displayOrder" id="editFaqDisplayOrder" class="form-control rounded-3" min="1" max="99" />
+                            </div>
+                        </div>
+
+                        <div class="form-check form-switch mt-2">
+                            <input type="checkbox" name="isActive" class="form-check-input" value="true" id="editFaqIsActive" style="cursor: pointer; width: 2.2em; height: 1.2em;" />
+                            <label class="form-check-label small fw-bold ms-2 pt-1" for="editFaqIsActive">
+                                تفعيل السؤال في المتجر
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 pb-4 px-4 d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-outline-secondary px-4 py-2.5 rounded-pill" data-bs-dismiss="modal">
+                        إلغاء
+                    </button>
+                    <button type="submit" class="btn fw-bold px-4 py-2.5 rounded-pill shadow-sm text-white" style="background: #810100; border: none;">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> حفظ التعديلات
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -3096,6 +3460,49 @@
         const mobileInput = document.getElementById('mainHeroMobileUrlInput');
         if (desktopInput) desktopInput.value = '/images/banners/roven-hero-main.png';
         if (mobileInput) mobileInput.value = '/images/banners/roven-hero-main-sm.png';
+    }
+
+    function openEditFaqModal(id, question, answer, iconClass, displayOrder, isActive) {
+        document.getElementById('editFaqId').value = id;
+        document.getElementById('editFaqQuestion').value = question;
+        document.getElementById('editFaqAnswer').value = answer;
+        const iconSelect = document.getElementById('editFaqIconClass');
+        if (iconSelect) {
+            iconSelect.value = iconClass || 'fa-solid fa-circle-question';
+        }
+        document.getElementById('editFaqDisplayOrder').value = displayOrder;
+        document.getElementById('editFaqIsActive').checked = isActive;
+        const modalEl = document.getElementById('editFaqModal');
+        if (modalEl) {
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+    }
+
+    // Live Header Preview for FAQ
+    const inputFaqBadge = document.getElementById('inputFaqBadge');
+    const previewFaqBadge = document.getElementById('previewFaqBadge');
+    if (inputFaqBadge && previewFaqBadge) {
+        inputFaqBadge.addEventListener('input', function() {
+            const span = previewFaqBadge.querySelector('span');
+            if (span) span.textContent = this.value.trim() || 'Maison ROVEN Clarifications';
+        });
+    }
+
+    const inputFaqTitle = document.getElementById('inputFaqTitle');
+    const previewFaqTitle = document.getElementById('previewFaqTitle');
+    if (inputFaqTitle && previewFaqTitle) {
+        inputFaqTitle.addEventListener('input', function() {
+            previewFaqTitle.textContent = this.value.trim() || 'Frequently Asked Questions';
+        });
+    }
+
+    const inputFaqSubtitle = document.getElementById('inputFaqSubtitle');
+    const previewFaqSubtitle = document.getElementById('previewFaqSubtitle');
+    if (inputFaqSubtitle && previewFaqSubtitle) {
+        inputFaqSubtitle.addEventListener('input', function() {
+            previewFaqSubtitle.textContent = this.value.trim() || 'Everything you need to know about concentrations, parcel inspection, and authenticity';
+        });
     }
 </script>
 }

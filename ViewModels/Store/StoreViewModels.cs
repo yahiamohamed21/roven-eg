@@ -13,6 +13,7 @@ public class StoreHomeViewModel
     public List<HomeOfferItemViewModel> SpecialOffers { get; set; } = new();
     public List<HeroBanner> HeroBanners { get; set; } = new();
     public List<StoreCategoryViewModel> Categories { get; set; } = new();
+    public List<HomeFaqItem> FaqItems { get; set; } = new();
     public int TotalCatalogCount { get; set; }
     public int TotalCustomersCount { get; set; }
     public int TotalOrdersCompleted { get; set; }

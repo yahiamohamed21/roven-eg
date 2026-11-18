@@ -27,6 +27,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<HeroBanner> HeroBanners => Set<HeroBanner>();
     public DbSet<ProductReview> ProductReviews => Set<ProductReview>();
     public DbSet<MediaDeletionJob> MediaDeletionJobs => Set<MediaDeletionJob>();
+    public DbSet<HomeFaqItem> HomeFaqItems => Set<HomeFaqItem>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -317,6 +317,12 @@ public class HomeController : Controller
             .ThenByDescending(b => b.CreatedAt)
             .ToListAsync();
 
+        var faqItems = await _context.HomeFaqItems
+            .Where(f => f.IsActive)
+            .OrderBy(f => f.DisplayOrder)
+            .ThenBy(f => f.Id)
+            .ToListAsync();
+
         var viewModel = new StoreHomeViewModel
         {
             FeaturedProducts = featured,
@@ -326,6 +332,7 @@ public class HomeController : Controller
             SpecialOffers = activeOffers,
             HeroBanners = heroBanners,
             Categories = categories,
+            FaqItems = faqItems,
             TotalCatalogCount = totalCatalog,
             TotalCustomersCount = totalCustomers > 0 ? totalCustomers : 1420,
             TotalOrdersCompleted = totalCompleted > 0 ? totalCompleted : 890,

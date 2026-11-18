@@ -111,11 +111,74 @@ public class HomeControlController : Controller
                 settings.BrandHeroTitle = "ROVEN FRAGRANCES — Your Safest Choice";
                 needsSave = true;
             }
+
+            // Ensure FAQ section customization properties are initialized
+            if (string.IsNullOrWhiteSpace(settings.FaqBadgeText))
+            {
+                settings.FaqBadgeText = "Maison ROVEN Clarifications";
+                needsSave = true;
+            }
+            if (string.IsNullOrWhiteSpace(settings.FaqTitle))
+            {
+                settings.FaqTitle = "Frequently Asked Questions";
+                needsSave = true;
+            }
+            if (string.IsNullOrWhiteSpace(settings.FaqSubtitle))
+            {
+                settings.FaqSubtitle = "Everything you need to know about concentrations, parcel inspection, and authenticity";
+                needsSave = true;
+            }
+
             if (needsSave)
             {
                 await _context.SaveChangesAsync();
             }
         }
+
+        // Auto-seed default FAQ items if table is empty
+        if (!await _context.HomeFaqItems.AnyAsync())
+        {
+            _context.HomeFaqItems.AddRange(
+                new HomeFaqItem
+                {
+                    Question = "What distinguishes an Extrait de Parfum from Eau de Parfum?",
+                    Answer = "ROVEN Extraits de Parfum contain <strong>30% or higher</strong> concentrations of pure perfume oil essences, offering an exceptionally rich and intimate sillage that endures for 24+ hours on fabrics and skin. Our Eaux de Parfum are concentrated at 20%, engineered for vibrant projection and refined daytime versatility.",
+                    IconClass = "fa-solid fa-droplet",
+                    DisplayOrder = 1,
+                    IsActive = true
+                },
+                new HomeFaqItem
+                {
+                    Question = "How does Cash on Delivery (COD) inspection work?",
+                    Answer = "No online credit card is required. You can complete your order instantly as a guest without creating an account. When the courier arrives, you have the right to inspect the parcel seal and external luxury packaging condition before handing over the payment in Egyptian Pounds (EGP).",
+                    IconClass = "fa-solid fa-shield-halved",
+                    DisplayOrder = 2,
+                    IsActive = true
+                },
+                new HomeFaqItem
+                {
+                    Question = "What is the expected delivery timeframe?",
+                    Answer = "Orders placed for Cairo and Giza are fulfilled within <strong>24 to 48 hours</strong>. Shipments to Alexandria, Delta, and Upper Egypt governorates are fulfilled within <strong>48 to 72 hours</strong> with real-time status updates and SMS notification.",
+                    IconClass = "fa-solid fa-truck-fast",
+                    DisplayOrder = 3,
+                    IsActive = true
+                },
+                new HomeFaqItem
+                {
+                    Question = "How can I track my fragrance delivery?",
+                    Answer = "Upon order confirmation, you receive a distinct tracking reference number (e.g. <code>ORD-20261105-XXXX</code>). Visit the <a href=\"/OrderTracking\" style=\"color: #630000; font-weight: 700; text-decoration: underline;\">Track Order</a> page anytime to view the live multi-stage dispatch timeline of your flacon.",
+                    IconClass = "fa-solid fa-box-open",
+                    DisplayOrder = 4,
+                    IsActive = true
+                }
+            );
+            await _context.SaveChangesAsync();
+        }
+
+        ViewBag.FaqItems = await _context.HomeFaqItems
+            .OrderBy(f => f.DisplayOrder)
+            .ThenBy(f => f.Id)
+            .ToListAsync();
 
         ViewBag.HeroBanners = await _context.HeroBanners
             .OrderBy(b => b.DisplayOrder)
@@ -675,6 +738,10 @@ public class HomeControlController : Controller
             ? model.SpotlightSubtitle.Trim() 
             : "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";
 
+        settings.FaqBadgeText = !string.IsNullOrWhiteSpace(model.FaqBadgeText) ? model.FaqBadgeText.Trim() : "Maison ROVEN Clarifications";
+        settings.FaqTitle = !string.IsNullOrWhiteSpace(model.FaqTitle) ? model.FaqTitle.Trim() : "Frequently Asked Questions";
+        settings.FaqSubtitle = !string.IsNullOrWhiteSpace(model.FaqSubtitle) ? model.FaqSubtitle.Trim() : "Everything you need to know about concentrations, parcel inspection, and authenticity";
+
         settings.MarqueeActive = model.MarqueeActive;
         settings.MarqueeText = model.MarqueeText?.Trim() ?? "";
         settings.MarqueeBadgeText = model.MarqueeBadgeText?.Trim() ?? "";
@@ -1067,5 +1134,203 @@ public class HomeControlController : Controller
             // Fail-safe: do not interrupt user operations if network or Cloudinary is unreachable
         }
     }
+
+    #region FAQ Management
+
+    // POST: /HomeControl/AddFaqItem
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddFaqItem(string question, string answer, string? iconClass, int displayOrder, bool isActive = true)
+    {
+        if (string.IsNullOrWhiteSpace(question) || string.IsNullOrWhiteSpace(answer))
+        {
+            TempData["ErrorMessage"] = "يرجى كتابة نص السؤال والإجابة بشكل صحيح.";
+            return RedirectToAction(nameof(Index), new { tab = "tab-faq" });
+        }
+
+        var faqCount = await _context.HomeFaqItems.CountAsync();
+        var item = new HomeFaqItem
+        {
+            Question = question.Trim(),
+            Answer = answer.Trim(),
+            IconClass = string.IsNullOrWhiteSpace(iconClass) ? "fa-solid fa-circle-question" : iconClass.Trim(),
+            DisplayOrder = displayOrder > 0 ? displayOrder : faqCount + 1,
+            IsActive = isActive,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.HomeFaqItems.Add(item);
+        await _context.SaveChangesAsync();
+        InvalidateStoreCache();
+
+        TempData["SuccessMessage"] = "تمت إضافة السؤال الجديد بنجاح!";
+        return RedirectToAction(nameof(Index), new { tab = "tab-faq" });
+    }
+
+    // POST: /HomeControl/UpdateFaqItem
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateFaqItem(int id, string question, string answer, string? iconClass, int displayOrder, bool isActive)
+    {
+        var item = await _context.HomeFaqItems.FindAsync(id);
+        if (item == null)
+        {
+            TempData["ErrorMessage"] = "السؤال المطلوب غير موجود.";
+            return RedirectToAction(nameof(Index), new { tab = "tab-faq" });
+        }
+
+        if (string.IsNullOrWhiteSpace(question) || string.IsNullOrWhiteSpace(answer))
+        {
+            TempData["ErrorMessage"] = "لا يمكن ترك نص السؤال أو الإجابة فارغاً.";
+            return RedirectToAction(nameof(Index), new { tab = "tab-faq" });
+        }
+
+        item.Question = question.Trim();
+        item.Answer = answer.Trim();
+        item.IconClass = string.IsNullOrWhiteSpace(iconClass) ? "fa-solid fa-circle-question" : iconClass.Trim();
+        item.DisplayOrder = displayOrder > 0 ? displayOrder : item.DisplayOrder;
+        item.IsActive = isActive;
+
+        await _context.SaveChangesAsync();
+        InvalidateStoreCache();
+
+        TempData["SuccessMessage"] = "تم تحديث بيانات السؤال بنجاح!";
+        return RedirectToAction(nameof(Index), new { tab = "tab-faq" });
+    }
+
+    // POST: /HomeControl/DeleteFaqItem
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteFaqItem(int id)
+    {
+        var item = await _context.HomeFaqItems.FindAsync(id);
+        if (item != null)
+        {
+            _context.HomeFaqItems.Remove(item);
+            await _context.SaveChangesAsync();
+            InvalidateStoreCache();
+            TempData["SuccessMessage"] = "تم حذف السؤال بنجاح!";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "السؤال المطلوب غير موجود.";
+        }
+        return RedirectToAction(nameof(Index), new { tab = "tab-faq" });
+    }
+
+    // POST: /HomeControl/ToggleFaqItem
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleFaqItem(int id)
+    {
+        var item = await _context.HomeFaqItems.FindAsync(id);
+        if (item != null)
+        {
+            item.IsActive = !item.IsActive;
+            await _context.SaveChangesAsync();
+            InvalidateStoreCache();
+            TempData["SuccessMessage"] = $"تم {(item.IsActive ? "تفعيل" : "إلغاء تفعيل")} السؤال بنجاح!";
+        }
+        return RedirectToAction(nameof(Index), new { tab = "tab-faq" });
+    }
+
+    // POST: /HomeControl/MoveFaqItem
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> MoveFaqItem(int id, string direction)
+    {
+        var items = await _context.HomeFaqItems
+            .OrderBy(f => f.DisplayOrder)
+            .ThenBy(f => f.Id)
+            .ToListAsync();
+
+        var index = items.FindIndex(f => f.Id == id);
+        if (index >= 0)
+        {
+            if (direction == "up" && index > 0)
+            {
+                var prev = items[index - 1];
+                var cur = items[index];
+                (prev.DisplayOrder, cur.DisplayOrder) = (cur.DisplayOrder, prev.DisplayOrder);
+            }
+            else if (direction == "down" && index < items.Count - 1)
+            {
+                var next = items[index + 1];
+                var cur = items[index];
+                (next.DisplayOrder, cur.DisplayOrder) = (cur.DisplayOrder, next.DisplayOrder);
+            }
+
+            // Normalize orders
+            for (int i = 0; i < items.Count; i++)
+            {
+                items[i].DisplayOrder = i + 1;
+            }
+
+            await _context.SaveChangesAsync();
+            InvalidateStoreCache();
+        }
+
+        return RedirectToAction(nameof(Index), new { tab = "tab-faq" });
+    }
+
+    // POST: /HomeControl/ResetDefaultFaqItems
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetDefaultFaqItems()
+    {
+        _context.HomeFaqItems.RemoveRange(await _context.HomeFaqItems.ToListAsync());
+        await _context.SaveChangesAsync();
+
+        _context.HomeFaqItems.AddRange(
+            new HomeFaqItem
+            {
+                Question = "What distinguishes an Extrait de Parfum from Eau de Parfum?",
+                Answer = "ROVEN Extraits de Parfum contain <strong>30% or higher</strong> concentrations of pure perfume oil essences, offering an exceptionally rich and intimate sillage that endures for 24+ hours on fabrics and skin. Our Eaux de Parfum are concentrated at 20%, engineered for vibrant projection and refined daytime versatility.",
+                IconClass = "fa-solid fa-droplet",
+                DisplayOrder = 1,
+                IsActive = true
+            },
+            new HomeFaqItem
+            {
+                Question = "How does Cash on Delivery (COD) inspection work?",
+                Answer = "No online credit card is required. You can complete your order instantly as a guest without creating an account. When the courier arrives, you have the right to inspect the parcel seal and external luxury packaging condition before handing over the payment in Egyptian Pounds (EGP).",
+                IconClass = "fa-solid fa-shield-halved",
+                DisplayOrder = 2,
+                IsActive = true
+            },
+            new HomeFaqItem
+            {
+                Question = "What is the expected delivery timeframe?",
+                Answer = "Orders placed for Cairo and Giza are fulfilled within <strong>24 to 48 hours</strong>. Shipments to Alexandria, Delta, and Upper Egypt governorates are fulfilled within <strong>48 to 72 hours</strong> with real-time status updates and SMS notification.",
+                IconClass = "fa-solid fa-truck-fast",
+                DisplayOrder = 3,
+                IsActive = true
+            },
+            new HomeFaqItem
+            {
+                Question = "How can I track my fragrance delivery?",
+                Answer = "Upon order confirmation, you receive a distinct tracking reference number (e.g. <code>ORD-20261105-XXXX</code>). Visit the <a href=\"/OrderTracking\" style=\"color: #630000; font-weight: 700; text-decoration: underline;\">Track Order</a> page anytime to view the live multi-stage dispatch timeline of your flacon.",
+                IconClass = "fa-solid fa-box-open",
+                DisplayOrder = 4,
+                IsActive = true
+            }
+        );
+
+        var settings = await _context.HomeSettings.FirstOrDefaultAsync();
+        if (settings != null)
+        {
+            settings.FaqBadgeText = "Maison ROVEN Clarifications";
+            settings.FaqTitle = "Frequently Asked Questions";
+            settings.FaqSubtitle = "Everything you need to know about concentrations, parcel inspection, and authenticity";
+        }
+
+        await _context.SaveChangesAsync();
+        InvalidateStoreCache();
+
+        TempData["SuccessMessage"] = "تمت استعادة الأسئلة الشائعة الافتراضية للدار بنجاح!";
+        return RedirectToAction(nameof(Index), new { tab = "tab-faq" });
+    }
+
+    #endregion
 }
 

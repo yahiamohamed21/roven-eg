@@ -155,6 +155,16 @@ public class HomeSetting
     [MaxLength(500)]
     public string? FeaturedProductIds { get; set; } = null;
 
+    // FAQ Section Customization
+    [MaxLength(150)]
+    public string FaqBadgeText { get; set; } = "Maison ROVEN Clarifications";
+
+    [MaxLength(300)]
+    public string FaqTitle { get; set; } = "Frequently Asked Questions";
+
+    [MaxLength(500)]
+    public string FaqSubtitle { get; set; } = "Everything you need to know about concentrations, parcel inspection, and authenticity";
+
     // Section Toggles
     public bool ShowBrandHero { get; set; } = true;
     public bool ShowHeroBanners { get; set; } = true;
