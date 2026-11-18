@@ -9,6 +9,37 @@
 }
 
 <style>
+    /* Drag & Drop Reordering Styles */
+    .sortable-section-card {
+        user-select: none;
+        -webkit-user-select: none;
+    }
+    .sortable-section-card:hover {
+        border-color: rgba(181, 141, 74, 0.6) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06) !important;
+    }
+    .sortable-ghost {
+        opacity: 0.35 !important;
+        background: #fff8eb !important;
+        border: 2px dashed #dfb15b !important;
+        box-shadow: none !important;
+    }
+    .sortable-chosen {
+        background-color: #fdfaf3 !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    }
+    .sortable-drag {
+        opacity: 0.95 !important;
+        transform: scale(1.015);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18) !important;
+    }
+    .cursor-grab {
+        cursor: grab !important;
+    }
+    .cursor-grab:active {
+        cursor: grabbing !important;
+    }
+
     /* Tabs Navigation */
     .roven-tabs {
         display: flex;
@@ -316,6 +347,7 @@
     <!-- Main Form for all tabs -->
     <form id="homeControlForm" asp-controller="HomeControl" asp-action="Update" method="post">
         @Html.AntiForgeryToken()
+        <input type="hidden" name="activeTab" id="mainFormActiveTab" value="@(ViewBag.ActiveTab ?? "tab-banners")" />
 
         <div class="tab-content" id="homeControlTabsContent">
 
@@ -1449,23 +1481,48 @@
             </div>
 
             <!-- ============================================================== -->
-            <!-- TAB 5: SECTIONS VISIBILITY & ORDERING (SHOW / HIDE & SEQUENCE) -->
+            <!-- TAB 5: SECTIONS VISIBILITY & ORDERING (DRAG & DROP REORDERING) -->
             <!-- ============================================================== -->
             <div class="tab-pane fade tab-pane-content" id="tab-sections" role="tabpanel" aria-labelledby="tab-sections-btn">
+                @{
+                    var sectionItems = new List<(string Key, string OrderProp, int Order, bool IsVisible, string Title, string Badge, string Icon, string IconColor, string Desc, string SwitchProp)>
+                    {
+                        ("BrandHero", "OrderBrandHero", Model.OrderBrandHero > 0 ? Model.OrderBrandHero : 1, Model.ShowBrandHero, "البانر الرئيسي الثابت للدار", "Brand Hero", "fa-solid fa-crown", "#dfb15b", "البانر الكبير عالي الدقة لشعار الدار وتصميم الهيرو الأساسي بأعلى الصفحة.", "ShowBrandHero"),
+                        ("Marquee", "OrderMarquee", Model.OrderMarquee > 0 ? Model.OrderMarquee : 2, Model.MarqueeActive, "شريط الإعلانات والخصم المتحرك", "Marquee Ticker", "fa-solid fa-ticket", "#e67e22", "شريط الأخبار والخصم المتدفق تلقائياً (OFFER 20% OFF • كود الخصم...).", "tab5MarqueeSwitch"),
+                        ("TrustBadges", "OrderTrustBadges", Model.OrderTrustBadges > 0 ? Model.OrderTrustBadges : 3, Model.ShowTrustBadges, "مميزات الثقة والضمان الفاخرة", "Trust Badges", "fa-solid fa-shield-halved", "#c0392b", "سكشن الشحن المجاني لكافة المحافظات، المعاينة قبل الدفع COD، ونسبة التركيز 30%.", "ShowTrustBadges"),
+                        ("HeroBanners", "OrderHeroBanners", Model.OrderHeroBanners > 0 ? Model.OrderHeroBanners : 4, Model.ShowHeroBanners, "سلايدر البانرات الإعلانية الترويجية", "Hero Banners", "fa-solid fa-images", "#2980b9", "سلايدر البانرات والعروض المتحركة داخل كونتينر مخصص (المدارة من تبويب 1).", "ShowHeroBanners"),
+                        ("Categories", "OrderCategories", Model.OrderCategories > 0 ? Model.OrderCategories : 5, Model.ShowCategoriesShowcase, "استعراض أقسام وعائلات العطور", "Categories", "fa-solid fa-layer-group", "#8e44ad", "كروت أقسام العطور الأربعة الرئيسية (Extraits, Oud & Oriental, Sets, Eaux).", "ShowCategoriesShowcase"),
+                        ("Offers", "OrderOffers", Model.OrderOffers > 0 ? Model.OrderOffers : 6, Model.SpotlightActive, "عروض وتخفيضات دار Roven الحصرية", "Special Offers", "fa-solid fa-bolt", "#f39c12", "كروت عروض العطور الفاخرة، عداد الوقت، نسبة الحجز، وأسعار التخفيض الاستثنائية.", "tab5SpotlightSwitch"),
+                        ("Featured", "OrderFeatured", Model.OrderFeatured > 0 ? Model.OrderFeatured : 7, Model.ShowFeaturedSection, "سكشن العطور المميزة (Featured)", "Featured", "fa-solid fa-crown", "#d35400", "شبكة العطور المميزة (Master Distillations) التي تختارها الدار لعملائها.", "ShowFeaturedSection"),
+                        ("BestSellers", "OrderBestSellers", Model.OrderBestSellers > 0 ? Model.OrderBestSellers : 8, Model.ShowBestSellersSection, "سكشن الأكثر مبيعاً (Best Sellers)", "Best Sellers", "fa-solid fa-fire", "#e74c3c", "العطور الأكثر طلباً ومبيعاً ومعدلات الشراء المرتفعة عبر المتجر.", "ShowBestSellersSection"),
+                        ("Testimonials", "OrderTestimonials", Model.OrderTestimonials > 0 ? Model.OrderTestimonials : 9, Model.ShowTestimonialsSection, "آراء وانطباعات رواد الدار (Testimonials)", "Testimonials", "fa-solid fa-comment-dots", "#7f8c8d", "تقييمات وآراء العملاء وتجاربهم العطرية الفاخرة وتقييمات الـ 5 نجوم.", "ShowTestimonialsSection"),
+                        ("Faq", "OrderFaq", Model.OrderFaq > 0 ? Model.OrderFaq : 10, Model.ShowFaqSection, "سكشن الأسئلة الشائعة وتوضيحات الدار", "FAQ", "fa-solid fa-circle-question", "#16a085", "قائمة الأسئلة الشائعة والأكورديون عن التراكيز ومعاينة الشحنات والتوصيل.", "ShowFaqSection"),
+                        ("Newsletter", "OrderNewsletter", Model.OrderNewsletter > 0 ? Model.OrderNewsletter : 11, Model.ShowNewsletterSection, "شريط الاشتراك في النشرة VIP", "Newsletter", "fa-solid fa-envelope-open-text", "#27ae60", "بانر خصم 10% والاشتراك في النشرة البريدية الحصرية لرواد الدار.", "ShowNewsletterSection")
+                    }
+                    .OrderBy(s => s.Order)
+                    .ToList();
+                }
+
                 <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-setting-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                    <div class="card-setting-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 border-bottom pb-3">
                         <div>
                             <span class="fw-bold fs-6" style="color: #1B1717;">
-                                <i class="fa-solid fa-arrows-up-down text-primary me-2"></i>ترتيب وإظهار سكشنات الصفحة الرئيسية (Sections Visibility & Display Order)
+                                <i class="fa-solid fa-up-down-left-right text-primary me-2"></i>ترتيب سكاشن المتجر بالسحب والإفلات (Drag & Drop Reordering)
                             </span>
                             <div class="text-muted small mt-1">
-                                تحكم كامل في ترتيب تسلسل ظهور كافة سكشنات المتجر من خلال القوائم المنسدلة (Dropdowns من 1 إلى 11)، وتفعيل أو إخفاء أي سكشن بنقرة واحدة.
+                                اسحب أي سكشن من المقبض <strong>(⋮⋮)</strong> وضعه في المكان المطلوب، أو استخدم أزرار الأسهم <strong>(↑ ↓)</strong>، ثم اضغط حفظ لتطبيق الترتيب فوراً على واجهة المتجر.
                             </div>
                         </div>
-                        <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-1.5 rounded-pill fw-semibold d-inline-flex align-items-center gap-1.5" id="btnResetDefaultOrder" style="font-size: 0.8rem; white-space: nowrap;">
-                            <i class="fa-solid fa-arrow-rotate-left"></i>
-                            <span>استعادة الترتيب الافتراضي</span>
-                        </button>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill fw-semibold shadow-xs" id="btnResetDefaultOrder" title="استعادة الترتيب الافتراضي">
+                                <i class="fa-solid fa-arrow-rotate-left me-1"></i>
+                                <span>استعادة الافتراضي</span>
+                            </button>
+                            <button type="button" class="btn btn-primary btn-sm px-3.5 py-2 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-1.5 text-white" id="btnSaveSectionOrderTop" style="background: #810100; border-color: #810100;">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>حفظ الترتيب وتطبيقه فوراً</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="card-body p-3 p-md-4">
@@ -1474,7 +1531,7 @@
                             <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
                                 <span class="small fw-bold text-dark d-flex align-items-center gap-1.5" style="font-size: 0.82rem;">
                                     <i class="fa-solid fa-layer-group text-warning"></i>
-                                    <span>تسلسل السكشنات المباشر في واجهة المتجر:</span>
+                                    <span>تسلسل السكشنات المباشر في واجهة المتجر (Live Sequence):</span>
                                 </span>
                                 <span class="badge text-muted bg-white border" style="font-size: 0.72rem;">
                                     يتم ترتيب السكشنات تصاعدياً من 1 إلى 11
@@ -1485,450 +1542,115 @@
                             </div>
                         </div>
 
-                        <div class="row g-3" id="sectionsContainer">
-                            <!-- 1. Brand Hero -->
-                            <div class="col-12 col-md-6 section-card-item">
-                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="d-flex align-items-start gap-2.5">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
-                                                <i class="fa-solid fa-image text-danger fs-6"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
-                                                    <span>البانر الرئيسي الثابت للدار</span>
-                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Brand Hero</span>
-                                                </div>
-                                                <div class="text-muted small" style="font-size: 0.78rem;">
-                                                    البانر الكبير عالي الدقة لشعار الدار وتصميم الهيرو الأساسي بأعلى الصفحة.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowBrandHero" style="cursor: pointer; width: 2.2em; height: 1.2em;">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
-                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
-                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
-                                            <span>الترتيب (الدروب داون):</span>
-                                        </label>
-                                        <div style="min-width: 175px;">
-                                            <select asp-for="OrderBrandHero" class="form-select form-select-sm fw-bold section-order-select" data-section-name="البانر الرئيسي للدار" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
-                                                @for (int i = 1; i <= 11; i++)
-                                                {
-                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
-                                                    <option value="@i">@optLabel</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- Drag and Drop Sections List -->
+                        <div id="sortableSectionsList" class="d-flex flex-column gap-2.5">
+                            @for (int idx = 0; idx < sectionItems.Count; idx++)
+                            {
+                                var item = sectionItems[idx];
+                                var isFirst = idx == 0;
+                                var isLast = idx == sectionItems.Count - 1;
+                                var rankText = isFirst ? "#1 (الأول — أعلى الصفحة)" : (isLast ? $"#{idx + 1} (الأخير — أسفل الصفحة)" : $"#{idx + 1}");
+                                var rankBg = isFirst ? "#198754" : (isLast ? "#6c757d" : "#810100");
 
-                            <!-- 2. Infinite Marquee -->
-                            <div class="col-12 col-md-6 section-card-item">
-                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="d-flex align-items-start gap-2.5">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
-                                                <i class="fa-solid fa-ticket text-warning fs-6"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
-                                                    <span>شريط الإعلانات والخصم المتحرك</span>
-                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Marquee Ticker</span>
-                                                </div>
-                                                <div class="text-muted small" style="font-size: 0.78rem;">
-                                                    شريط الأخبار والخصم المتدفق تلقائياً (OFFER 20% OFF • كود الخخصم...).
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="tab5MarqueeSwitch" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل شريط الماركي">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
-                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
-                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
-                                            <span>الترتيب (الدروب داون):</span>
-                                        </label>
-                                        <div style="min-width: 175px;">
-                                            <select asp-for="OrderMarquee" class="form-select form-select-sm fw-bold section-order-select" data-section-name="شريط الماركي المتحرك" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
-                                                @for (int i = 1; i <= 11; i++)
-                                                {
-                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
-                                                    <option value="@i">@optLabel</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                <div class="sortable-section-card card border p-3 rounded-4 bg-white shadow-xs position-relative"
+                                     data-section-key="@item.Key"
+                                     data-section-name="@item.Title"
+                                     draggable="true"
+                                     style="border: 1px solid rgba(181, 141, 74, 0.28) !important; cursor: grab; transition: all 0.2s ease;">
+                                    
+                                    <input type="hidden" name="@item.OrderProp" id="orderInput_@item.Key" value="@item.Order" class="section-order-val" data-section-name="@item.Title" />
 
-                            <!-- 3. Trust Badges -->
-                            <div class="col-12 col-md-6 section-card-item">
-                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="d-flex align-items-start gap-2.5">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
-                                                <i class="fa-solid fa-shield-halved text-danger fs-6"></i>
+                                    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                                        <!-- Right Side: Handle + Rank Badge + Icon + Title + Description -->
+                                        <div class="d-flex align-items-start align-items-md-center gap-2.5 flex-grow-1" style="min-width: 0;">
+                                            <!-- Drag Handle -->
+                                            <div class="drag-handle px-1 py-2 text-muted d-flex align-items-center justify-content-center cursor-grab" title="اسحب وأفلت لإعادة الترتيب (Drag & Drop)" style="cursor: grab;">
+                                                <i class="fa-solid fa-grip-vertical fs-5 text-secondary opacity-75"></i>
                                             </div>
-                                            <div>
-                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
-                                                    <span>مميزات الثقة والضمان الفاخرة</span>
-                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Trust Badges</span>
-                                                </div>
-                                                <div class="text-muted small" style="font-size: 0.78rem;">
-                                                    سكشن الشحن المجاني لكافة المحافظات، المعاينة قبل الدفع COD، ونسبة التركيز 30%.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowTrustBadges" style="cursor: pointer; width: 2.2em; height: 1.2em;">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
-                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
-                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
-                                            <span>الترتيب (الدروب داون):</span>
-                                        </label>
-                                        <div style="min-width: 175px;">
-                                            <select asp-for="OrderTrustBadges" class="form-select form-select-sm fw-bold section-order-select" data-section-name="مميزات الثقة والضمان" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
-                                                @for (int i = 1; i <= 11; i++)
-                                                {
-                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
-                                                    <option value="@i">@optLabel</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- 4. Hero Banners Slider -->
-                            <div class="col-12 col-md-6 section-card-item">
-                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="d-flex align-items-start gap-2.5">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
-                                                <i class="fa-solid fa-images text-primary fs-6"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
-                                                    <span>سلايدر البانرات الإعلانية الترويجية</span>
-                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Hero Banners</span>
-                                                </div>
-                                                <div class="text-muted small" style="font-size: 0.78rem;">
-                                                    سلايدر البانرات والعروض المتحركة داخل كونتينر مخصص (المدارة من تبويب 1).
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowHeroBanners" style="cursor: pointer; width: 2.2em; height: 1.2em;">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
-                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
-                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
-                                            <span>الترتيب (الدروب داون):</span>
-                                        </label>
-                                        <div style="min-width: 175px;">
-                                            <select asp-for="OrderHeroBanners" class="form-select form-select-sm fw-bold section-order-select" data-section-name="سلايدر البانرات الترويجية" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
-                                                @for (int i = 1; i <= 11; i++)
-                                                {
-                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
-                                                    <option value="@i">@optLabel</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                            <!-- Sequence Rank Badge -->
+                                            <span class="badge section-rank-badge font-monospace text-white px-3 py-2 rounded-pill shadow-xs flex-shrink-0" style="background: @rankBg; font-size: 0.78rem; min-width: 55px; text-align: center;">
+                                                @rankText
+                                            </span>
 
-                            <!-- 5. Categories Showcase -->
-                            <div class="col-12 col-md-6 section-card-item">
-                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="d-flex align-items-start gap-2.5">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
-                                                <i class="fa-solid fa-layer-group text-primary fs-6"></i>
+                                            <!-- Section Icon -->
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-light border flex-shrink-0" style="width: 40px; height: 40px;">
+                                                <i class="@item.Icon fs-5" style="color: @item.IconColor;"></i>
                                             </div>
-                                            <div>
-                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
-                                                    <span>استعراض أقسام وعائلات العطور</span>
-                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Categories</span>
-                                                </div>
-                                                <div class="text-muted small" style="font-size: 0.78rem;">
-                                                    كروت أقسام العطور الأربعة الرئيسية (Extraits, Oud & Oriental, Sets, Eaux).
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowCategoriesShowcase" style="cursor: pointer; width: 2.2em; height: 1.2em;">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
-                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
-                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
-                                            <span>الترتيب (الدروب داون):</span>
-                                        </label>
-                                        <div style="min-width: 175px;">
-                                            <select asp-for="OrderCategories" class="form-select form-select-sm fw-bold section-order-select" data-section-name="أقسام وعائلات العطور" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
-                                                @for (int i = 1; i <= 11; i++)
-                                                {
-                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
-                                                    <option value="@i">@optLabel</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- 6. Spotlight Offers & Deals -->
-                            <div class="col-12 col-md-6 section-card-item">
-                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="d-flex align-items-start gap-2.5">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
-                                                <i class="fa-solid fa-bolt text-warning fs-6"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
-                                                    <span>عروض وتخفيضات دار Roven الحصرية</span>
-                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Special Offers</span>
+                                            <!-- Title & Details -->
+                                            <div class="min-w-0 flex-grow-1">
+                                                <div class="fw-bold text-dark mb-0.5 d-flex align-items-center gap-2 flex-wrap">
+                                                    <span style="font-size: 0.95rem;">@item.Title</span>
+                                                    <span class="badge text-muted bg-light border fw-normal" style="font-size: 0.65rem;">@item.Badge</span>
                                                 </div>
-                                                <div class="text-muted small" style="font-size: 0.78rem;">
-                                                    كروت عروض العطور الفاخرة، عداد الوقت، نسبة الحجز، وأسعار التخفيض الاستثنائية.
+                                                <div class="text-muted small" style="font-size: 0.78rem; line-height: 1.4;">
+                                                    @item.Desc
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="tab5SpotlightSwitch" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل قسم العروض">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
-                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
-                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
-                                            <span>الترتيب (الدروب داون):</span>
-                                        </label>
-                                        <div style="min-width: 175px;">
-                                            <select asp-for="OrderOffers" class="form-select form-select-sm fw-bold section-order-select" data-section-name="عروض وتخفيضات الدار" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
-                                                @for (int i = 1; i <= 11; i++)
-                                                {
-                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
-                                                    <option value="@i">@optLabel</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- 7. Featured Parfums -->
-                            <div class="col-12 col-md-6 section-card-item">
-                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="d-flex align-items-start gap-2.5">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
-                                                <i class="fa-solid fa-crown text-warning fs-6"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
-                                                    <span>سكشن العطور المميزة (Featured)</span>
-                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Featured</span>
-                                                </div>
-                                                <div class="text-muted small" style="font-size: 0.78rem;">
-                                                    شبكة العطور المميزة (Master Distillations) التي تختارها الدار لعملائها.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowFeaturedSection" style="cursor: pointer; width: 2.2em; height: 1.2em;">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
-                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
-                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
-                                            <span>الترتيب (الدروب داون):</span>
-                                        </label>
-                                        <div style="min-width: 175px;">
-                                            <select asp-for="OrderFeatured" class="form-select form-select-sm fw-bold section-order-select" data-section-name="العطور المميزة" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
-                                                @for (int i = 1; i <= 11; i++)
-                                                {
-                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
-                                                    <option value="@i">@optLabel</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 8. Best Sellers -->
-                            <div class="col-12 col-md-6 section-card-item">
-                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="d-flex align-items-start gap-2.5">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
-                                                <i class="fa-solid fa-fire text-danger fs-6"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
-                                                    <span>سكشن الأكثر مبيعاً (Best Sellers)</span>
-                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Best Sellers</span>
-                                                </div>
-                                                <div class="text-muted small" style="font-size: 0.78rem;">
-                                                    العطور الأكثر طلباً ومبيعاً ومعدلات الشراء المرتفعة عبر المتجر.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowBestSellersSection" style="cursor: pointer; width: 2.2em; height: 1.2em;">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
-                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
-                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
-                                            <span>الترتيب (الدروب داون):</span>
-                                        </label>
-                                        <div style="min-width: 175px;">
-                                            <select asp-for="OrderBestSellers" class="form-select form-select-sm fw-bold section-order-select" data-section-name="الأكثر مبيعاً" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
-                                                @for (int i = 1; i <= 11; i++)
-                                                {
-                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
-                                                    <option value="@i">@optLabel</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 9. Client Testimonials -->
-                            <div class="col-12 col-md-6 section-card-item">
-                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="d-flex align-items-start gap-2.5">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
-                                                <i class="fa-solid fa-comment-dots text-secondary fs-6"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
-                                                    <span>آراء وانطباعات رواد الدار (Testimonials)</span>
-                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Testimonials</span>
-                                                </div>
-                                                <div class="text-muted small" style="font-size: 0.78rem;">
-                                                    تقييمات وآراء العملاء وتجاربهم العطرية الفاخرة وتقييمات الـ 5 نجوم.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowTestimonialsSection" style="cursor: pointer; width: 2.2em; height: 1.2em;">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
-                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
-                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
-                                            <span>الترتيب (الدروب داون):</span>
-                                        </label>
-                                        <div style="min-width: 175px;">
-                                            <select asp-for="OrderTestimonials" class="form-select form-select-sm fw-bold section-order-select" data-section-name="آراء العملاء" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
-                                                @for (int i = 1; i <= 11; i++)
-                                                {
-                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
-                                                    <option value="@i">@optLabel</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 10. FAQ -->
-                            <div class="col-12 col-md-6 section-card-item">
-                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="d-flex align-items-start gap-2.5">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
-                                                <i class="fa-solid fa-circle-question text-info fs-6"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
-                                                    <span>سكشن الأسئلة الشائعة وتوضيحات الدار</span>
-                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">FAQ</span>
-                                                </div>
-                                                <div class="text-muted small" style="font-size: 0.78rem;">
-                                                    قائمة الأسئلة الشائعة والأكورديون عن التراكيز ومعاينة الشحنات والتوصيل.
-                                                </div>
-                                                <button type="button" class="btn btn-outline-info btn-sm rounded-pill px-2.5 py-0.5 fw-bold d-inline-flex align-items-center gap-1 mt-1.5" style="font-size: 0.72rem;" onclick="document.getElementById('tab-faq-btn').click();">
-                                                    <i class="fa-solid fa-pen-to-square"></i>
-                                                    <span>تعديل وإدارة الأسئلة والأجوبة (FAQ)</span>
+                                        <!-- Left Side: Quick Up/Down buttons + Visibility Toggle Switch -->
+                                        <div class="d-flex align-items-center justify-content-between justify-content-md-end gap-2 w-100 w-md-auto pt-2 pt-md-0 border-top border-md-top-0" style="border-color: #f1ece4 !important;">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center btn-move-section-up @(isFirst ? "disabled" : "")" style="width: 32px; height: 32px;" title="تحريك لأعلى">
+                                                    <i class="fa-solid fa-arrow-up" style="font-size: 0.72rem;"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center btn-move-section-down @(isLast ? "disabled" : "")" style="width: 32px; height: 32px;" title="تحريك لأسفل">
+                                                    <i class="fa-solid fa-arrow-down" style="font-size: 0.72rem;"></i>
                                                 </button>
                                             </div>
-                                        </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowFaqSection" style="cursor: pointer; width: 2.2em; height: 1.2em;">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
-                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
-                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
-                                            <span>الترتيب (الدروب داون):</span>
-                                        </label>
-                                        <div style="min-width: 175px;">
-                                            <select asp-for="OrderFaq" class="form-select form-select-sm fw-bold section-order-select" data-section-name="الأسئلة الشائعة" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
-                                                @for (int i = 1; i <= 11; i++)
-                                                {
-                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
-                                                    <option value="@i">@optLabel</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- 11. VIP Newsletter -->
-                            <div class="col-12 col-md-6 section-card-item">
-                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
-                                    <div class="d-flex justify-content-between align-items-start gap-2">
-                                        <div class="d-flex align-items-start gap-2.5">
-                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
-                                                <i class="fa-solid fa-envelope-open-text text-success fs-6"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
-                                                    <span>شريط الاشتراك في النشرة VIP</span>
-                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Newsletter</span>
-                                                </div>
-                                                <div class="text-muted small" style="font-size: 0.78rem;">
-                                                    بانر خصم 10% والاشتراك في النشرة البريدية الحصرية لرواد الدار.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowNewsletterSection" style="cursor: pointer; width: 2.2em; height: 1.2em;">
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
-                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
-                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
-                                            <span>الترتيب (الدروب داون):</span>
-                                        </label>
-                                        <div style="min-width: 175px;">
-                                            <select asp-for="OrderNewsletter" class="form-select form-select-sm fw-bold section-order-select" data-section-name="النشرة البريدية" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
-                                                @for (int i = 1; i <= 11; i++)
+                                            <div class="form-check form-switch mb-0 ms-2">
+                                                @if (item.SwitchProp == "tab5MarqueeSwitch")
                                                 {
-                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
-                                                    <option value="@i">@optLabel</option>
+                                                    <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" id="tab5MarqueeSwitch" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل شريط الماركي">
                                                 }
-                                            </select>
+                                                else if (item.SwitchProp == "tab5SpotlightSwitch")
+                                                {
+                                                    <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" id="tab5SpotlightSwitch" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل قسم العروض">
+                                                }
+                                                else if (item.SwitchProp == "ShowBrandHero")
+                                                {
+                                                    <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" asp-for="ShowBrandHero" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل سكشن الهيرو">
+                                                }
+                                                else if (item.SwitchProp == "ShowHeroBanners")
+                                                {
+                                                    <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" asp-for="ShowHeroBanners" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل سلايدر البانرات">
+                                                }
+                                                else if (item.SwitchProp == "ShowTrustBadges")
+                                                {
+                                                    <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" asp-for="ShowTrustBadges" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل مميزات الثقة">
+                                                }
+                                                else if (item.SwitchProp == "ShowCategoriesShowcase")
+                                                {
+                                                    <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" asp-for="ShowCategoriesShowcase" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل استعراض الأقسام">
+                                                }
+                                                else if (item.SwitchProp == "ShowFeaturedSection")
+                                                {
+                                                    <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" asp-for="ShowFeaturedSection" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل العطور المميزة">
+                                                }
+                                                else if (item.SwitchProp == "ShowBestSellersSection")
+                                                {
+                                                    <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" asp-for="ShowBestSellersSection" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل الأكثر مبيعاً">
+                                                }
+                                                else if (item.SwitchProp == "ShowTestimonialsSection")
+                                                {
+                                                    <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" asp-for="ShowTestimonialsSection" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل آراء العملاء">
+                                                }
+                                                else if (item.SwitchProp == "ShowFaqSection")
+                                                {
+                                                    <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" asp-for="ShowFaqSection" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل الأسئلة الشائعة">
+                                                }
+                                                else if (item.SwitchProp == "ShowNewsletterSection")
+                                                {
+                                                    <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" asp-for="ShowNewsletterSection" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل النشرة البريدية">
+                                                }
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -2075,7 +1797,7 @@
                                 <i class="fa-solid fa-plus"></i>
                                 <span>إضافة سؤال جديد +</span>
                             </button>
-                            <button type="submit" form="resetDefaultFaqForm" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill fw-semibold shadow-xs" title="استعادة الأسئلة الافتراضية" onclick="return confirm('هل أنت متأكد من استعادة الأسئلة الشائعة الافتراضية الأربعة المعتمدة للدار؟');">
+                            <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill fw-semibold shadow-xs" title="استعادة الأسئلة الافتراضية" onclick="if(confirm('هل أنت متأكد من استعادة الأسئلة الشائعة الافتراضية الأربعة المعتمدة للدار؟')) document.getElementById('resetDefaultFaqForm').submit();">
                                 <i class="fa-solid fa-arrow-rotate-left"></i>
                                 <span class="d-none d-sm-inline ms-1">استعادة الافتراضية</span>
                             </button>
@@ -2113,29 +1835,34 @@
                                             <!-- Controls -->
                                             <div class="d-flex align-items-center justify-content-between justify-content-md-end gap-2 w-100 w-md-auto pt-2 pt-md-0 border-top border-md-top-0" style="border-color: #f1ece4 !important;">
                                                 <!-- Status Toggle -->
-                                                <button type="submit" form="toggleFaqForm_@item.Id" class="badge rounded-pill px-3 py-2 fw-bold text-decoration-none border-0 shadow-xs" style="background-color: @(item.IsActive ? "#198754" : "#6c757d"); color: #ffffff; cursor: pointer; font-size: 0.74rem;">
+                                                <button type="button" onclick="document.getElementById('toggleFaqForm_@item.Id').submit();" class="badge rounded-pill px-3 py-2 fw-bold text-decoration-none border-0 shadow-xs" style="background-color: @(item.IsActive ? "#198754" : "#6c757d"); color: #ffffff; cursor: pointer; font-size: 0.74rem;" title="تغيير حالة التفعيل">
                                                     @(item.IsActive ? "ACTIVE" : "INACTIVE")
                                                 </button>
 
                                                 <div class="d-flex align-items-center gap-1.5">
                                                     <!-- Move Up -->
-                                                    <button type="submit" form="moveFaqUpForm_@item.Id" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == 0 ? "disabled" : "")" style="width: 32px; height: 32px;" title="تحريك لأعلى">
+                                                    <button type="button" onclick="document.getElementById('moveFaqUpForm_@item.Id').submit();" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == 0 ? "disabled" : "")" style="width: 32px; height: 32px;" title="تحريك لأعلى">
                                                         <i class="fa-solid fa-arrow-up" style="font-size: 0.75rem;"></i>
                                                     </button>
 
                                                     <!-- Move Down -->
-                                                    <button type="submit" form="moveFaqDownForm_@item.Id" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == faqItems.Count - 1 ? "disabled" : "")" style="width: 32px; height: 32px;" title="تحريك لأسفل">
+                                                    <button type="button" onclick="document.getElementById('moveFaqDownForm_@item.Id').submit();" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == faqItems.Count - 1 ? "disabled" : "")" style="width: 32px; height: 32px;" title="تحريك لأسفل">
                                                         <i class="fa-solid fa-arrow-down" style="font-size: 0.75rem;"></i>
                                                     </button>
 
                                                     <!-- Edit Button -->
-                                                    <button type="button" class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center text-primary" style="width: 32px; height: 32px;" title="تعديل السؤال"
-                                                            onclick="openEditFaqModal(@item.Id, @Html.Raw(System.Text.Json.JsonSerializer.Serialize(item.Question)), @Html.Raw(System.Text.Json.JsonSerializer.Serialize(item.Answer)), @Html.Raw(System.Text.Json.JsonSerializer.Serialize(item.IconClass ?? "")), @item.DisplayOrder, @(item.IsActive ? "true" : "false"));">
+                                                    <button type="button" class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center text-primary btn-edit-faq" style="width: 32px; height: 32px;" title="تعديل السؤال"
+                                                            data-id="@item.Id"
+                                                            data-question="@item.Question"
+                                                            data-icon="@(item.IconClass ?? "fa-solid fa-circle-question")"
+                                                            data-order="@item.DisplayOrder"
+                                                            data-active="@(item.IsActive ? "true" : "false")">
                                                         <i class="fa-solid fa-pen-to-square" style="font-size: 0.78rem;"></i>
+                                                        <div class="d-none faq-answer-raw">@item.Answer</div>
                                                     </button>
 
                                                     <!-- Delete Button -->
-                                                    <button type="submit" form="deleteFaqForm_@item.Id" class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center text-danger" style="width: 32px; height: 32px;" title="حذف السؤال" onclick="return confirm('هل أنت متأكد من حذف هذا السؤال؟');">
+                                                    <button type="button" onclick="if(confirm('هل أنت متأكد من حذف هذا السؤال؟')) document.getElementById('deleteFaqForm_@item.Id').submit();" class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center text-danger" style="width: 32px; height: 32px;" title="حذف السؤال">
                                                         <i class="fa-solid fa-trash-can" style="font-size: 0.78rem;"></i>
                                                     </button>
                                                 </div>
@@ -2926,6 +2653,7 @@
 </div>
 
 @section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
     function openEditBannerModal(id, title, desktopUrl, mobileUrl, redirectLink, altText, isActive, order) {
         document.getElementById('editBannerId').value = id;
@@ -3058,11 +2786,22 @@
         const tabLinks = document.querySelectorAll('#homeControlTabs button[data-bs-toggle="pill"]');
         const activeTabKey = 'roven_home_control_active_tab';
 
-        const savedTab = localStorage.getItem(activeTabKey);
-        if (savedTab) {
-            const triggerEl = document.querySelector(`#homeControlTabs button[data-bs-target="${savedTab}"]`);
+        // Check URL parameter first, then ViewBag, then localStorage
+        const activeTabFromViewBag = '@(ViewBag.ActiveTab ?? "")';
+        const urlParamTab = new URLSearchParams(window.location.search).get('tab') || activeTabFromViewBag;
+        let tabToActivate = null;
+        if (urlParamTab) {
+            tabToActivate = urlParamTab.startsWith('#') ? urlParamTab : '#' + urlParamTab;
+        } else {
+            tabToActivate = localStorage.getItem(activeTabKey);
+        }
+
+        if (tabToActivate) {
+            const triggerEl = document.querySelector(`#homeControlTabs button[data-bs-target="${tabToActivate}"]`);
             if (triggerEl) {
                 new bootstrap.Tab(triggerEl).show();
+                const mainFormTabInput = document.getElementById('mainFormActiveTab');
+                if (mainFormTabInput) mainFormTabInput.value = tabToActivate.replace('#', '');
             }
         }
 
@@ -3071,6 +2810,8 @@
                 const target = e.target.getAttribute('data-bs-target');
                 if (target) {
                     localStorage.setItem(activeTabKey, target);
+                    const mainFormTabInput = document.getElementById('mainFormActiveTab');
+                    if (mainFormTabInput) mainFormTabInput.value = target.replace('#', '');
                 }
             });
         });
@@ -3350,24 +3091,22 @@
         }
 
         // ==============================================================
-        // TAB 5: SECTIONS VISIBILITY & ORDERING LOGIC
+        // TAB 5: SECTIONS DRAG & DROP REORDERING LOGIC
         // ==============================================================
-        const orderSelects = document.querySelectorAll('.section-order-select');
         const visualBar = document.getElementById('sectionOrderVisualBar');
+        const sortableSectionsList = document.getElementById('sortableSectionsList');
 
         function updateSectionVisualBar() {
-            if (!visualBar) return;
+            if (!visualBar || !sortableSectionsList) return;
+            const cards = sortableSectionsList.querySelectorAll('.sortable-section-card');
             const items = [];
-            orderSelects.forEach(select => {
-                const orderVal = parseInt(select.value, 10) || 99;
-                const name = select.getAttribute('data-section-name') || 'سكشن';
-                const card = select.closest('.section-card-item');
-                const isChecked = card ? (card.querySelector('input[type="checkbox"]')?.checked ?? true) : true;
-                items.push({ order: orderVal, name: name, isChecked: isChecked });
+            cards.forEach((card, idx) => {
+                const input = card.querySelector('.section-order-val');
+                const name = input ? input.getAttribute('data-section-name') : 'سكشن';
+                const cb = card.querySelector('.section-visibility-cb');
+                const isChecked = cb ? cb.checked : true;
+                items.push({ order: idx + 1, name: name, isChecked: isChecked });
             });
-
-            // Sort ascending by order value
-            items.sort((a, b) => a.order - b.order);
 
             visualBar.innerHTML = items.map((item, idx) => `
                 <div class="d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded-pill border ${item.isChecked ? 'bg-white shadow-xs' : 'bg-light text-muted opacity-60'}" style="font-size: 0.76rem; border-color: rgba(181, 141, 74, 0.3) !important;">
@@ -3381,11 +3120,123 @@
             `).join('');
         }
 
-        orderSelects.forEach(sel => {
-            sel.addEventListener('change', updateSectionVisualBar);
+        function recalculateSectionOrders() {
+            if (!sortableSectionsList) return;
+            const cards = sortableSectionsList.querySelectorAll('.sortable-section-card');
+            cards.forEach((card, idx) => {
+                const orderNum = idx + 1;
+                const input = card.querySelector('.section-order-val');
+                if (input) input.value = orderNum;
+
+                const badge = card.querySelector('.section-rank-badge');
+                if (badge) {
+                    if (orderNum === 1) {
+                        badge.innerHTML = `<i class="fa-solid fa-arrow-up-long me-1"></i> #1 (الأول — أعلى الصفحة)`;
+                        badge.style.background = '#198754';
+                    } else if (orderNum === cards.length) {
+                        badge.innerHTML = `#${orderNum} (الأخير — أسفل الصفحة) <i class="fa-solid fa-arrow-down-long ms-1"></i>`;
+                        badge.style.background = '#6c757d';
+                    } else {
+                        badge.innerHTML = `#${orderNum}`;
+                        badge.style.background = '#810100';
+                    }
+                }
+
+                const upBtn = card.querySelector('.btn-move-section-up');
+                if (upBtn) {
+                    if (orderNum === 1) upBtn.classList.add('disabled');
+                    else upBtn.classList.remove('disabled');
+                }
+
+                const downBtn = card.querySelector('.btn-move-section-down');
+                if (downBtn) {
+                    if (orderNum === cards.length) downBtn.classList.add('disabled');
+                    else downBtn.classList.remove('disabled');
+                }
+            });
+
+            updateSectionVisualBar();
+        }
+
+        // Initialize SortableJS
+        if (sortableSectionsList && typeof Sortable !== 'undefined') {
+            new Sortable(sortableSectionsList, {
+                animation: 200,
+                handle: '.drag-handle, .sortable-section-card',
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                onEnd: function() {
+                    recalculateSectionOrders();
+                }
+            });
+        }
+
+        // Native HTML5 Drag and Drop fallback
+        if (sortableSectionsList) {
+            let draggedSection = null;
+            sortableSectionsList.querySelectorAll('.sortable-section-card').forEach(card => {
+                card.addEventListener('dragstart', function(e) {
+                    draggedSection = this;
+                    e.dataTransfer.effectAllowed = 'move';
+                    this.classList.add('sortable-chosen');
+                });
+                card.addEventListener('dragend', function() {
+                    draggedSection = null;
+                    this.classList.remove('sortable-chosen');
+                    recalculateSectionOrders();
+                });
+                card.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    if (!draggedSection || draggedSection === this) return;
+                    const rect = this.getBoundingClientRect();
+                    const mid = rect.top + rect.height / 2;
+                    if (e.clientY < mid) {
+                        sortableSectionsList.insertBefore(draggedSection, this);
+                    } else {
+                        sortableSectionsList.insertBefore(draggedSection, this.nextSibling);
+                    }
+                });
+            });
+        }
+
+        // Up / Down Button Handlers
+        document.addEventListener('click', function(e) {
+            const upBtn = e.target.closest('.btn-move-section-up');
+            if (upBtn && !upBtn.classList.contains('disabled')) {
+                const card = upBtn.closest('.sortable-section-card');
+                const prev = card.previousElementSibling;
+                if (prev && prev.classList.contains('sortable-section-card')) {
+                    card.parentNode.insertBefore(card, prev);
+                    recalculateSectionOrders();
+                }
+                return;
+            }
+            const downBtn = e.target.closest('.btn-move-section-down');
+            if (downBtn && !downBtn.classList.contains('disabled')) {
+                const card = downBtn.closest('.sortable-section-card');
+                const next = card.nextElementSibling;
+                if (next && next.classList.contains('sortable-section-card')) {
+                    card.parentNode.insertBefore(next, card);
+                    recalculateSectionOrders();
+                }
+                return;
+            }
         });
 
-        document.querySelectorAll('#sectionsContainer input[type="checkbox"]').forEach(cb => {
+        // Top Save Order Button Handler
+        const btnSaveTop = document.getElementById('btnSaveSectionOrderTop');
+        if (btnSaveTop) {
+            btnSaveTop.addEventListener('click', function() {
+                const activeTabInput = document.getElementById('mainFormActiveTab');
+                if (activeTabInput) activeTabInput.value = 'tab-sections';
+                const mainForm = document.getElementById('homeControlForm');
+                if (mainForm) mainForm.submit();
+            });
+        }
+
+        // Section Checkboxes Listeners
+        document.querySelectorAll('#sortableSectionsList .section-visibility-cb').forEach(cb => {
             cb.addEventListener('change', updateSectionVisualBar);
         });
 
@@ -3422,37 +3273,65 @@
         const btnResetDefaultOrder = document.getElementById('btnResetDefaultOrder');
         if (btnResetDefaultOrder) {
             btnResetDefaultOrder.addEventListener('click', function() {
-                const defaultMap = {
-                    'OrderBrandHero': 1,
-                    'OrderMarquee': 2,
-                    'OrderTrustBadges': 3,
-                    'OrderHeroBanners': 4,
-                    'OrderCategories': 5,
-                    'OrderOffers': 6,
-                    'OrderFeatured': 7,
-                    'OrderBestSellers': 8,
-                    'OrderTestimonials': 9,
-                    'OrderFaq': 10,
-                    'OrderNewsletter': 11
-                };
+                const defaultOrderKeys = [
+                    'BrandHero',
+                    'Marquee',
+                    'TrustBadges',
+                    'HeroBanners',
+                    'Categories',
+                    'Offers',
+                    'Featured',
+                    'BestSellers',
+                    'Testimonials',
+                    'Faq',
+                    'Newsletter'
+                ];
 
-                for (const [key, val] of Object.entries(defaultMap)) {
-                    const sel = document.querySelector(`select[name="${key}"]`);
-                    if (sel) sel.value = val;
-                }
+                if (!sortableSectionsList) return;
+                defaultOrderKeys.forEach(key => {
+                    const card = sortableSectionsList.querySelector(`.sortable-section-card[data-section-key="${key}"]`);
+                    if (card) sortableSectionsList.appendChild(card);
+                });
 
-                updateSectionVisualBar();
+                recalculateSectionOrders();
 
                 const alertDiv = document.createElement('div');
                 alertDiv.className = 'alert alert-success alert-dismissible fade show mt-2';
-                alertDiv.innerHTML = '<i class="fa-solid fa-check me-2"></i>تمت استعادة الترتيب الافتراضي (1 إلى 11) بنجاح. لا تنسَ الضغط على "حفظ كافة التغييرات".';
-                visualBar.parentNode.insertBefore(alertDiv, visualBar.nextSibling);
+                alertDiv.innerHTML = '<i class="fa-solid fa-check me-2"></i>تمت استعادة الترتيب الافتراضي (1 إلى 11). اضغط "حفظ الترتيب وتطبيقه فوراً" لتثبيته في المتجر.';
+                const header = document.querySelector('#tab-sections .card-setting-header');
+                if (header) header.parentNode.insertBefore(alertDiv, header.nextSibling);
                 setTimeout(() => alertDiv.remove(), 4000);
             });
         }
 
-        // Initial visual bar render
-        updateSectionVisualBar();
+        // Initial visual bar and orders calculation
+        recalculateSectionOrders();
+
+        // FAQ Edit Modal Click Handler (using data attributes safely)
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-edit-faq');
+            if (!btn) return;
+            const id = btn.getAttribute('data-id');
+            const question = btn.getAttribute('data-question') || '';
+            const icon = btn.getAttribute('data-icon') || 'fa-solid fa-circle-question';
+            const order = btn.getAttribute('data-order') || '1';
+            const active = btn.getAttribute('data-active') === 'true';
+            const answer = btn.querySelector('.faq-answer-raw')?.innerHTML || '';
+
+            document.getElementById('editFaqId').value = id;
+            document.getElementById('editFaqQuestion').value = question;
+            document.getElementById('editFaqAnswer').value = answer;
+            const iconSelect = document.getElementById('editFaqIconClass');
+            if (iconSelect) iconSelect.value = icon;
+            document.getElementById('editFaqDisplayOrder').value = order;
+            document.getElementById('editFaqIsActive').checked = active;
+
+            const modalEl = document.getElementById('editFaqModal');
+            if (modalEl) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            }
+        });
     });
 
     function setMainHeroDefaults() {
@@ -3460,23 +3339,6 @@
         const mobileInput = document.getElementById('mainHeroMobileUrlInput');
         if (desktopInput) desktopInput.value = '/images/banners/roven-hero-main.png';
         if (mobileInput) mobileInput.value = '/images/banners/roven-hero-main-sm.png';
-    }
-
-    function openEditFaqModal(id, question, answer, iconClass, displayOrder, isActive) {
-        document.getElementById('editFaqId').value = id;
-        document.getElementById('editFaqQuestion').value = question;
-        document.getElementById('editFaqAnswer').value = answer;
-        const iconSelect = document.getElementById('editFaqIconClass');
-        if (iconSelect) {
-            iconSelect.value = iconClass || 'fa-solid fa-circle-question';
-        }
-        document.getElementById('editFaqDisplayOrder').value = displayOrder;
-        document.getElementById('editFaqIsActive').checked = isActive;
-        const modalEl = document.getElementById('editFaqModal');
-        if (modalEl) {
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
-        }
     }
 
     // Live Header Preview for FAQ

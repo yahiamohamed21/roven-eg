@@ -44,8 +44,9 @@ public class HomeControlController : Controller
     }
 
     // GET: /HomeControl
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? tab = null)
     {
+        ViewBag.ActiveTab = tab;
         var settings = await _context.HomeSettings.FirstOrDefaultAsync();
         if (settings == null)
         {
@@ -618,7 +619,7 @@ public class HomeControlController : Controller
     // POST: /HomeControl/Update
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(HomeSetting model, int[]? selectedBestSellerIds, int[]? selectedFeaturedProductIds)
+    public async Task<IActionResult> Update(HomeSetting model, int[]? selectedBestSellerIds, int[]? selectedFeaturedProductIds, [FromForm] string? activeTab = null)
     {
         var settings = await _context.HomeSettings.FirstOrDefaultAsync();
         if (settings == null)
@@ -778,7 +779,7 @@ public class HomeControlController : Controller
         InvalidateStoreCache();
 
         TempData["SuccessMessage"] = "تم تحديث وتثبيت إعدادات الواجهة الرئيسية بنجاح!";
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { tab = !string.IsNullOrWhiteSpace(activeTab) ? activeTab : "tab-banners" });
     }
 
     // POST: /HomeControl/UpdateWhatsAppDirect
