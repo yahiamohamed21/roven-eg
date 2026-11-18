@@ -71,6 +71,19 @@ public class HomeControlController : Controller
                 settings.SpotlightSubtitle = "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";
                 needsSave = true;
             }
+
+            // Ensure section display orders are initialized with default sequence (1 to 11)
+            if (settings.OrderBrandHero <= 0) { settings.OrderBrandHero = 1; needsSave = true; }
+            if (settings.OrderMarquee <= 0) { settings.OrderMarquee = 2; needsSave = true; }
+            if (settings.OrderTrustBadges <= 0) { settings.OrderTrustBadges = 3; needsSave = true; }
+            if (settings.OrderHeroBanners <= 0) { settings.OrderHeroBanners = 4; needsSave = true; }
+            if (settings.OrderCategories <= 0) { settings.OrderCategories = 5; needsSave = true; }
+            if (settings.OrderOffers <= 0) { settings.OrderOffers = 6; needsSave = true; }
+            if (settings.OrderFeatured <= 0) { settings.OrderFeatured = 7; needsSave = true; }
+            if (settings.OrderBestSellers <= 0) { settings.OrderBestSellers = 8; needsSave = true; }
+            if (settings.OrderTestimonials <= 0) { settings.OrderTestimonials = 9; needsSave = true; }
+            if (settings.OrderFaq <= 0) { settings.OrderFaq = 10; needsSave = true; }
+            if (settings.OrderNewsletter <= 0) { settings.OrderNewsletter = 11; needsSave = true; }
             if (needsSave)
             {
                 await _context.SaveChangesAsync();
@@ -534,12 +547,28 @@ public class HomeControlController : Controller
 
         // Note: Social media, WhatsApp and Contact info are managed exclusively via MessagesController
 
+        settings.ShowBrandHero = model.ShowBrandHero;
+        settings.ShowHeroBanners = model.ShowHeroBanners;
+        settings.ShowTestimonialsSection = model.ShowTestimonialsSection;
         settings.ShowTrustBadges = model.ShowTrustBadges;
         settings.ShowCategoriesShowcase = model.ShowCategoriesShowcase;
         settings.ShowFeaturedSection = model.ShowFeaturedSection;
         settings.ShowBestSellersSection = model.ShowBestSellersSection;
         settings.ShowFaqSection = model.ShowFaqSection;
         settings.ShowNewsletterSection = model.ShowNewsletterSection;
+
+        // Section Display Order
+        settings.OrderBrandHero = model.OrderBrandHero > 0 ? model.OrderBrandHero : 1;
+        settings.OrderMarquee = model.OrderMarquee > 0 ? model.OrderMarquee : 2;
+        settings.OrderTrustBadges = model.OrderTrustBadges > 0 ? model.OrderTrustBadges : 3;
+        settings.OrderHeroBanners = model.OrderHeroBanners > 0 ? model.OrderHeroBanners : 4;
+        settings.OrderCategories = model.OrderCategories > 0 ? model.OrderCategories : 5;
+        settings.OrderOffers = model.OrderOffers > 0 ? model.OrderOffers : 6;
+        settings.OrderFeatured = model.OrderFeatured > 0 ? model.OrderFeatured : 7;
+        settings.OrderBestSellers = model.OrderBestSellers > 0 ? model.OrderBestSellers : 8;
+        settings.OrderTestimonials = model.OrderTestimonials > 0 ? model.OrderTestimonials : 9;
+        settings.OrderFaq = model.OrderFaq > 0 ? model.OrderFaq : 10;
+        settings.OrderNewsletter = model.OrderNewsletter > 0 ? model.OrderNewsletter : 11;
 
         await _context.SaveChangesAsync();
         await AutoSyncLocalImagesToCloudinaryAsync();

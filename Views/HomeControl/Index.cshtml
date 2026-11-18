@@ -294,8 +294,8 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="tab-sections-btn" data-bs-toggle="pill" data-bs-target="#tab-sections" type="button" role="tab" aria-controls="tab-sections" aria-selected="false">
-                <i class="fa-solid fa-eye"></i>
-                <span>5. Sections Visibility</span>
+                <i class="fa-solid fa-arrows-up-down text-primary"></i>
+                <span>5. Sections Visibility & Order</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -1343,130 +1343,478 @@
             </div>
 
             <!-- ============================================================== -->
-            <!-- TAB 5: SECTIONS VISIBILITY (SHOW / HIDE)                       -->
+            <!-- TAB 5: SECTIONS VISIBILITY & ORDERING (SHOW / HIDE & SEQUENCE) -->
             <!-- ============================================================== -->
             <div class="tab-pane fade tab-pane-content" id="tab-sections" role="tabpanel" aria-labelledby="tab-sections-btn">
                 <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-setting-header bg-white">
-                        <span class="fw-bold" style="color: #1B1717;">
-                            <i class="fa-solid fa-eye text-primary me-2"></i>إظهار وإخفاء سكشنات الصفحة الرئيسية (Sections Visibility)
-                        </span>
+                    <div class="card-setting-header bg-white d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                        <div>
+                            <span class="fw-bold fs-6" style="color: #1B1717;">
+                                <i class="fa-solid fa-arrows-up-down text-primary me-2"></i>ترتيب وإظهار سكشنات الصفحة الرئيسية (Sections Visibility & Display Order)
+                            </span>
+                            <div class="text-muted small mt-1">
+                                تحكم كامل في ترتيب تسلسل ظهور كافة سكشنات المتجر من خلال القوائم المنسدلة (Dropdowns من 1 إلى 11)، وتفعيل أو إخفاء أي سكشن بنقرة واحدة.
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-1.5 rounded-pill fw-semibold d-inline-flex align-items-center gap-1.5" id="btnResetDefaultOrder" style="font-size: 0.8rem; white-space: nowrap;">
+                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                            <span>استعادة الترتيب الافتراضي</span>
+                        </button>
                     </div>
-                    <div class="card-body p-4">
-                        <p class="text-muted small mb-4">
-                            يمكنك من هنا تفعيل أو إلغاء تفعيل أي سكشن من سكشنات الصفحة الرئيسية بنقرة واحدة، وسيختفي أو يظهر السكشن فوراً من المتجر.
-                        </p>
 
-                        <div class="row g-3">
-                            <!-- 1. Trust Badges -->
-                            <div class="col-12 col-md-6">
-                                <div class="card h-100 border p-3 rounded-4 bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div class="fw-bold text-dark mb-1">
-                                                <i class="fa-solid fa-shield-halved text-danger me-1"></i> مميزات الثقة والضمان الفاخرة
+                    <div class="card-body p-3 p-md-4">
+                        <!-- Live Visual Sequence Bar -->
+                        <div class="p-3 rounded-4 mb-4" style="background: #FAF9F5; border: 1px solid rgba(181, 141, 74, 0.25);">
+                            <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                                <span class="small fw-bold text-dark d-flex align-items-center gap-1.5" style="font-size: 0.82rem;">
+                                    <i class="fa-solid fa-layer-group text-warning"></i>
+                                    <span>تسلسل السكشنات المباشر في واجهة المتجر:</span>
+                                </span>
+                                <span class="badge text-muted bg-white border" style="font-size: 0.72rem;">
+                                    يتم ترتيب السكشنات تصاعدياً من 1 إلى 11
+                                </span>
+                            </div>
+                            <div id="sectionOrderVisualBar" class="d-flex flex-wrap gap-1.5 align-items-center">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+
+                        <div class="row g-3" id="sectionsContainer">
+                            <!-- 1. Brand Hero -->
+                            <div class="col-12 col-md-6 section-card-item">
+                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="d-flex align-items-start gap-2.5">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                <i class="fa-solid fa-image text-danger fs-6"></i>
                                             </div>
-                                            <div class="text-muted small" style="font-size: 0.78rem;">
-                                                سكشن الشحن المجاني، المعاينة قبل الدفع COD، ونسبة التركيز 30%.
+                                            <div>
+                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
+                                                    <span>البانر الرئيسي الثابت للدار</span>
+                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Brand Hero</span>
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.78rem;">
+                                                    البانر الكبير عالي الدقة لشعار الدار وتصميم الهيرو الأساسي بأعلى الصفحة.
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowTrustBadges" style="cursor: pointer;">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowBrandHero" style="cursor: pointer; width: 2.2em; height: 1.2em;">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
+                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
+                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
+                                            <span>الترتيب (الدروب داون):</span>
+                                        </label>
+                                        <div style="min-width: 175px;">
+                                            <select asp-for="OrderBrandHero" class="form-select form-select-sm fw-bold section-order-select" data-section-name="البانر الرئيسي للدار" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
+                                                @for (int i = 1; i <= 11; i++)
+                                                {
+                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
+                                                    <option value="@i">@optLabel</option>
+                                                }
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- 2. Categories Showcase -->
-                            <div class="col-12 col-md-6">
-                                <div class="card h-100 border p-3 rounded-4 bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div class="fw-bold text-dark mb-1">
-                                                <i class="fa-solid fa-layer-group text-primary me-1"></i> استعراض أقسام وعائلات العطور
+                            <!-- 2. Infinite Marquee -->
+                            <div class="col-12 col-md-6 section-card-item">
+                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="d-flex align-items-start gap-2.5">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                <i class="fa-solid fa-ticket text-warning fs-6"></i>
                                             </div>
-                                            <div class="text-muted small" style="font-size: 0.78rem;">
-                                                كروت أقسام العطور الأربعة (Extraits, Oud & Oriental, Sets, Eaux).
+                                            <div>
+                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
+                                                    <span>شريط الإعلانات والخصم المتحرك</span>
+                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Marquee Ticker</span>
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.78rem;">
+                                                    شريط الأخبار والخصم المتدفق تلقائياً (OFFER 20% OFF • كود الخخصم...).
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowCategoriesShowcase" style="cursor: pointer;">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="tab5MarqueeSwitch" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل شريط الماركي">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
+                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
+                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
+                                            <span>الترتيب (الدروب داون):</span>
+                                        </label>
+                                        <div style="min-width: 175px;">
+                                            <select asp-for="OrderMarquee" class="form-select form-select-sm fw-bold section-order-select" data-section-name="شريط الماركي المتحرك" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
+                                                @for (int i = 1; i <= 11; i++)
+                                                {
+                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
+                                                    <option value="@i">@optLabel</option>
+                                                }
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- 3. Featured Fragrances -->
-                            <div class="col-12 col-md-6">
-                                <div class="card h-100 border p-3 rounded-4 bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div class="fw-bold text-dark mb-1">
-                                                <i class="fa-solid fa-crown text-warning me-1"></i> سكشن العطور المميزة (Featured)
+                            <!-- 3. Trust Badges -->
+                            <div class="col-12 col-md-6 section-card-item">
+                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="d-flex align-items-start gap-2.5">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                <i class="fa-solid fa-shield-halved text-danger fs-6"></i>
                                             </div>
-                                            <div class="text-muted small" style="font-size: 0.78rem;">
-                                                شبكة العطور المميزة (Master Distillations) التي يحددها الأدمن كـ Featured.
+                                            <div>
+                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
+                                                    <span>مميزات الثقة والضمان الفاخرة</span>
+                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Trust Badges</span>
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.78rem;">
+                                                    سكشن الشحن المجاني لكافة المحافظات، المعاينة قبل الدفع COD، ونسبة التركيز 30%.
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowFeaturedSection" style="cursor: pointer;">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowTrustBadges" style="cursor: pointer; width: 2.2em; height: 1.2em;">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
+                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
+                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
+                                            <span>الترتيب (الدروب داون):</span>
+                                        </label>
+                                        <div style="min-width: 175px;">
+                                            <select asp-for="OrderTrustBadges" class="form-select form-select-sm fw-bold section-order-select" data-section-name="مميزات الثقة والضمان" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
+                                                @for (int i = 1; i <= 11; i++)
+                                                {
+                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
+                                                    <option value="@i">@optLabel</option>
+                                                }
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- 4. Best Sellers -->
-                            <div class="col-12 col-md-6">
-                                <div class="card h-100 border p-3 rounded-4 bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div class="fw-bold text-dark mb-1">
-                                                <i class="fa-solid fa-fire text-danger me-1"></i> سكشن الأكثر مبيعاً (Best Sellers)
+                            <!-- 4. Hero Banners Slider -->
+                            <div class="col-12 col-md-6 section-card-item">
+                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="d-flex align-items-start gap-2.5">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                <i class="fa-solid fa-images text-primary fs-6"></i>
                                             </div>
-                                            <div class="text-muted small" style="font-size: 0.78rem;">
-                                                العطور الأكثر طلباً ومبيعاً ومعدلات الشراء المرتفعة.
+                                            <div>
+                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
+                                                    <span>سلايدر البانرات الإعلانية الترويجية</span>
+                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Hero Banners</span>
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.78rem;">
+                                                    سلايدر البانرات والعروض المتحركة داخل كونتينر مخصص (المدارة من تبويب 1).
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowBestSellersSection" style="cursor: pointer;">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowHeroBanners" style="cursor: pointer; width: 2.2em; height: 1.2em;">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
+                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
+                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
+                                            <span>الترتيب (الدروب داون):</span>
+                                        </label>
+                                        <div style="min-width: 175px;">
+                                            <select asp-for="OrderHeroBanners" class="form-select form-select-sm fw-bold section-order-select" data-section-name="سلايدر البانرات الترويجية" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
+                                                @for (int i = 1; i <= 11; i++)
+                                                {
+                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
+                                                    <option value="@i">@optLabel</option>
+                                                }
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- 5. FAQ -->
-                            <div class="col-12 col-md-6">
-                                <div class="card h-100 border p-3 rounded-4 bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div class="fw-bold text-dark mb-1">
-                                                <i class="fa-solid fa-circle-question text-info me-1"></i> سكشن الأسئلة الشائعة وتوضيحات الدار
+                            <!-- 5. Categories Showcase -->
+                            <div class="col-12 col-md-6 section-card-item">
+                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="d-flex align-items-start gap-2.5">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                <i class="fa-solid fa-layer-group text-primary fs-6"></i>
                                             </div>
-                                            <div class="text-muted small" style="font-size: 0.78rem;">
-                                                قائمة الأسئلة الشائعة والأكورديون عن التراكيز ومعاينة الشحنات.
+                                            <div>
+                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
+                                                    <span>استعراض أقسام وعائلات العطور</span>
+                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Categories</span>
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.78rem;">
+                                                    كروت أقسام العطور الأربعة الرئيسية (Extraits, Oud & Oriental, Sets, Eaux).
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowFaqSection" style="cursor: pointer;">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowCategoriesShowcase" style="cursor: pointer; width: 2.2em; height: 1.2em;">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
+                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
+                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
+                                            <span>الترتيب (الدروب داون):</span>
+                                        </label>
+                                        <div style="min-width: 175px;">
+                                            <select asp-for="OrderCategories" class="form-select form-select-sm fw-bold section-order-select" data-section-name="أقسام وعائلات العطور" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
+                                                @for (int i = 1; i <= 11; i++)
+                                                {
+                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
+                                                    <option value="@i">@optLabel</option>
+                                                }
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- 6. Newsletter -->
-                            <div class="col-12 col-md-6">
-                                <div class="card h-100 border p-3 rounded-4 bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <div class="fw-bold text-dark mb-1">
-                                                <i class="fa-solid fa-envelope-open-text text-success me-1"></i> شريط الاشتراك في النشرة VIP
+                            <!-- 6. Spotlight Offers & Deals -->
+                            <div class="col-12 col-md-6 section-card-item">
+                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="d-flex align-items-start gap-2.5">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                <i class="fa-solid fa-bolt text-warning fs-6"></i>
                                             </div>
-                                            <div class="text-muted small" style="font-size: 0.78rem;">
-                                                بانر خصم 10% والاشتراك في النشرة البريدية الحصرية لرواد الدار.
+                                            <div>
+                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
+                                                    <span>عروض وتخفيضات دار روفين الحصرية</span>
+                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Special Offers</span>
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.78rem;">
+                                                    كروت عروض العطور الفاخرة، عداد الوقت، نسبة الحجز، وأسعار التخفيض الاستثنائية.
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="form-check form-switch mb-0">
-                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowNewsletterSection" style="cursor: pointer;">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="tab5SpotlightSwitch" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل قسم العروض">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
+                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
+                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
+                                            <span>الترتيب (الدروب داون):</span>
+                                        </label>
+                                        <div style="min-width: 175px;">
+                                            <select asp-for="OrderOffers" class="form-select form-select-sm fw-bold section-order-select" data-section-name="عروض وتخفيضات الدار" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
+                                                @for (int i = 1; i <= 11; i++)
+                                                {
+                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
+                                                    <option value="@i">@optLabel</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 7. Featured Parfums -->
+                            <div class="col-12 col-md-6 section-card-item">
+                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="d-flex align-items-start gap-2.5">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                <i class="fa-solid fa-crown text-warning fs-6"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
+                                                    <span>سكشن العطور المميزة (Featured)</span>
+                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Featured</span>
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.78rem;">
+                                                    شبكة العطور المميزة (Master Distillations) التي تختارها الدار لعملائها.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowFeaturedSection" style="cursor: pointer; width: 2.2em; height: 1.2em;">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
+                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
+                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
+                                            <span>الترتيب (الدروب داون):</span>
+                                        </label>
+                                        <div style="min-width: 175px;">
+                                            <select asp-for="OrderFeatured" class="form-select form-select-sm fw-bold section-order-select" data-section-name="العطور المميزة" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
+                                                @for (int i = 1; i <= 11; i++)
+                                                {
+                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
+                                                    <option value="@i">@optLabel</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 8. Best Sellers -->
+                            <div class="col-12 col-md-6 section-card-item">
+                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="d-flex align-items-start gap-2.5">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                <i class="fa-solid fa-fire text-danger fs-6"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
+                                                    <span>سكشن الأكثر مبيعاً (Best Sellers)</span>
+                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Best Sellers</span>
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.78rem;">
+                                                    العطور الأكثر طلباً ومبيعاً ومعدلات الشراء المرتفعة عبر المتجر.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowBestSellersSection" style="cursor: pointer; width: 2.2em; height: 1.2em;">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
+                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
+                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
+                                            <span>الترتيب (الدروب داون):</span>
+                                        </label>
+                                        <div style="min-width: 175px;">
+                                            <select asp-for="OrderBestSellers" class="form-select form-select-sm fw-bold section-order-select" data-section-name="الأكثر مبيعاً" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
+                                                @for (int i = 1; i <= 11; i++)
+                                                {
+                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
+                                                    <option value="@i">@optLabel</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 9. Client Testimonials -->
+                            <div class="col-12 col-md-6 section-card-item">
+                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="d-flex align-items-start gap-2.5">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                <i class="fa-solid fa-comment-dots text-secondary fs-6"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
+                                                    <span>آراء وانطباعات رواد الدار (Testimonials)</span>
+                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Testimonials</span>
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.78rem;">
+                                                    تقييمات وآراء العملاء وتجاربهم العطرية الفاخرة وتقييمات الـ 5 نجوم.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowTestimonialsSection" style="cursor: pointer; width: 2.2em; height: 1.2em;">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
+                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
+                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
+                                            <span>الترتيب (الدروب داون):</span>
+                                        </label>
+                                        <div style="min-width: 175px;">
+                                            <select asp-for="OrderTestimonials" class="form-select form-select-sm fw-bold section-order-select" data-section-name="آراء العملاء" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
+                                                @for (int i = 1; i <= 11; i++)
+                                                {
+                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
+                                                    <option value="@i">@optLabel</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 10. FAQ -->
+                            <div class="col-12 col-md-6 section-card-item">
+                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="d-flex align-items-start gap-2.5">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                <i class="fa-solid fa-circle-question text-info fs-6"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
+                                                    <span>سكشن الأسئلة الشائعة وتوضيحات الدار</span>
+                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">FAQ</span>
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.78rem;">
+                                                    قائمة الأسئلة الشائعة والأكورديون عن التراكيز ومعاينة الشحنات والتوصيل.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowFaqSection" style="cursor: pointer; width: 2.2em; height: 1.2em;">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
+                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
+                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
+                                            <span>الترتيب (الدروب داون):</span>
+                                        </label>
+                                        <div style="min-width: 175px;">
+                                            <select asp-for="OrderFaq" class="form-select form-select-sm fw-bold section-order-select" data-section-name="الأسئلة الشائعة" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
+                                                @for (int i = 1; i <= 11; i++)
+                                                {
+                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
+                                                    <option value="@i">@optLabel</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 11. VIP Newsletter -->
+                            <div class="col-12 col-md-6 section-card-item">
+                                <div class="card h-100 border p-3 rounded-4 bg-light shadow-xs" style="border: 1px solid rgba(181, 141, 74, 0.22) !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="d-flex align-items-start gap-2.5">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-white shadow-xs border" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                                <i class="fa-solid fa-envelope-open-text text-success fs-6"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1.5 flex-wrap">
+                                                    <span>شريط الاشتراك في النشرة VIP</span>
+                                                    <span class="badge text-muted bg-white border fw-normal" style="font-size: 0.65rem;">Newsletter</span>
+                                                </div>
+                                                <div class="text-muted small" style="font-size: 0.78rem;">
+                                                    بانر خصم 10% والاشتراك في النشرة البريدية الحصرية لرواد الدار.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" asp-for="ShowNewsletterSection" style="cursor: pointer; width: 2.2em; height: 1.2em;">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2.5 border-top d-flex align-items-center justify-content-between gap-2" style="border-color: rgba(0,0,0,0.06) !important;">
+                                        <label class="form-label small fw-bold mb-0 text-secondary d-flex align-items-center gap-1">
+                                            <i class="fa-solid fa-arrow-down-short-wide text-warning"></i>
+                                            <span>الترتيب (الدروب داون):</span>
+                                        </label>
+                                        <div style="min-width: 175px;">
+                                            <select asp-for="OrderNewsletter" class="form-select form-select-sm fw-bold section-order-select" data-section-name="النشرة البريدية" style="border-radius: 8px; border-color: rgba(181, 141, 74, 0.4); font-size: 0.82rem;">
+                                                @for (int i = 1; i <= 11; i++)
+                                                {
+                                                    var optLabel = i == 1 ? "1 (الأول — أعلى الصفحة)" : (i == 11 ? "11 (الأخير — أسفل الصفحة)" : $"{i} (الترتيب رقم {i})");
+                                                    <option value="@i">@optLabel</option>
+                                                }
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -2434,6 +2782,111 @@
                 }, 150);
             }
         }
+
+        // ==============================================================
+        // TAB 5: SECTIONS VISIBILITY & ORDERING LOGIC
+        // ==============================================================
+        const orderSelects = document.querySelectorAll('.section-order-select');
+        const visualBar = document.getElementById('sectionOrderVisualBar');
+
+        function updateSectionVisualBar() {
+            if (!visualBar) return;
+            const items = [];
+            orderSelects.forEach(select => {
+                const orderVal = parseInt(select.value, 10) || 99;
+                const name = select.getAttribute('data-section-name') || 'سكشن';
+                const card = select.closest('.section-card-item');
+                const isChecked = card ? (card.querySelector('input[type="checkbox"]')?.checked ?? true) : true;
+                items.push({ order: orderVal, name: name, isChecked: isChecked });
+            });
+
+            // Sort ascending by order value
+            items.sort((a, b) => a.order - b.order);
+
+            visualBar.innerHTML = items.map((item, idx) => `
+                <div class="d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded-pill border ${item.isChecked ? 'bg-white shadow-xs' : 'bg-light text-muted opacity-60'}" style="font-size: 0.76rem; border-color: rgba(181, 141, 74, 0.3) !important;">
+                    <span class="badge rounded-pill fw-bold" style="background: ${item.isChecked ? '#810100' : '#888'}; color: #fff; font-size: 0.68rem; padding: 2px 7px;">
+                        ${item.order}
+                    </span>
+                    <span class="fw-semibold ${item.isChecked ? 'text-dark' : 'text-muted text-decoration-line-through'}">${item.name}</span>
+                    ${!item.isChecked ? '<i class="fa-solid fa-eye-slash text-danger ms-1" style="font-size: 0.65rem;" title="مخفي"></i>' : ''}
+                </div>
+                ${idx < items.length - 1 ? '<i class="fa-solid fa-chevron-left text-muted opacity-40 mx-0.5" style="font-size: 0.62rem;"></i>' : ''}
+            `).join('');
+        }
+
+        orderSelects.forEach(sel => {
+            sel.addEventListener('change', updateSectionVisualBar);
+        });
+
+        document.querySelectorAll('#sectionsContainer input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', updateSectionVisualBar);
+        });
+
+        // Sync Tab 5 Spotlight and Marquee switches with their primary switches in Tab 2
+        const mainSpotlightSwitch = document.getElementById('spotlightSwitch');
+        const tab5SpotlightSwitch = document.getElementById('tab5SpotlightSwitch');
+        if (mainSpotlightSwitch && tab5SpotlightSwitch) {
+            tab5SpotlightSwitch.checked = mainSpotlightSwitch.checked;
+            tab5SpotlightSwitch.addEventListener('change', function() {
+                mainSpotlightSwitch.checked = this.checked;
+                updateSectionVisualBar();
+            });
+            mainSpotlightSwitch.addEventListener('change', function() {
+                tab5SpotlightSwitch.checked = this.checked;
+                updateSectionVisualBar();
+            });
+        }
+
+        const mainMarqueeSwitch = document.getElementById('marqueeSwitch');
+        const tab5MarqueeSwitch = document.getElementById('tab5MarqueeSwitch');
+        if (mainMarqueeSwitch && tab5MarqueeSwitch) {
+            tab5MarqueeSwitch.checked = mainMarqueeSwitch.checked;
+            tab5MarqueeSwitch.addEventListener('change', function() {
+                mainMarqueeSwitch.checked = this.checked;
+                updateSectionVisualBar();
+            });
+            mainMarqueeSwitch.addEventListener('change', function() {
+                tab5MarqueeSwitch.checked = this.checked;
+                updateSectionVisualBar();
+            });
+        }
+
+        // Reset default order button
+        const btnResetDefaultOrder = document.getElementById('btnResetDefaultOrder');
+        if (btnResetDefaultOrder) {
+            btnResetDefaultOrder.addEventListener('click', function() {
+                const defaultMap = {
+                    'OrderBrandHero': 1,
+                    'OrderMarquee': 2,
+                    'OrderTrustBadges': 3,
+                    'OrderHeroBanners': 4,
+                    'OrderCategories': 5,
+                    'OrderOffers': 6,
+                    'OrderFeatured': 7,
+                    'OrderBestSellers': 8,
+                    'OrderTestimonials': 9,
+                    'OrderFaq': 10,
+                    'OrderNewsletter': 11
+                };
+
+                for (const [key, val] of Object.entries(defaultMap)) {
+                    const sel = document.querySelector(`select[name="${key}"]`);
+                    if (sel) sel.value = val;
+                }
+
+                updateSectionVisualBar();
+
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show mt-2';
+                alertDiv.innerHTML = '<i class="fa-solid fa-check me-2"></i>تمت استعادة الترتيب الافتراضي (1 إلى 11) بنجاح. لا تنسَ الضغط على "حفظ كافة التغييرات".';
+                visualBar.parentNode.insertBefore(alertDiv, visualBar.nextSibling);
+                setTimeout(() => alertDiv.remove(), 4000);
+            });
+        }
+
+        // Initial visual bar render
+        updateSectionVisualBar();
     });
 </script>
 }

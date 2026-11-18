@@ -13,7 +13,7 @@
     }
 }
 
-@if (banners != null && banners.Count > 0)
+@if ((Model.Settings?.ShowHeroBanners ?? true) && banners != null && banners.Count > 0)
 {
     <!-- ======================================================================== -->
     <!-- PROMOTIONAL HERO BANNERS CAROUSEL (Contained In-Between Section)         -->

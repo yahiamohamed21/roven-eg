@@ -1,4 +1,7 @@
 ﻿@model Stockify.ViewModels.Store.StoreHomeViewModel
+
+@if (Model.Settings?.ShowTestimonialsSection ?? true)
+{
 <section class="py-5 overflow-hidden w-100" style="background-color: #FAF9F5;">
     <div class="container">
         <div class="text-center mb-5">
@@ -84,3 +87,4 @@
         </div>
     </div>
 </section>
+}

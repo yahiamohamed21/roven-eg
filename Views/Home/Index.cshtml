@@ -3,69 +3,90 @@
     Layout = "_StoreLayout";
     ViewData["Title"] = "ROVEN — Haute Parfumerie";
     ViewData["MetaDescription"] = "Welcome to the official Maison ROVEN. Handcrafted luxury perfumes, Extraits de Parfum (30% pure oil concentration), royal ambergris, and eternal sillage. Free delivery with Cash on Delivery inspection across Egypt. دار روڤين للعطور الفاخرة.";
+
+    var settings = Model.Settings;
+
+    // Homepage Section Display Sequence & Visibility Configuration
+    var sections = new List<(string Key, int Order, bool IsVisible)>
+    {
+        ("BrandHero", settings?.OrderBrandHero > 0 ? settings.OrderBrandHero : 1, settings?.ShowBrandHero ?? true),
+        ("Marquee", settings?.OrderMarquee > 0 ? settings.OrderMarquee : 2, settings?.MarqueeActive ?? true),
+        ("TrustBadges", settings?.OrderTrustBadges > 0 ? settings.OrderTrustBadges : 3, settings?.ShowTrustBadges ?? true),
+        ("HeroBanners", settings?.OrderHeroBanners > 0 ? settings.OrderHeroBanners : 4, settings?.ShowHeroBanners ?? true),
+        ("Categories", settings?.OrderCategories > 0 ? settings.OrderCategories : 5, settings?.ShowCategoriesShowcase ?? true),
+        ("Offers", settings?.OrderOffers > 0 ? settings.OrderOffers : 6, settings?.SpotlightActive ?? true),
+        ("Featured", settings?.OrderFeatured > 0 ? settings.OrderFeatured : 7, settings?.ShowFeaturedSection ?? true),
+        ("BestSellers", settings?.OrderBestSellers > 0 ? settings.OrderBestSellers : 8, settings?.ShowBestSellersSection ?? true),
+        ("Testimonials", settings?.OrderTestimonials > 0 ? settings.OrderTestimonials : 9, settings?.ShowTestimonialsSection ?? true),
+        ("Faq", settings?.OrderFaq > 0 ? settings.OrderFaq : 10, settings?.ShowFaqSection ?? true),
+        ("Newsletter", settings?.OrderNewsletter > 0 ? settings.OrderNewsletter : 11, settings?.ShowNewsletterSection ?? true)
+    }
+    .OrderBy(s => s.Order)
+    .ToList();
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/home-index.css" asp-append-version="true" />
     <!-- High-Priority Responsive Preload for Above-the-Fold Main Brand Hero -->
-    <link rel="preload" as="image" href="/images/banners/roven-hero-main-sm.webp" type="image/webp" media="(max-width: 768px)" fetchpriority="high">
-    <link rel="preload" as="image" href="/images/banners/roven-hero-main.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
+    @if (settings?.ShowBrandHero ?? true)
+    {
+        <link rel="preload" as="image" href="/images/banners/roven-hero-main-sm.webp" type="image/webp" media="(max-width: 768px)" fetchpriority="high">
+        <link rel="preload" as="image" href="/images/banners/roven-hero-main.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
+    }
 }
 
-<!-- ======================================================================== -->
-<!-- 1. MAIN BRAND HERO (Dedicated Full-Bleed Luxury Visual Section)           -->
-<!-- ======================================================================== -->
-<partial name="Partials/_BrandHero" model="Model" />
+@foreach (var section in sections)
+{
+    if (!section.IsVisible) continue;
 
-<!-- ======================================================================== -->
-<!-- 2. INFINITE LUXURY MOVING MARQUEE TICKER TAPE                             -->
-<!-- ======================================================================== -->
-<partial name="Partials/_MarqueeTicker" model="Model" />
-
-<!-- ======================================================================== -->
-<!-- 3. TRUST & VALUE STRIP (Luxury Fragrance Standards)                       -->
-<!-- ======================================================================== -->
-<partial name="Partials/_TrustValueStrip" model="Model" />
-
-<!-- ======================================================================== -->
-<!-- 4. HERO BANNERS CAROUSEL (Contained In-Between Section)                   -->
-<!-- ======================================================================== -->
-<partial name="Partials/_HeroBanners" model="Model" />
-
-<!-- ======================================================================== -->
-<!-- 5. INTERACTIVE CATEGORY SHOWCASE (Fragrance Departments)                  -->
-<!-- ======================================================================== -->
-<partial name="Partials/_CategoryShowcase" model="Model" />
-
-<!-- ======================================================================== -->
-<!-- 4. FLASH DEAL / SPOTLIGHT FRAGRANCES (Multi-Product Special Offers)     -->
-<!-- ======================================================================== -->
-<partial name="Partials/_SpotlightOffers" model="Model" />
-
-<!-- ======================================================================== -->
-<!-- 5. FEATURED LUXURY FRAGRANCES (Editor's Choice)                        -->
-<!-- ======================================================================== -->
-<partial name="Partials/_FeaturedProducts" model="Model" />
-
-<!-- ======================================================================== -->
-<!-- 6. BEST SELLERS & ACCLAIMED FLACONS                                    -->
-<!-- ======================================================================== -->
-<partial name="Partials/_BestSellers" model="Model" />
-
-<!-- ======================================================================== -->
-<!-- 7. CLIENT TESTIMONIALS (Olfactory Reviews & Social Proof)               -->
-<!-- ======================================================================== -->
-<partial name="Partials/_Testimonials" model="Model" />
-
-<!-- ======================================================================== -->
-<!-- 8. FREQUENTLY ASKED QUESTIONS (Accordion)                               -->
-<!-- ======================================================================== -->
-<partial name="Partials/_FaqSection" model="Model" />
-
-<!-- ======================================================================== -->
-<!-- 9. VIP NEWSLETTER & DISCOUNT SUBSCRIPTION BANNER                        -->
-<!-- ======================================================================== -->
-<partial name="Partials/_NewsletterBanner" model="Model" />
+    switch (section.Key)
+    {
+        case "BrandHero":
+            <!-- 1. MAIN BRAND HERO (Dedicated Full-Bleed Luxury Visual Section) -->
+            <partial name="Partials/_BrandHero" model="Model" />
+            break;
+        case "Marquee":
+            <!-- 2. INFINITE LUXURY MOVING MARQUEE TICKER TAPE -->
+            <partial name="Partials/_MarqueeTicker" model="Model" />
+            break;
+        case "TrustBadges":
+            <!-- 3. TRUST & VALUE STRIP (Luxury Fragrance Standards) -->
+            <partial name="Partials/_TrustValueStrip" model="Model" />
+            break;
+        case "HeroBanners":
+            <!-- 4. HERO BANNERS CAROUSEL (Contained In-Between Section) -->
+            <partial name="Partials/_HeroBanners" model="Model" />
+            break;
+        case "Categories":
+            <!-- 5. INTERACTIVE CATEGORY SHOWCASE (Fragrance Departments) -->
+            <partial name="Partials/_CategoryShowcase" model="Model" />
+            break;
+        case "Offers":
+            <!-- 6. FLASH DEAL / SPOTLIGHT FRAGRANCES (Multi-Product Special Offers) -->
+            <partial name="Partials/_SpotlightOffers" model="Model" />
+            break;
+        case "Featured":
+            <!-- 7. FEATURED LUXURY FRAGRANCES (Editor's Choice) -->
+            <partial name="Partials/_FeaturedProducts" model="Model" />
+            break;
+        case "BestSellers":
+            <!-- 8. BEST SELLERS & ACCLAIMED FLACONS -->
+            <partial name="Partials/_BestSellers" model="Model" />
+            break;
+        case "Testimonials":
+            <!-- 9. CLIENT TESTIMONIALS (Olfactory Reviews & Social Proof) -->
+            <partial name="Partials/_Testimonials" model="Model" />
+            break;
+        case "Faq":
+            <!-- 10. FREQUENTLY ASKED QUESTIONS (Accordion) -->
+            <partial name="Partials/_FaqSection" model="Model" />
+            break;
+        case "Newsletter":
+            <!-- 11. VIP NEWSLETTER & DISCOUNT SUBSCRIPTION BANNER -->
+            <partial name="Partials/_NewsletterBanner" model="Model" />
+            break;
+    }
+}
 
 @section Scripts {
     <partial name="Partials/_HomeScripts" />

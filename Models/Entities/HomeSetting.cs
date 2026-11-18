@@ -140,10 +140,26 @@ public class HomeSetting
     public string? FeaturedProductIds { get; set; } = null;
 
     // Section Toggles
+    public bool ShowBrandHero { get; set; } = true;
+    public bool ShowHeroBanners { get; set; } = true;
     public bool ShowTrustBadges { get; set; } = true;
     public bool ShowCategoriesShowcase { get; set; } = true;
     public bool ShowFeaturedSection { get; set; } = true;
     public bool ShowBestSellersSection { get; set; } = true;
+    public bool ShowTestimonialsSection { get; set; } = true;
     public bool ShowFaqSection { get; set; } = true;
     public bool ShowNewsletterSection { get; set; } = true;
+
+    // Homepage Section Display Orders (1 through 11)
+    public int OrderBrandHero { get; set; } = 1;
+    public int OrderMarquee { get; set; } = 2;
+    public int OrderTrustBadges { get; set; } = 3;
+    public int OrderHeroBanners { get; set; } = 4;
+    public int OrderCategories { get; set; } = 5;
+    public int OrderOffers { get; set; } = 6;
+    public int OrderFeatured { get; set; } = 7;
+    public int OrderBestSellers { get; set; } = 8;
+    public int OrderTestimonials { get; set; } = 9;
+    public int OrderFaq { get; set; } = 10;
+    public int OrderNewsletter { get; set; } = 11;
 }

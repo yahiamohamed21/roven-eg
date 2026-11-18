@@ -772,7 +772,43 @@ namespace Stockify.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int>("OrderBestSellers")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderBrandHero")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderCategories")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderFaq")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderFeatured")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderHeroBanners")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderMarquee")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderNewsletter")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderOffers")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderTestimonials")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderTrustBadges")
+                        .HasColumnType("int");
+
                     b.Property<bool>("ShowBestSellersSection")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ShowBrandHero")
                         .HasColumnType("bit");
 
                     b.Property<bool>("ShowCategoriesShowcase")
@@ -784,7 +820,13 @@ namespace Stockify.Migrations
                     b.Property<bool>("ShowFeaturedSection")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("ShowHeroBanners")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("ShowNewsletterSection")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ShowTestimonialsSection")
                         .HasColumnType("bit");
 
                     b.Property<bool>("ShowTrustBadges")
@@ -872,6 +914,65 @@ namespace Stockify.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("InventoryTransactions");
+                });
+
+            modelBuilder.Entity("Stockify.Models.Entities.MediaDeletionJob", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("LockedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LockedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("MaxRetries")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("NextRetryUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ProcessedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PublicId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ImageUrl")
+                        .HasDatabaseName("IX_MediaDeletionJobs_ImageUrl");
+
+                    b.HasIndex("Status", "NextRetryUtc")
+                        .HasDatabaseName("IX_MediaDeletionJobs_Status_NextRetry");
+
+                    b.ToTable("MediaDeletionJobs", (string)null);
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.Order", b =>

@@ -1,5 +1,7 @@
 @model Stockify.ViewModels.Store.StoreHomeViewModel
 
+@if (Model.Settings?.ShowBrandHero ?? true)
+{
 <!-- ======================================================================== -->
 <!-- 1. DEDICATED MAIN BRAND HERO SECTION (Full-Bleed Ultra-HD Luxury Visual) -->
 <!-- ======================================================================== -->
@@ -30,3 +32,4 @@
         </a>
     </div>
 </section>
+}
