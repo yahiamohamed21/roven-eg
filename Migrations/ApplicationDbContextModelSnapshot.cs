@@ -1274,6 +1274,9 @@ namespace Stockify.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
+                    b.Property<bool>("ShowOnHome")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
@@ -1281,6 +1284,8 @@ namespace Stockify.Migrations
                     b.HasIndex("IsApproved");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("ShowOnHome");
 
                     b.ToTable("ProductReviews");
                 });

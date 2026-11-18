@@ -31,6 +31,8 @@ public class ProductReview
 
     public bool IsApproved { get; set; } = false;
 
+    public bool ShowOnHome { get; set; } = false;
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 

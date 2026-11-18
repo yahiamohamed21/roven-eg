@@ -2,89 +2,174 @@
 
 @if (Model.Settings?.ShowTestimonialsSection ?? true)
 {
-<section class="py-5 overflow-hidden w-100" style="background-color: #FAF9F5;">
-    <div class="container">
-        <div class="text-center mb-5">
-            <span class="badge badge-roven-cream px-3 py-1 rounded-pill fw-semibold mb-2">
-                Cherished Across Egypt
-            </span>
-            <h3 class="fw-extrabold mb-1" style="color: #1B1717;">Words From ROVEN Patrons</h3>
-            <p class="small mb-0" style="color: #6c6358;">Over @Model.TotalCustomersCount+ discerning fragrance collectors rely on ROVEN Parfums</p>
+    var hasDynamicReviews = Model.FeaturedReviews != null && Model.FeaturedReviews.Any();
+
+    <section class="py-5 overflow-hidden w-100" style="background-color: #FAF9F5;">
+        <div class="container">
+            <div class="text-center mb-5">
+                <span class="badge badge-roven-cream px-3 py-1 rounded-pill fw-semibold mb-2">
+                    Cherished Across Egypt
+                </span>
+                <h3 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif;">Words From ROVEN Patrons</h3>
+                <p class="small mb-0" style="color: #6c6358;">Over @Model.TotalCustomersCount+ discerning fragrance collectors rely on ROVEN Parfums</p>
+            </div>
+
+            <div class="row g-3 g-md-4">
+                @if (hasDynamicReviews)
+                {
+                    var avatarColors = new[] { "#810100", "#630000", "#1B1717", "#731818", "#4a0e0e" };
+                    int colorIdx = 0;
+
+                    foreach (var rev in Model.FeaturedReviews!)
+                    {
+                        var avatarBg = avatarColors[colorIdx % avatarColors.Length];
+                        colorIdx++;
+
+                        // Calculate customer initials
+                        string initials = "RP";
+                        if (!string.IsNullOrWhiteSpace(rev.CustomerName))
+                        {
+                            var parts = rev.CustomerName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            if (parts.Length >= 2)
+                            {
+                                initials = $"{parts[0][0]}{parts[1][0]}".ToUpper();
+                            }
+                            else if (parts[0].Length >= 2)
+                            {
+                                initials = parts[0].Substring(0, 2).ToUpper();
+                            }
+                            else
+                            {
+                                initials = parts[0].ToUpper();
+                            }
+                        }
+
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4 bg-white d-flex flex-column" style="border: 1px solid #e8e3d5 !important; transition: transform 0.25s ease, box-shadow 0.25s ease;">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="star-rating" style="color: #810100; letter-spacing: 2px;">
+                                        @for (int s = 1; s <= 5; s++)
+                                        {
+                                            <i class="fa-solid fa-star @(s <= rev.Rating ? "" : "text-muted opacity-25")"></i>
+                                        }
+                                    </div>
+                                    <span class="badge rounded-pill fw-semibold font-monospace" style="background: rgba(129, 1, 0, 0.06); color: #810100; font-size: 0.72rem; padding: 4px 8px;">
+                                        <i class="fa-solid fa-certificate me-1"></i>VERIFIED PATRON
+                                    </span>
+                                </div>
+
+                                <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.65; font-style: italic;">
+                                    "@rev.Comment"
+                                </p>
+
+                                <div class="d-flex align-items-center gap-3 pt-3 border-top mt-auto" style="border-color: #f0ece3 !important;">
+                                    <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0 shadow-xs" style="width: 44px; height: 44px; background-color: @avatarBg; color: #EDEBDD; font-size: 0.95rem; letter-spacing: 0.5px;">
+                                        @initials
+                                    </div>
+                                    <div class="flex-grow-1 min-w-0" style="min-width: 0;">
+                                        <div class="fw-bold small text-truncate" style="color: #1B1717;">@rev.CustomerName</div>
+                                        @if (rev.Product != null)
+                                        {
+                                            <div class="d-inline-flex align-items-center gap-1.5 small mt-0.5 text-truncate" style="font-size: 0.76rem; color: #810100; font-weight: 600;">
+                                                <i class="fa-solid fa-spray-can-sparkles" style="font-size: 0.7rem;"></i>
+                                                <span class="text-truncate">@rev.Product.Name</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="small text-muted" style="font-size: 0.75rem;">Verified Fragrance Collector</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <!-- Default Curated Maison ROVEN Patrons Testimonials -->
+                    <div class="col-12 col-md-4">
+                        <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
+                            <div class="star-rating mb-3">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.6;">
+                                "Rouge Velours Extrait is simply hypnotic. The dark cherry and ambergris trail lasts well past 24 hours on wool coats. Delivery to New Cairo was immaculate and paying Cash on Delivery was seamless."
+                            </p>
+                            <div class="d-flex align-items-center gap-3 pt-3 border-top" style="border-color: #e8e3d5 !important;">
+                                <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: #630000; color: #EDEBDD;">
+                                    AM
+                                </div>
+                                <div>
+                                    <div class="fw-bold small" style="color: #1B1717;">Ahmed Mansour</div>
+                                    <div class="d-inline-flex align-items-center gap-1 small mt-0.5" style="font-size: 0.75rem; color: #810100; font-weight: 600;">
+                                        <i class="fa-solid fa-spray-can-sparkles" style="font-size: 0.68rem;"></i>
+                                        <span>Rouge Velours Extrait</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
+                            <div class="star-rating mb-3">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.6;">
+                                "Royal Amber & Oud possesses the depth of genuine aged Assam wood without harsh synthetic sharpness. The presentation box and atomizers are true works of art. ROVEN is in a class of its own."
+                            </p>
+                            <div class="d-flex align-items-center gap-3 pt-3 border-top" style="border-color: #e8e3d5 !important;">
+                                <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: #810100; color: #EDEBDD;">
+                                    ME
+                                </div>
+                                <div>
+                                    <div class="fw-bold small" style="color: #1B1717;">Mona El-Shennawy</div>
+                                    <div class="d-inline-flex align-items-center gap-1 small mt-0.5" style="font-size: 0.75rem; color: #810100; font-weight: 600;">
+                                        <i class="fa-solid fa-spray-can-sparkles" style="font-size: 0.68rem;"></i>
+                                        <span>Royal Amber & Oud</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
+                            <div class="star-rating mb-3">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.6;">
+                                "The Grand Discovery Coffret allowed me to test all five fragrances over several weeks before selecting Santal Impérial. The order arrived the very next afternoon in Sheikh Zayed."
+                            </p>
+                            <div class="d-flex align-items-center gap-3 pt-3 border-top" style="border-color: #e8e3d5 !important;">
+                                <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: #1B1717; color: #EDEBDD;">
+                                    TZ
+                                </div>
+                                <div>
+                                    <div class="fw-bold small" style="color: #1B1717;">Tarek Zaki</div>
+                                    <div class="d-inline-flex align-items-center gap-1 small mt-0.5" style="font-size: 0.75rem; color: #810100; font-weight: 600;">
+                                        <i class="fa-solid fa-spray-can-sparkles" style="font-size: 0.68rem;"></i>
+                                        <span>Santal Impérial</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
-
-        <div class="row g-3 g-md-4">
-            <div class="col-12 col-md-4">
-                <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
-                    <div class="star-rating mb-3">
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                    </div>
-                    <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.6;">
-                        "Rouge Velours Extrait is simply hypnotic. The dark cherry and ambergris trail lasts well past 24 hours on wool coats. Delivery to New Cairo was immaculate and paying Cash on Delivery was seamless."
-                    </p>
-                    <div class="d-flex align-items-center gap-3 pt-3 border-top" style="border-color: #e8e3d5 !important;">
-                        <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: #630000; color: #EDEBDD;">
-                            AM
-                        </div>
-                        <div>
-                            <div class="fw-bold small" style="color: #1B1717;">Ahmed Mansour</div>
-                            <span class="small" style="font-size: 0.75rem; color: #6c6358;">Fragrance Connoisseur &bull; Cairo</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-4">
-                <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
-                    <div class="star-rating mb-3">
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                    </div>
-                    <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.6;">
-                        "Royal Amber & Oud possesses the depth of genuine aged Assam wood without harsh synthetic sharpness. The presentation box and atomizers are true works of art. ROVEN is in a class of its own."
-                    </p>
-                    <div class="d-flex align-items-center gap-3 pt-3 border-top" style="border-color: #e8e3d5 !important;">
-                        <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: #810100; color: #EDEBDD;">
-                            ME
-                        </div>
-                        <div>
-                            <div class="fw-bold small" style="color: #1B1717;">Mona El-Shennawy</div>
-                            <span class="small" style="font-size: 0.75rem; color: #6c6358;">Art Collector &bull; Alexandria</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-4">
-                <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4" style="border: 1px solid #e8e3d5 !important;">
-                    <div class="star-rating mb-3">
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                    </div>
-                    <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.6;">
-                        "The Grand Discovery Coffret allowed me to test all five fragrances over several weeks before selecting Santal Impérial. The order arrived the very next afternoon in Sheikh Zayed."
-                    </p>
-                    <div class="d-flex align-items-center gap-3 pt-3 border-top" style="border-color: #e8e3d5 !important;">
-                        <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; background-color: #1B1717; color: #EDEBDD;">
-                            TZ
-                        </div>
-                        <div>
-                            <div class="fw-bold small" style="color: #1B1717;">Tarek Zaki</div>
-                            <span class="small" style="font-size: 0.75rem; color: #6c6358;">Architect &bull; Giza</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 }

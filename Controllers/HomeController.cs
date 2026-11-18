@@ -323,6 +323,14 @@ public class HomeController : Controller
             .ThenBy(f => f.Id)
             .ToListAsync();
 
+        var featuredReviews = await _context.ProductReviews
+            .AsNoTracking()
+            .Include(r => r.Product)
+            .Where(r => r.IsApproved && r.ShowOnHome)
+            .OrderByDescending(r => r.CreatedAt)
+            .Take(12)
+            .ToListAsync();
+
         var viewModel = new StoreHomeViewModel
         {
             FeaturedProducts = featured,
@@ -333,6 +341,7 @@ public class HomeController : Controller
             HeroBanners = heroBanners,
             Categories = categories,
             FaqItems = faqItems,
+            FeaturedReviews = featuredReviews,
             TotalCatalogCount = totalCatalog,
             TotalCustomersCount = totalCustomers > 0 ? totalCustomers : 1420,
             TotalOrdersCompleted = totalCompleted > 0 ? totalCompleted : 890,

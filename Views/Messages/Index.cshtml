@@ -11,6 +11,7 @@
     int totalReviewsCount = ViewBag.TotalReviewsCount ?? 0;
     int pendingReviewsCount = ViewBag.PendingReviewsCount ?? 0;
     int approvedReviewsCount = ViewBag.ApprovedReviewsCount ?? 0;
+    int homeFeaturedReviewsCount = ViewBag.HomeFeaturedReviewsCount ?? 0;
     string currentReviewStatus = ViewBag.CurrentReviewStatus as string ?? "all";
     string activeTab = ViewBag.ActiveTab as string ?? "messages";
 }
@@ -448,7 +449,7 @@
         <!-- Reviews Tab Content -->
         <!-- Metrics Row for Product Reviews -->
         <div class="row g-3 mb-4">
-            <div class="col-12 col-sm-6 col-lg-4">
+            <div class="col-12 col-sm-6 col-lg-3">
                 <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
@@ -461,11 +462,11 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 col-lg-4">
+            <div class="col-12 col-sm-6 col-lg-3">
                 <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <div class="text-muted small fw-semibold">تقييمات جديدة بانتظار الاعتماد</div>
+                            <div class="text-muted small fw-semibold">بانتظار الاعتماد</div>
                             <div class="fs-3 fw-extrabold text-warning">@pendingReviewsCount</div>
                         </div>
                         <div class="drawer-item-icon" style="width: 48px; height: 48px; background: #fef3c7; color: #d97706; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
@@ -474,15 +475,28 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 col-lg-4">
+            <div class="col-12 col-sm-6 col-lg-3">
                 <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <div class="text-muted small fw-semibold">تقييمات معتمدة وظاهرة بالمتجر</div>
+                            <div class="text-muted small fw-semibold">معتمدة بالمتجر</div>
                             <div class="fs-3 fw-extrabold text-success">@approvedReviewsCount</div>
                         </div>
                         <div class="drawer-item-icon" style="width: 48px; height: 48px; background: #dcfce7; color: #16a34a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
-                            <i class="fa-solid fa-star text-warning"></i>
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-muted small fw-semibold">معروضة بصفحة الهوم</div>
+                            <div class="fs-3 fw-extrabold" style="color: #810100;">@homeFeaturedReviewsCount</div>
+                        </div>
+                        <div class="drawer-item-icon" style="width: 48px; height: 48px; background: rgba(129, 1, 0, 0.08); color: #810100; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                            <i class="fa-solid fa-house-chimney text-warning"></i>
                         </div>
                     </div>
                 </div>
@@ -493,7 +507,7 @@
         <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
             <div class="card-header bg-white py-3 px-4 border-bottom">
                 <div class="row align-items-center g-3">
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-5">
                         <form asp-controller="Messages" asp-action="Index" method="get" class="d-flex gap-2">
                             <input type="hidden" name="tab" value="reviews" />
                             <div class="input-group">
@@ -503,10 +517,14 @@
                             <button type="submit" class="btn btn-dark px-3 rounded-2">بحث</button>
                         </form>
                     </div>
-                    <div class="col-12 col-md-6 d-flex justify-content-md-end gap-2 flex-wrap">
+                    <div class="col-12 col-md-7 d-flex justify-content-md-end gap-2 flex-wrap">
                         <a asp-controller="Messages" asp-action="Index" asp-route-tab="reviews" class="btn btn-sm @(currentReviewStatus == "all" ? "btn-dark" : "btn-outline-dark") rounded-pill">الكل (@totalReviewsCount)</a>
                         <a asp-controller="Messages" asp-action="Index" asp-route-tab="reviews" asp-route-reviewStatus="pending" class="btn btn-sm @(currentReviewStatus == "pending" ? "btn-warning text-dark fw-bold" : "btn-outline-warning text-dark") rounded-pill">بانتظار الاعتماد (@pendingReviewsCount)</a>
                         <a asp-controller="Messages" asp-action="Index" asp-route-tab="reviews" asp-route-reviewStatus="approved" class="btn btn-sm @(currentReviewStatus == "approved" ? "btn-success" : "btn-outline-success") rounded-pill">معتمدة بالمتجر (@approvedReviewsCount)</a>
+                        <a asp-controller="Messages" asp-action="Index" asp-route-tab="reviews" asp-route-reviewStatus="home" class="btn btn-sm rounded-pill d-inline-flex align-items-center gap-1.5 fw-bold" style="@(currentReviewStatus == "home" ? "background: #810100; color: #fff; border: 1px solid #810100;" : "background: rgba(129, 1, 0, 0.06); color: #810100; border: 1px solid rgba(129, 1, 0, 0.25);")">
+                            <i class="fa-solid fa-house-chimney text-warning"></i>
+                            <span>معروضة بالهوم (@homeFeaturedReviewsCount)</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -542,20 +560,30 @@
                                 {
                                     <tr class="@(!rev.IsApproved ? "table-warning bg-opacity-10" : "")">
                                         <td class="ps-4">
-                                            @if (rev.IsApproved)
-                                            {
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1.5 d-inline-flex align-items-center gap-1">
-                                                    <i class="fa-solid fa-circle-check"></i>
-                                                    <span>معتمد وظاهر بالمتجر</span>
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1.5 d-inline-flex align-items-center gap-1">
-                                                    <i class="fa-solid fa-hourglass-half"></i>
-                                                    <span>معلق بانتظار الاعتماد</span>
-                                                </span>
-                                            }
+                                            <div class="d-flex flex-column gap-1.5 align-items-start">
+                                                @if (rev.IsApproved)
+                                                {
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1">
+                                                        <i class="fa-solid fa-circle-check"></i>
+                                                        <span>معتمد بالمتجر</span>
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1">
+                                                        <i class="fa-solid fa-hourglass-half"></i>
+                                                        <span>معلق بانتظار الاعتماد</span>
+                                                    </span>
+                                                }
+
+                                                @if (rev.ShowOnHome && rev.IsApproved)
+                                                {
+                                                    <span class="badge rounded-pill px-2.5 py-1 text-white fw-bold d-inline-flex align-items-center gap-1 shadow-xs" style="background: #810100; font-size: 0.7rem;">
+                                                        <i class="fa-solid fa-house-chimney text-warning"></i>
+                                                        <span>ظاهر في الرئيسية (الهوم)</span>
+                                                    </span>
+                                                }
+                                            </div>
                                         </td>
                                         <td class="small text-muted text-nowrap">
                                             @rev.CreatedAt.ToEgyptTimeString("yyyy-MM-dd hh:mm tt")
@@ -607,7 +635,26 @@
                                             </div>
                                         </td>
                                         <td class="text-end pe-4 text-nowrap">
-                                            <div class="d-inline-flex gap-1.5 align-items-center">
+                                            <div class="d-inline-flex gap-1.5 align-items-center flex-wrap justify-content-end">
+                                                <!-- Toggle Feature on Home Page -->
+                                                <form asp-controller="Messages" asp-action="ToggleHomeFeatureReview" asp-route-id="@rev.Id" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    @if (rev.ShowOnHome && rev.IsApproved)
+                                                    {
+                                                        <button type="submit" class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 text-white shadow-xs" style="background: #810100; border: 1px solid #810100;" title="إلغاء عرض هذا التقييم من قسم آراء العملاء بالصفحة الرئيسية">
+                                                            <i class="fa-solid fa-house-circle-check text-warning"></i>
+                                                            <span>معروض بالهوم</span>
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1.5 d-inline-flex align-items-center gap-1" title="اعتماد وعرض هذا التقييم في قسم آراء العملاء بالصفحة الرئيسية (الهوم)">
+                                                            <i class="fa-solid fa-house-chimney" style="color: #810100;"></i>
+                                                            <span style="font-size: 0.78rem;">عرض في الهوم</span>
+                                                        </button>
+                                                    }
+                                                </form>
+
                                                 <!-- Toggle Approve/Hide Form -->
                                                 <form asp-controller="Messages" asp-action="ToggleApproveReview" asp-route-id="@rev.Id" method="post" class="d-inline">
                                                     @Html.AntiForgeryToken()

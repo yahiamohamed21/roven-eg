@@ -67,6 +67,10 @@ public class MessagesController : Controller
         {
             reviewsQuery = reviewsQuery.Where(r => r.IsApproved);
         }
+        else if (reviewStatus == "home")
+        {
+            reviewsQuery = reviewsQuery.Where(r => r.IsApproved && r.ShowOnHome);
+        }
 
         var reviews = await reviewsQuery.OrderByDescending(r => r.CreatedAt).ToListAsync();
 
@@ -77,6 +81,7 @@ public class MessagesController : Controller
         ViewBag.TotalReviewsCount = await _context.ProductReviews.CountAsync();
         ViewBag.PendingReviewsCount = await _context.ProductReviews.CountAsync(r => !r.IsApproved);
         ViewBag.ApprovedReviewsCount = await _context.ProductReviews.CountAsync(r => r.IsApproved);
+        ViewBag.HomeFeaturedReviewsCount = await _context.ProductReviews.CountAsync(r => r.IsApproved && r.ShowOnHome);
         ViewBag.Reviews = reviews;
         ViewBag.Settings = settings;
         ViewBag.CurrentSearch = search;
@@ -164,11 +169,52 @@ public class MessagesController : Controller
         if (review == null) return NotFound();
 
         review.IsApproved = !review.IsApproved;
+        if (!review.IsApproved)
+        {
+            review.ShowOnHome = false;
+        }
+
         await _context.SaveChangesAsync();
+        _storeCacheService.InvalidateAll();
 
         TempData["SuccessMessage"] = review.IsApproved 
             ? $"تم اعتماد تقييم ({review.CustomerName}) للمنتج ({review.Product?.Name}) بنجاح، ويظهر الآن في صفحة المنتج."
-            : $"تم إلغاء اعتماد تقييم ({review.CustomerName}) وإخفاؤه من صفحة المنتج.";
+            : $"تم إلغاء اعتماد تقييم ({review.CustomerName}) وإخفاؤه من المتجر.";
+
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+        {
+            return Json(new { success = true, isApproved = review.IsApproved, showOnHome = review.ShowOnHome, message = TempData["SuccessMessage"] });
+        }
+
+        return RedirectToAction(nameof(Index), new { tab = "reviews" });
+    }
+
+    // POST: /Messages/ToggleHomeFeatureReview/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleHomeFeatureReview(int id)
+    {
+        var review = await _context.ProductReviews.Include(r => r.Product).FirstOrDefaultAsync(r => r.Id == id);
+        if (review == null) return NotFound();
+
+        review.ShowOnHome = !review.ShowOnHome;
+        // If enabling for Home, automatically approve it as well
+        if (review.ShowOnHome)
+        {
+            review.IsApproved = true;
+        }
+
+        await _context.SaveChangesAsync();
+        _storeCacheService.InvalidateAll();
+
+        TempData["SuccessMessage"] = review.ShowOnHome 
+            ? $"تم تفعيل ظهور تقييم ({review.CustomerName}) عن عطر ({review.Product?.Name}) في قسم آراء العملاء بالصفحة الرئيسية بنجاح!"
+            : $"تم إلغاء عرض تقييم ({review.CustomerName}) من الصفحة الرئيسية.";
+
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+        {
+            return Json(new { success = true, showOnHome = review.ShowOnHome, isApproved = review.IsApproved, message = TempData["SuccessMessage"] });
+        }
 
         return RedirectToAction(nameof(Index), new { tab = "reviews" });
     }
@@ -183,6 +229,7 @@ public class MessagesController : Controller
         {
             _context.ProductReviews.Remove(review);
             await _context.SaveChangesAsync();
+            _storeCacheService.InvalidateAll();
             TempData["SuccessMessage"] = "تم حذف التقييم بنجاح.";
         }
         return RedirectToAction(nameof(Index), new { tab = "reviews" });

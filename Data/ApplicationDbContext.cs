@@ -42,6 +42,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
             b.HasIndex(r => r.ProductId);
             b.HasIndex(r => r.IsApproved);
+            b.HasIndex(r => r.ShowOnHome);
             b.HasIndex(r => r.CreatedAt);
         });
 
