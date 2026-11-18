@@ -20,69 +20,69 @@
 </div>
 
 <!-- KPI Metric Cards (Coupon Performance) -->
-<div class="row g-3 mb-4">
+<div class="row g-2 g-md-3 mb-4">
     <div class="col-6 col-lg-3">
-        <div class="card border-0 shadow-sm p-3 h-100 bg-white">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="text-muted small fw-semibold">مبيعات الكوبونات المحققة</span>
-                <div class="rounded-circle p-2 bg-success-subtle text-success">
-                    <i class="fa-solid fa-sack-dollar fs-5"></i>
+        <div class="card border-0 shadow-sm p-2.5 p-sm-3 h-100 bg-white">
+            <div class="d-flex align-items-center justify-content-between mb-1 mb-sm-2">
+                <span class="text-muted small fw-semibold text-truncate" style="font-size: 0.72rem;">مبيعات الكوبونات</span>
+                <div class="rounded-circle p-1.5 p-sm-2 bg-success-subtle text-success flex-shrink-0" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-sack-dollar fs-6"></i>
                 </div>
             </div>
-            <h4 class="fw-extrabold text-success mb-1">@Model.TotalSalesGenerated.ToString("N2") <small class="fs-6 text-muted">EGP</small></h4>
-            <div class="text-muted small">صافي إيرادات طلبات الكوبونات</div>
+            <h4 class="fw-extrabold text-success mb-1 fs-5 fs-sm-4">@Model.TotalSalesGenerated.ToString("N0") <small class="fs-7 text-muted">EGP</small></h4>
+            <div class="text-muted small text-truncate" style="font-size: 0.7rem;">صافي إيرادات الكوبونات</div>
         </div>
     </div>
 
     <div class="col-6 col-lg-3">
-        <div class="card border-0 shadow-sm p-3 h-100 bg-white">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="text-muted small fw-semibold">إجمالي الخصومات الممنوحة</span>
-                <div class="rounded-circle p-2 bg-danger-subtle text-danger">
-                    <i class="fa-solid fa-tags fs-5"></i>
+        <div class="card border-0 shadow-sm p-2.5 p-sm-3 h-100 bg-white">
+            <div class="d-flex align-items-center justify-content-between mb-1 mb-sm-2">
+                <span class="text-muted small fw-semibold text-truncate" style="font-size: 0.72rem;">الخصومات الممنوحة</span>
+                <div class="rounded-circle p-1.5 p-sm-2 bg-danger-subtle text-danger flex-shrink-0" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-tags fs-6"></i>
                 </div>
             </div>
-            <h4 class="fw-extrabold text-danger mb-1">@Model.TotalDiscountsProvided.ToString("N2") <small class="fs-6 text-muted">EGP</small></h4>
-            <div class="text-muted small">وفرناه لعملاء الدار عبر الخصومات</div>
+            <h4 class="fw-extrabold text-danger mb-1 fs-5 fs-sm-4">@Model.TotalDiscountsProvided.ToString("N0") <small class="fs-7 text-muted">EGP</small></h4>
+            <div class="text-muted small text-truncate" style="font-size: 0.7rem;">توفير عملاء الدار</div>
         </div>
     </div>
 
     <div class="col-6 col-lg-2">
-        <div class="card border-0 shadow-sm p-3 h-100 bg-white">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="text-muted small fw-semibold">مرات الاستخدام</span>
-                <div class="rounded-circle p-2 bg-primary-subtle text-primary">
-                    <i class="fa-solid fa-fire fs-5"></i>
+        <div class="card border-0 shadow-sm p-2.5 p-sm-3 h-100 bg-white">
+            <div class="d-flex align-items-center justify-content-between mb-1 mb-sm-2">
+                <span class="text-muted small fw-semibold text-truncate" style="font-size: 0.72rem;">الاستخدام</span>
+                <div class="rounded-circle p-1.5 p-sm-2 bg-primary-subtle text-primary flex-shrink-0" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-fire fs-6"></i>
                 </div>
             </div>
-            <h4 class="fw-extrabold text-dark mb-1">@Model.TotalRedemptionsCount</h4>
-            <div class="text-muted small">عملية شراء تم تطبيق خصم بها</div>
+            <h4 class="fw-extrabold text-dark mb-1 fs-5 fs-sm-4">@Model.TotalRedemptionsCount</h4>
+            <div class="text-muted small text-truncate" style="font-size: 0.7rem;">عملية شراء بخصم</div>
         </div>
     </div>
 
     <div class="col-6 col-lg-2">
-        <div class="card border-0 shadow-sm p-3 h-100 bg-white">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="text-muted small fw-semibold">الكوبونات الفعالة</span>
-                <div class="rounded-circle p-2 bg-info-subtle text-info">
-                    <i class="fa-solid fa-circle-check fs-5"></i>
+        <div class="card border-0 shadow-sm p-2.5 p-sm-3 h-100 bg-white">
+            <div class="d-flex align-items-center justify-content-between mb-1 mb-sm-2">
+                <span class="text-muted small fw-semibold text-truncate" style="font-size: 0.72rem;">الفعالة</span>
+                <div class="rounded-circle p-1.5 p-sm-2 bg-info-subtle text-info flex-shrink-0" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-circle-check fs-6"></i>
                 </div>
             </div>
-            <h4 class="fw-extrabold text-dark mb-1">@Model.ActiveCouponsCount</h4>
-            <div class="text-muted small">جاهزة للاستخدام الآن</div>
+            <h4 class="fw-extrabold text-dark mb-1 fs-5 fs-sm-4">@Model.ActiveCouponsCount</h4>
+            <div class="text-muted small text-truncate" style="font-size: 0.7rem;">جاهزة الآن</div>
         </div>
     </div>
 
     <div class="col-12 col-lg-2">
-        <div class="card border-0 shadow-sm p-3 h-100 bg-white">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <span class="text-muted small fw-semibold">إجمالي الكوبونات</span>
-                <div class="rounded-circle p-2 bg-light text-secondary">
-                    <i class="fa-solid fa-ticket fs-5"></i>
+        <div class="card border-0 shadow-sm p-2.5 p-sm-3 h-100 bg-white">
+            <div class="d-flex align-items-center justify-content-between mb-1 mb-sm-2">
+                <span class="text-muted small fw-semibold text-truncate" style="font-size: 0.72rem;">الإجمالي</span>
+                <div class="rounded-circle p-1.5 p-sm-2 bg-light text-secondary flex-shrink-0" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-ticket fs-6"></i>
                 </div>
             </div>
-            <h4 class="fw-extrabold text-dark mb-1">@Model.TotalCouponsCount</h4>
-            <div class="text-muted small">كافة الحملات المسجلة</div>
+            <h4 class="fw-extrabold text-dark mb-1 fs-5 fs-sm-4">@Model.TotalCouponsCount</h4>
+            <div class="text-muted small text-truncate" style="font-size: 0.7rem;">كافة الحملات</div>
         </div>
     </div>
 </div>

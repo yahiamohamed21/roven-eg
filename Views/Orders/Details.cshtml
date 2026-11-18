@@ -80,7 +80,7 @@
 
 <!-- Status Management Bar (Order Status Lifecycle) -->
 <div class="card border-0 shadow-sm mb-4">
-    <div class="card-body p-3 bg-light rounded d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div class="card-body p-3 bg-light rounded d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
         <div class="d-flex align-items-center gap-2">
             <i class="bi bi-arrow-repeat text-primary fs-5"></i>
             <div>
@@ -88,16 +88,16 @@
                 <span class="text-muted small">Update fulfillment status or cancel order (cancelling automatically restores reserved inventory).</span>
             </div>
         </div>
-        <form asp-action="UpdateStatus" asp-route-id="@Model.Id" method="post" id="updateStatusForm" class="d-flex align-items-center gap-2">
+        <form asp-action="UpdateStatus" asp-route-id="@Model.Id" method="post" id="updateStatusForm" class="d-flex flex-wrap flex-sm-nowrap align-items-center gap-2 w-100 w-md-auto">
             @Html.AntiForgeryToken()
-            <select name="newStatus" id="orderStatusSelect" class="form-select form-select-sm w-auto">
+            <select name="newStatus" id="orderStatusSelect" class="form-select form-select-sm flex-grow-1 w-auto">
                 <option value="@OrderStatus.Pending" selected="@(Model.Status == OrderStatus.Pending ? "selected" : null)">Pending Review</option>
                 <option value="@OrderStatus.Processing" selected="@(Model.Status == OrderStatus.Processing ? "selected" : null)">Processing (Packing)</option>
                 <option value="@OrderStatus.Shipped" selected="@(Model.Status == OrderStatus.Shipped ? "selected" : null)">Shipped (Out for Delivery)</option>
                 <option value="@OrderStatus.Completed" selected="@(Model.Status == OrderStatus.Completed ? "selected" : null)">Delivered / Completed</option>
                 <option value="@OrderStatus.Cancelled" selected="@(Model.Status == OrderStatus.Cancelled ? "selected" : null)">Cancelled (Restock Items)</option>
             </select>
-            <button type="button" id="btnUpdateStatus" class="btn btn-sm btn-primary px-3 text-nowrap">
+            <button type="button" id="btnUpdateStatus" class="btn btn-sm btn-primary px-3 text-nowrap flex-grow-1 flex-sm-grow-0">
                 Update Status
             </button>
         </form>

@@ -43,27 +43,27 @@
         </div>
     </div>
 
-    <!-- Navigation Pills / Tabs -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
-        <div class="btn-group p-1 bg-white rounded-pill border shadow-xs flex-wrap" role="group">
-            <a asp-action="Index" asp-route-tab="messages" class="btn btn-sm rounded-pill px-4 py-2 fw-bold d-inline-flex align-items-center gap-2 @(activeTab == "messages" ? "btn-roven-wine text-white shadow-sm" : "btn-light text-secondary border-0")">
+    <!-- Navigation Pills / Tabs (Mobile Touch Swipeable & Desktop Clean Pills) -->
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 p-1.5 bg-white rounded-4 border shadow-xs mobile-touch-tabs" style="overflow-x: auto; max-width: 100%;">
+            <a asp-action="Index" asp-route-tab="messages" class="btn btn-sm rounded-pill px-3 px-md-4 py-2 fw-bold d-inline-flex align-items-center gap-2 text-nowrap flex-shrink-0 @(activeTab == "messages" ? "btn-roven-wine text-white shadow-sm" : "btn-light text-secondary border-0")">
                 <i class="fa-solid fa-envelope-open-text"></i>
                 <span>استفسارات الكونسيرج (Contact Messages)</span>
                 <span class="badge @(unreadCount > 0 ? "bg-danger text-white" : "bg-dark-subtle text-dark") rounded-pill">@totalCount</span>
             </a>
-            <a asp-action="Index" asp-route-tab="reviews" class="btn btn-sm rounded-pill px-4 py-2 fw-bold d-inline-flex align-items-center gap-2 @(activeTab == "reviews" ? "btn-roven-wine text-white shadow-sm" : "btn-light text-secondary border-0")">
+            <a asp-action="Index" asp-route-tab="reviews" class="btn btn-sm rounded-pill px-3 px-md-4 py-2 fw-bold d-inline-flex align-items-center gap-2 text-nowrap flex-shrink-0 @(activeTab == "reviews" ? "btn-roven-wine text-white shadow-sm" : "btn-light text-secondary border-0")">
                 <i class="fa-solid fa-star text-warning"></i>
                 <span>تقييمات المنتجات والنجوم (Product Reviews)</span>
                 @if (pendingReviewsCount > 0)
                 {
-                    <span class="badge bg-warning text-dark rounded-pill shadow-xs">@pendingReviewsCount بانتظار الاعتماد</span>
+                    <span class="badge bg-warning text-dark rounded-pill shadow-xs">@pendingReviewsCount جديد</span>
                 }
                 else
                 {
                     <span class="badge bg-dark-subtle text-dark rounded-pill">@totalReviewsCount</span>
                 }
             </a>
-            <a asp-action="Index" asp-route-tab="contact_settings" class="btn btn-sm rounded-pill px-4 py-2 fw-bold d-inline-flex align-items-center gap-2 @(activeTab == "contact_settings" ? "btn-roven-wine text-white shadow-sm" : "btn-light text-secondary border-0")">
+            <a asp-action="Index" asp-route-tab="contact_settings" class="btn btn-sm rounded-pill px-3 px-md-4 py-2 fw-bold d-inline-flex align-items-center gap-2 text-nowrap flex-shrink-0 @(activeTab == "contact_settings" ? "btn-roven-wine text-white shadow-sm" : "btn-light text-secondary border-0")">
                 <i class="fa-brands fa-whatsapp text-success fs-6"></i>
                 <span>بيانات التواصل والواتساب والسوشيال ميديا</span>
             </a>
@@ -448,54 +448,54 @@
     {
         <!-- Reviews Tab Content -->
         <!-- Metrics Row for Product Reviews -->
-        <div class="row g-3 mb-4">
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="text-muted small fw-semibold">إجمالي تقييمات العملاء</div>
-                            <div class="fs-3 fw-extrabold" style="color: #1B1717;">@totalReviewsCount</div>
+        <div class="row g-2 g-md-3 mb-4">
+            <div class="col-6 col-sm-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 p-2.5 p-sm-3 bg-white h-100">
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <div class="min-w-0">
+                            <div class="text-muted small fw-semibold text-truncate" style="font-size: 0.72rem;">إجمالي التقييمات</div>
+                            <div class="fs-4 fs-sm-3 fw-extrabold" style="color: #1B1717;">@totalReviewsCount</div>
                         </div>
-                        <div class="drawer-item-icon" style="width: 48px; height: 48px; background: #EDEBDD; color: #630000; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        <div class="drawer-item-icon flex-shrink-0" style="width: 38px; height: 38px; background: #EDEBDD; color: #630000; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
                             <i class="fa-solid fa-comments"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="text-muted small fw-semibold">بانتظار الاعتماد</div>
-                            <div class="fs-3 fw-extrabold text-warning">@pendingReviewsCount</div>
+            <div class="col-6 col-sm-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 p-2.5 p-sm-3 bg-white h-100">
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <div class="min-w-0">
+                            <div class="text-muted small fw-semibold text-truncate" style="font-size: 0.72rem;">بانتظار الاعتماد</div>
+                            <div class="fs-4 fs-sm-3 fw-extrabold text-warning">@pendingReviewsCount</div>
                         </div>
-                        <div class="drawer-item-icon" style="width: 48px; height: 48px; background: #fef3c7; color: #d97706; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        <div class="drawer-item-icon flex-shrink-0" style="width: 38px; height: 38px; background: #fef3c7; color: #d97706; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
                             <i class="fa-solid fa-hourglass-half"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="text-muted small fw-semibold">معتمدة بالمتجر</div>
-                            <div class="fs-3 fw-extrabold text-success">@approvedReviewsCount</div>
+            <div class="col-6 col-sm-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 p-2.5 p-sm-3 bg-white h-100">
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <div class="min-w-0">
+                            <div class="text-muted small fw-semibold text-truncate" style="font-size: 0.72rem;">معتمدة بالمتجر</div>
+                            <div class="fs-4 fs-sm-3 fw-extrabold text-success">@approvedReviewsCount</div>
                         </div>
-                        <div class="drawer-item-icon" style="width: 48px; height: 48px; background: #dcfce7; color: #16a34a; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        <div class="drawer-item-icon flex-shrink-0" style="width: 38px; height: 38px; background: #dcfce7; color: #16a34a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
                             <i class="fa-solid fa-circle-check"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 col-lg-3">
-                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="text-muted small fw-semibold">معروضة بصفحة الهوم</div>
-                            <div class="fs-3 fw-extrabold" style="color: #810100;">@homeFeaturedReviewsCount</div>
+            <div class="col-6 col-sm-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 p-2.5 p-sm-3 bg-white h-100">
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <div class="min-w-0">
+                            <div class="text-muted small fw-semibold text-truncate" style="font-size: 0.72rem;">معروضة بالهوم</div>
+                            <div class="fs-4 fs-sm-3 fw-extrabold" style="color: #810100;">@homeFeaturedReviewsCount</div>
                         </div>
-                        <div class="drawer-item-icon" style="width: 48px; height: 48px; background: rgba(129, 1, 0, 0.08); color: #810100; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                        <div class="drawer-item-icon flex-shrink-0" style="width: 38px; height: 38px; background: rgba(129, 1, 0, 0.08); color: #810100; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
                             <i class="fa-solid fa-house-chimney text-warning"></i>
                         </div>
                     </div>

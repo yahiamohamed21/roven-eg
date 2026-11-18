@@ -334,23 +334,25 @@
         <div class="app-main">
             <!-- Top Navbar -->
             <header class="app-topbar">
-                <div class="d-flex align-items-center">
-                    <button class="sidebar-toggle-btn me-3" id="sidebarToggleBtn" type="button" aria-label="Toggle navigation" title="فتح / إغلاق القائمة الجانبية (Toggle Sidebar)">
+                <div class="d-flex align-items-center flex-grow-1 min-w-0 me-2" style="min-width: 0; overflow: hidden;">
+                    <button class="sidebar-toggle-btn me-2 me-md-3 flex-shrink-0" id="sidebarToggleBtn" type="button" aria-label="Toggle navigation" title="فتح / إغلاق القائمة الجانبية (Toggle Sidebar)">
                         <i class="fa-solid fa-bars-staggered fs-5" id="sidebarToggleIcon" style="color: #630000;"></i>
                     </button>
-                    <div>
-                        <h5 class="mb-0 fw-extrabold" style="color: #1B1717;">@(ViewData["Title"] ?? "Atelier Dashboard")</h5>
+                    <div class="min-w-0 flex-grow-1 overflow-hidden">
+                        <h5 class="mb-0 fw-extrabold text-truncate fs-6 fs-md-5" style="color: #1B1717;" title="@(ViewData["Title"] ?? "Atelier Dashboard")">
+                            @(ViewData["Title"] ?? "Atelier Dashboard")
+                        </h5>
                     </div>
                 </div>
 
                 <!-- Search Input -->
-                <div class="topbar-search d-none d-md-block">
+                <div class="topbar-search d-none d-lg-block">
                     <i class="fa-solid fa-magnifying-glass search-icon"></i>
                     <input type="text" class="form-control" placeholder="Search flacons, orders, patrons..." />
                 </div>
 
                 <!-- Right Utility Actions -->
-                <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2 gap-md-3 flex-shrink-0">
                     <!-- Notifications Dropdown -->
                     <div class="dropdown">
                         <button class="btn btn-light rounded-circle position-relative p-2" type="button" id="notificationDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" style="width: 40px; height: 40px; background-color: #EDEBDD; border: 1px solid rgba(99, 0, 0, 0.15);" title="الإشعارات والتنبيهات">
@@ -359,7 +361,7 @@
                                 @(totalAlerts > 99 ? "99+" : totalAlerts.ToString())
                             </span>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 py-0 mt-2 rounded-4 overflow-hidden" style="width: 360px; max-width: 95vw; border: 1px solid #e8e3d5 !important; box-shadow: 0 16px 40px rgba(0,0,0,0.12) !important;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 py-0 mt-2 rounded-4 overflow-hidden" style="width: 360px; max-width: calc(100vw - 16px); border: 1px solid #e8e3d5 !important; box-shadow: 0 16px 40px rgba(0,0,0,0.12) !important;">
                             <li class="p-3 border-bottom d-flex align-items-center justify-content-between gap-2" style="background: #ffffff;">
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: rgba(129, 1, 0, 0.08); color: #810100;">
@@ -533,7 +535,7 @@
                             </div>
                             <i class="fa-solid fa-chevron-down text-muted small d-none d-sm-inline"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 py-2 mt-2 rounded-4" style="border: 1px solid #e8e3d5 !important;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 py-2 mt-2 rounded-4" style="border: 1px solid #e8e3d5 !important; max-width: calc(100vw - 16px);">
                             <li class="px-3 py-2 border-bottom">
                                 <div class="fw-bold" style="color: #1B1717;">@(User.Identity?.IsAuthenticated == true ? User.GetUserFullName() : "director@roven.eg")</div>
                                 <div class="text-muted small">@(User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? User.Identity?.Name)</div>

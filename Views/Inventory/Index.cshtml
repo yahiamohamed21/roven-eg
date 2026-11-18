@@ -42,55 +42,55 @@
 </div>
 
 <!-- Quick Stats Strip -->
-<div class="row g-3 mb-4">
+<div class="row g-2 g-md-3 mb-4">
     <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm p-3 h-100">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-3 fs-4 d-flex align-items-center justify-content-center">
+        <div class="card border-0 shadow-sm p-2.5 p-sm-3 h-100">
+            <div class="d-flex align-items-center gap-2 gap-sm-3">
+                <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-2 p-sm-3 fs-5 fs-sm-4 d-flex align-items-center justify-content-center flex-shrink-0">
                     <i class="bi bi-cash-stack"></i>
                 </div>
-                <div>
-                    <span class="text-muted small fw-medium">Total Inventory Value</span>
-                    <h5 class="fw-bold text-dark mb-0">@totalValue.ToString("N2") EGP</h5>
+                <div class="min-w-0">
+                    <span class="text-muted small fw-medium text-truncate d-block" style="font-size: 0.72rem;">Inventory Value</span>
+                    <h5 class="fw-bold text-dark mb-0 fs-5 fs-sm-4">@totalValue.ToString("N0") <span class="fs-7 fw-normal text-muted">EGP</span></h5>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm p-3 h-100">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rounded-3 bg-success bg-opacity-10 text-success p-3 fs-4 d-flex align-items-center justify-content-center">
+        <div class="card border-0 shadow-sm p-2.5 p-sm-3 h-100">
+            <div class="d-flex align-items-center gap-2 gap-sm-3">
+                <div class="rounded-3 bg-success bg-opacity-10 text-success p-2 p-sm-3 fs-5 fs-sm-4 d-flex align-items-center justify-content-center flex-shrink-0">
                     <i class="bi bi-boxes"></i>
                 </div>
-                <div>
-                    <span class="text-muted small fw-medium">Total Units In Stock</span>
-                    <h5 class="fw-bold text-dark mb-0">@totalUnits.ToString("N0")</h5>
+                <div class="min-w-0">
+                    <span class="text-muted small fw-medium text-truncate d-block" style="font-size: 0.72rem;">Units In Stock</span>
+                    <h5 class="fw-bold text-dark mb-0 fs-5 fs-sm-4">@totalUnits.ToString("N0")</h5>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm p-3 h-100">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rounded-3 bg-warning bg-opacity-10 text-warning p-3 fs-4 d-flex align-items-center justify-content-center">
+        <div class="card border-0 shadow-sm p-2.5 p-sm-3 h-100">
+            <div class="d-flex align-items-center gap-2 gap-sm-3">
+                <div class="rounded-3 bg-warning bg-opacity-10 text-warning p-2 p-sm-3 fs-5 fs-sm-4 d-flex align-items-center justify-content-center flex-shrink-0">
                     <i class="bi bi-bell-fill"></i>
                 </div>
-                <div>
-                    <span class="text-muted small fw-medium">Reorder Thresholds</span>
-                    <h5 class="fw-bold @(lowStockCount > 0 ? "text-danger" : "text-dark") mb-0">@lowStockCount Items</h5>
+                <div class="min-w-0">
+                    <span class="text-muted small fw-medium text-truncate d-block" style="font-size: 0.72rem;">Reorder Alerts</span>
+                    <h5 class="fw-bold @(lowStockCount > 0 ? "text-danger" : "text-dark") mb-0 fs-5 fs-sm-4">@lowStockCount Items</h5>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm p-3 h-100">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rounded-3 bg-info bg-opacity-10 text-info p-3 fs-4 d-flex align-items-center justify-content-center">
+        <div class="card border-0 shadow-sm p-2.5 p-sm-3 h-100">
+            <div class="d-flex align-items-center gap-2 gap-sm-3">
+                <div class="rounded-3 bg-info bg-opacity-10 text-info p-2 p-sm-3 fs-5 fs-sm-4 d-flex align-items-center justify-content-center flex-shrink-0">
                     <i class="bi bi-arrow-repeat"></i>
                 </div>
-                <div>
-                    <span class="text-muted small fw-medium">Stock Movements (Today)</span>
-                    <h5 class="fw-bold text-dark mb-0">@todayMovements Events</h5>
+                <div class="min-w-0">
+                    <span class="text-muted small fw-medium text-truncate d-block" style="font-size: 0.72rem;">Movements Today</span>
+                    <h5 class="fw-bold text-dark mb-0 fs-5 fs-sm-4">@todayMovements Events</h5>
                 </div>
             </div>
         </div>

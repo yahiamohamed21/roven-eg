@@ -43,12 +43,39 @@
     /* Tabs Navigation */
     .roven-tabs {
         display: flex;
-        flex-wrap: nowrap;
         gap: 0.5rem;
     }
-    .roven-tabs .nav-item {
-        flex: 1 1 0;
-        min-width: 0;
+    @@media (min-width: 1200px) {
+        .roven-tabs {
+            flex-wrap: nowrap;
+        }
+        .roven-tabs .nav-item {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+    }
+    @@media (max-width: 1199.98px) {
+        .roven-tabs {
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+            padding: 0.45rem !important;
+        }
+        .roven-tabs::-webkit-scrollbar {
+            display: none !important;
+        }
+        .roven-tabs .nav-item {
+            flex: 0 0 auto !important;
+            min-width: max-content !important;
+        }
+        .roven-tabs .nav-link {
+            font-size: 0.84rem !important;
+            padding: 0.6rem 1rem !important;
+            border-radius: 9999px !important;
+            white-space: nowrap !important;
+        }
     }
     .roven-tabs .nav-link {
         width: 100%;
@@ -267,6 +294,35 @@
             bottom: 0.75rem;
             z-index: 1020;
             box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
+            padding: 0.85rem !important;
+        }
+    }
+
+    @@media (max-width: 575.98px) {
+        .sortable-section-card {
+            padding: 0.75rem !important;
+        }
+        .sortable-section-card .drag-handle {
+            padding: 0 4px !important;
+        }
+        .sortable-section-card .section-rank-badge {
+            font-size: 0.7rem !important;
+            padding: 0.25rem 0.55rem !important;
+            min-width: 44px !important;
+        }
+        .sortable-section-card .rounded-circle {
+            width: 34px !important;
+            height: 34px !important;
+        }
+        .sortable-section-card .rounded-circle i {
+            font-size: 0.95rem !important;
+        }
+        .sortable-section-card .fw-bold span {
+            font-size: 0.88rem !important;
+        }
+        .sticky-save-bar .btn {
+            font-size: 0.8rem !important;
+            padding: 0.45rem 0.75rem !important;
         }
     }
 </style>

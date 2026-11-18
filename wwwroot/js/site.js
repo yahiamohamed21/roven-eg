@@ -190,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (appSidebar) {
                 const isOpen = appSidebar.classList.toggle('show');
                 if (sidebarOverlay) sidebarOverlay.classList.toggle('show', isOpen);
+                document.body.classList.toggle('mobile-sidebar-open', isOpen);
             }
         }
     }
@@ -204,6 +205,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (appSidebar) {
                 appSidebar.classList.remove('show');
                 if (sidebarOverlay) sidebarOverlay.classList.remove('show');
+                document.body.classList.remove('mobile-sidebar-open');
             }
         }
     }
@@ -227,6 +229,15 @@ document.addEventListener('DOMContentLoaded', function () {
             closeSidebar();
         });
     }
+
+    // Auto-close sidebar on mobile when navigating
+    document.querySelectorAll('.app-sidebar .sidebar-nav .nav-link, .app-sidebar .sidebar-brand-wrapper a, .sidebar-footer a').forEach(link => {
+        link.addEventListener('click', function () {
+            if (!isDesktop()) {
+                closeSidebar();
+            }
+        });
+    });
 
     // Keyboard shortcut (Ctrl + B or Alt + S) to toggle sidebar effortlessly
     document.addEventListener('keydown', function (e) {
