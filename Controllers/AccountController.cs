@@ -26,7 +26,14 @@ public class AccountController : Controller
         }
 
         ViewData["ReturnUrl"] = returnUrl;
-        return View(new LoginViewModel());
+        var model = new LoginViewModel();
+        if (Request.Cookies.TryGetValue("roven_remembered_email", out var rememberedEmail) && !string.IsNullOrWhiteSpace(rememberedEmail))
+        {
+            model.Email = rememberedEmail;
+            model.RememberMe = true;
+        }
+
+        return View(model);
     }
 
     [HttpPost]
@@ -65,6 +72,22 @@ public class AccountController : Controller
 
         if (result.Succeeded)
         {
+            if (model.RememberMe)
+            {
+                Response.Cookies.Append("roven_remembered_email", model.Email?.Trim() ?? string.Empty, new CookieOptions
+                {
+                    Expires = DateTimeOffset.UtcNow.AddDays(30),
+                    HttpOnly = true,
+                    SameSite = SameSiteMode.Lax,
+                    Secure = Request.IsHttps,
+                    IsEssential = true
+                });
+            }
+            else
+            {
+                Response.Cookies.Delete("roven_remembered_email");
+            }
+
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);

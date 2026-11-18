@@ -4,6 +4,38 @@
     ViewData["Title"] = "Staff & Atelier Sign In";
 }
 
+<style>
+    .form-check-input {
+        cursor: pointer;
+        width: 1.22em;
+        height: 1.22em;
+        border-color: #b58d4a !important;
+        transition: all 0.2s ease-in-out;
+        flex-shrink: 0;
+    }
+    .form-check-input:hover {
+        border-color: #810100 !important;
+        box-shadow: 0 0 0 3px rgba(129, 1, 0, 0.1);
+    }
+    .form-check-input:checked {
+        background-color: #810100 !important;
+        border-color: #810100 !important;
+        box-shadow: 0 2px 6px rgba(129, 1, 0, 0.3) !important;
+    }
+    .form-check-input:focus {
+        border-color: #810100 !important;
+        box-shadow: 0 0 0 0.2rem rgba(129, 1, 0, 0.2) !important;
+    }
+    .form-check-label {
+        cursor: pointer;
+        user-select: none;
+        transition: color 0.15s ease-in-out;
+    }
+    .form-check:hover .form-check-label {
+        color: #1B1717 !important;
+    }
+</style>
+
 <div class="auth-card">
     <div class="auth-brand">
         <img src="/images/roven-logo.png" alt="ROVEN" style="max-height: 48px; object-fit: contain;" />
@@ -51,9 +83,9 @@
         </div>
 
         <!-- Remember Me Checkbox -->
-        <div class="form-check mb-4">
-            <input class="form-check-input" asp-for="RememberMe" style="border-color: #630000;" />
-            <label class="form-check-label small text-secondary" asp-for="RememberMe">
+        <div class="form-check mb-4 d-flex align-items-center gap-2">
+            <input class="form-check-input my-0" asp-for="RememberMe" id="rememberMeInput" />
+            <label class="form-check-label small fw-semibold text-secondary my-0" for="rememberMeInput">
                 Remember this device for 30 days
             </label>
         </div>

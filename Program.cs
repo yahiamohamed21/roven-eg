@@ -64,11 +64,32 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 // 4. Configure Application Cookie (Authentication / Authorization redirects)
 builder.Services.ConfigureApplicationCookie(options =>
 {
+    options.Cookie.Name = ".Roven.Atelier.Auth";
     options.Cookie.HttpOnly = true;
-    options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.IsEssential = true;
+    options.ExpireTimeSpan = TimeSpan.FromDays(30);
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
     options.SlidingExpiration = true;
+
+    options.Events.OnSigningIn = context =>
+    {
+        if (context.Properties.IsPersistent)
+        {
+            context.Properties.ExpiresUtc = DateTimeOffset.UtcNow.AddDays(30);
+            context.CookieOptions.Expires = DateTimeOffset.UtcNow.AddDays(30);
+            context.CookieOptions.MaxAge = TimeSpan.FromDays(30);
+        }
+        else
+        {
+            context.Properties.ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8);
+            context.CookieOptions.Expires = null;
+            context.CookieOptions.MaxAge = null;
+        }
+        return Task.CompletedTask;
+    };
 });
 
 // 5. Register Domain Services via Dependency Injection
