@@ -18,6 +18,22 @@ public class HomeSetting
     [MaxLength(200)]
     public string DefaultFragranceTagline { get; set; } = "Extrait de Parfum • 30% Pure Oil";
 
+    // Main Brand Hero Section (Homepage Section 1 - Dedicated Desktop & Mobile Images)
+    [MaxLength(500)]
+    public string BrandHeroDesktopImageUrl { get; set; } = "/images/banners/roven-hero-main.png";
+
+    [MaxLength(500)]
+    public string BrandHeroMobileImageUrl { get; set; } = "/images/banners/roven-hero-main-sm.png";
+
+    [MaxLength(500)]
+    public string BrandHeroRedirectLink { get; set; } = "/Store";
+
+    [MaxLength(250)]
+    public string BrandHeroAltText { get; set; } = "ROVEN FRAGRANCES — Your Safest Choice • Explore the Collection";
+
+    [MaxLength(200)]
+    public string BrandHeroTitle { get; set; } = "ROVEN FRAGRANCES — Your Safest Choice";
+
     // Hero Section (Slide 1)
     [MaxLength(300)]
     public string HeroTitle { get; set; } = "L'Art de l'Extrait • 30% Pure Oil Concentration";

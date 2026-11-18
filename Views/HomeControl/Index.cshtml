@@ -317,6 +317,105 @@
             <!-- ============================================================== -->
             <div class="tab-pane fade show active tab-pane-content" id="tab-banners" role="tabpanel" aria-labelledby="tab-banners-btn">
                 
+                <!-- ============================================================== -->
+                <!-- TOP DEDICATED CARD: MAIN BRAND HERO (FIRST HOMEPAGE SECTION)   -->
+                <!-- ============================================================== -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden" style="border: 1.5px solid rgba(181, 141, 74, 0.4) !important;">
+                    <div class="card-setting-header p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white border-bottom">
+                        <div>
+                            <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style="background: rgba(181, 141, 74, 0.12); border: 1px solid rgba(181, 141, 74, 0.35); color: #8a6519; font-size: 0.74rem; font-weight: 700; letter-spacing: 1px;">
+                                <i class="fa-solid fa-crown text-warning"></i>
+                                <span>HOMEPAGE SECTION #1 — MAIN BRAND HERO</span>
+                            </div>
+                            <h4 class="fw-bold mb-1" style="font-family: 'Playfair Display', serif; color: #1B1717;">
+                                البانر الرئيسي للدار (الهيرو الأساسي — ديسكتوب وموبايل)
+                            </h4>
+                            <p class="text-muted small mb-0" style="max-width: 720px;">
+                                هذا هو أول وأكبر سكشن يظهر لزوار المتجر بأعلى الصفحة الرئيسية. يمكنك هنا تعديل صورة الديسكتوب وصورة الموبايل المنفصلة ورابط التوجيه والنص البديل بكل سهولة.
+                            </p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <button type="button" class="btn btn-primary btn-sm px-4 py-2.5 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-2 text-white" style="background: #810100; border-color: #810100; width: auto !important;" data-bs-toggle="modal" data-bs-target="#editMainBrandHeroModal">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>تعديل صور وبيانات الهيرو</span>
+                            </button>
+                            <button type="submit" form="resetMainBrandHeroForm" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill fw-semibold shadow-xs" title="استعادة الصور الافتراضية الأصلية">
+                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                                <span class="d-none d-sm-inline ms-1">استعادة الأصلية</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-3 p-md-4">
+                        <div class="row g-4">
+                            <!-- Desktop Hero Preview -->
+                            <div class="col-12 col-lg-7">
+                                <div class="p-3 rounded-4 border bg-light h-100 position-relative">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-desktop text-primary"></i>
+                                            <span class="fw-bold text-dark small">صورة الديسكتوب والشاشات الكبيرة (Desktop Hero)</span>
+                                        </div>
+                                        <span class="badge bg-white text-muted border font-monospace" style="font-size: 0.72rem;">1920 × 800 px</span>
+                                    </div>
+                                    <div class="position-relative overflow-hidden rounded-3 border bg-dark" style="aspect-ratio: 1920/800; max-height: 230px;">
+                                        <img src="@(string.IsNullOrWhiteSpace(Model.BrandHeroDesktopImageUrl) ? "/images/banners/roven-hero-main.png" : Model.BrandHeroDesktopImageUrl)" 
+                                             alt="Desktop Hero Preview" 
+                                             id="displayMainHeroDesktopPreview"
+                                             style="width: 100%; height: 100%; object-fit: cover;" 
+                                             onerror="this.src='/images/banners/roven-hero-main.png'" />
+                                    </div>
+                                    <div class="mt-2 text-truncate small text-muted font-monospace" style="font-size: 0.75rem;" title="@Model.BrandHeroDesktopImageUrl">
+                                        <i class="fa-regular fa-image me-1"></i>المسار: @(string.IsNullOrWhiteSpace(Model.BrandHeroDesktopImageUrl) ? "/images/banners/roven-hero-main.png" : Model.BrandHeroDesktopImageUrl)
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mobile Hero Preview -->
+                            <div class="col-12 col-lg-5">
+                                <div class="p-3 rounded-4 border bg-light h-100 position-relative">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-mobile-screen text-warning"></i>
+                                            <span class="fw-bold text-dark small">صورة الموبايل والشاشات الصغيرة (Mobile Hero)</span>
+                                        </div>
+                                        <span class="badge bg-white text-muted border font-monospace" style="font-size: 0.72rem;">750 × 1000 px</span>
+                                    </div>
+                                    <div class="position-relative overflow-hidden rounded-3 border bg-dark mx-auto" style="width: 140px; height: 185px;">
+                                        <img src="@(string.IsNullOrWhiteSpace(Model.BrandHeroMobileImageUrl) ? "/images/banners/roven-hero-main-sm.png" : Model.BrandHeroMobileImageUrl)" 
+                                             alt="Mobile Hero Preview" 
+                                             id="displayMainHeroMobilePreview"
+                                             style="width: 100%; height: 100%; object-fit: cover;" 
+                                             onerror="this.src='/images/banners/roven-hero-main-sm.png'" />
+                                    </div>
+                                    <div class="mt-2 text-truncate small text-muted font-monospace text-center" style="font-size: 0.75rem;" title="@Model.BrandHeroMobileImageUrl">
+                                        <i class="fa-regular fa-image me-1"></i>المسار: @(string.IsNullOrWhiteSpace(Model.BrandHeroMobileImageUrl) ? "/images/banners/roven-hero-main-sm.png" : Model.BrandHeroMobileImageUrl)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hero Settings Summary Strip -->
+                        <div class="mt-3 pt-3 border-top d-flex flex-wrap align-items-center justify-content-between gap-3 text-muted small" style="border-color: rgba(0,0,0,0.06) !important; font-size: 0.82rem;">
+                            <div class="d-flex flex-wrap align-items-center gap-3">
+                                <div>
+                                    <span class="fw-bold text-dark"><i class="fa-solid fa-link text-primary me-1"></i>رابط التوجيه:</span>
+                                    <span class="font-monospace text-dark ms-1">@(string.IsNullOrWhiteSpace(Model.BrandHeroRedirectLink) ? "/Store" : Model.BrandHeroRedirectLink)</span>
+                                </div>
+                                <div>
+                                    <span class="fw-bold text-dark"><i class="fa-solid fa-tag text-secondary me-1"></i>النص البديل (SEO):</span>
+                                    <span class="text-dark ms-1">@(string.IsNullOrWhiteSpace(Model.BrandHeroAltText) ? "ROVEN FRAGRANCES — Your Safest Choice • Explore the Collection" : Model.BrandHeroAltText)</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge rounded-pill @(Model.ShowBrandHero ? "bg-success" : "bg-secondary") text-white fw-bold px-3 py-1.5" style="font-size: 0.74rem;">
+                                    @(Model.ShowBrandHero ? "مفعل وظاهر بالمتجر" : "معطل ومخفي")
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
                     <!-- Header Strip in Light Theme matching Maison ROVEN Dashboard -->
                     <div class="card-setting-header p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white border-bottom">
@@ -1938,6 +2037,109 @@
     <input type="hidden" name="id" id="deleteBannerIdInput" value="0" />
 </form>
 
+<form id="resetMainBrandHeroForm" asp-controller="HomeControl" asp-action="ResetMainBrandHero" method="post" class="d-none" onsubmit="return confirm('هل أنت متأكد من استعادة صور وإعدادات الهيرو الأصلية الافتراضية للدار؟');">
+    @Html.AntiForgeryToken()
+</form>
+
+<!-- Modal: Edit Main Brand Hero (Section #1 - Desktop & Mobile) -->
+<div class="modal fade" id="editMainBrandHeroModal" tabindex="-1" aria-labelledby="editMainBrandHeroModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg bg-white">
+            <div class="modal-header border-bottom pb-3 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="modal-title fw-bold" id="editMainBrandHeroModalLabel" style="color: #1B1717; font-family: 'Playfair Display', serif;">
+                    <i class="fa-solid fa-crown text-warning me-2"></i>تعديل البانر الرئيسي للدار (الهيرو الأساسي — ديسكتوب وموبايل)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="HomeControl" asp-action="UpdateMainBrandHero" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-3">
+                        
+                        <!-- Desktop Image -->
+                        <div class="p-3 rounded-3 bg-light border">
+                            <label class="form-label small fw-bold text-dark d-flex align-items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-desktop text-primary"></i>
+                                <span>صورة الديسكتوب والشاشات الكبيرة (Desktop Image)</span>
+                            </label>
+                            <div class="text-muted small mb-2" style="font-size: 0.76rem;">
+                                المقاس الموصى به: 1920 × 800 بكسل (أو عريض بدقة عالية). يتم تحميلها على الشاشات التي يزيد عرضها عن 768px.
+                            </div>
+                            <input type="file" name="desktopImage" id="mainHeroDesktopFileInput" accept="image/*" class="form-control rounded-3" />
+                            <div class="mt-2">
+                                <label class="form-label text-muted small mb-1" style="font-size: 0.75rem;">أو أدخل مسار / رابط الصورة المباشر:</label>
+                                <input type="text" name="desktopImageUrl" id="mainHeroDesktopUrlInput" value="@Model.BrandHeroDesktopImageUrl" class="form-control form-control-sm rounded-3 font-monospace" placeholder="/images/banners/roven-hero-main.png" />
+                            </div>
+                        </div>
+
+                        <!-- Mobile Image -->
+                        <div class="p-3 rounded-3 bg-light border">
+                            <label class="form-label small fw-bold text-dark d-flex align-items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-mobile-screen text-warning"></i>
+                                <span>صورة الموبايل والشاشات الصغيرة (Mobile Image)</span>
+                            </label>
+                            <div class="text-muted small mb-2" style="font-size: 0.76rem;">
+                                المقاس الموصى به: 750 × 1000 بكسل (تصميم طولي للموبايل). يتم تحميلها على الهواتف والشاشات الصغيرة (<= 768px).
+                            </div>
+                            <input type="file" name="mobileImage" id="mainHeroMobileFileInput" accept="image/*" class="form-control rounded-3" />
+                            <div class="mt-2">
+                                <label class="form-label text-muted small mb-1" style="font-size: 0.75rem;">أو أدخل مسار / رابط صورة الموبايل المباشر:</label>
+                                <input type="text" name="mobileImageUrl" id="mainHeroMobileUrlInput" value="@Model.BrandHeroMobileImageUrl" class="form-control form-control-sm rounded-3 font-monospace" placeholder="/images/banners/roven-hero-main-sm.png" />
+                            </div>
+                        </div>
+
+                        <!-- Redirect Link -->
+                        <div>
+                            <label class="form-label small fw-bold text-dark mb-1">
+                                <i class="fa-solid fa-link text-primary me-1"></i>رابط التوجيه عند النقر (Redirect Link)
+                            </label>
+                            <input type="text" name="redirectLink" value="@(string.IsNullOrWhiteSpace(Model.BrandHeroRedirectLink) ? "/Store" : Model.BrandHeroRedirectLink)" class="form-control rounded-3 font-monospace" placeholder="/Store" />
+                            <div class="text-muted small mt-1" style="font-size: 0.75rem;">الصفحة التي ينتقل إليها العميل عند النقر على صورة الهيرو (افتراضي: /Store).</div>
+                        </div>
+
+                        <!-- Title & Alt Text -->
+                        <div class="row g-2">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">
+                                    اسم / عنوان البانر (Title)
+                                </label>
+                                <input type="text" name="title" value="@Model.BrandHeroTitle" class="form-control rounded-3" placeholder="ROVEN FRAGRANCES — Your Safest Choice" />
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">
+                                    النص البديل لتحسين محركات البحث (SEO Alt Text)
+                                </label>
+                                <input type="text" name="altText" value="@Model.BrandHeroAltText" class="form-control rounded-3" placeholder="ROVEN FRAGRANCES — Your Safest Choice • Explore the Collection" />
+                            </div>
+                        </div>
+
+                        <!-- Active Toggle -->
+                        <div class="form-check form-switch mt-2">
+                            <input type="checkbox" name="isActive" class="form-check-input" value="true" @(Model.ShowBrandHero ? "checked" : "") id="mainHeroActiveCheck" style="cursor: pointer; width: 2.2em; height: 1.2em;" />
+                            <label class="form-check-label small fw-bold ms-2 pt-1" for="mainHeroActiveCheck">
+                                إظهار وتفعيل سكشن الهيرو الأساسي في المتجر
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 pb-4 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2" onclick="setMainHeroDefaults();" title="إرجاع المسارات الافتراضية">
+                        <i class="fa-solid fa-arrow-rotate-left me-1"></i>استعادة مسارات الصور الأصلية
+                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary px-4 py-2.5 rounded-pill" data-bs-dismiss="modal">
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn fw-bold px-4 py-2.5 rounded-pill shadow-sm text-white" style="background: #810100; border: none;">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> حفظ وتحديث الهيرو
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Create Hero Banner (Clean Light Theme) -->
 <div class="modal fade" id="createHeroBannerModal" tabindex="-1" aria-labelledby="createHeroBannerModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -2888,5 +3090,12 @@
         // Initial visual bar render
         updateSectionVisualBar();
     });
+
+    function setMainHeroDefaults() {
+        const desktopInput = document.getElementById('mainHeroDesktopUrlInput');
+        const mobileInput = document.getElementById('mainHeroMobileUrlInput');
+        if (desktopInput) desktopInput.value = '/images/banners/roven-hero-main.png';
+        if (mobileInput) mobileInput.value = '/images/banners/roven-hero-main-sm.png';
+    }
 </script>
 }

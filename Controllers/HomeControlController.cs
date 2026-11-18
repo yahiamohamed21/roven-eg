@@ -84,6 +84,33 @@ public class HomeControlController : Controller
             if (settings.OrderTestimonials <= 0) { settings.OrderTestimonials = 9; needsSave = true; }
             if (settings.OrderFaq <= 0) { settings.OrderFaq = 10; needsSave = true; }
             if (settings.OrderNewsletter <= 0) { settings.OrderNewsletter = 11; needsSave = true; }
+
+            // Ensure Main Brand Hero properties are initialized with approved defaults
+            if (string.IsNullOrWhiteSpace(settings.BrandHeroDesktopImageUrl))
+            {
+                settings.BrandHeroDesktopImageUrl = "/images/banners/roven-hero-main.png";
+                needsSave = true;
+            }
+            if (string.IsNullOrWhiteSpace(settings.BrandHeroMobileImageUrl))
+            {
+                settings.BrandHeroMobileImageUrl = "/images/banners/roven-hero-main-sm.png";
+                needsSave = true;
+            }
+            if (string.IsNullOrWhiteSpace(settings.BrandHeroRedirectLink))
+            {
+                settings.BrandHeroRedirectLink = "/Store";
+                needsSave = true;
+            }
+            if (string.IsNullOrWhiteSpace(settings.BrandHeroAltText))
+            {
+                settings.BrandHeroAltText = "ROVEN FRAGRANCES — Your Safest Choice • Explore the Collection";
+                needsSave = true;
+            }
+            if (string.IsNullOrWhiteSpace(settings.BrandHeroTitle))
+            {
+                settings.BrandHeroTitle = "ROVEN FRAGRANCES — Your Safest Choice";
+                needsSave = true;
+            }
             if (needsSave)
             {
                 await _context.SaveChangesAsync();
@@ -158,6 +185,103 @@ public class HomeControlController : Controller
     }
 
     #region Hero Banners Management (Full-Image Hero Slides)
+
+    // POST: /HomeControl/UpdateMainBrandHero
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateMainBrandHero(
+        IFormFile? desktopImage,
+        string? desktopImageUrl,
+        IFormFile? mobileImage,
+        string? mobileImageUrl,
+        string? redirectLink,
+        string? altText,
+        string? title,
+        bool isActive = true)
+    {
+        var settings = await _context.HomeSettings.FirstOrDefaultAsync();
+        if (settings == null)
+        {
+            settings = new HomeSetting();
+            _context.HomeSettings.Add(settings);
+        }
+
+        // 1. Process Desktop Image
+        if (desktopImage != null && desktopImage.Length > 0)
+        {
+            var uploadedDesktop = await SaveBannerFileAsync(desktopImage, "brand_hero_desktop");
+            if (!string.IsNullOrWhiteSpace(uploadedDesktop))
+            {
+                settings.BrandHeroDesktopImageUrl = uploadedDesktop;
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(desktopImageUrl))
+        {
+            settings.BrandHeroDesktopImageUrl = desktopImageUrl.Trim();
+        }
+
+        // 2. Process Mobile Image
+        if (mobileImage != null && mobileImage.Length > 0)
+        {
+            var uploadedMobile = await SaveBannerFileAsync(mobileImage, "brand_hero_mobile");
+            if (!string.IsNullOrWhiteSpace(uploadedMobile))
+            {
+                settings.BrandHeroMobileImageUrl = uploadedMobile;
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(mobileImageUrl))
+        {
+            settings.BrandHeroMobileImageUrl = mobileImageUrl.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(redirectLink))
+        {
+            settings.BrandHeroRedirectLink = redirectLink.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(altText))
+        {
+            settings.BrandHeroAltText = altText.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(title))
+        {
+            settings.BrandHeroTitle = title.Trim();
+        }
+
+        settings.ShowBrandHero = isActive;
+
+        await _context.SaveChangesAsync();
+        await AutoSyncLocalImagesToCloudinaryAsync();
+
+        InvalidateStoreCache();
+
+        TempData["SuccessMessage"] = "تم تحديث صور وإعدادات بانر الهيرو الأساسي للدار (الديسكتوب والموبايل) بنجاح!";
+        return RedirectToAction(nameof(Index));
+    }
+
+    // POST: /HomeControl/ResetMainBrandHero
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetMainBrandHero()
+    {
+        var settings = await _context.HomeSettings.FirstOrDefaultAsync();
+        if (settings != null)
+        {
+            settings.BrandHeroDesktopImageUrl = "/images/banners/roven-hero-main.png";
+            settings.BrandHeroMobileImageUrl = "/images/banners/roven-hero-main-sm.png";
+            settings.BrandHeroRedirectLink = "/Store";
+            settings.BrandHeroAltText = "ROVEN FRAGRANCES — Your Safest Choice • Explore the Collection";
+            settings.BrandHeroTitle = "ROVEN FRAGRANCES — Your Safest Choice";
+            settings.ShowBrandHero = true;
+
+            await _context.SaveChangesAsync();
+            InvalidateStoreCache();
+        }
+
+        TempData["SuccessMessage"] = "تمت استعادة صور وإعدادات بانر الهيرو الأساسي الافتراضية بنجاح!";
+        return RedirectToAction(nameof(Index));
+    }
 
     private async Task<string?> SaveBannerFileAsync(IFormFile? file, string prefix)
     {
@@ -508,6 +632,17 @@ public class HomeControlController : Controller
         settings.HeroTitle = model.HeroTitle?.Trim() ?? "";
         settings.HeroSubtitle = model.HeroSubtitle?.Trim() ?? "";
         settings.HeroBadgeText = model.HeroBadgeText?.Trim() ?? "";
+
+        if (!string.IsNullOrWhiteSpace(model.BrandHeroDesktopImageUrl))
+            settings.BrandHeroDesktopImageUrl = model.BrandHeroDesktopImageUrl.Trim();
+        if (!string.IsNullOrWhiteSpace(model.BrandHeroMobileImageUrl))
+            settings.BrandHeroMobileImageUrl = model.BrandHeroMobileImageUrl.Trim();
+        if (!string.IsNullOrWhiteSpace(model.BrandHeroRedirectLink))
+            settings.BrandHeroRedirectLink = model.BrandHeroRedirectLink.Trim();
+        if (!string.IsNullOrWhiteSpace(model.BrandHeroAltText))
+            settings.BrandHeroAltText = model.BrandHeroAltText.Trim();
+        if (!string.IsNullOrWhiteSpace(model.BrandHeroTitle))
+            settings.BrandHeroTitle = model.BrandHeroTitle.Trim();
 
         settings.Banner2Title = model.Banner2Title?.Trim() ?? "";
         settings.Banner2Subtitle = model.Banner2Subtitle?.Trim() ?? "";

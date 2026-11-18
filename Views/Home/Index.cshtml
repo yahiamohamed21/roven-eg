@@ -30,8 +30,15 @@
     <!-- High-Priority Responsive Preload for Above-the-Fold Main Brand Hero -->
     @if (settings?.ShowBrandHero ?? true)
     {
-        <link rel="preload" as="image" href="/images/banners/roven-hero-main-sm.webp" type="image/webp" media="(max-width: 768px)" fetchpriority="high">
-        <link rel="preload" as="image" href="/images/banners/roven-hero-main.webp" type="image/webp" media="(min-width: 769px)" fetchpriority="high">
+        var mobilePreload = !string.IsNullOrWhiteSpace(settings?.BrandHeroMobileImageUrl) 
+            ? (settings.BrandHeroMobileImageUrl.EndsWith("roven-hero-main-sm.png", StringComparison.OrdinalIgnoreCase) ? "/images/banners/roven-hero-main-sm.webp" : settings.BrandHeroMobileImageUrl)
+            : "/images/banners/roven-hero-main-sm.webp";
+        var desktopPreload = !string.IsNullOrWhiteSpace(settings?.BrandHeroDesktopImageUrl) 
+            ? (settings.BrandHeroDesktopImageUrl.EndsWith("roven-hero-main.png", StringComparison.OrdinalIgnoreCase) ? "/images/banners/roven-hero-main.webp" : settings.BrandHeroDesktopImageUrl)
+            : "/images/banners/roven-hero-main.webp";
+
+        <link rel="preload" as="image" href="@mobilePreload" media="(max-width: 768px)" fetchpriority="high">
+        <link rel="preload" as="image" href="@desktopPreload" media="(min-width: 769px)" fetchpriority="high">
     }
 }
 
