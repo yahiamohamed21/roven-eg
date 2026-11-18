@@ -1171,7 +1171,7 @@ public class HomeControlController : Controller
     // POST: /HomeControl/UpdateFaqItem
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateFaqItem(int id, string question, string answer, string? iconClass, int displayOrder, bool isActive)
+    public async Task<IActionResult> UpdateFaqItem(int id, string question, string answer, string? iconClass, int displayOrder, bool isActive = false)
     {
         var item = await _context.HomeFaqItems.FindAsync(id);
         if (item == null)
@@ -1196,6 +1196,10 @@ public class HomeControlController : Controller
         InvalidateStoreCache();
 
         TempData["SuccessMessage"] = "تم تحديث بيانات السؤال بنجاح!";
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+        {
+            return Json(new { success = true, message = "تم تحديث بيانات السؤال بنجاح!" });
+        }
         return RedirectToAction(nameof(Index), new { tab = "tab-faq" });
     }
 
@@ -1216,6 +1220,11 @@ public class HomeControlController : Controller
         {
             TempData["ErrorMessage"] = "السؤال المطلوب غير موجود.";
         }
+
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+        {
+            return Json(new { success = item != null, message = TempData["SuccessMessage"] ?? TempData["ErrorMessage"] });
+        }
         return RedirectToAction(nameof(Index), new { tab = "tab-faq" });
     }
 
@@ -1231,6 +1240,11 @@ public class HomeControlController : Controller
             await _context.SaveChangesAsync();
             InvalidateStoreCache();
             TempData["SuccessMessage"] = $"تم {(item.IsActive ? "تفعيل" : "إلغاء تفعيل")} السؤال بنجاح!";
+        }
+
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+        {
+            return Json(new { success = true, isActive = item?.IsActive ?? false, message = TempData["SuccessMessage"] });
         }
         return RedirectToAction(nameof(Index), new { tab = "tab-faq" });
     }
@@ -1269,6 +1283,11 @@ public class HomeControlController : Controller
 
             await _context.SaveChangesAsync();
             InvalidateStoreCache();
+        }
+
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" || Request.Headers.Accept.ToString().Contains("application/json"))
+        {
+            return Json(new { success = true });
         }
 
         return RedirectToAction(nameof(Index), new { tab = "tab-faq" });

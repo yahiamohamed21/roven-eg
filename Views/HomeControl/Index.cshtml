@@ -1789,15 +1789,15 @@
                                 <i class="fa-solid fa-list-check text-success me-2"></i>قائمة الأسئلة والأجوبة (FAQ Questions & Answers)
                             </span>
                             <div class="text-muted small mt-1">
-                                يمكنك إضافة أسئلة جديدة، تعديل نص أي سؤال أو إجابته، إعادة ترتيبها تصاعدياً، أو تفعيلها وإلغاء تفعيلها.
+                                يمكنك إضافة أسئلة جديدة، تعديل نص أي سؤال أو إجابته، إعادة ترتيبها تصاعدياً، أو تفعيلها وإلغاء تفعيلها فوراً.
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <button type="button" class="btn btn-primary btn-sm px-3.5 py-2 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-1.5 text-white" style="background: #810100; border-color: #810100; width: auto !important;" data-bs-toggle="modal" data-bs-target="#addFaqModal">
+                            <button type="button" class="btn btn-primary btn-sm px-3.5 py-2 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-1.5 text-white" style="background: #810100; border-color: #810100; width: auto !important;" onclick="openAddFaqModal()">
                                 <i class="fa-solid fa-plus"></i>
                                 <span>إضافة سؤال جديد +</span>
                             </button>
-                            <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill fw-semibold shadow-xs" title="استعادة الأسئلة الافتراضية" onclick="if(confirm('هل أنت متأكد من استعادة الأسئلة الشائعة الافتراضية الأربعة المعتمدة للدار؟')) document.getElementById('resetDefaultFaqForm').submit();">
+                            <button type="button" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill fw-semibold shadow-xs" title="استعادة الأسئلة الافتراضية" onclick="confirmResetDefaultFaqModal()">
                                 <i class="fa-solid fa-arrow-rotate-left"></i>
                                 <span class="d-none d-sm-inline ms-1">استعادة الافتراضية</span>
                             </button>
@@ -1807,62 +1807,91 @@
                     <div class="card-body p-3 p-md-4">
                         @if (faqItems.Any())
                         {
-                            <div class="d-flex flex-column gap-3">
+                            <div class="d-flex flex-column gap-3" id="faqItemsContainer">
                                 @for (int i = 0; i < faqItems.Count; i++)
                                 {
                                     var item = faqItems[i];
                                     var itemIcon = !string.IsNullOrWhiteSpace(item.IconClass) ? item.IconClass : "fa-solid fa-circle-question";
 
-                                    <div class="card border p-3 rounded-4 bg-white shadow-xs position-relative" style="border-color: #e8e3d5 !important;">
+                                    <div class="card border p-3 rounded-4 bg-white shadow-xs position-relative faq-item-row" id="faqCard_@item.Id" data-id="@item.Id" style="border-color: #e8e3d5 !important;">
+                                        <!-- Hidden Raw Data Store for 100% Reliable Escaping & Modal Sync -->
+                                        <input type="hidden" id="faq-raw-question-@item.Id" value="@item.Question" />
+                                        <textarea id="faq-raw-answer-@item.Id" class="d-none">@item.Answer</textarea>
+                                        <div class="d-none" id="faqDataStore_@item.Id"
+                                             data-id="@item.Id"
+                                             data-icon="@itemIcon"
+                                             data-order="@item.DisplayOrder"
+                                             data-active="@(item.IsActive ? "true" : "false")">
+                                        </div>
+
                                         <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
                                             
                                             <!-- Question & Answer Preview -->
                                             <div class="d-flex align-items-start gap-3 flex-grow-1" style="min-width: 0;">
                                                 <div class="rounded-circle d-flex align-items-center justify-content-center bg-light border flex-shrink-0" style="width: 40px; height: 40px;">
-                                                    <i class="@itemIcon" style="color: #810100; font-size: 1rem;"></i>
+                                                    <i class="@itemIcon faq-icon-preview" style="color: #810100; font-size: 1rem;"></i>
                                                 </div>
                                                 <div class="flex-grow-1" style="min-width: 0;">
                                                     <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                                                        <span class="badge font-monospace text-white px-2 py-0.5 rounded-pill" style="background: #810100; font-size: 0.7rem;">#@item.DisplayOrder</span>
-                                                        <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem;">@item.Question</h6>
+                                                        <span class="badge font-monospace text-white px-2 py-0.5 rounded-pill faq-order-badge" style="background: #810100; font-size: 0.7rem;">#@item.DisplayOrder</span>
+                                                        <h6 class="fw-bold mb-0 text-dark faq-question-preview" style="font-size: 0.95rem;">@item.Question</h6>
                                                     </div>
-                                                    <div class="text-muted small" style="font-size: 0.8rem; line-height: 1.5; max-height: 2.8em; overflow: hidden;">
+                                                    <div class="text-muted small faq-answer-preview" style="font-size: 0.8rem; line-height: 1.5; max-height: 2.8em; overflow: hidden;">
                                                         @Html.Raw(item.Answer)
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <!-- Controls -->
+                                            <!-- Controls (Actions) -->
                                             <div class="d-flex align-items-center justify-content-between justify-content-md-end gap-2 w-100 w-md-auto pt-2 pt-md-0 border-top border-md-top-0" style="border-color: #f1ece4 !important;">
                                                 <!-- Status Toggle -->
-                                                <button type="button" onclick="document.getElementById('toggleFaqForm_@item.Id').submit();" class="badge rounded-pill px-3 py-2 fw-bold text-decoration-none border-0 shadow-xs" style="background-color: @(item.IsActive ? "#198754" : "#6c757d"); color: #ffffff; cursor: pointer; font-size: 0.74rem;" title="تغيير حالة التفعيل">
+                                                <button type="button" 
+                                                        id="faqToggleBtn_@item.Id"
+                                                        onclick="toggleFaqStatus(@item.Id)" 
+                                                        class="badge rounded-pill px-3 py-2 fw-bold text-decoration-none border-0 shadow-xs btn-faq-toggle" 
+                                                        style="background-color: @(item.IsActive ? "#198754" : "#6c757d"); color: #ffffff; cursor: pointer; font-size: 0.74rem;" 
+                                                        title="انقر لتغيير حالة التفعيل">
                                                     @(item.IsActive ? "ACTIVE" : "INACTIVE")
                                                 </button>
 
                                                 <div class="d-flex align-items-center gap-1.5">
                                                     <!-- Move Up -->
-                                                    <button type="button" onclick="document.getElementById('moveFaqUpForm_@item.Id').submit();" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == 0 ? "disabled" : "")" style="width: 32px; height: 32px;" title="تحريك لأعلى">
+                                                    <button type="button" 
+                                                            id="faqMoveUpBtn_@item.Id"
+                                                            onclick="moveFaqItemOrder(@item.Id, 'up')" 
+                                                            class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center faq-move-up-btn @(i == 0 ? "disabled" : "")" 
+                                                            style="width: 32px; height: 32px;" 
+                                                            title="تحريك لأعلى">
                                                         <i class="fa-solid fa-arrow-up" style="font-size: 0.75rem;"></i>
                                                     </button>
 
                                                     <!-- Move Down -->
-                                                    <button type="button" onclick="document.getElementById('moveFaqDownForm_@item.Id').submit();" class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center @(i == faqItems.Count - 1 ? "disabled" : "")" style="width: 32px; height: 32px;" title="تحريك لأسفل">
+                                                    <button type="button" 
+                                                            id="faqMoveDownBtn_@item.Id"
+                                                            onclick="moveFaqItemOrder(@item.Id, 'down')" 
+                                                            class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center faq-move-down-btn @(i == faqItems.Count - 1 ? "disabled" : "")" 
+                                                            style="width: 32px; height: 32px;" 
+                                                            title="تحريك لأسفل">
                                                         <i class="fa-solid fa-arrow-down" style="font-size: 0.75rem;"></i>
                                                     </button>
 
                                                     <!-- Edit Button -->
-                                                    <button type="button" class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center text-primary btn-edit-faq" style="width: 32px; height: 32px;" title="تعديل السؤال"
-                                                            data-id="@item.Id"
-                                                            data-question="@item.Question"
-                                                            data-icon="@(item.IconClass ?? "fa-solid fa-circle-question")"
-                                                            data-order="@item.DisplayOrder"
-                                                            data-active="@(item.IsActive ? "true" : "false")">
+                                                    <button type="button" 
+                                                            id="faqEditBtn_@item.Id"
+                                                            onclick="openEditFaqModal(@item.Id)" 
+                                                            class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center text-primary" 
+                                                            style="width: 32px; height: 32px;" 
+                                                            title="تعديل السؤال">
                                                         <i class="fa-solid fa-pen-to-square" style="font-size: 0.78rem;"></i>
-                                                        <div class="d-none faq-answer-raw">@item.Answer</div>
                                                     </button>
 
                                                     <!-- Delete Button -->
-                                                    <button type="button" onclick="if(confirm('هل أنت متأكد من حذف هذا السؤال؟')) document.getElementById('deleteFaqForm_@item.Id').submit();" class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center text-danger" style="width: 32px; height: 32px;" title="حذف السؤال">
+                                                    <button type="button" 
+                                                            id="faqDeleteBtn_@item.Id"
+                                                            onclick="confirmDeleteFaqModal(@item.Id)" 
+                                                            class="btn btn-sm btn-light border rounded-circle d-flex align-items-center justify-content-center text-danger" 
+                                                            style="width: 32px; height: 32px;" 
+                                                            title="حذف السؤال">
                                                         <i class="fa-solid fa-trash-can" style="font-size: 0.78rem;"></i>
                                                     </button>
                                                 </div>
@@ -1874,13 +1903,13 @@
                         }
                         else
                         {
-                            <div class="text-center py-5">
+                            <div class="text-center py-5" id="faqEmptyState">
                                 <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3 bg-light" style="width: 60px; height: 60px;">
                                     <i class="fa-solid fa-circle-question text-muted fs-3"></i>
                                 </div>
                                 <h6 class="fw-bold text-dark mb-1">لا توجد أسئلة مضافة حالياً</h6>
                                 <p class="text-muted small mb-3">يمكنك إضافة سؤال جديد أو استعادة الأسئلة الافتراضية للدار بنقرة واحدة.</p>
-                                <button type="button" class="btn btn-primary btn-sm px-4 py-2 rounded-pill fw-bold text-white" style="background: #810100; border-color: #810100;" data-bs-toggle="modal" data-bs-target="#addFaqModal">
+                                <button type="button" class="btn btn-primary btn-sm px-4 py-2 rounded-pill fw-bold text-white" style="background: #810100; border-color: #810100;" onclick="openAddFaqModal()">
                                     <i class="fa-solid fa-plus me-1"></i> إضافة سؤال جديد
                                 </button>
                             </div>
@@ -2432,6 +2461,44 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Confirm Delete FAQ Item -->
+<div class="modal fade" id="deleteFaqModal" tabindex="-1" aria-labelledby="deleteFaqModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content rounded-4 border-0 shadow-lg text-center p-3 bg-white">
+            <div class="modal-body p-3">
+                <div class="p-3 bg-danger-subtle text-danger rounded-circle d-inline-flex mb-3">
+                    <i class="fa-solid fa-trash-can fs-3"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-1" id="deleteFaqModalLabel">حذف السؤال من FAQ؟</h6>
+                <p class="text-muted small mb-3">هل أنت متأكد من حذف <strong id="deleteFaqTitleDisplay" class="text-dark"></strong> نهائياً من المتجر؟</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold" onclick="executeDeleteFaq()">تأكيد الحذف</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Confirm Reset Default FAQ Items -->
+<div class="modal fade" id="resetDefaultFaqModal" tabindex="-1" aria-labelledby="resetDefaultFaqModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content rounded-4 border-0 shadow-lg text-center p-3 bg-white">
+            <div class="modal-body p-3">
+                <div class="p-3 bg-warning-subtle text-warning rounded-circle d-inline-flex mb-3">
+                    <i class="fa-solid fa-arrow-rotate-left fs-3"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-1" id="resetDefaultFaqModalLabel">استعادة الأسئلة الافتراضية؟</h6>
+                <p class="text-muted small mb-3">سيتم استبدال الأسئلة الحالية بالأسئلة الأربعة الافتراضية المعتمدة لدار Roven.</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-dark" onclick="executeResetDefaultFaq()">تأكيد الاستعادة</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -3306,32 +3373,6 @@
 
         // Initial visual bar and orders calculation
         recalculateSectionOrders();
-
-        // FAQ Edit Modal Click Handler (using data attributes safely)
-        document.addEventListener('click', function(e) {
-            const btn = e.target.closest('.btn-edit-faq');
-            if (!btn) return;
-            const id = btn.getAttribute('data-id');
-            const question = btn.getAttribute('data-question') || '';
-            const icon = btn.getAttribute('data-icon') || 'fa-solid fa-circle-question';
-            const order = btn.getAttribute('data-order') || '1';
-            const active = btn.getAttribute('data-active') === 'true';
-            const answer = btn.querySelector('.faq-answer-raw')?.innerHTML || '';
-
-            document.getElementById('editFaqId').value = id;
-            document.getElementById('editFaqQuestion').value = question;
-            document.getElementById('editFaqAnswer').value = answer;
-            const iconSelect = document.getElementById('editFaqIconClass');
-            if (iconSelect) iconSelect.value = icon;
-            document.getElementById('editFaqDisplayOrder').value = order;
-            document.getElementById('editFaqIsActive').checked = active;
-
-            const modalEl = document.getElementById('editFaqModal');
-            if (modalEl) {
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modal.show();
-            }
-        });
     });
 
     function setMainHeroDefaults() {
@@ -3339,6 +3380,250 @@
         const mobileInput = document.getElementById('mainHeroMobileUrlInput');
         if (desktopInput) desktopInput.value = '/images/banners/roven-hero-main.png';
         if (mobileInput) mobileInput.value = '/images/banners/roven-hero-main-sm.png';
+    }
+
+    // ==============================================================
+    // FAQ ACTIONS MANAGEMENT (AJAX + MODALS + INSTANT VISUAL SYNC)
+    // ==============================================================
+    function openAddFaqModal() {
+        const modalEl = document.getElementById('addFaqModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+    }
+
+    function openEditFaqModal(id) {
+        const qInput = document.getElementById('faq-raw-question-' + id);
+        const aInput = document.getElementById('faq-raw-answer-' + id);
+        const store = document.getElementById('faqDataStore_' + id);
+
+        const question = qInput ? qInput.value : '';
+        const answer = aInput ? aInput.value : '';
+        const icon = store ? (store.getAttribute('data-icon') || 'fa-solid fa-circle-question') : 'fa-solid fa-circle-question';
+        const order = store ? (store.getAttribute('data-order') || '1') : '1';
+        const isActive = store ? (store.getAttribute('data-active') === 'true') : true;
+
+        document.getElementById('editFaqId').value = id;
+        document.getElementById('editFaqQuestion').value = question;
+        document.getElementById('editFaqAnswer').value = answer;
+        const iconSelect = document.getElementById('editFaqIconClass');
+        if (iconSelect) iconSelect.value = icon;
+        document.getElementById('editFaqDisplayOrder').value = order;
+        document.getElementById('editFaqIsActive').checked = isActive;
+
+        const modalEl = document.getElementById('editFaqModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+    }
+
+    let pendingDeleteFaqId = 0;
+    function confirmDeleteFaqModal(id) {
+        pendingDeleteFaqId = id;
+        const qInput = document.getElementById('faq-raw-question-' + id);
+        const qText = qInput ? qInput.value : 'هذا السؤال';
+        const titleEl = document.getElementById('deleteFaqTitleDisplay');
+        if (titleEl) titleEl.textContent = `"${qText}"`;
+
+        const modalEl = document.getElementById('deleteFaqModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+    }
+
+    function executeDeleteFaq() {
+        if (!pendingDeleteFaqId) return;
+        const id = pendingDeleteFaqId;
+        const modalEl = document.getElementById('deleteFaqModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        }
+
+        const card = document.getElementById('faqCard_' + id);
+        if (card) {
+            card.style.transition = 'all 0.25s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.96)';
+            setTimeout(() => {
+                card.remove();
+                recalculateFaqOrdersInDom();
+            }, 260);
+        }
+
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('__RequestVerificationToken', token);
+
+        fetch('/HomeControl/DeleteFaqItem', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            showFaqToast(data.message || 'تم حذف السؤال بنجاح!', 'success');
+        })
+        .catch(err => {
+            console.error('Delete FAQ error:', err);
+            const fallbackForm = document.getElementById('deleteFaqForm_' + id);
+            if (fallbackForm) fallbackForm.submit();
+        });
+    }
+
+    function confirmResetDefaultFaqModal() {
+        const modalEl = document.getElementById('resetDefaultFaqModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+    }
+
+    function executeResetDefaultFaq() {
+        const modalEl = document.getElementById('resetDefaultFaqModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        }
+        const form = document.getElementById('resetDefaultFaqForm');
+        if (form) form.submit();
+    }
+
+    function toggleFaqStatus(id) {
+        const btn = document.getElementById('faqToggleBtn_' + id);
+        const store = document.getElementById('faqDataStore_' + id);
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+
+        if (btn) btn.style.opacity = '0.6';
+
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('__RequestVerificationToken', token);
+
+        fetch('/HomeControl/ToggleFaqItem', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Toggle error');
+            return res.json();
+        })
+        .then(data => {
+            if (btn) {
+                btn.style.opacity = '1';
+                if (data.isActive) {
+                    btn.textContent = 'ACTIVE';
+                    btn.style.backgroundColor = '#198754';
+                } else {
+                    btn.textContent = 'INACTIVE';
+                    btn.style.backgroundColor = '#6c757d';
+                }
+            }
+            if (store) store.setAttribute('data-active', data.isActive ? 'true' : 'false');
+            showFaqToast(data.message || 'تم تغيير حالة السؤال بنجاح', 'success');
+        })
+        .catch(err => {
+            console.error('Toggle FAQ error:', err);
+            if (btn) btn.style.opacity = '1';
+            const fallbackForm = document.getElementById('toggleFaqForm_' + id);
+            if (fallbackForm) fallbackForm.submit();
+        });
+    }
+
+    function moveFaqItemOrder(id, direction) {
+        const card = document.getElementById('faqCard_' + id);
+        const container = document.getElementById('faqItemsContainer');
+        if (!card || !container) return;
+
+        if (direction === 'up') {
+            const prev = card.previousElementSibling;
+            if (prev && prev.classList.contains('faq-item-row')) {
+                container.insertBefore(card, prev);
+            }
+        } else if (direction === 'down') {
+            const next = card.nextElementSibling;
+            if (next && next.classList.contains('faq-item-row')) {
+                container.insertBefore(next, card);
+            }
+        }
+
+        recalculateFaqOrdersInDom();
+
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('direction', direction);
+        formData.append('__RequestVerificationToken', token);
+
+        fetch('/HomeControl/MoveFaqItem', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .catch(err => {
+            console.error('Move FAQ error:', err);
+            const fallbackForm = document.getElementById(direction === 'up' ? ('moveFaqUpForm_' + id) : ('moveFaqDownForm_' + id));
+            if (fallbackForm) fallbackForm.submit();
+        });
+    }
+
+    function recalculateFaqOrdersInDom() {
+        const container = document.getElementById('faqItemsContainer');
+        if (!container) return;
+        const cards = container.querySelectorAll('.faq-item-row');
+        cards.forEach((card, idx) => {
+            const badge = card.querySelector('.faq-order-badge');
+            if (badge) badge.textContent = '#' + (idx + 1);
+
+            const upBtn = card.querySelector('.faq-move-up-btn');
+            if (upBtn) {
+                if (idx === 0) upBtn.classList.add('disabled');
+                else upBtn.classList.remove('disabled');
+            }
+
+            const downBtn = card.querySelector('.faq-move-down-btn');
+            if (downBtn) {
+                if (idx === cards.length - 1) downBtn.classList.add('disabled');
+                else downBtn.classList.remove('disabled');
+            }
+        });
+    }
+
+    function showFaqToast(message, type = 'success') {
+        let toastContainer = document.getElementById('faqToastContainer');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'faqToastContainer';
+            toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            toastContainer.style.zIndex = '9999';
+            document.body.appendChild(toastContainer);
+        }
+
+        const toastEl = document.createElement('div');
+        toastEl.className = 'toast align-items-center text-white border-0 shadow-lg rounded-3';
+        toastEl.style.backgroundColor = type === 'success' ? '#198754' : '#dc3545';
+        toastEl.setAttribute('role', 'alert');
+        toastEl.setAttribute('aria-live', 'assertive');
+        toastEl.setAttribute('aria-atomic', 'true');
+        toastEl.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-2 fw-semibold">
+                    <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}"></i>
+                    <span>${message}</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        toastContainer.appendChild(toastEl);
+        const bsToast = bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 3000 });
+        bsToast.show();
+        toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
     }
 
     // Live Header Preview for FAQ
