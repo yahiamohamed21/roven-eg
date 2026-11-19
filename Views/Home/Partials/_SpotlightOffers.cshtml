@@ -1,561 +1,247 @@
 @model Stockify.ViewModels.Store.StoreHomeViewModel
 @if (Model.Settings?.SpotlightActive != false && (Model.SpecialOffers.Any() || Model.DealOfTheDay != null))
 {
-    <style>
-        /* ==========================================================================
-           MAISON ROVEN — HAUTE PARFUMERIE SPECIAL OFFER CARDS (ELEVATED ATELIER)
-           ========================================================================== */
-        .special-offer-card {
-            background-color: #FFFFFF !important;
-            border: 1px solid rgba(181, 141, 74, 0.28) !important;
-            border-radius: 22px !important;
-            overflow: hidden !important;
-            box-shadow: 0 8px 24px rgba(27, 23, 23, 0.06) !important;
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease !important;
-        }
+    var offers = Model.SpecialOffers.Any() 
+        ? Model.SpecialOffers.ToList() 
+        : (Model.DealOfTheDay != null 
+            ? new List<Stockify.ViewModels.Store.HomeOfferItemViewModel>
+            {
+                new()
+                {
+                    Id = 0,
+                    ProductId = Model.DealOfTheDay.Id,
+                    ProductName = Model.DealOfTheDay.Name,
+                    Sku = Model.DealOfTheDay.Sku,
+                    CategoryName = Model.DealOfTheDay.CategoryName ?? "Haute Parfumerie",
+                    ImageUrl = Model.DealOfTheDay.ImageUrl,
+                    Description = Model.DealOfTheDay.Description,
+                    FirstProductPrice = Model.DealOfTheDay.Price,
+                    OfferPrice = (Model.Settings?.SpotlightPrice > 0 ? Model.Settings.SpotlightPrice : Model.DealOfTheDay.Price),
+                    Title = Model.DealOfTheDay.Name,
+                    RemainingCount = Model.DealOfTheDay.StockQuantity,
+                    AllocatedPercent = Model.Settings?.SpotlightAllocatedPercent ?? 82
+                }
+            } 
+            : new List<Stockify.ViewModels.Store.HomeOfferItemViewModel>());
 
-        .special-offer-card:hover {
-            transform: translateY(-6px) !important;
-            box-shadow: 0 20px 42px rgba(99, 0, 0, 0.12) !important;
-            border-color: rgba(181, 141, 74, 0.6) !important;
-        }
-
-        /* Full Bleed Image Showcase */
-        .special-offer-img-wrap {
-            width: 100%;
-            height: 320px;
-            position: relative;
-            overflow: hidden;
-            background-color: #EDEBDD;
-        }
-
-        .special-offer-img-full {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-            object-position: center !important;
-            display: block !important;
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        }
-
-        .special-offer-card:hover .special-offer-img-full {
-            transform: scale(1.05) !important;
-        }
-
-        .special-offer-img-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(27, 23, 23, 0.45) 0%, rgba(27, 23, 23, 0) 35%, rgba(27, 23, 23, 0.15) 100%);
-            pointer-events: none;
-        }
-
-        /* Floating Luxury Badges */
-        .special-offer-badge-deal {
-            background: rgba(99, 0, 0, 0.92) !important;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            color: #EDEBDD !important;
-            border: 1px solid rgba(223, 177, 91, 0.45) !important;
-            border-radius: 50px !important;
-            padding: 0.4rem 0.85rem !important;
-            font-size: 0.78rem !important;
-            font-weight: 700 !important;
-            letter-spacing: 0.3px;
-        }
-
-        .special-offer-badge-discount {
-            background: #dc3545 !important;
-            color: #ffffff !important;
-            border-radius: 50px !important;
-            padding: 0.32rem 0.75rem !important;
-            font-size: 0.75rem !important;
-            font-weight: 800 !important;
-            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.35) !important;
-        }
-
-        .special-offer-plus-badge {
-            width: 38px;
-            height: 38px;
-            background: #630000;
-            color: #EDEBDD;
-            font-weight: 800;
-            font-size: 1.25rem;
-            z-index: 3;
-            border: 2.5px solid #dfb15b;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        }
-
-        /* Typography & Body */
-        .special-offer-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #1B1717;
-            line-height: 1.35;
-            transition: color 0.2s ease;
-        }
-
-        .special-offer-card:hover .special-offer-title a {
-            color: #630000 !important;
-        }
-
-        /* Luxury Price Box */
-        .special-offer-price-box {
-            background-color: #FAF9F5;
-            border: 1px solid rgba(181, 141, 74, 0.25);
-            border-radius: 14px;
-        }
-
-        .special-offer-current-price {
-            font-family: var(--bs-font-monospace, monospace);
-            font-weight: 800;
-            font-size: 1.65rem;
-            color: #630000;
-            line-height: 1;
-        }
-
-        .special-offer-currency {
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #6c6358;
-        }
-
-        .special-offer-old-price {
-            font-family: var(--bs-font-monospace, monospace);
-            font-weight: 600;
-            color: #8c827a;
-            font-size: 0.92rem;
-            text-decoration: line-through;
-        }
-
-        /* Buttons */
-        .special-offer-btn-cart {
-            background: linear-gradient(135deg, #630000 0%, #810100 100%) !important;
-            color: #EDEBDD !important;
-            border: none !important;
-            border-radius: 50px !important;
-            padding: 0.72rem 1.25rem !important;
-            font-weight: 700 !important;
-            font-size: 0.92rem !important;
-            box-shadow: 0 4px 14px rgba(99, 0, 0, 0.25) !important;
-            transition: all 0.25s ease !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-
-        .special-offer-btn-cart:hover {
-            background: linear-gradient(135deg, #810100 0%, #630000 100%) !important;
-            color: #FFFFFF !important;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 22px rgba(99, 0, 0, 0.35) !important;
-        }
-
-        .special-offer-btn-details {
-            width: 44px !important;
-            height: 44px !important;
-            flex-shrink: 0 !important;
-            border-radius: 50% !important;
-            border: 1.5px solid #1B1717 !important;
-            color: #1B1717 !important;
-            background: transparent !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            transition: all 0.25s ease !important;
-        }
-
-        .special-offer-btn-details:hover {
-            background: #1B1717 !important;
-            color: #EDEBDD !important;
-            border-color: #1B1717 !important;
-            transform: translateY(-2px);
-        }
-
-        @@media (max-width: 575.98px) {
-            .special-offer-img-wrap {
-                height: 240px;
-            }
-            .special-offer-title {
-                font-size: 1.15rem;
-            }
-            .special-offer-current-price {
-                font-size: 1.45rem;
-            }
-            .special-offer-btn-cart {
-                font-size: 0.85rem !important;
-                padding: 0.65rem 1rem !important;
-            }
-            .special-offer-btn-details {
-                width: 40px !important;
-                height: 40px !important;
-            }
-        }
-    </style>
-
-    @if (Model.SpecialOffers.Count > 1)
+    if (offers.Any())
     {
-        <!-- Multi-Product Offers Grid -->
-        <section class="py-5 bg-white border-top border-bottom overflow-hidden w-100" style="border-color: #e8e3d5 !important;">
-            <div class="container">
+        <section id="homeSpotlightSection" class="py-5 w-100 position-relative overflow-hidden" style="background-color: #FAF9F5;">
+            <div class="container position-relative">
                 <!-- Section Header -->
-                <div class="text-center mb-5">
+                <div class="text-center mb-4 mb-md-5">
                     <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-bold mb-2 d-inline-flex align-items-center gap-2">
-                        <i class="fa-solid fa-bolt text-warning"></i>
+                        <i class="fa-solid fa-fire text-danger"></i>
                         <span>@(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightBadgeText) ? "EXCLUSIVE ATELIER OFFERS & DEALS" : Model.Settings.SpotlightBadgeText)</span>
                     </span>
                     <h2 class="fw-extrabold mb-2" style="font-family: 'Playfair Display', serif; color: #1B1717;">
-                        @(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightTitle) ? "عروض وتخفيضات دار Roven الحصرية" : Model.Settings.SpotlightTitle)
+                        @(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightTitle) ? "ROVEN OFFERS 🔥" : Model.Settings.SpotlightTitle)
                     </h2>
                     <p class="text-muted small mx-auto mb-0" style="max-width: 620px;">
-                        @(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightSubtitle) ? "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام." : Model.Settings.SpotlightSubtitle)
+                        @(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightSubtitle) ? "Discover the world of ROVEN through our new online store, where luxury meets elegance in every detail." : Model.Settings.SpotlightSubtitle)
                     </p>
                 </div>
 
-                <div class="row g-3 g-md-4 justify-content-center">
-                    @foreach (var offer in Model.SpecialOffers)
+                <!-- Horizontal X-Axis Scrollable Track / Carousel -->
+                <div class="roven-offers-carousel-wrap position-relative">
+                    @if (offers.Count > 1)
                     {
-                        var isDuo = offer.IsDuoOffer;
-                        <div class="col-12 col-md-6 @(Model.SpecialOffers.Count == 2 ? "col-lg-6" : "col-lg-4")">
-                            <div class="card special-offer-card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative d-flex flex-column">
-                                <!-- Top Badges -->
-                                <div class="position-absolute top-0 start-0 m-3 z-3 d-flex flex-column gap-1.5 align-items-start">
-                                    <span class="badge special-offer-badge-deal shadow-sm">
-                                        <i class="fa-solid @(isDuo ? "fa-layer-group" : "fa-crown") text-gold me-1"></i>
-                                        <span>@(string.IsNullOrWhiteSpace(offer.BadgeText) ? (isDuo ? "DUO BUNDLE • عرض عطرين" : "HOT DEAL • عرض خاص") : offer.BadgeText)</span>
-                                    </span>
-                                    @if (offer.DiscountPercent > 0)
-                                    {
-                                        <span class="badge special-offer-badge-discount shadow-sm">
-                                            <i class="fa-solid fa-tag me-1"></i>وفر @offer.DiscountPercent%
-                                        </span>
-                                    }
-                                </div>
+                        <!-- Previous Navigation Button -->
+                        <button type="button" class="roven-offers-nav-btn roven-offers-nav-prev d-none d-md-flex" onclick="rovenScrollTrack('rovenOffersTrack', -1)" aria-label="Previous Offer">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <!-- Next Navigation Button -->
+                        <button type="button" class="roven-offers-nav-btn roven-offers-nav-next d-none d-md-flex" onclick="rovenScrollTrack('rovenOffersTrack', 1)" aria-label="Next Offer">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    }
 
-                                <!-- Perfume Full-Bleed Image Box -->
-                                <div class="special-offer-img-wrap">
-                                    @if (isDuo)
-                                    {
-                                        <!-- Duo Perfumes Visual Presentation (Split Full Image with Gold + divider) -->
-                                        <div class="d-flex w-100 h-100 position-relative">
-                                            <!-- Flacon 1 -->
-                                            <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-block w-50 h-100 position-relative overflow-hidden border-end" style="border-color: rgba(223, 177, 91, 0.35) !important;" title="@offer.ProductName">
-                                                @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
+                    <div id="rovenOffersTrack" class="roven-offers-track d-flex overflow-auto" onscroll="rovenUpdateOfferDots()">
+                        @for (int i = 0; i < offers.Count; i++)
+                        {
+                            var offer = offers[i];
+                            var isDuo = offer.IsDuoOffer;
+                            var discount = offer.DiscountPercent > 0 ? offer.DiscountPercent : (offer.OriginalPrice > offer.OfferPrice ? (int)Math.Round(((offer.OriginalPrice - offer.OfferPrice) / offer.OriginalPrice) * 100m) : 0);
+                            var savings = Math.Max(0, offer.OriginalPrice - offer.OfferPrice);
+
+                            <div class="roven-offer-slide-item">
+                                <div class="roven-spotlight-hero-card">
+                                    <div class="row g-4 g-lg-5 align-items-center">
+                                        <!-- Left Column: Clean White Framed Image Box (الصوره في الشمال) -->
+                                        <div class="col-12 col-lg-5">
+                                            <div class="roven-offer-img-frame">
+                                                @if (discount > 0)
                                                 {
-                                                    <img src="@offer.ImageUrl" alt="@offer.ProductName" class="special-offer-img-full" />
+                                                    <span class="roven-offer-discount-badge position-absolute top-0 start-0 m-3">
+                                                        @discount% OFF
+                                                    </span>
+                                                }
+
+                                                @if (isDuo)
+                                                {
+                                                    <div class="d-flex align-items-center justify-content-center gap-2 w-100 h-100">
+                                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-block text-center w-50" title="@offer.ProductName">
+                                                            @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
+                                                            {
+                                                                <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid" style="max-height: 290px; object-fit: contain;" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <i class="fa-solid fa-spray-can-sparkles display-4 text-muted"></i>
+                                                            }
+                                                        </a>
+                                                        <span class="badge rounded-circle shadow-sm" style="background: #1B1717; color: #dfb15b; border: 1px solid rgba(223, 177, 91, 0.4); width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">+</span>
+                                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.SecondProductId" class="d-block text-center w-50" title="@offer.SecondProductName">
+                                                            @if (!string.IsNullOrWhiteSpace(offer.SecondProductImageUrl))
+                                                            {
+                                                                <img src="@offer.SecondProductImageUrl" alt="@offer.SecondProductName" class="img-fluid" style="max-height: 290px; object-fit: contain;" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <i class="fa-solid fa-spray-can-sparkles display-4 text-muted"></i>
+                                                            }
+                                                        </a>
+                                                    </div>
                                                 }
                                                 else
                                                 {
-                                                    <div class="d-flex align-items-center justify-content-center h-100 w-100" style="background: radial-gradient(circle, #FAF9F5 0%, #EDEBDD 100%);">
-                                                        <i class="fa-solid fa-spray-can-sparkles display-4" style="color: #630000; opacity: 0.7;"></i>
+                                                    <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none" title="@offer.ProductName">
+                                                        @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
+                                                        {
+                                                            <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid" style="max-height: 330px; object-fit: contain;" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="text-center py-5">
+                                                                <i class="fa-solid fa-spray-can-sparkles display-2" style="color: #630000; opacity: 0.7;"></i>
+                                                                <div class="text-muted small mt-2 fw-semibold">ROVEN Haute Parfumerie</div>
+                                                            </div>
+                                                        }
+                                                    </a>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column: Typography & Offer Action (الكلام في اليمين) -->
+                                        <div class="col-12 col-lg-7">
+                                            <div class="ps-lg-3">
+                                                <!-- Subtitle -->
+                                                <div class="roven-offer-subtitle">
+                                                    @(string.IsNullOrWhiteSpace(offer.BadgeText) ? (isDuo ? "DUO BUNDLE • 2x FLACONS" : $"{offer.CategoryName} • EXCLUSIVE OFFER") : offer.BadgeText)
+                                                </div>
+
+                                                <!-- Big Title -->
+                                                <h3 class="roven-offer-title">
+                                                    @offer.DisplayTitle
+                                                </h3>
+
+                                                <!-- Description -->
+                                                <p class="roven-offer-desc">
+                                                    @(string.IsNullOrWhiteSpace(offer.Description) ? "Experience the pinnacle of haute perfumerie. Handcrafted with rare Grasse botanicals, pure oriental oils, and eternal sillage." : offer.Description)
+                                                </p>
+
+                                                <!-- Fragrance / Feature Pills -->
+                                                <div class="d-flex flex-wrap gap-2 mb-4">
+                                                    @if (isDuo)
+                                                    {
+                                                        <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.ProductName</span>
+                                                        <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.SecondProductName</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.CategoryName</span>
+                                                    }
+                                                    <span class="roven-offer-pill">Extrait de Parfum</span>
+                                                    <span class="roven-offer-pill">30% Pure Concentration</span>
+                                                    <span class="roven-offer-pill">Cash on Delivery</span>
+                                                    <span class="roven-offer-pill">Free Inspection on Delivery</span>
+                                                </div>
+
+                                                <!-- Price and Savings Row -->
+                                                <div class="d-flex flex-wrap align-items-baseline gap-3 mb-4">
+                                                    <div class="roven-offer-price-main">
+                                                        <span>LE</span> @offer.OfferPrice.ToString("N0")
                                                     </div>
-                                                }
-                                                <div class="special-offer-img-overlay"></div>
-                                                <span class="badge position-absolute bottom-0 start-50 translate-middle-x mb-2 rounded-pill small px-2.5 py-1 shadow-xs" style="background: rgba(27, 23, 23, 0.88); color: #dfb15b; font-size: 0.7rem; backdrop-filter: blur(4px); white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis;">
-                                                    1. @offer.ProductName
-                                                </span>
-                                            </a>
-
-                                            <!-- Gold Plus Separator Badge -->
-                                            <div class="position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center rounded-circle shadow special-offer-plus-badge">
-                                                +
-                                            </div>
-
-                                            <!-- Flacon 2 -->
-                                            <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.SecondProductId" class="d-block w-50 h-100 position-relative overflow-hidden" title="@offer.SecondProductName">
-                                                @if (!string.IsNullOrWhiteSpace(offer.SecondProductImageUrl))
-                                                {
-                                                    <img src="@offer.SecondProductImageUrl" alt="@offer.SecondProductName" class="special-offer-img-full" />
-                                                }
-                                                else
-                                                {
-                                                    <div class="d-flex align-items-center justify-content-center h-100 w-100" style="background: radial-gradient(circle, #FAF9F5 0%, #EDEBDD 100%);">
-                                                        <i class="fa-solid fa-spray-can-sparkles display-4" style="color: #630000; opacity: 0.7;"></i>
-                                                    </div>
-                                                }
-                                                <div class="special-offer-img-overlay"></div>
-                                                <span class="badge position-absolute bottom-0 start-50 translate-middle-x mb-2 rounded-pill small px-2.5 py-1 shadow-xs" style="background: rgba(27, 23, 23, 0.88); color: #dfb15b; font-size: 0.7rem; backdrop-filter: blur(4px); white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis;">
-                                                    2. @offer.SecondProductName
-                                                </span>
-                                            </a>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <!-- Single Perfume Full-Bleed Image -->
-                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-block w-100 h-100 position-relative overflow-hidden" title="@offer.ProductName">
-                                            @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
-                                            {
-                                                <img src="@offer.ImageUrl" alt="@offer.ProductName" class="special-offer-img-full" />
-                                            }
-                                            else
-                                            {
-                                                <div class="d-flex flex-column align-items-center justify-content-center h-100 w-100" style="background: radial-gradient(circle, #FAF9F5 0%, #EDEBDD 100%);">
-                                                    <i class="fa-solid fa-spray-can-sparkles display-3" style="color: #630000; opacity: 0.65;"></i>
-                                                    <span class="small text-muted mt-2 fw-semibold">ROVEN Haute Parfumerie</span>
+                                                    @if (offer.OriginalPrice > offer.OfferPrice)
+                                                    {
+                                                        <div class="roven-offer-price-old">
+                                                            <span>LE</span> @offer.OriginalPrice.ToString("N0")
+                                                        </div>
+                                                        <div class="roven-offer-savings">
+                                                            You save LE @savings.ToString("N0")
+                                                        </div>
+                                                    }
                                                 </div>
-                                            }
-                                            <div class="special-offer-img-overlay"></div>
-                                        </a>
-                                    }
-                                </div>
 
-                                <!-- Card Body -->
-                                <div class="card-body p-3 p-md-4 d-flex flex-column flex-grow-1">
-                                    <!-- Category & Authenticity Guarantee (SKU REMOVED) -->
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        @if (isDuo)
-                                        {
-                                            <span class="badge rounded-pill fw-bold px-2.5 py-1" style="background-color: rgba(99, 0, 0, 0.08); color: #630000; font-size: 0.76rem;">
-                                                <i class="fa-solid fa-layer-group me-1"></i>باقة ثنائية حصرية
-                                            </span>
-                                            <span class="small text-muted d-inline-flex align-items-center gap-1" style="font-size: 0.76rem;">
-                                                <i class="fa-solid fa-box-open" style="color: #810100;"></i> 2x 100ml Flacons
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge rounded-pill fw-bold px-2.5 py-1" style="background-color: rgba(99, 0, 0, 0.08); color: #630000; font-size: 0.76rem;">
-                                                <i class="fa-solid fa-sparkles me-1 text-gold"></i>@offer.CategoryName
-                                            </span>
-                                            <span class="small text-muted d-inline-flex align-items-center gap-1" style="font-size: 0.76rem;">
-                                                <i class="fa-solid fa-certificate text-warning"></i> أصلي 100%
-                                            </span>
-                                        }
-                                    </div>
+                                                <!-- Action Buttons -->
+                                                <div class="d-flex align-items-center gap-3 flex-wrap">
+                                                    @if (offer.Id > 0)
+                                                    {
+                                                        <button type="button" class="roven-offer-shop-btn" onclick="window.addOfferToCart(@offer.Id, this)">
+                                                            <span>@(isDuo ? "SHOP THE BUNDLE" : "SHOP THE SET")</span>
+                                                            <i class="fa-solid fa-arrow-right"></i>
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button type="button" class="roven-offer-shop-btn" onclick="window.addStoreItemToCart(@offer.ProductId, 1, this)">
+                                                            <span>SHOP THE SET</span>
+                                                            <i class="fa-solid fa-arrow-right"></i>
+                                                        </button>
+                                                    }
 
-                                    <!-- Fragrance Title -->
-                                    <h4 class="special-offer-title mb-2">
-                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="text-decoration-none text-dark">
-                                            @offer.DisplayTitle
-                                        </a>
-                                    </h4>
-
-                                    @if (isDuo)
-                                    {
-                                        <!-- Itemized fragrance list in Duo Offer -->
-                                        <div class="d-flex flex-column gap-1.5 mb-3 p-2.5 rounded-3" style="background: rgba(237, 235, 221, 0.45); border: 1px dashed rgba(181, 141, 74, 0.45);">
-                                            <div class="small text-dark d-flex align-items-center gap-2">
-                                                <i class="fa-solid fa-circle-check text-success" style="font-size: 0.8rem;"></i>
-                                                <span><strong style="color: #630000;">1.</strong> @offer.ProductName</span>
-                                            </div>
-                                            <div class="small text-dark d-flex align-items-center gap-2">
-                                                <i class="fa-solid fa-circle-check text-success" style="font-size: 0.8rem;"></i>
-                                                <span><strong style="color: #630000;">2.</strong> @offer.SecondProductName</span>
-                                            </div>
-                                        </div>
-                                    }
-
-                                    <!-- Luxury Price Box -->
-                                    <div class="special-offer-price-box p-3 rounded-3 mb-3 mt-auto">
-                                        <div class="d-flex justify-content-between align-items-baseline">
-                                            <div>
-                                                <span class="small d-block text-muted mb-0.5" style="font-size: 0.75rem;">السعر بعد الخصم:</span>
-                                                <div class="d-flex align-items-baseline gap-1">
-                                                    <span class="special-offer-current-price">@offer.OfferPrice.ToString("N0")</span>
-                                                    <span class="special-offer-currency">ج.م</span>
+                                                    <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="roven-offer-details-link" title="View Fragrance Details">
+                                                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                                    </a>
                                                 </div>
                                             </div>
-                                            @if (offer.OriginalPrice > offer.OfferPrice)
-                                            {
-                                                <div class="text-end">
-                                                    <span class="small d-block text-muted mb-0.5" style="font-size: 0.72rem;">بدلاً من:</span>
-                                                    <span class="special-offer-old-price">@offer.OriginalPrice.ToString("N0") ج.م</span>
-                                                </div>
-                                            }
                                         </div>
-                                        @if (offer.OriginalPrice > offer.OfferPrice)
-                                        {
-                                            <div class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center" style="border-color: rgba(99, 0, 0, 0.08) !important; font-size: 0.78rem;">
-                                                <span class="text-muted">قيمة التوفير المباشر:</span>
-                                                <span class="fw-bold text-success font-monospace">+@((offer.OriginalPrice - offer.OfferPrice).ToString("N0")) ج.م</span>
-                                            </div>
-                                        }
-                                    </div>
-
-                                    <!-- Scarcity / Allocation Progress Meter -->
-                                    <div class="mb-3">
-                                        <div class="d-flex justify-content-between align-items-center small mb-1.5" style="font-size: 0.78rem;">
-                                            <span class="text-muted d-inline-flex align-items-center gap-1">
-                                                <i class="fa-solid fa-chart-pie" style="color: #810100;"></i>
-                                                نسبة الحجز: <strong class="text-dark">@offer.AllocatedPercent%</strong>
-                                            </span>
-                                            <span class="fw-bold" style="color: #810100;">
-                                                <i class="fa-solid fa-fire text-danger me-1"></i>متبقي @offer.RemainingCount @(isDuo ? "باقة" : "فقط")!
-                                            </span>
-                                        </div>
-                                        <div class="progress" style="height: 7px; background-color: #E8E3D5; border-radius: 50px; overflow: hidden;">
-                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: @(offer.AllocatedPercent)%; background: linear-gradient(90deg, #810100 0%, #dfb15b 100%);"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Action Buttons -->
-                                    <div class="d-flex gap-2 special-offer-actions mt-1">
-                                        <button type="button" class="btn special-offer-btn-cart flex-grow-1" onclick="window.addOfferToCart(@offer.Id, this)">
-                                            <i class="fa-solid @(isDuo ? "fa-gift" : "fa-bag-shopping") me-1.5"></i>
-                                            <span>@(isDuo ? "أضف باقة العطرين للحقيبة" : "أضف للحقيبة الآن")</span>
-                                        </button>
-                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="btn special-offer-btn-details" title="عرض تفاصيل العطر">
-                                            <i class="fa-solid fa-arrow-left"></i>
-                                        </a>
                                     </div>
                                 </div>
                             </div>
+                        }
+                    </div>
+
+                    @if (offers.Count > 1)
+                    {
+                        <!-- Indicator Dots -->
+                        <div class="d-flex justify-content-center align-items-center gap-2 mt-4" id="rovenOfferDotsWrap">
+                            @for (int i = 0; i < offers.Count; i++)
+                            {
+                                var dotIdx = i;
+                                <button type="button" class="roven-offers-dot @(dotIdx == 0 ? "active" : "")" onclick="rovenScrollToOffer(@dotIdx)" aria-label="Go to offer @(dotIdx + 1)"></button>
+                            }
                         </div>
                     }
                 </div>
             </div>
         </section>
-    }
-    else
-    {
-        <!-- Single Product Hero Spotlight (If only 1 offer is configured) -->
-        var singleOffer = Model.SpecialOffers.FirstOrDefault();
-        var deal = singleOffer != null ? new Stockify.ViewModels.Store.StoreProductCardViewModel
-        {
-            Id = singleOffer.ProductId,
-            Name = singleOffer.ProductName,
-            Sku = singleOffer.Sku,
-            CategoryName = singleOffer.CategoryName,
-            ImageUrl = singleOffer.ImageUrl,
-            Description = singleOffer.Description,
-            Price = singleOffer.OfferPrice,
-            StockQuantity = singleOffer.RemainingCount
-        } : Model.DealOfTheDay!;
 
-        var spotPrice = (singleOffer != null && singleOffer.OfferPrice > 0) ? singleOffer.OfferPrice : ((Model.Settings != null && Model.Settings.SpotlightPrice > 0) ? Model.Settings.SpotlightPrice : deal.Price);
-        var spotAlloc = singleOffer?.AllocatedPercent ?? Model.Settings?.SpotlightAllocatedPercent ?? 82;
-        var spotRemaining = singleOffer?.RemainingCount ?? ((Model.Settings != null && Model.Settings.SpotlightRemainingCount > 0) ? Model.Settings.SpotlightRemainingCount : Math.Max(1, deal.StockQuantity));
-        var badgeText = singleOffer?.BadgeText ?? "EXCLUSIVE SPOTLIGHT";
+        <script>
+            function rovenScrollToOffer(index) {
+                var track = document.getElementById('rovenOffersTrack');
+                if (!track) return;
+                track.scrollTo({ left: index * track.clientWidth, behavior: 'smooth' });
+                updateOfferDotsActive(index);
+            }
 
-        <section class="py-5 bg-white border-top border-bottom overflow-hidden w-100" style="border-color: #e8e3d5 !important;">
-            <div class="container">
-                <!-- Section Header -->
-                <div class="text-center mb-4 mb-md-5">
-                    <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-bold mb-2 d-inline-flex align-items-center gap-2">
-                        <i class="fa-solid fa-bolt text-warning"></i>
-                        <span>@(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightBadgeText) ? "EXCLUSIVE ATELIER OFFERS & DEALS" : Model.Settings.SpotlightBadgeText)</span>
-                    </span>
-                    <h2 class="fw-extrabold mb-2" style="font-family: 'Playfair Display', serif; color: #1B1717;">
-                        @(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightTitle) ? "عروض وتخفيضات دار Roven الحصرية" : Model.Settings.SpotlightTitle)
-                    </h2>
-                    <p class="text-muted small mx-auto mb-0" style="max-width: 620px;">
-                        @(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightSubtitle) ? "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام." : Model.Settings.SpotlightSubtitle)
-                    </p>
-                </div>
-                <div class="card border-0 shadow-lg overflow-hidden spotlight-deal-card" style="border-radius: 22px; border: 1px solid rgba(181, 141, 74, 0.28) !important;">
-                    <div class="row g-0 align-items-center">
-                        <!-- Left Promo Image -->
-                        <div class="col-12 col-lg-5 p-0 text-center position-relative overflow-hidden" style="background-color: #EDEBDD; min-height: 340px;">
-                            <span class="badge special-offer-badge-deal position-absolute top-0 start-0 m-3 shadow-sm d-inline-flex align-items-center gap-1 z-3">
-                                <i class="fa-solid fa-crown text-gold"></i>
-                                <span>@badgeText</span>
-                            </span>
-                            <a asp-controller="Store" asp-action="Details" asp-route-id="@deal.Id" class="d-block w-100 h-100 position-relative" title="عرض تفاصيل عطر @deal.Name" style="min-height: 340px;">
-                                @if (!string.IsNullOrWhiteSpace(deal.ImageUrl))
-                                {
-                                    <img src="@deal.ImageUrl" alt="@deal.Name" class="special-offer-img-full" style="min-height: 340px;" />
-                                }
-                                else
-                                {
-                                    <div class="d-flex align-items-center justify-content-center h-100 w-100" style="min-height: 340px;">
-                                        <i class="fa-solid fa-spray-can-sparkles display-1" style="color: #630000; opacity: 0.7;"></i>
-                                    </div>
-                                }
-                                <div class="special-offer-img-overlay"></div>
-                            </a>
-                        </div>
+            function rovenUpdateOfferDots() {
+                var track = document.getElementById('rovenOffersTrack');
+                if (!track || track.clientWidth <= 0) return;
+                var index = Math.round(track.scrollLeft / track.clientWidth);
+                updateOfferDotsActive(index);
+            }
 
-                        <!-- Right Deal Details & Live Countdown -->
-                        <div class="col-12 col-lg-7 p-3 p-sm-4 p-md-5">
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <span class="badge rounded-pill fw-bold px-2.5 py-1" style="background: rgba(99, 0, 0, 0.08); color: #630000; font-size: 0.78rem;">
-                                    <i class="fa-solid fa-sparkles me-1 text-gold"></i>@deal.CategoryName
-                                </span>
-                                <span class="small text-muted d-inline-flex align-items-center gap-1" style="font-size: 0.78rem;">
-                                    <i class="fa-solid fa-certificate text-warning"></i> أصلي 100%
-                                </span>
-                            </div>
-
-                            <h3 class="fw-extrabold mb-2" style="font-family: 'Playfair Display', serif; color: #1B1717; font-size: 1.6rem;">@deal.Name</h3>
-                            <div class="d-flex align-items-center gap-2 mb-3">
-                                <div class="star-rating">
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
-                                </div>
-                                <span class="small" style="color: #6c6358;">5.0 (تقييم المشترين المعتمدين)</span>
-                            </div>
-
-                            <p class="small mb-4" style="color: #595252; max-width: 520px; line-height: 1.6;">
-                                @(deal.Description ?? "إصدار استثنائي ومحدود من هذا الإبداع العطري الفاخر. زجاجة محكمة الغلق في صندوق إهداء فاخر، مع إمكانية معاينة الطرد قبل الدفع عند الاستلام.")
-                            </p>
-
-                            <!-- Price & Live Countdown Box -->
-                            <div class="special-offer-price-box p-3.5 rounded-3 mb-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
-                                <div>
-                                    <span class="small d-block text-muted mb-0.5" style="font-size: 0.75rem;">سعر العرض الحصري:</span>
-                                    <div class="d-flex align-items-baseline gap-1">
-                                        <span class="special-offer-current-price">@spotPrice.ToString("N0")</span>
-                                        <span class="special-offer-currency">ج.م</span>
-                                    </div>
-                                </div>
-
-                                <!-- Live Countdown Display -->
-                                <div class="w-100 w-sm-auto">
-                                    <div class="small fw-semibold mb-1 text-sm-end d-flex align-items-center justify-content-start justify-content-sm-end gap-1" style="color: #6c6358;">
-                                        <i class="fa-solid fa-clock" style="color: #810100;"></i>
-                                        <span>ينتهي العرض خلال:</span>
-                                    </div>
-                                    <div class="d-flex gap-2 spotlight-timer-boxes">
-                                        <div class="timer-unit-box">
-                                            <div class="timer-unit-num" id="countdown-hours">09</div>
-                                            <div class="timer-unit-lbl">ساعة</div>
-                                        </div>
-                                        <div class="timer-unit-box">
-                                            <div class="timer-unit-num" id="countdown-mins">34</div>
-                                            <div class="timer-unit-lbl">دقيقة</div>
-                                        </div>
-                                        <div class="timer-unit-box">
-                                            <div class="timer-unit-num" id="countdown-secs">50</div>
-                                            <div class="timer-unit-lbl">ثانية</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Stock Progress Meter -->
-                            <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-center small mb-2 spotlight-meter-header" style="color: #6c6358;">
-                                    <span class="d-inline-flex align-items-center gap-1.5 fw-semibold">
-                                        <i class="fa-solid fa-chart-pie" style="color: #810100;"></i>
-                                        <span>نسبة الحجز: <strong style="color: #1B1717;">@spotAlloc% محجوز</strong></span>
-                                    </span>
-                                    <span class="fw-bold" style="color: #810100;">
-                                        <i class="fa-solid fa-fire text-danger me-1"></i>متبقي @spotRemaining زجاجة فقط!
-                                    </span>
-                                </div>
-                                <div class="progress" style="height: 8px; background-color: #e8e3d5; border-radius: 50px; overflow: hidden;">
-                                    <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: @(spotAlloc)%; background: linear-gradient(90deg, #810100 0%, #dfb15b 100%);"></div>
-                                </div>
-                            </div>
-
-                            <!-- Actions -->
-                            <div class="d-flex flex-column flex-sm-row gap-2 gap-sm-3 spotlight-actions">
-                                <button type="button" class="btn special-offer-btn-cart px-4 py-3 fw-bold rounded-pill shadow-sm d-inline-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto" onclick="window.addStoreItemToCart(@deal.Id, 1, this)">
-                                    <i class="fa-solid fa-bag-shopping"></i>
-                                    <span>اقتنِ العطر الآن &bull; أضف للحقيبة</span>
-                                </button>
-                                <a asp-controller="Store" asp-action="Details" asp-route-id="@deal.Id" class="btn px-4 py-3 fw-semibold rounded-pill d-inline-flex align-items-center justify-content-center w-100 w-sm-auto" style="border: 1.5px solid #1B1717; color: #1B1717; background: transparent; transition: all 0.25s ease;" onmouseover="this.style.background='#1B1717'; this.style.color='#EDEBDD';" onmouseout="this.style.background='transparent'; this.style.color='#1B1717';">
-                                    تفاصيل الهرم العطري
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+            function updateOfferDotsActive(index) {
+                var dots = document.querySelectorAll('#rovenOfferDotsWrap .roven-offers-dot');
+                dots.forEach(function (dot, i) {
+                    if (i === index) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+        </script>
     }
 }

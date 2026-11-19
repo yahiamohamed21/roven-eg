@@ -1170,6 +1170,288 @@
         border-color: #dfb15b;
     }
 
+    /* =====================================================================
+       Maison ROVEN — Spotlight Grand Offer Banner (Horizontal Hero Presentation)
+       ===================================================================== */
+    .roven-offers-carousel-wrap {
+        position: relative;
+        width: 100%;
+    }
+
+    .roven-offers-track {
+        display: flex;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        scroll-snap-type: x mandatory;
+        padding: 0.5rem 0.25rem 1rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        gap: 1.5rem;
+    }
+
+    .roven-offers-track::-webkit-scrollbar {
+        display: none;
+    }
+
+    .roven-offer-slide-item {
+        flex: 0 0 100%;
+        min-width: 100%;
+        max-width: 100%;
+        scroll-snap-align: start;
+    }
+
+    .roven-spotlight-hero-card {
+        background: linear-gradient(135deg, #1B1717 0%, #2f0c12 50%, #15080a 100%);
+        border: 1px solid rgba(223, 177, 91, 0.25);
+        border-radius: 24px;
+        padding: 2.75rem 3rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 18px 45px rgba(27, 23, 23, 0.35);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+    }
+
+    .roven-spotlight-hero-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(223, 177, 91, 0.08) 0%, rgba(129, 1, 0, 0) 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .roven-offer-img-frame {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 2rem 1.5rem;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+        transition: transform 0.4s ease;
+    }
+
+    .roven-spotlight-hero-card:hover .roven-offer-img-frame {
+        transform: scale(1.015);
+    }
+
+    .roven-offer-discount-badge {
+        background: #ffffff;
+        color: #1B1717;
+        font-size: 0.8rem;
+        font-weight: 800;
+        padding: 5px 12px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+        letter-spacing: 0.5px;
+        z-index: 2;
+    }
+
+    .roven-offer-subtitle {
+        color: #dfb15b;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .roven-offer-title {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: clamp(1.85rem, 3.2vw, 2.75rem);
+        font-weight: 800;
+        color: #FAF9F5;
+        letter-spacing: 0.5px;
+        line-height: 1.2;
+        text-transform: uppercase;
+        margin-bottom: 0.85rem;
+    }
+
+    .roven-offer-desc {
+        color: rgba(237, 235, 221, 0.82);
+        font-size: 0.95rem;
+        line-height: 1.65;
+        margin-bottom: 1.5rem;
+        max-width: 540px;
+    }
+
+    .roven-offer-pill {
+        background: rgba(255, 255, 255, 0.08);
+        color: #FAF9F5;
+        border: 1px solid rgba(223, 177, 91, 0.25);
+        border-radius: 50px;
+        padding: 4px 14px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        backdrop-filter: blur(4px);
+        transition: all 0.2s ease;
+    }
+
+    .roven-offer-pill:hover {
+        background: rgba(223, 177, 91, 0.18);
+        border-color: #dfb15b;
+        color: #dfb15b;
+    }
+
+    .roven-offer-price-main {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: clamp(2rem, 3.5vw, 2.5rem);
+        font-weight: 800;
+        color: #FAF9F5;
+    }
+
+    .roven-offer-price-main span {
+        font-size: 1.2rem;
+        font-family: system-ui, sans-serif;
+        font-weight: 600;
+        color: #dfb15b;
+        margin-right: 4px;
+    }
+
+    .roven-offer-price-old {
+        font-size: 1.15rem;
+        text-decoration: line-through;
+        color: rgba(237, 235, 221, 0.45);
+        font-weight: 600;
+    }
+
+    .roven-offer-savings {
+        color: #dfb15b;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+
+    .roven-offer-shop-btn {
+        background: #ffffff;
+        color: #1B1717;
+        font-weight: 700;
+        border-radius: 50px;
+        padding: 0.85rem 2.5rem;
+        text-transform: uppercase;
+        font-size: 0.88rem;
+        letter-spacing: 1px;
+        border: none;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.25s ease;
+    }
+
+    .roven-offer-shop-btn:hover {
+        background: #dfb15b;
+        color: #1B1717;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(223, 177, 91, 0.4);
+    }
+
+    .roven-offer-details-link {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 1px solid rgba(223, 177, 91, 0.35);
+        background: rgba(255, 255, 255, 0.06);
+        color: #FAF9F5;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        transition: all 0.25s ease;
+    }
+
+    .roven-offer-details-link:hover {
+        background: #dfb15b;
+        color: #1B1717;
+        border-color: #dfb15b;
+        transform: translateY(-2px);
+    }
+
+    /* Offers Navigation Buttons */
+    .roven-offers-nav-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: #630000;
+        color: #EDEBDD;
+        border: 1px solid rgba(223, 177, 91, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 6;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .roven-offers-nav-prev {
+        left: 8px;
+    }
+
+    .roven-offers-nav-next {
+        right: 8px;
+    }
+
+    .roven-offers-nav-btn:hover {
+        background: #810100;
+        color: #ffffff;
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 8px 26px rgba(99, 0, 0, 0.45);
+        border-color: #dfb15b;
+    }
+
+    .roven-offers-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(99, 0, 0, 0.2);
+        border: 1px solid rgba(99, 0, 0, 0.4);
+        padding: 0;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .roven-offers-dot.active {
+        width: 28px;
+        border-radius: 50px;
+        background: #630000;
+        border-color: #dfb15b;
+    }
+
+    @media (max-width: 991.98px) {
+        .roven-spotlight-hero-card {
+            padding: 1.75rem 1.25rem;
+            border-radius: 20px;
+        }
+        .roven-offer-img-frame {
+            min-height: 280px;
+            padding: 1.25rem;
+        }
+        .roven-offer-title {
+            font-size: 1.75rem;
+        }
+        .roven-offers-nav-btn {
+            width: 38px;
+            height: 38px;
+            font-size: 0.85rem;
+        }
+    }
+
     /* Flash Deal Timer Box */
     .timer-unit-box {
         background: #1B1717;
