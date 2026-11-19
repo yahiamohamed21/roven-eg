@@ -58,8 +58,13 @@
 
                         <div class="col-12 col-md-6">
                             <label asp-for="StockQuantity" class="form-label small fw-semibold text-secondary"></label>
-                            <input type="text" class="form-control bg-light text-muted" value="@Model.StockQuantity units in stock" readonly />
-                            <small class="text-muted">Stock quantity is adjusted via orders or inventory movements.</small>
+                            <span class="text-danger">*</span>
+                            <div class="input-group">
+                                <input asp-for="StockQuantity" type="number" min="0" class="form-control" />
+                                <span class="input-group-text bg-light text-muted">units</span>
+                            </div>
+                            <span asp-validation-for="StockQuantity" class="text-danger small"></span>
+                            <small class="text-muted">الكمية الفعلية المتوفرة بالمخزن لهذا المنتج.</small>
                         </div>
 
                         <div class="col-12 col-md-6">

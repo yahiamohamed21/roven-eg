@@ -83,6 +83,8 @@ public class ProductEditViewModel
     [Display(Name = "Selling Price (EGP)")]
     public decimal Price { get; set; }
 
+    [Required(ErrorMessage = "Stock quantity is required.")]
+    [Range(0, 1000000, ErrorMessage = "Stock quantity must be zero or greater.")]
     [Display(Name = "Current Stock Quantity")]
     public int StockQuantity { get; set; }
 

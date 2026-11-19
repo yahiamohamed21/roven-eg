@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -310,6 +311,24 @@ public class ProductsController : Controller
                     _logger?.LogWarning(ex, "Failed to delete old image {Url} from storage for product {Id}", oldImageUrl, id);
                 }
             }
+        }
+
+        if (model.StockQuantity != product.StockQuantity)
+        {
+            var diff = model.StockQuantity - product.StockQuantity;
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            _context.InventoryTransactions.Add(new InventoryTransaction
+            {
+                ProductId = product.Id,
+                Quantity = Math.Abs(diff),
+                TransactionType = diff > 0 ? TransactionType.StockIn : TransactionType.Adjustment,
+                TransactionDate = DateTime.UtcNow,
+                Notes = $"تعديل مباشر للمخزون من صفحة تعديل المنتج (من {product.StockQuantity} إلى {model.StockQuantity})",
+                UserId = currentUserId
+            });
+
+            product.StockQuantity = model.StockQuantity;
         }
 
         product.Name = model.Name.Trim();
