@@ -106,6 +106,8 @@ public class ProductEditViewModel
 
     public string? ExistingImageUrl { get; set; }
 
+    public bool RemoveImage { get; set; } = false;
+
     [Display(Name = "Replace Product Image")]
     public IFormFile? ImageFile { get; set; }
 

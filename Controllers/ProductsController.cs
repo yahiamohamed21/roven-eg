@@ -296,6 +296,21 @@ public class ProductsController : Controller
                 return View(model);
             }
         }
+        else if (model.RemoveImage)
+        {
+            product.ImageUrl = null;
+            if (!string.IsNullOrWhiteSpace(oldImageUrl))
+            {
+                try
+                {
+                    await _imageStorageService.DeleteImageAsync(oldImageUrl);
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "Failed to delete old image {Url} from storage for product {Id}", oldImageUrl, id);
+                }
+            }
+        }
 
         product.Name = model.Name.Trim();
         product.Sku = normalizedSku;

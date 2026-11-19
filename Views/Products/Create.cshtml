@@ -81,9 +81,31 @@
 
                         <div class="col-12">
                             <label asp-for="ImageFile" class="form-label small fw-semibold text-secondary"></label>
-                            <input asp-for="ImageFile" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                            <div class="input-group">
+                                <input asp-for="ImageFile" id="productImageInput" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                                <button type="button" class="btn btn-outline-danger d-none" id="btnClearSelectedFile" title="إلغاء الملف المختار">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
                             <span asp-validation-for="ImageFile" class="text-danger small"></span>
-                            <small class="text-muted d-block mt-1">Accepts PNG, JPG or WEBP formats up to 3MB.</small>
+                            <small class="text-muted d-block mt-1">Accepts PNG, JPG or WEBP formats up to 5MB.</small>
+
+                            <!-- Live preview card for newly chosen file -->
+                            <div id="newFilePreviewWrapper" class="card border rounded-3 p-2.5 mt-2.5 bg-white shadow-xs d-none" style="max-width: 480px; border-color: #b58d4a !important;">
+                                <div class="d-flex align-items-center justify-content-between gap-3">
+                                    <div class="d-flex align-items-center gap-2.5 min-w-0">
+                                        <img id="newFilePreviewImg" src="" alt="New Image Preview" class="rounded-3 border shadow-xs flex-shrink-0" style="width: 52px; height: 52px; object-fit: cover;" />
+                                        <div class="min-w-0">
+                                            <div class="small fw-bold text-success text-truncate" id="newFilePreviewName">New Image Selected</div>
+                                            <small class="text-muted text-truncate d-block" id="newFilePreviewSize" style="font-size: 0.75rem;">معاينة الصورة قبل الحفظ</small>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 shadow-xs flex-shrink-0" id="btnCancelNewFile" title="إلغاء واختيار غيرها">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                        <span>إلغاء</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-12 mt-4 text-end">
@@ -101,4 +123,44 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const fileInput = document.getElementById('productImageInput');
+            const clearBtn = document.getElementById('btnClearSelectedFile');
+            const newPreviewWrapper = document.getElementById('newFilePreviewWrapper');
+            const newPreviewImg = document.getElementById('newFilePreviewImg');
+            const newPreviewName = document.getElementById('newFilePreviewName');
+            const newPreviewSize = document.getElementById('newFilePreviewSize');
+            const cancelNewFileBtn = document.getElementById('btnCancelNewFile');
+
+            if (fileInput) {
+                fileInput.addEventListener('change', function () {
+                    const file = this.files && this.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            if (newPreviewImg) newPreviewImg.src = e.target.result;
+                            if (newPreviewName) newPreviewName.textContent = file.name;
+                            if (newPreviewSize) newPreviewSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+                            if (newPreviewWrapper) newPreviewWrapper.classList.remove('d-none');
+                            if (clearBtn) clearBtn.classList.remove('d-none');
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        resetNewFile();
+                    }
+                });
+            }
+
+            function resetNewFile() {
+                if (fileInput) fileInput.value = '';
+                if (newPreviewWrapper) newPreviewWrapper.classList.add('d-none');
+                if (clearBtn) clearBtn.classList.add('d-none');
+                if (newPreviewImg) newPreviewImg.src = '';
+            }
+
+            if (clearBtn) clearBtn.addEventListener('click', resetNewFile);
+            if (cancelNewFileBtn) cancelNewFileBtn.addEventListener('click', resetNewFile);
+        });
+    </script>
 }
