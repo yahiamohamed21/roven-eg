@@ -403,37 +403,137 @@ public class ProductsController : Controller
         var product = await _context.Products.FindAsync(id);
         if (product == null)
         {
-            TempData["ErrorMessage"] = "Product not found.";
+            TempData["ErrorMessage"] = "المنتج المطلوب حذفه غير موجود أو تم حذفه مسبقاً.";
             return RedirectToAction(nameof(Index));
         }
 
-        // Business Rule 6: If product has order items, apply Soft Delete (IsActive = false)
-        var hasOrders = await _context.OrderItems.AnyAsync(oi => oi.ProductId == id);
-        if (hasOrders)
+        try
         {
-            product.IsActive = false;
-            _context.Products.Update(product);
+            // Business Rule: If product has sales orders history, soft delete (archive) to protect order records & financial history
+            var hasOrders = await _context.OrderItems.AnyAsync(oi => oi.ProductId == id);
+            if (hasOrders)
+            {
+                product.IsActive = false;
+                product.IsPublished = false;
+                _context.Products.Update(product);
+                await _context.SaveChangesAsync();
+
+                InvalidateStoreCache();
+
+                TempData["WarningMessage"] = $"المنتج '{product.Name}' لديه سجل مبيعات وطلبات سابقة مع العملاء، تم أرشفته وتعطيله من المتجر بنجاح بدلاً من الحذف النهائي حفاظاً على سلامة الفواتير وسجلات الطلبات.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Unlink and clean up dependent references with DeleteBehavior.Restrict:
+            // 1. HomeOffers (deals of the day, bundles)
+            var relatedOffers = await _context.HomeOffers
+                .Where(o => o.ProductId == id || o.SecondProductId == id)
+                .ToListAsync();
+            foreach (var offer in relatedOffers)
+            {
+                if (offer.ProductId == id)
+                {
+                    _context.HomeOffers.Remove(offer);
+                }
+                else if (offer.SecondProductId == id)
+                {
+                    offer.SecondProductId = null;
+                    _context.HomeOffers.Update(offer);
+                }
+            }
+
+            // 2. HomeSettings (Spotlight / Deal of the day, Best sellers / Featured lists)
+            var homeSettings = await _context.HomeSettings.ToListAsync();
+            foreach (var s in homeSettings)
+            {
+                bool changed = false;
+                if (s.SpotlightProductId == id)
+                {
+                    s.SpotlightProductId = null;
+                    changed = true;
+                }
+                if (!string.IsNullOrWhiteSpace(s.BestSellersProductIds))
+                {
+                    var ids = s.BestSellersProductIds.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Where(x => x != id.ToString())
+                        .ToList();
+                    var newStr = ids.Any() ? string.Join(",", ids) : null;
+                    if (s.BestSellersProductIds != newStr)
+                    {
+                        s.BestSellersProductIds = newStr;
+                        changed = true;
+                    }
+                }
+                if (!string.IsNullOrWhiteSpace(s.FeaturedProductIds))
+                {
+                    var ids = s.FeaturedProductIds.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Where(x => x != id.ToString())
+                        .ToList();
+                    var newStr = ids.Any() ? string.Join(",", ids) : null;
+                    if (s.FeaturedProductIds != newStr)
+                    {
+                        s.FeaturedProductIds = newStr;
+                        changed = true;
+                    }
+                }
+                if (changed)
+                {
+                    _context.HomeSettings.Update(s);
+                }
+            }
+
+            // 3. InventoryTransactions (since this unpurchased product is being removed)
+            var invTransactions = await _context.InventoryTransactions
+                .Where(t => t.ProductId == id)
+                .ToListAsync();
+            if (invTransactions.Any())
+            {
+                _context.InventoryTransactions.RemoveRange(invTransactions);
+            }
+
+            // 4. ProductReviews
+            var reviews = await _context.ProductReviews
+                .Where(r => r.ProductId == id)
+                .ToListAsync();
+            if (reviews.Any())
+            {
+                _context.ProductReviews.RemoveRange(reviews);
+            }
+
+            var imageUrl = product.ImageUrl;
+            _context.Products.Remove(product);
             await _context.SaveChangesAsync();
 
             InvalidateStoreCache();
 
-            TempData["WarningMessage"] = $"Product '{product.Name}' has existing sales order history and cannot be permanently deleted. It has been archived (IsActive = false).";
-            return RedirectToAction(nameof(Index));
+            // Safe cleanup of product image
+            if (!string.IsNullOrWhiteSpace(imageUrl))
+            {
+                if (imageUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+                {
+                    await _mediaDeletionQueue.EnqueueAsync(imageUrl);
+                }
+                else
+                {
+                    try
+                    {
+                        await _imageStorageService.DeleteImageAsync(imageUrl);
+                    }
+                    catch (Exception imgEx)
+                    {
+                        _logger?.LogWarning(imgEx, "Could not delete image file {Url} for deleted product {Id}", imageUrl, id);
+                    }
+                }
+            }
+
+            TempData["SuccessMessage"] = $"تم حذف المنتج '{product.Name}' نهائياً بنجاح!";
         }
-
-        var imageUrl = product.ImageUrl;
-        _context.Products.Remove(product);
-        await _context.SaveChangesAsync();
-
-        InvalidateStoreCache();
-
-        // Safe cleanup: Enqueue deleted product image to background deletion queue
-        if (!string.IsNullOrWhiteSpace(imageUrl) && imageUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+        catch (Exception ex)
         {
-            await _mediaDeletionQueue.EnqueueAsync(imageUrl);
+            _logger?.LogError(ex, "Failed to delete product {Id}", id);
+            TempData["ErrorMessage"] = $"تعذر إتمام عملية حذف المنتج: {ex.Message}";
         }
 
-        TempData["SuccessMessage"] = $"Product '{product.Name}' permanently deleted successfully!";
         return RedirectToAction(nameof(Index));
     }
 
