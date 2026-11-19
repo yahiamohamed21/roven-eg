@@ -1,8 +1,8 @@
-﻿@model Stockify.ViewModels.Store.StoreHomeViewModel
+@model Stockify.ViewModels.Store.StoreHomeViewModel
 @if (Model.Settings?.ShowCategoriesShowcase != false)
 {
-<section class="py-5 overflow-hidden w-100" style="background-color: #FAF9F5;">
-    <div class="container">
+<section class="py-5 w-100 position-relative overflow-hidden" style="background-color: #FAF9F5;">
+    <div class="container position-relative">
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-4">
             <div>
                 <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-semibold mb-2 d-inline-flex align-items-center gap-2">
@@ -14,54 +14,88 @@
                 </h3>
                 <p class="mb-0 small" style="color: #6c6358;">From concentrated Extraits to majestic Oud and discovery coffrets</p>
             </div>
-            <a asp-controller="Store" asp-action="Index" class="btn btn-sm fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2 align-self-start align-self-sm-auto" style="border: 1px solid #630000; color: #630000; background: transparent;">
-                <span>View All Fragrances</span>
-                <i class="fa-solid fa-arrow-right"></i>
-            </a>
+            <div class="d-flex align-items-center gap-2 align-self-start align-self-sm-auto">
+                <a asp-controller="Store" asp-action="Index" class="btn btn-sm fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2" style="border: 1px solid #630000; color: #630000; background: transparent;">
+                    <span>View All Fragrances</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
         </div>
 
-        <div class="row g-3 g-lg-4">
-            @foreach (var cat in Model.Categories)
-            {
-                var faIcon = cat.Name.ToLower() switch
-                {
-                    var n when n.Contains("extrait") => "fa-solid fa-droplet",
-                    var n when n.Contains("oud") || n.Contains("orient") => "fa-solid fa-fire-flame-simple",
-                    var n when n.Contains("eau") => "fa-solid fa-spray-can-sparkles",
-                    var n when n.Contains("gift") || n.Contains("discov") => "fa-solid fa-gift",
-                    _ => "fa-solid fa-gem"
-                };
+        <!-- Category Showcase Track / Carousel Container -->
+        <div class="roven-cat-carousel-container position-relative">
+            <!-- Navigation Controls -->
+            <button type="button" class="roven-cat-nav-btn roven-cat-nav-prev d-none d-md-flex" onclick="rovenScrollCategories(-1)" aria-label="Previous departments">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button type="button" class="roven-cat-nav-btn roven-cat-nav-next d-none d-md-flex" onclick="rovenScrollCategories(1)" aria-label="Next departments">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
 
-                <div class="col-6 col-lg-3">
-                    <a asp-controller="Store" asp-action="Index" asp-route-categoryId="@cat.Id" class="cat-showcase-card">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
-                            <div class="cat-icon-container overflow-hidden position-relative p-0" style="background-color: #f7f4ee;">
+            <!-- Scrollable Track -->
+            <div id="rovenCatTrack" class="roven-cat-track d-flex gap-3 gap-lg-4 overflow-auto pb-2">
+                @foreach (var cat in Model.Categories)
+                {
+                    var faIcon = cat.Name.ToLower() switch
+                    {
+                        var n when n.Contains("winter") => "fa-solid fa-snowflake",
+                        var n when n.Contains("extrait") => "fa-solid fa-droplet",
+                        var n when n.Contains("oud") || n.Contains("orient") => "fa-solid fa-fire-flame-simple",
+                        var n when n.Contains("eau") => "fa-solid fa-spray-can-sparkles",
+                        var n when n.Contains("gift") || n.Contains("discov") => "fa-solid fa-gift",
+                        _ => "fa-solid fa-gem"
+                    };
+
+                    <div class="roven-cat-item">
+                        <a asp-controller="Store" asp-action="Index" asp-route-categoryId="@cat.Id" class="roven-cat-card">
+                            <!-- Visual Poster / Media Frame -->
+                            <div class="roven-cat-img-box">
                                 @if (!string.IsNullOrEmpty(cat.ImageUrl))
                                 {
-                                    <img src="@cat.ImageUrl" alt="@cat.Name" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'@faIcon\'></i>';" />
+                                    <img src="@cat.ImageUrl" alt="@cat.Name" class="roven-cat-img" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                    <div class="roven-cat-placeholder" style="display: none;">
+                                        <i class="@faIcon"></i>
+                                        <span class="roven-cat-placeholder-text">@cat.Name</span>
+                                    </div>
                                 }
                                 else
                                 {
-                                    <i class="@faIcon"></i>
+                                    <div class="roven-cat-placeholder">
+                                        <i class="@faIcon"></i>
+                                        <span class="roven-cat-placeholder-text">@cat.Name</span>
+                                    </div>
                                 }
+
+                                <!-- Parfums count badge floating at top right -->
+                                <span class="roven-cat-badge">
+                                    <i class="fa-solid fa-spray-can-sparkles me-1" style="color: #dfb15b;"></i>@(cat.ProductsCount == 1 ? "1 Parfum" : $"{cat.ProductsCount} Parfums")
+                                </span>
                             </div>
-                            <span class="cat-count-badge">
-                                <i class="fa-solid fa-spray-can-sparkles me-1" style="color: #810100;"></i>@(cat.ProductsCount == 1 ? "1 Parfum" : $"{cat.ProductsCount} Parfums")
-                            </span>
-                        </div>
-                        <h5 class="cat-card-title">@cat.Name</h5>
-                        <p class="cat-card-desc flex-grow-1">@(cat.Description ?? "Discover the haute perfumerie collection")</p>
-                        <div class="cat-card-footer mt-auto d-flex align-items-center justify-content-between">
-                            <span class="cat-explore-text d-none d-sm-inline" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 32px);">Explore Department</span>
-                            <span class="cat-explore-text d-inline d-sm-none" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Explore</span>
-                            <div class="cat-arrow-circle">
-                                <i class="fa-solid fa-arrow-right"></i>
+
+                            <!-- Bottom Bar with smooth hover 'Shop now' reveal -->
+                            <div class="roven-cat-bar">
+                                <h4 class="roven-cat-title">@cat.Name</h4>
+                                <div class="roven-cat-action">
+                                    <span class="roven-cat-shop-pill">
+                                        <span>Shop now</span>
+                                        <i class="fa-solid fa-arrow-right"></i>
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                </div>
-            }
+                        </a>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </section>
+
+<script>
+    function rovenScrollCategories(direction) {
+        var track = document.getElementById('rovenCatTrack');
+        if (!track) return;
+        var scrollAmount = Math.max(280, track.clientWidth * 0.75);
+        track.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+    }
+</script>
 }

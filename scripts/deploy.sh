@@ -11,6 +11,7 @@ mkdir -p "$LOGS_DIR"
 mkdir -p "$PUBLISH_DIR"
 mkdir -p "$UPLOADS_DIR/banners"
 mkdir -p "$UPLOADS_DIR/products"
+mkdir -p "$UPLOADS_DIR/categories"
 
 LOG_FILE="$LOGS_DIR/deploy_$(date +%Y%m%d_%H%M%S).log"
 
@@ -98,6 +99,9 @@ if [ ! "$(ls -A $UPLOADS_DIR/banners 2>/dev/null)" ] && [ -d "$PROJECT_ROOT/wwwr
 fi
 if [ ! "$(ls -A $UPLOADS_DIR/products 2>/dev/null)" ] && [ -d "$PROJECT_ROOT/wwwroot/uploads/products" ]; then
     sudo cp -rn "$PROJECT_ROOT/wwwroot/uploads/products/"* "$UPLOADS_DIR/products/" 2>/dev/null || true
+fi
+if [ ! "$(ls -A $UPLOADS_DIR/categories 2>/dev/null)" ] && [ -d "$PROJECT_ROOT/wwwroot/uploads/categories" ]; then
+    sudo cp -rn "$PROJECT_ROOT/wwwroot/uploads/categories/"* "$UPLOADS_DIR/categories/" 2>/dev/null || true
 fi
 
 # Symlink uploads directory to published wwwroot/uploads

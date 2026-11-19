@@ -97,6 +97,15 @@ public static class DbInitializer
             await context.SaveChangesAsync();
         }
 
+        // 4b. Ensure Winter Collection Category has its campaign image
+        var winterCategory = await context.Categories
+            .FirstOrDefaultAsync(c => c.Name.ToLower() == "winter" || c.Name.ToLower().Contains("winter") || c.Id == 2);
+        if (winterCategory != null && string.IsNullOrEmpty(winterCategory.ImageUrl))
+        {
+            winterCategory.ImageUrl = "/roven/categories/winter.jpg";
+            await context.SaveChangesAsync();
+        }
+
         // 5. Seed Egyptian Governorates with Luxury Shipping Rates
         if (!await context.Governorates.AnyAsync())
         {
@@ -239,6 +248,10 @@ public static class DbInitializer
 
             if (!imageStorageService.IsConfigured) return;
 
+            var webRoot = !string.IsNullOrWhiteSpace(environment.WebRootPath) 
+                ? environment.WebRootPath 
+                : Path.Combine(environment.ContentRootPath, "wwwroot");
+
             bool changed = false;
 
             // 1. Sync Products Images
@@ -249,7 +262,7 @@ public static class DbInitializer
             foreach (var p in products)
             {
                 var cleanPath = p.ImageUrl.TrimStart('/', '\\').Replace('/', Path.DirectorySeparatorChar);
-                var fullLocalPath = Path.Combine(environment.WebRootPath, cleanPath);
+                var fullLocalPath = Path.Combine(webRoot, cleanPath);
                 if (File.Exists(fullLocalPath))
                 {
                     await using var stream = File.OpenRead(fullLocalPath);
@@ -273,7 +286,7 @@ public static class DbInitializer
                 if (!string.IsNullOrWhiteSpace(b.DesktopImageUrl) && !b.DesktopImageUrl.StartsWith("http"))
                 {
                     var cleanPath = b.DesktopImageUrl.TrimStart('/', '\\').Replace('/', Path.DirectorySeparatorChar);
-                    var fullLocalPath = Path.Combine(environment.WebRootPath, cleanPath);
+                    var fullLocalPath = Path.Combine(webRoot, cleanPath);
                     if (File.Exists(fullLocalPath))
                     {
                         await using var stream = File.OpenRead(fullLocalPath);
@@ -289,7 +302,7 @@ public static class DbInitializer
                 if (!string.IsNullOrWhiteSpace(b.MobileImageUrl) && !b.MobileImageUrl.StartsWith("http"))
                 {
                     var cleanPath = b.MobileImageUrl.TrimStart('/', '\\').Replace('/', Path.DirectorySeparatorChar);
-                    var fullLocalPath = Path.Combine(environment.WebRootPath, cleanPath);
+                    var fullLocalPath = Path.Combine(webRoot, cleanPath);
                     if (File.Exists(fullLocalPath))
                     {
                         await using var stream = File.OpenRead(fullLocalPath);
@@ -299,6 +312,27 @@ public static class DbInitializer
                             b.MobileImageUrl = newUrl;
                             changed = true;
                         }
+                    }
+                }
+            }
+
+            // 3. Sync Categories Images
+            var categories = await context.Categories
+                .Where(c => !string.IsNullOrEmpty(c.ImageUrl) && !c.ImageUrl.StartsWith("http"))
+                .ToListAsync();
+
+            foreach (var cat in categories)
+            {
+                var cleanPath = cat.ImageUrl.TrimStart('/', '\\').Replace('/', Path.DirectorySeparatorChar);
+                var fullLocalPath = Path.Combine(webRoot, cleanPath);
+                if (File.Exists(fullLocalPath))
+                {
+                    await using var stream = File.OpenRead(fullLocalPath);
+                    var newUrl = await imageStorageService.UploadFileAsync(stream, Path.GetFileName(fullLocalPath), "roven/categories");
+                    if (!string.IsNullOrWhiteSpace(newUrl))
+                    {
+                        cat.ImageUrl = newUrl;
+                        changed = true;
                     }
                 }
             }

@@ -735,7 +735,7 @@
                                 </span>
                             </label>
 
-                            @foreach (var c in Model.Categories)
+                            @foreach (var c in Model.Categories ?? Enumerable.Empty<Stockify.ViewModels.Store.StoreCategoryViewModel>())
                             {
                                 <label class="roven-category-item" for="cat-@c.Id">
                                     <input type="radio" name="categoryId" id="cat-@c.Id" value="@c.Id" @(Model.SelectedCategoryId == c.Id ? "checked" : "") onchange="applyFilterAjax()" />
