@@ -380,13 +380,15 @@ function initDynamicTablePagination() {
             const controls = paginationNav.querySelector('.table-pagination-controls');
             if (controls) {
                 controls.innerHTML = '';
-                controls.style.display = 'flex';
+                controls.style.display = 'inline-flex';
+                controls.style.visibility = 'visible';
 
                 // Previous Button
                 const prevLi = document.createElement('li');
                 prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-                prevLi.innerHTML = `<a class="page-link" href="javascript:void(0)" aria-label="Previous"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg></a>`;
-                prevLi.addEventListener('click', () => {
+                prevLi.innerHTML = `<a class="page-link" href="javascript:void(0)" aria-label="Previous"><i class="fa-solid fa-chevron-left" style="font-size: 0.72rem;"></i></a>`;
+                prevLi.addEventListener('click', (e) => {
+                    e.preventDefault();
                     if (currentPage > 1) {
                         currentPage--;
                         renderPagination();
@@ -399,7 +401,8 @@ function initDynamicTablePagination() {
                     const pageLi = document.createElement('li');
                     pageLi.className = `page-item ${p === currentPage ? 'active' : ''}`;
                     pageLi.innerHTML = `<a class="page-link" href="javascript:void(0)">${p}</a>`;
-                    pageLi.addEventListener('click', () => {
+                    pageLi.addEventListener('click', (e) => {
+                        e.preventDefault();
                         currentPage = p;
                         renderPagination();
                     });
@@ -409,8 +412,9 @@ function initDynamicTablePagination() {
                 // Next Button
                 const nextLi = document.createElement('li');
                 nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
-                nextLi.innerHTML = `<a class="page-link" href="javascript:void(0)" aria-label="Next"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg></a>`;
-                nextLi.addEventListener('click', () => {
+                nextLi.innerHTML = `<a class="page-link" href="javascript:void(0)" aria-label="Next"><i class="fa-solid fa-chevron-right" style="font-size: 0.72rem;"></i></a>`;
+                nextLi.addEventListener('click', (e) => {
+                    e.preventDefault();
                     if (currentPage < totalPages) {
                         currentPage++;
                         renderPagination();

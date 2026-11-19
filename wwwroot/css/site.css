@@ -1061,6 +1061,8 @@ body.sidebar-closed .sidebar-toggle-btn {
     margin-bottom: 0 !important;
     padding-left: 0;
     list-style: none;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .pagination .page-item,

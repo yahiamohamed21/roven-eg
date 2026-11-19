@@ -1,9 +1,21 @@
 @* Functional Dynamic Pagination Component *@
 <nav aria-label="Table navigation" class="table-pagination-nav d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
     <div class="pagination-info text-muted small">
-        Showing <span class="fw-semibold start-entry">0</span> to <span class="fw-semibold end-entry">0</span> of <span class="fw-semibold total-entries">0</span> entries
+        Showing <span class="fw-semibold start-entry">1</span> to <span class="fw-semibold end-entry">10</span> of <span class="fw-semibold total-entries">10</span> entries
     </div>
-    <ul class="pagination pagination-sm mb-0 table-pagination-controls">
-        <!-- Populated and controlled dynamically by site.js -->
+    <ul class="pagination pagination-sm mb-0 table-pagination-controls" style="display: inline-flex !important; visibility: visible !important; opacity: 1 !important;">
+        <li class="page-item disabled">
+            <a class="page-link" href="javascript:void(0)" aria-label="Previous">
+                <i class="fa-solid fa-chevron-left" style="font-size: 0.72rem;"></i>
+            </a>
+        </li>
+        <li class="page-item active">
+            <a class="page-link" href="javascript:void(0)">1</a>
+        </li>
+        <li class="page-item disabled">
+            <a class="page-link" href="javascript:void(0)" aria-label="Next">
+                <i class="fa-solid fa-chevron-right" style="font-size: 0.72rem;"></i>
+            </a>
+        </li>
     </ul>
 </nav>
