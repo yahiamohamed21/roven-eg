@@ -43,58 +43,69 @@
         : "/images/comparison/roven-comparison-after.svg";
 }
 
-<section id="homeComparisonSection" class="py-5 my-2" style="background-color: #FFFFFF; position: relative;">
+<!-- ======================================================================== -->
+<!-- 6. MAISON ROVEN LUXURY COMPARISON SLIDER (US VS THEM • ATELIER QUALITY) -->
+<!-- ======================================================================== -->
+<section id="homeComparisonSection" class="py-5 my-3" style="background-color: #FFFFFF; position: relative;">
     <div class="container px-3 px-md-4">
         <div class="row align-items-center g-4 g-lg-5">
-            <!-- Left Column: Editorial & Call to Action -->
+            <!-- Left Column: Editorial & Quality Value Props -->
             <div class="col-12 col-lg-5 text-center text-lg-start">
                 <div class="pe-lg-3">
                     <!-- Luxury Badge -->
-                    <div class="d-inline-flex align-items-center gap-2 px-3.5 py-1.5 rounded-pill mb-3" 
-                         style="background: rgba(129, 1, 0, 0.05); border: 1px solid rgba(181, 141, 74, 0.4); color: #810100; font-size: 0.76rem; font-weight: 700; letter-spacing: 1.2px;">
-                        <i class="fa-solid fa-code-compare" style="color: #dfb15b;"></i>
+                    <div class="roven-compare-badge px-3.5 py-1.5 rounded-pill mb-3">
+                        <i class="fa-solid fa-gem" style="color: #dfb15b;"></i>
                         <span>@badgeText</span>
                     </div>
 
                     <!-- Editorial Title -->
-                    <h2 class="display-6 fw-bold mb-3" style="font-family: 'Playfair Display', serif; color: #1B1717; letter-spacing: -0.5px; line-height: 1.2;">
+                    <h2 class="roven-compare-title mb-3">
                         @title
                     </h2>
 
                     <!-- Subtitle / Narrative -->
-                    <p class="text-muted mb-4 fs-6" style="line-height: 1.8; max-width: 490px; margin-left: auto; margin-right: auto; margin-inline-start: 0;">
+                    <p class="roven-compare-subtitle mb-4">
                         @subtitle
                     </p>
 
-                    <!-- Quality Promise Highlights -->
-                    <div class="d-flex flex-column gap-2.5 mb-4 text-start" style="max-width: 440px; margin-left: auto; margin-right: auto; margin-inline-start: 0;">
-                        <div class="d-flex align-items-center gap-2.5">
-                            <span class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 26px; height: 26px; background: rgba(5, 150, 105, 0.12); color: #059669;">
-                                <i class="fa-solid fa-check" style="font-size: 0.78rem;"></i>
-                            </span>
-                            <span class="fw-semibold text-dark small" style="font-size: 0.9rem;">تركيز عالي Extrait de Parfum (30% زيوت نقية)</span>
+                    <!-- Quality Promise Luxury Feature Cards -->
+                    <div class="roven-compare-features d-flex flex-column gap-2.5 mb-4 text-start">
+                        <div class="roven-feature-card d-flex align-items-center gap-3 p-3 rounded-3">
+                            <div class="roven-feature-icon-box flex-shrink-0">
+                                <i class="fa-solid fa-droplet"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="roven-feature-name">Extrait de Parfum (30% Pure Concentration)</div>
+                                <div class="roven-feature-desc">أعلى تركيز زيوت عطرية نقية معتمدة لثبات وفوحان فائق</div>
+                            </div>
                         </div>
-                        <div class="d-flex align-items-center gap-2.5">
-                            <span class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 26px; height: 26px; background: rgba(5, 150, 105, 0.12); color: #059669;">
-                                <i class="fa-solid fa-check" style="font-size: 0.78rem;"></i>
-                            </span>
-                            <span class="fw-semibold text-dark small" style="font-size: 0.9rem;">ثبات وفوحان ملكي يدوم 24+ ساعة على الملابس</span>
+
+                        <div class="roven-feature-card d-flex align-items-center gap-3 p-3 rounded-3">
+                            <div class="roven-feature-icon-box flex-shrink-0">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="roven-feature-name">24+ Hours Royal Longevity & Sillage</div>
+                                <div class="roven-feature-desc">ثبات وفوحان ملكي يدوم أكثر من 24 ساعة على الملابس</div>
+                            </div>
                         </div>
-                        <div class="d-flex align-items-center gap-2.5">
-                            <span class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 26px; height: 26px; background: rgba(5, 150, 105, 0.12); color: #059669;">
-                                <i class="fa-solid fa-check" style="font-size: 0.78rem;"></i>
-                            </span>
-                            <span class="fw-semibold text-dark small" style="font-size: 0.9rem;">حق معاينة وتجربة الطرد قبل الدفع عند الاستلام</span>
+
+                        <div class="roven-feature-card d-flex align-items-center gap-3 p-3 rounded-3">
+                            <div class="roven-feature-icon-box flex-shrink-0">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="roven-feature-name">100% Risk-Free Inspection on Delivery</div>
+                                <div class="roven-feature-desc">حق المعاينة والتجربة الكاملة قبل استلام الطرد والدفع</div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- CTA Button -->
                     <div class="pt-2">
-                        <a href="@buttonLink" 
-                           class="btn btn-roven-comparison-cta px-4 py-3 rounded-pill fw-bold text-white shadow-sm d-inline-flex align-items-center justify-content-center gap-2.5" 
-                           style="background: linear-gradient(135deg, #810100 0%, #630000 100%); border: 1.5px solid #dfb15b; font-size: 0.96rem; text-decoration: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+                        <a href="@buttonLink" class="roven-compare-cta-btn">
                             <span>@buttonText</span>
-                            <i class="fa-solid fa-arrow-right" style="font-size: 0.85rem; color: #dfb15b;"></i>
+                            <i class="fa-solid fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -102,9 +113,7 @@
 
             <!-- Right Column: Interactive Comparison Slider -->
             <div class="col-12 col-lg-7">
-                <div class="roven-compare-card-wrapper position-relative overflow-hidden rounded-4 shadow-sm" 
-                     style="border: 1.5px solid rgba(181, 141, 74, 0.32); background: #FAF9F5;">
-                    
+                <div class="roven-compare-card-wrapper position-relative overflow-hidden">
                     <div class="roven-compare-box position-relative overflow-hidden" 
                          id="rovenComparisonBox"
                          style="--pos: 50%; user-select: none; touch-action: pan-y; cursor: ew-resize; min-height: 380px; aspect-ratio: 16/10;">
@@ -113,7 +122,7 @@
                         <img src="@afterImage" 
                              alt="@afterLabel" 
                              class="roven-compare-img roven-compare-after-img w-100 h-100 d-block" 
-                             style="object-fit: cover; pointer-events: none;" 
+                             style="object-fit: cover; object-position: center; pointer-events: none;" 
                              loading="lazy" />
 
                         <!-- Overlay Layer: Before (Them / Conventional) -->
@@ -122,45 +131,23 @@
                             <img src="@beforeImage" 
                                  alt="@beforeLabel" 
                                  class="roven-compare-img roven-compare-before-img h-100 position-absolute top-0 start-0" 
-                                 style="width: 100%; min-width: 100%; object-fit: cover; max-width: none;" 
+                                 style="width: 100%; min-width: 100%; object-fit: cover; object-position: center; max-width: none;" 
                                  id="rovenCompareBeforeImg"
                                  loading="lazy" />
                         </div>
 
-                        <!-- Draggable Divider Line & Luxury Handle -->
+                        <!-- Draggable Divider Line & Luxury Floating Handle -->
                         <div class="roven-compare-divider position-absolute top-0 bottom-0" 
-                             style="left: var(--pos, 50%); width: 3px; background: #dfb15b; transform: translateX(-50%); pointer-events: none; z-index: 5; box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);">
+                             style="left: var(--pos, 50%); width: 2.5px; background: #dfb15b; transform: translateX(-50%); pointer-events: none; z-index: 5; box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);">
                             
-                            <!-- Circular Floating Grip Button -->
-                            <div class="roven-compare-handle rounded-circle position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center shadow-lg" 
-                                 style="width: 44px; height: 44px; background: #FFFFFF; border: 2.5px solid #810100; box-shadow: 0 6px 18px rgba(99, 0, 0, 0.35) !important;">
-                                <div class="d-flex align-items-center justify-content-center gap-1" style="color: #810100; font-size: 0.72rem; font-weight: 800;">
-                                    <i class="fa-solid fa-chevron-left" style="font-size: 0.65rem;"></i>
-                                    <span style="letter-spacing: -1px; font-family: monospace; font-size: 0.85rem;">||</span>
-                                    <i class="fa-solid fa-chevron-right" style="font-size: 0.65rem;"></i>
+                            <!-- Circular Floating Luxury Grip Button -->
+                            <div class="roven-compare-handle rounded-circle position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center">
+                                <div class="d-flex align-items-center justify-content-center gap-1">
+                                    <i class="fa-solid fa-chevron-left" style="font-size: 0.68rem; color: #810100;"></i>
+                                    <span style="display: inline-block; width: 2px; height: 14px; background: #dfb15b; border-radius: 2px;"></span>
+                                    <i class="fa-solid fa-chevron-right" style="font-size: 0.68rem; color: #810100;"></i>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Top-Left Floating Badge: Before Label -->
-                        <div class="position-absolute top-0 start-0 m-3 py-1 px-3 rounded-pill shadow-xs d-flex align-items-center gap-1.5" 
-                             style="background: rgba(27, 23, 23, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #FFFFFF; font-size: 0.74rem; font-weight: 700; letter-spacing: 1px; z-index: 6; pointer-events: none;">
-                            <span class="rounded-circle bg-danger" style="width: 6px; height: 6px;"></span>
-                            <span>@beforeLabel</span>
-                        </div>
-
-                        <!-- Top-Right Floating Badge: After Label -->
-                        <div class="position-absolute top-0 end-0 m-3 py-1 px-3 rounded-pill shadow-xs d-flex align-items-center gap-1.5" 
-                             style="background: rgba(129, 1, 0, 0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(223, 177, 91, 0.5); color: #dfb15b; font-size: 0.74rem; font-weight: 700; letter-spacing: 1px; z-index: 6; pointer-events: none;">
-                            <i class="fa-solid fa-crown" style="font-size: 0.68rem;"></i>
-                            <span>@afterLabel</span>
-                        </div>
-
-                        <!-- Bottom Drag Hint Indicator -->
-                        <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 px-3 py-1 rounded-pill small font-monospace d-none d-md-flex align-items-center gap-1.5" 
-                             style="background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(6px); color: #1B1717; font-size: 0.72rem; font-weight: 600; z-index: 6; pointer-events: none; border: 1px solid rgba(181, 141, 74, 0.25);">
-                            <i class="fa-solid fa-arrows-left-right text-muted" style="font-size: 0.65rem;"></i>
-                            <span>اسحب للمقارنة</span>
                         </div>
 
                         <!-- Accessible Native Range Input Overlay -->
@@ -174,42 +161,185 @@
                                aria-label="Before and After Quality Comparison Slider" />
                     </div>
                 </div>
+
+                <!-- Subtle Clean Drag Caption Beneath Card -->
+                <div class="text-center mt-3 d-flex align-items-center justify-content-center gap-2 text-muted" style="font-size: 0.82rem; font-weight: 500;">
+                    <i class="fa-solid fa-arrows-left-right" style="color: #dfb15b; font-size: 0.78rem;"></i>
+                    <span>اسحب المقبض يميناً ويساراً لاكتشاف الفرق • Drag slider to compare</span>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <style>
-    .btn-roven-comparison-cta:hover {
-        background: linear-gradient(135deg, #630000 0%, #400000 100%) !important;
-        border-color: #dfb15b !important;
+    .roven-compare-badge {
+        background: linear-gradient(135deg, rgba(129, 1, 0, 0.05) 0%, rgba(223, 177, 91, 0.12) 100%);
+        border: 1px solid rgba(181, 141, 74, 0.38);
+        color: #810100;
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .roven-compare-title {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: clamp(2.2rem, 3.8vw, 3.2rem);
+        font-weight: 800;
+        color: #1B1717;
+        letter-spacing: -0.5px;
+        line-height: 1.15;
+    }
+
+    .roven-compare-subtitle {
+        color: #5a544c;
+        font-size: 1.02rem;
+        line-height: 1.75;
+        max-width: 490px;
+    }
+
+    .roven-feature-card {
+        background: #FAF9F5;
+        border: 1px solid rgba(181, 141, 74, 0.22);
+        border-radius: 14px;
+        transition: all 0.25s ease;
+    }
+
+    .roven-feature-card:hover {
+        background: #FFFFFF;
+        border-color: rgba(181, 141, 74, 0.5);
+        transform: translateX(4px);
+    }
+
+    .roven-feature-icon-box {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(129, 1, 0, 0.08) 0%, rgba(223, 177, 91, 0.16) 100%);
+        color: #810100;
+        border: 1px solid rgba(181, 141, 74, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        transition: all 0.25s ease;
+    }
+
+    .roven-feature-card:hover .roven-feature-icon-box {
+        background: #810100;
+        color: #dfb15b;
+        border-color: #810100;
+    }
+
+    .roven-feature-name {
+        color: #1B1717;
+        font-size: 0.92rem;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .roven-feature-desc {
+        color: #6e675f;
+        font-size: 0.8rem;
+        line-height: 1.4;
+        margin-top: 2px;
+    }
+
+    .roven-compare-cta-btn {
+        background: linear-gradient(135deg, #810100 0%, #630000 100%);
+        color: #FFFFFF !important;
+        border: 1.5px solid rgba(223, 177, 91, 0.45);
+        border-radius: 50px;
+        padding: 0.9rem 2.5rem;
+        font-size: 0.92rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 6px 20px rgba(129, 1, 0, 0.28);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .roven-compare-cta-btn:hover {
+        background: linear-gradient(135deg, #9b0100 0%, #7d0000 100%);
+        border-color: #dfb15b;
         transform: translateY(-2px);
-        box-shadow: 0 8px 22px rgba(129, 1, 0, 0.35) !important;
-        color: #dfb15b !important;
+        box-shadow: 0 10px 25px rgba(129, 1, 0, 0.38);
+        color: #FFFFFF !important;
     }
+
+    .roven-compare-cta-btn i {
+        color: #dfb15b;
+        transition: transform 0.25s ease;
+    }
+
+    .roven-compare-cta-btn:hover i {
+        transform: translateX(4px);
+    }
+
     .roven-compare-card-wrapper {
-        transition: box-shadow 0.3s ease, border-color 0.3s ease;
+        border: 1.5px solid rgba(181, 141, 74, 0.35);
+        border-radius: 24px;
+        overflow: hidden;
+        background: #FAF9F5;
+        box-shadow: none !important;
+        transition: border-color 0.3s ease;
     }
+
     .roven-compare-card-wrapper:hover {
-        border-color: rgba(181, 141, 74, 0.6) !important;
-        box-shadow: 0 16px 40px rgba(129, 1, 0, 0.12) !important;
+        border-color: #dfb15b !important;
+        box-shadow: none !important;
     }
+
+    .roven-compare-handle {
+        width: 48px;
+        height: 48px;
+        background: #FFFFFF;
+        border: 2.5px solid #810100;
+        box-shadow: 0 4px 16px rgba(129, 1, 0, 0.28) !important;
+        cursor: ew-resize;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .roven-compare-box:hover .roven-compare-handle {
+        transform: translate(-50%, -50%) scale(1.08);
+        border-color: #dfb15b;
+    }
+
     .roven-compare-range-input {
         opacity: 0;
         -webkit-appearance: none;
         appearance: none;
     }
+
     .roven-compare-box {
         touch-action: pan-y;
     }
+
     @@media (max-width: 767.98px) {
         .roven-compare-box {
-            min-height: 320px;
+            min-height: 300px;
             aspect-ratio: 4/3;
         }
         .roven-compare-handle {
-            width: 38px !important;
-            height: 38px !important;
+            width: 40px !important;
+            height: 40px !important;
+        }
+        .roven-feature-card {
+            padding: 0.75rem !important;
+        }
+        .roven-feature-icon-box {
+            width: 38px;
+            height: 38px;
+            font-size: 1rem;
         }
     }
 </style>
@@ -279,16 +409,19 @@
             });
 
             window.addEventListener('resize', syncBeforeImageWidth);
+            window.addEventListener('load', syncBeforeImageWidth);
+            if (beforeImg) {
+                beforeImg.addEventListener('load', syncBeforeImageWidth);
+            }
             syncBeforeImageWidth();
 
-            // Subtle initial entrance peek animation
+            // IntersectionObserver entrance peek animation
             let animated = false;
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting && !animated) {
                         animated = true;
-                        let startPos = 50;
-                        let direction = -1;
+                        syncBeforeImageWidth();
                         let step = 0;
                         const interval = setInterval(() => {
                             step++;
