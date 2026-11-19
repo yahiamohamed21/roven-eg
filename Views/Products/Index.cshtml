@@ -82,7 +82,7 @@
 </div>
 
 <!-- Table Card -->
-<div class="card border-0 shadow-sm">
+<div class="card border-0 shadow-sm" data-page-size="10">
     <!-- Filter Bar -->
     <div class="card-header bg-white py-3">
         <form method="get" class="row g-2 align-items-center">
@@ -143,7 +143,7 @@
                                 <div class="d-flex align-items-center gap-3">
                                     @if (!string.IsNullOrEmpty(p.ImageUrl))
                                     {
-                                        <img src="@p.ImageUrl" alt="@p.Name" class="rounded border object-fit-cover" style="width: 44px; height: 44px;" />
+                                        <img src="@p.ImageUrl" alt="@p.Name" class="rounded border object-fit-cover" style="width: 44px; height: 44px;" onerror="this.onerror=null; this.src='/images/roven-logo.png';" />
                                     }
                                     else
                                     {
