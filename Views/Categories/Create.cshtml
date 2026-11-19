@@ -16,7 +16,7 @@
                 </a>
             </div>
             <div class="card-body p-4">
-                <form asp-action="Create" method="post">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm mb-3"></div>
 
@@ -24,15 +24,44 @@
                         <div class="col-12">
                             <label asp-for="Name" class="form-label small fw-semibold text-secondary"></label>
                             <span class="text-danger">*</span>
-                            <input asp-for="Name" class="form-control" placeholder="e.g. Computer Accessories" autofocus />
+                            <input asp-for="Name" class="form-control" placeholder="e.g. Winter Collection" autofocus />
                             <span asp-validation-for="Name" class="text-danger small"></span>
                             <div class="form-text small text-muted">Category name must be unique.</div>
                         </div>
 
                         <div class="col-12">
                             <label asp-for="Description" class="form-label small fw-semibold text-secondary"></label>
-                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Brief summary describing the type of products in this category..."></textarea>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Brief summary describing the type of fragrances in this collection..."></textarea>
                             <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="ImageFile" class="form-label small fw-semibold text-secondary">صورة القسم / الكاتيجوري (Category Image)</label>
+                            <div class="input-group">
+                                <input asp-for="ImageFile" id="categoryImageInput" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                                <button type="button" class="btn btn-outline-danger d-none" id="btnClearSelectedFile" title="إلغاء الملف المختار">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="ImageFile" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">صورة القسم الفاخرة للظهور في واجهة المتجر وأقسام العطور الرئيسية (JPG, PNG, WebP حتى 5MB).</small>
+
+                            <!-- Live preview card for newly chosen file -->
+                            <div id="newFilePreviewWrapper" class="card border rounded-3 p-2.5 mt-2.5 bg-white shadow-xs d-none" style="max-width: 480px; border-color: #b58d4a !important;">
+                                <div class="d-flex align-items-center justify-content-between gap-3">
+                                    <div class="d-flex align-items-center gap-2.5 min-w-0">
+                                        <img id="newFilePreviewImg" src="" alt="Selected Preview" class="rounded-3 border shadow-xs flex-shrink-0" style="width: 52px; height: 52px; object-fit: cover;" />
+                                        <div class="min-w-0">
+                                            <div class="small fw-bold text-dark text-truncate" id="newFilePreviewName">file.jpg</div>
+                                            <small class="text-success text-truncate d-block" style="font-size: 0.75rem;"><i class="fa-solid fa-check me-1"></i>جاهزة للرفع كصورة للقسم</small>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 shadow-xs flex-shrink-0" id="btnCancelNewFile">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                        <span>حذف</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-12 mt-4 text-end">
@@ -50,4 +79,42 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('categoryImageInput');
+            const clearBtn = document.getElementById('btnClearSelectedFile');
+            const previewWrapper = document.getElementById('newFilePreviewWrapper');
+            const previewImg = document.getElementById('newFilePreviewImg');
+            const previewName = document.getElementById('newFilePreviewName');
+            const cancelBtn = document.getElementById('btnCancelNewFile');
+
+            function resetFileInput() {
+                if (input) input.value = '';
+                if (clearBtn) clearBtn.classList.add('d-none');
+                if (previewWrapper) previewWrapper.classList.add('d-none');
+                if (previewImg) previewImg.src = '';
+            }
+
+            if (input) {
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files && e.target.files[0];
+                    if (file) {
+                        if (previewName) previewName.textContent = file.name;
+                        const reader = new FileReader();
+                        reader.onload = function(re) {
+                            if (previewImg) previewImg.src = re.target.result;
+                            if (previewWrapper) previewWrapper.classList.remove('d-none');
+                            if (clearBtn) clearBtn.classList.remove('d-none');
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        resetFileInput();
+                    }
+                });
+            }
+
+            if (clearBtn) clearBtn.addEventListener('click', resetFileInput);
+            if (cancelBtn) cancelBtn.addEventListener('click', resetFileInput);
+        });
+    </script>
 }

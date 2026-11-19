@@ -58,9 +58,16 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="stat-icon primary" style="width: 38px; height: 38px; font-size: 1.1rem;">
-                                        <i class="bi bi-tag-fill"></i>
-                                    </div>
+                                    @if (!string.IsNullOrEmpty(cat.ImageUrl))
+                                    {
+                                        <img src="@cat.ImageUrl" alt="@cat.Name" class="rounded border object-fit-cover shadow-xs flex-shrink-0" style="width: 44px; height: 44px;" onerror="this.onerror=null; this.src='/images/roven-logo.png';" />
+                                    }
+                                    else
+                                    {
+                                        <div class="stat-icon primary flex-shrink-0" style="width: 44px; height: 44px; font-size: 1.1rem; border-radius: 8px;">
+                                            <i class="bi bi-tag-fill"></i>
+                                        </div>
+                                    }
                                     <a asp-action="Details" asp-route-id="@cat.Id" class="fw-bold text-dark text-decoration-none hover-primary">
                                         @cat.Name
                                     </a>

@@ -15,16 +15,32 @@ public class CategoriesController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IStoreCacheService _storeCacheService;
+    private readonly IImageStorageService _imageStorageService;
+    private readonly IMediaDeletionQueue _mediaDeletionQueue;
+    private readonly ILogger<CategoriesController>? _logger;
 
-    public CategoriesController(ApplicationDbContext context, IStoreCacheService storeCacheService)
+    public CategoriesController(
+        ApplicationDbContext context, 
+        IStoreCacheService storeCacheService,
+        IImageStorageService imageStorageService,
+        IMediaDeletionQueue mediaDeletionQueue,
+        ILogger<CategoriesController>? logger = null)
     {
         _context = context;
         _storeCacheService = storeCacheService;
+        _imageStorageService = imageStorageService;
+        _mediaDeletionQueue = mediaDeletionQueue;
+        _logger = logger;
     }
 
     private void InvalidateStoreCache()
     {
         _storeCacheService.InvalidateAll();
+    }
+
+    private static bool ValidateUploadedImage(IFormFile file, out string? error)
+    {
+        return Stockify.Common.Security.ImageSecurityValidator.Validate(file, out error, allowSvg: false, maxSizeBytes: 5 * 1024 * 1024);
     }
 
     // GET: Categories
@@ -37,6 +53,7 @@ public class CategoriesController : Controller
                 Id = c.Id,
                 Name = c.Name,
                 Description = c.Description,
+                ImageUrl = c.ImageUrl,
                 ProductsCount = c.Products.Count,
                 CreatedAt = c.CreatedAt
             })
@@ -59,6 +76,11 @@ public class CategoriesController : Controller
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Create(CategoryViewModel model)
     {
+        if (model.ImageFile != null && !ValidateUploadedImage(model.ImageFile, out var imageError))
+        {
+            ModelState.AddModelError("ImageFile", imageError!);
+        }
+
         if (!ModelState.IsValid)
         {
             return View(model);
@@ -72,10 +94,26 @@ public class CategoriesController : Controller
             return View(model);
         }
 
+        string? uploadedUrl = null;
+        if (model.ImageFile != null)
+        {
+            try
+            {
+                uploadedUrl = await _imageStorageService.UploadImageAsync(model.ImageFile, "roven/categories");
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to upload category image");
+                ModelState.AddModelError("ImageFile", "فشل حفظ أو رفع صورة القسم. يرجى التأكد من صلاحية الملف والمحاولة مرة أخرى.");
+                return View(model);
+            }
+        }
+
         var category = new Category
         {
             Name = normalizedName,
             Description = model.Description?.Trim(),
+            ImageUrl = uploadedUrl,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -103,6 +141,7 @@ public class CategoriesController : Controller
             Id = category.Id,
             Name = category.Name,
             Description = category.Description,
+            ImageUrl = category.ImageUrl,
             CreatedAt = category.CreatedAt
         };
 
@@ -120,9 +159,9 @@ public class CategoriesController : Controller
             return BadRequest();
         }
 
-        if (!ModelState.IsValid)
+        if (model.ImageFile != null && !ValidateUploadedImage(model.ImageFile, out var imageError))
         {
-            return View(model);
+            ModelState.AddModelError("ImageFile", imageError!);
         }
 
         var category = await _context.Categories.FindAsync(id);
@@ -138,7 +177,46 @@ public class CategoriesController : Controller
         if (nameConflict)
         {
             ModelState.AddModelError("Name", "Another category already exists with this name.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            model.ImageUrl = category.ImageUrl;
             return View(model);
+        }
+
+        string? oldImageUrl = category.ImageUrl;
+        string? newlyUploadedUrl = null;
+
+        if (model.ImageFile != null)
+        {
+            try
+            {
+                newlyUploadedUrl = await _imageStorageService.UploadImageAsync(model.ImageFile, "roven/categories");
+                category.ImageUrl = newlyUploadedUrl;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to upload category image replacement");
+                ModelState.AddModelError("ImageFile", "فشل رفع الصورة البديلة للقسم.");
+                model.ImageUrl = category.ImageUrl;
+                return View(model);
+            }
+        }
+        else if (model.RemoveImage)
+        {
+            category.ImageUrl = null;
+            if (!string.IsNullOrWhiteSpace(oldImageUrl))
+            {
+                try
+                {
+                    await _imageStorageService.DeleteImageAsync(oldImageUrl);
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "Failed to delete old image {Url}", oldImageUrl);
+                }
+            }
         }
 
         category.Name = normalizedName;
@@ -148,6 +226,14 @@ public class CategoriesController : Controller
         await _context.SaveChangesAsync();
 
         InvalidateStoreCache();
+
+        if (!string.IsNullOrWhiteSpace(newlyUploadedUrl) &&
+            !string.IsNullOrWhiteSpace(oldImageUrl) &&
+            !string.Equals(oldImageUrl, newlyUploadedUrl, StringComparison.OrdinalIgnoreCase) &&
+            oldImageUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+        {
+            await _mediaDeletionQueue.EnqueueAsync(oldImageUrl);
+        }
 
         TempData["SuccessMessage"] = $"Category '{category.Name}' updated successfully!";
         return RedirectToAction(nameof(Index));
@@ -190,10 +276,23 @@ public class CategoriesController : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        var catImg = category.ImageUrl;
         _context.Categories.Remove(category);
         await _context.SaveChangesAsync();
 
         InvalidateStoreCache();
+
+        if (!string.IsNullOrWhiteSpace(catImg))
+        {
+            if (catImg.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+            {
+                await _mediaDeletionQueue.EnqueueAsync(catImg);
+            }
+            else
+            {
+                try { await _imageStorageService.DeleteImageAsync(catImg); } catch { }
+            }
+        }
 
         TempData["SuccessMessage"] = $"Category '{category.Name}' deleted successfully!";
         return RedirectToAction(nameof(Index));

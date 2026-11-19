@@ -742,6 +742,10 @@
                                     <span class="roven-category-label">
                                         <span class="roven-cat-left">
                                             <span class="roven-custom-radio"><i class="fa-solid fa-check"></i></span>
+                                            @if (!string.IsNullOrEmpty(c.ImageUrl))
+                                            {
+                                                <img src="@c.ImageUrl" alt="@c.Name" class="rounded-circle border" style="width: 20px; height: 20px; object-fit: cover; margin-inline-end: 6px;" onerror="this.remove();" />
+                                            }
                                             <span class="roven-cat-name">@c.Name</span>
                                         </span>
                                         <span class="roven-cat-count">@c.ProductsCount</span>

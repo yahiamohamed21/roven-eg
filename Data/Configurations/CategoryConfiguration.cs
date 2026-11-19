@@ -17,6 +17,9 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(c => c.Description)
             .HasMaxLength(500);
 
+        builder.Property(c => c.ImageUrl)
+            .HasMaxLength(500);
+
         builder.HasMany(c => c.Products)
             .WithOne(p => p.Category)
             .HasForeignKey(p => p.CategoryId)

@@ -16,9 +16,11 @@
                 </a>
             </div>
             <div class="card-body p-4">
-                <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="ImageUrl" />
+                    <input type="hidden" asp-for="RemoveImage" id="removeImageFlag" value="false" />
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm mb-3"></div>
 
                     <div class="row g-3">
@@ -31,8 +33,67 @@
 
                         <div class="col-12">
                             <label asp-for="Description" class="form-label small fw-semibold text-secondary"></label>
-                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                             <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="ImageFile" class="form-label small fw-semibold text-secondary">صورة القسم / الكاتيجوري (Category Image)</label>
+                            <div class="input-group">
+                                <input asp-for="ImageFile" id="categoryImageInput" type="file" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                                <button type="button" class="btn btn-outline-danger d-none" id="btnClearSelectedFile" title="إلغاء الملف المختار">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="ImageFile" class="text-danger small"></span>
+                            <small class="text-muted d-block mt-1">تغيير صورة القسم في واجهة المتجر (JPG, PNG, WebP حتى 5MB).</small>
+
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <div id="existingImageWrapper" class="card border rounded-3 p-2.5 mt-2.5 bg-light shadow-xs" style="max-width: 480px;">
+                                    <div class="d-flex align-items-center justify-content-between gap-3">
+                                        <div class="d-flex align-items-center gap-2.5 min-w-0">
+                                            <img id="existingImagePreview" src="@Model.ImageUrl" alt="Category Image" class="rounded-3 border shadow-xs flex-shrink-0" style="width: 52px; height: 52px; object-fit: cover;" onerror="this.onerror=null; this.src='/images/roven-logo.png';" />
+                                            <div class="min-w-0">
+                                                <div class="small fw-bold text-dark text-truncate">Current Category Image</div>
+                                                <small class="text-muted text-truncate d-block" style="font-size: 0.75rem;">الصورة المعتمدة للقسم حالياً</small>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 shadow-xs flex-shrink-0" id="btnDeleteExistingImage" title="حذف صورة القسم">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                            <span>حذف الصورة</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Deletion notice banner with Undo button -->
+                                <div id="imageRemovedNotice" class="alert alert-warning py-2 px-3 small rounded-3 mt-2 d-none align-items-center justify-content-between shadow-xs" style="max-width: 480px; border-color: #ffeeba;">
+                                    <div class="d-flex align-items-center gap-2 text-dark">
+                                        <i class="fa-solid fa-triangle-exclamation text-danger fs-6"></i>
+                                        <span>سيتم حذف الصورة نهائياً عند الضغط على <strong>Update Category</strong>.</span>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-link text-dark p-0 fw-bold text-decoration-underline ms-2" id="btnUndoDeleteImage">
+                                        تراجع
+                                    </button>
+                                </div>
+                            }
+
+                            <!-- Live preview card for newly chosen file -->
+                            <div id="newFilePreviewWrapper" class="card border rounded-3 p-2.5 mt-2.5 bg-white shadow-xs d-none" style="max-width: 480px; border-color: #b58d4a !important;">
+                                <div class="d-flex align-items-center justify-content-between gap-3">
+                                    <div class="d-flex align-items-center gap-2.5 min-w-0">
+                                        <img id="newFilePreviewImg" src="" alt="Selected Preview" class="rounded-3 border shadow-xs flex-shrink-0" style="width: 52px; height: 52px; object-fit: cover;" />
+                                        <div class="min-w-0">
+                                            <div class="small fw-bold text-dark text-truncate" id="newFilePreviewName">file.jpg</div>
+                                            <small class="text-success text-truncate d-block" style="font-size: 0.75rem;"><i class="fa-solid fa-check me-1"></i>جاهزة للرفع وتحديث القسم</small>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 shadow-xs flex-shrink-0" id="btnCancelNewFile">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                        <span>إلغاء</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="col-12 mt-4 text-end">
@@ -50,4 +111,81 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('categoryImageInput');
+            const clearBtn = document.getElementById('btnClearSelectedFile');
+            const previewWrapper = document.getElementById('newFilePreviewWrapper');
+            const previewImg = document.getElementById('newFilePreviewImg');
+            const previewName = document.getElementById('newFilePreviewName');
+            const cancelBtn = document.getElementById('btnCancelNewFile');
+
+            const btnDelete = document.getElementById('btnDeleteExistingImage');
+            const btnUndo = document.getElementById('btnUndoDeleteImage');
+            const existingWrapper = document.getElementById('existingImageWrapper');
+            const removedNotice = document.getElementById('imageRemovedNotice');
+            const removeFlag = document.getElementById('removeImageFlag');
+
+            function resetNewFileInput() {
+                if (input) input.value = '';
+                if (clearBtn) clearBtn.classList.add('d-none');
+                if (previewWrapper) previewWrapper.classList.add('d-none');
+                if (previewImg) previewImg.src = '';
+            }
+
+            if (input) {
+                input.addEventListener('change', function(e) {
+                    const file = e.target.files && e.target.files[0];
+                    if (file) {
+                        if (previewName) previewName.textContent = file.name;
+                        const reader = new FileReader();
+                        reader.onload = function(re) {
+                            if (previewImg) previewImg.src = re.target.result;
+                            if (previewWrapper) previewWrapper.classList.remove('d-none');
+                            if (clearBtn) clearBtn.classList.remove('d-none');
+                        };
+                        reader.readAsDataURL(file);
+
+                        // If user selects a new file, dismiss existing image deletion notice
+                        if (removeFlag) removeFlag.value = "false";
+                        if (removedNotice) {
+                            removedNotice.classList.add('d-none');
+                            removedNotice.classList.remove('d-flex');
+                        }
+                    } else {
+                        resetNewFileInput();
+                    }
+                });
+            }
+
+            if (clearBtn) clearBtn.addEventListener('click', resetNewFileInput);
+            if (cancelBtn) cancelBtn.addEventListener('click', resetNewFileInput);
+
+            // Handle Deleting Existing Image
+            if (btnDelete) {
+                btnDelete.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (removeFlag) removeFlag.value = "true";
+                    if (existingWrapper) existingWrapper.classList.add('d-none');
+                    if (removedNotice) {
+                        removedNotice.classList.remove('d-none');
+                        removedNotice.classList.add('d-flex');
+                    }
+                });
+            }
+
+            // Handle Undo Deletion
+            if (btnUndo) {
+                btnUndo.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (removeFlag) removeFlag.value = "false";
+                    if (existingWrapper) existingWrapper.classList.remove('d-none');
+                    if (removedNotice) {
+                        removedNotice.classList.add('d-none');
+                        removedNotice.classList.remove('d-flex');
+                    }
+                });
+            }
+        });
+    </script>
 }

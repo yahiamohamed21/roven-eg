@@ -15,6 +15,14 @@ public class CategoryViewModel
     [Display(Name = "Description")]
     public string? Description { get; set; }
 
+    [Display(Name = "Category Image URL")]
+    public string? ImageUrl { get; set; }
+
+    [Display(Name = "Upload Category Image")]
+    public Microsoft.AspNetCore.Http.IFormFile? ImageFile { get; set; }
+
+    public bool RemoveImage { get; set; } = false;
+
     public int ProductsCount { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

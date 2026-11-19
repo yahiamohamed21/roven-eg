@@ -106,6 +106,7 @@ public class StoreController : Controller
                     Id = c.Id,
                     Name = c.Name,
                     Description = c.Description,
+                    ImageUrl = c.ImageUrl,
                     ProductsCount = c.Products.Count(p => p.IsActive && p.IsPublished)
                 })
                 .OrderBy(c => c.Name)

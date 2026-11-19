@@ -35,8 +35,15 @@
                 <div class="col-6 col-lg-3">
                     <a asp-controller="Store" asp-action="Index" asp-route-categoryId="@cat.Id" class="cat-showcase-card">
                         <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
-                            <div class="cat-icon-container">
-                                <i class="@faIcon"></i>
+                            <div class="cat-icon-container overflow-hidden position-relative p-0" style="background-color: #f7f4ee;">
+                                @if (!string.IsNullOrEmpty(cat.ImageUrl))
+                                {
+                                    <img src="@cat.ImageUrl" alt="@cat.Name" style="width: 100%; height: 100%; object-fit: cover; border-radius: inherit;" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'@faIcon\'></i>';" />
+                                }
+                                else
+                                {
+                                    <i class="@faIcon"></i>
+                                }
                             </div>
                             <span class="cat-count-badge">
                                 <i class="fa-solid fa-spray-can-sparkles me-1" style="color: #810100;"></i>@(cat.ProductsCount == 1 ? "1 Parfum" : $"{cat.ProductsCount} Parfums")
