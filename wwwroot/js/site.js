@@ -380,49 +380,43 @@ function initDynamicTablePagination() {
             const controls = paginationNav.querySelector('.table-pagination-controls');
             if (controls) {
                 controls.innerHTML = '';
+                controls.style.display = 'flex';
 
-                // If all entries fit on a single page, hide controls but keep info text
-                if (totalPages <= 1) {
-                    controls.style.display = 'none';
-                } else {
-                    controls.style.display = 'flex';
-
-                    // Previous Button
-                    const prevLi = document.createElement('li');
-                    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
-                    prevLi.innerHTML = `<a class="page-link" href="javascript:void(0)" aria-label="Previous"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg></a>`;
-                    prevLi.addEventListener('click', () => {
-                        if (currentPage > 1) {
-                            currentPage--;
-                            renderPagination();
-                        }
-                    });
-                    controls.appendChild(prevLi);
-
-                    // Page Number Buttons
-                    for (let p = 1; p <= totalPages; p++) {
-                        const pageLi = document.createElement('li');
-                        pageLi.className = `page-item ${p === currentPage ? 'active' : ''}`;
-                        pageLi.innerHTML = `<a class="page-link" href="javascript:void(0)">${p}</a>`;
-                        pageLi.addEventListener('click', () => {
-                            currentPage = p;
-                            renderPagination();
-                        });
-                        controls.appendChild(pageLi);
+                // Previous Button
+                const prevLi = document.createElement('li');
+                prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+                prevLi.innerHTML = `<a class="page-link" href="javascript:void(0)" aria-label="Previous"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/></svg></a>`;
+                prevLi.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderPagination();
                     }
+                });
+                controls.appendChild(prevLi);
 
-                    // Next Button
-                    const nextLi = document.createElement('li');
-                    nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
-                    nextLi.innerHTML = `<a class="page-link" href="javascript:void(0)" aria-label="Next"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg></a>`;
-                    nextLi.addEventListener('click', () => {
-                        if (currentPage < totalPages) {
-                            currentPage++;
-                            renderPagination();
-                        }
+                // Page Number Buttons
+                for (let p = 1; p <= totalPages; p++) {
+                    const pageLi = document.createElement('li');
+                    pageLi.className = `page-item ${p === currentPage ? 'active' : ''}`;
+                    pageLi.innerHTML = `<a class="page-link" href="javascript:void(0)">${p}</a>`;
+                    pageLi.addEventListener('click', () => {
+                        currentPage = p;
+                        renderPagination();
                     });
-                    controls.appendChild(nextLi);
+                    controls.appendChild(pageLi);
                 }
+
+                // Next Button
+                const nextLi = document.createElement('li');
+                nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+                nextLi.innerHTML = `<a class="page-link" href="javascript:void(0)" aria-label="Next"><svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg></a>`;
+                nextLi.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        renderPagination();
+                    }
+                });
+                controls.appendChild(nextLi);
             }
         }
 
