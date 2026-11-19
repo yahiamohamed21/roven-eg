@@ -317,6 +317,7 @@ public class ProductsController : Controller
         {
             var diff = model.StockQuantity - product.StockQuantity;
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userExists = !string.IsNullOrEmpty(currentUserId) && await _context.Users.AnyAsync(u => u.Id == currentUserId);
 
             _context.InventoryTransactions.Add(new InventoryTransaction
             {
@@ -325,7 +326,7 @@ public class ProductsController : Controller
                 TransactionType = diff > 0 ? TransactionType.StockIn : TransactionType.Adjustment,
                 TransactionDate = DateTime.UtcNow,
                 Notes = $"تعديل مباشر للمخزون من صفحة تعديل المنتج (من {product.StockQuantity} إلى {model.StockQuantity})",
-                UserId = currentUserId
+                UserId = userExists ? currentUserId : null
             });
 
             product.StockQuantity = model.StockQuantity;
