@@ -26,6 +26,24 @@
 
     if (offers.Any())
     {
+        <style>
+            .roven-spotlight-hero-card,
+            .roven-spotlight-hero-card:hover,
+            .roven-offer-slide-item,
+            .roven-offer-slide-item:hover,
+            .roven-offer-img-frame,
+            .roven-offer-img-frame:hover {
+                box-shadow: none !important;
+                -webkit-box-shadow: none !important;
+                transform: none !important;
+            }
+            .roven-spotlight-hero-card::before,
+            .roven-spotlight-hero-card::after {
+                display: none !important;
+                content: none !important;
+            }
+        </style>
+
         <section id="homeSpotlightSection" class="py-5 w-100 position-relative overflow-hidden" style="background-color: #FFFFFF;">
             <div class="container position-relative">
                 <!-- Section Header -->

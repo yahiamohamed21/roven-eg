@@ -1301,12 +1301,20 @@
         padding: 2.75rem 3rem;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 15px 45px rgba(27, 23, 23, 0.06);
-        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+        box-shadow: none !important;
+        transition: border-color 0.3s ease;
     }
 
+    .roven-spotlight-hero-card:hover {
+        transform: none !important;
+        box-shadow: none !important;
+        border-color: #dfb15b !important;
+    }
+
+    .roven-spotlight-hero-card::before,
     .roven-spotlight-hero-card::after {
-        display: none;
+        display: none !important;
+        content: none !important;
     }
 
     .roven-offer-img-frame {
@@ -1320,12 +1328,13 @@
         align-items: center;
         justify-content: center;
         min-height: 400px;
-        box-shadow: 0 8px 24px rgba(27, 23, 23, 0.04);
-        transition: transform 0.4s ease;
+        box-shadow: none !important;
+        transition: border-color 0.3s ease;
     }
 
     .roven-spotlight-hero-card:hover .roven-offer-img-frame {
-        transform: scale(1.015);
+        transform: none !important;
+        box-shadow: none !important;
     }
 
     .roven-offer-discount-badge {
