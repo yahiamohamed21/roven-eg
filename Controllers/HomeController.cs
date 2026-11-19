@@ -290,7 +290,14 @@ public class HomeController : Controller
                 Id = c.Id,
                 Name = c.Name,
                 Description = c.Description,
-                ImageUrl = c.ImageUrl,
+                ImageUrl = !string.IsNullOrEmpty(c.ImageUrl)
+                    ? c.ImageUrl
+                    : c.Products
+                        .Where(p => p.IsActive && p.IsPublished && !string.IsNullOrEmpty(p.ImageUrl))
+                        .OrderByDescending(p => p.StockQuantity > 0)
+                        .ThenByDescending(p => p.IsFeatured)
+                        .Select(p => p.ImageUrl)
+                        .FirstOrDefault(),
                 ProductsCount = c.Products.Count(p => p.IsActive && p.IsPublished)
             })
             .OrderByDescending(c => c.ProductsCount)
