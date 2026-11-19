@@ -165,7 +165,7 @@ public class ProductsController : Controller
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Failed to upload image for new product: {Name}", model.Name);
-                ModelState.AddModelError("ImageFile", "فشل رفع الصورة إلى التخزين السحابي. يرجى المحاولة مرة أخرى.");
+                ModelState.AddModelError("ImageFile", "فشل حفظ أو رفع صورة المنتج. يرجى التأكد من صلاحية الملف والمحاولة مرة أخرى.");
                 model.CategoriesList = await GetCategoriesSelectListAsync();
                 return View(model);
             }
@@ -290,7 +290,7 @@ public class ProductsController : Controller
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "Failed to upload replacement image for product {Id}", id);
-                ModelState.AddModelError("ImageFile", "فشل رفع الصورة البديلة إلى التخزين السحابي. يرجى المحاولة مرة أخرى.");
+                ModelState.AddModelError("ImageFile", "فشل حفظ أو رفع صورة المنتج البديلة. يرجى التأكد من صلاحية الملف والمحاولة مرة أخرى.");
                 model.ExistingImageUrl = product.ImageUrl;
                 model.CategoriesList = await GetCategoriesSelectListAsync();
                 return View(model);

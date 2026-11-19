@@ -32,10 +32,15 @@ public class CloudinaryImageStorageService : IImageStorageService
         var apiSecret = configuration["Cloudinary:ApiSecret"] 
                        ?? Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET");
 
-        if (!string.IsNullOrWhiteSpace(cloudName) &&
-            !string.IsNullOrWhiteSpace(apiKey) &&
-            !string.IsNullOrWhiteSpace(apiSecret) &&
-            !cloudName.Contains("your-cloud-name", StringComparison.OrdinalIgnoreCase))
+        bool isPlaceholder = string.IsNullOrWhiteSpace(cloudName) ||
+                             string.IsNullOrWhiteSpace(apiKey) ||
+                             string.IsNullOrWhiteSpace(apiSecret) ||
+                             cloudName.Contains("your", StringComparison.OrdinalIgnoreCase) ||
+                             apiKey.Contains("your", StringComparison.OrdinalIgnoreCase) ||
+                             apiSecret.Contains("your", StringComparison.OrdinalIgnoreCase) ||
+                             cloudName.Contains("placeholder", StringComparison.OrdinalIgnoreCase);
+
+        if (!isPlaceholder)
         {
             var account = new Account(cloudName, apiKey, apiSecret);
             _cloudinary = new Cloudinary(account);
@@ -46,7 +51,7 @@ public class CloudinaryImageStorageService : IImageStorageService
         else
         {
             _isConfigured = false;
-            _logger.LogWarning("Cloudinary credentials not configured. Falling back to local WebRoot storage.");
+            _logger.LogWarning("Cloudinary credentials not configured or using placeholders. Falling back to local WebRoot storage.");
         }
     }
 
@@ -64,36 +69,47 @@ public class CloudinaryImageStorageService : IImageStorageService
             throw new ArgumentException(validationError ?? "Invalid image file.", nameof(file));
         }
 
+        // 1. Try Cloudinary if configured with valid credentials
         if (_isConfigured && _cloudinary != null)
         {
-            await using var stream = file.OpenReadStream();
-            var publicId = !string.IsNullOrWhiteSpace(customFileName)
-                ? Path.GetFileNameWithoutExtension(customFileName)
-                : $"{Guid.NewGuid():N}";
-
-            var uploadParams = new ImageUploadParams
+            try
             {
-                File = new FileDescription(file.FileName, stream),
-                Folder = folder,
-                PublicId = publicId,
-                Format = "webp",
-                Transformation = new Transformation()
-                    .FetchFormat("webp")
-                    .Quality("auto:good"),
-                Overwrite = true
-            };
+                await using var stream = file.OpenReadStream();
+                var publicId = !string.IsNullOrWhiteSpace(customFileName)
+                    ? Path.GetFileNameWithoutExtension(customFileName)
+                    : $"{Guid.NewGuid():N}";
 
-            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-            if (uploadResult.Error != null)
-            {
-                _logger.LogError("Cloudinary upload failed: {Error}", uploadResult.Error.Message);
-                throw new InvalidOperationException($"Cloudinary image upload failed: {uploadResult.Error.Message}");
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    Folder = folder,
+                    PublicId = publicId,
+                    Format = "webp",
+                    Transformation = new Transformation()
+                        .FetchFormat("webp")
+                        .Quality("auto:good"),
+                    Overwrite = true
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.Error == null)
+                {
+                    var secureUrl = uploadResult.SecureUrl?.ToString() ?? uploadResult.Url?.ToString();
+                    if (!string.IsNullOrWhiteSpace(secureUrl))
+                    {
+                        return secureUrl;
+                    }
+                }
+
+                _logger.LogWarning("Cloudinary upload failed ({Error}), falling back to local WebRoot storage.", uploadResult.Error?.Message);
             }
-
-            return uploadResult.SecureUrl?.ToString() ?? uploadResult.Url?.ToString() ?? string.Empty;
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Cloudinary upload exception encountered. Falling back gracefully to local WebRoot storage.");
+            }
         }
 
-        // Fallback to local storage if Cloudinary is not yet configured with API keys
+        // 2. Guaranteed local storage fallback
         return await SaveLocalFileAsync(file, folder, customFileName);
     }
 
@@ -101,35 +117,47 @@ public class CloudinaryImageStorageService : IImageStorageService
     {
         if (_isConfigured && _cloudinary != null)
         {
-            var publicId = Path.GetFileNameWithoutExtension(fileName);
-            var uploadParams = new ImageUploadParams
+            try
             {
-                File = new FileDescription(fileName, stream),
-                Folder = folder,
-                PublicId = publicId,
-                Format = "webp",
-                Transformation = new Transformation()
-                    .FetchFormat("webp")
-                    .Quality("auto:good"),
-                Overwrite = true
-            };
+                var publicId = Path.GetFileNameWithoutExtension(fileName);
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(fileName, stream),
+                    Folder = folder,
+                    PublicId = publicId,
+                    Format = "webp",
+                    Transformation = new Transformation()
+                        .FetchFormat("webp")
+                        .Quality("auto:good"),
+                    Overwrite = true
+                };
 
-            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-            if (uploadResult.Error != null)
-            {
-                throw new InvalidOperationException($"Cloudinary upload failed: {uploadResult.Error.Message}");
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.Error == null)
+                {
+                    var secureUrl = uploadResult.SecureUrl?.ToString() ?? uploadResult.Url?.ToString();
+                    if (!string.IsNullOrWhiteSpace(secureUrl))
+                    {
+                        return secureUrl;
+                    }
+                }
+
+                _logger.LogWarning("Cloudinary stream upload failed ({Error}), falling back to local storage.", uploadResult.Error?.Message);
             }
-
-            return uploadResult.SecureUrl?.ToString() ?? uploadResult.Url?.ToString() ?? string.Empty;
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Cloudinary stream upload exception. Falling back to local storage.");
+            }
         }
 
-        return string.Empty;
+        return await SaveLocalStreamAsync(stream, folder, fileName);
     }
 
     public async Task<bool> DeleteImageAsync(string imageUrl)
     {
         if (string.IsNullOrWhiteSpace(imageUrl)) return false;
 
+        // 1. Cloudinary deletion
         if (_isConfigured && _cloudinary != null && imageUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
         {
             try
@@ -157,18 +185,44 @@ public class CloudinaryImageStorageService : IImageStorageService
             }
         }
 
+        // 2. Local file deletion fallback
+        if (!imageUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase) && imageUrl.StartsWith("/"))
+        {
+            try
+            {
+                var webRoot = !string.IsNullOrWhiteSpace(_environment.WebRootPath)
+                    ? _environment.WebRootPath
+                    : Path.Combine(_environment.ContentRootPath, "wwwroot");
+                var localPath = Path.Combine(webRoot, imageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (File.Exists(localPath))
+                {
+                    File.Delete(localPath);
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to delete local image file: {Url}", imageUrl);
+            }
+        }
+
         return false;
     }
 
     private async Task<string> SaveLocalFileAsync(IFormFile file, string folder, string? customFileName)
     {
-        var targetFolder = Path.Combine(_environment.WebRootPath, folder.Replace('/', Path.DirectorySeparatorChar));
+        var webRoot = !string.IsNullOrWhiteSpace(_environment.WebRootPath)
+            ? _environment.WebRootPath
+            : Path.Combine(_environment.ContentRootPath, "wwwroot");
+
+        var targetFolder = Path.Combine(webRoot, folder.Replace('/', Path.DirectorySeparatorChar));
         if (!Directory.Exists(targetFolder))
         {
             Directory.CreateDirectory(targetFolder);
         }
 
         var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (string.IsNullOrEmpty(ext)) ext = ".webp";
         var uniqueName = !string.IsNullOrWhiteSpace(customFileName)
             ? customFileName
             : $"{Guid.NewGuid():N}{ext}";
@@ -177,6 +231,32 @@ public class CloudinaryImageStorageService : IImageStorageService
         await using (var fileStream = new FileStream(filePath, FileMode.Create))
         {
             await file.CopyToAsync(fileStream);
+        }
+
+        return $"/{folder.Trim('/')}/{uniqueName}";
+    }
+
+    private async Task<string> SaveLocalStreamAsync(Stream stream, string folder, string fileName)
+    {
+        var webRoot = !string.IsNullOrWhiteSpace(_environment.WebRootPath)
+            ? _environment.WebRootPath
+            : Path.Combine(_environment.ContentRootPath, "wwwroot");
+
+        var targetFolder = Path.Combine(webRoot, folder.Replace('/', Path.DirectorySeparatorChar));
+        if (!Directory.Exists(targetFolder))
+        {
+            Directory.CreateDirectory(targetFolder);
+        }
+
+        var ext = Path.GetExtension(fileName).ToLowerInvariant();
+        if (string.IsNullOrEmpty(ext)) ext = ".webp";
+        var uniqueName = $"{Guid.NewGuid():N}{ext}";
+
+        var filePath = Path.Combine(targetFolder, uniqueName);
+        await using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            if (stream.CanSeek) stream.Position = 0;
+            await stream.CopyToAsync(fileStream);
         }
 
         return $"/{folder.Trim('/')}/{uniqueName}";
