@@ -1066,19 +1066,19 @@
             border: 1px solid rgba(181, 141, 74, 0.22);
             border-radius: 20px;
             overflow: hidden;
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+            transition: border-color 0.3s ease;
             height: 100%;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 8px 24px rgba(27, 23, 23, 0.04);
+            box-shadow: none !important;
             position: relative;
         }
 
         .product-card:hover,
         .roven-store-flacon-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 18px 40px rgba(129, 1, 0, 0.08), 0 4px 16px rgba(181, 141, 74, 0.12);
-            border-color: rgba(181, 141, 74, 0.48);
+            transform: none !important;
+            box-shadow: none !important;
+            border-color: #dfb15b !important;
         }
 
         .product-card[data-details-url],

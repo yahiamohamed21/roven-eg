@@ -1215,6 +1215,18 @@
         }
     }
 
+    /* Product Card Stability & Zero Shadow Halo */
+    .product-card,
+    .roven-store-flacon-card {
+        box-shadow: none !important;
+    }
+    .product-card:hover,
+    .roven-store-flacon-card:hover {
+        transform: none !important;
+        box-shadow: none !important;
+        border-color: #dfb15b !important;
+    }
+
     /* Product Navigation Arrows */
     .roven-products-nav-btn {
         width: 44px;
