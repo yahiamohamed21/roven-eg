@@ -1,0 +1,317 @@
+@model Stockify.ViewModels.Store.StoreHomeViewModel
+@{
+    var settings = Model.Settings;
+    if (settings != null && (!settings.ComparisonActive || !settings.ShowComparisonSection))
+    {
+        return;
+    }
+
+    var badgeText = !string.IsNullOrWhiteSpace(settings?.ComparisonBadgeText) 
+        ? settings.ComparisonBadgeText 
+        : "MAISON ROVEN • QUALITY PROMISE";
+
+    var title = !string.IsNullOrWhiteSpace(settings?.ComparisonTitle) 
+        ? settings.ComparisonTitle 
+        : "US VS THEM";
+
+    var subtitle = !string.IsNullOrWhiteSpace(settings?.ComparisonSubtitle) 
+        ? settings.ComparisonSubtitle 
+        : "Why settle for the brand name when you can wear the same scent for a fraction of the price?";
+
+    var buttonText = !string.IsNullOrWhiteSpace(settings?.ComparisonButtonText) 
+        ? settings.ComparisonButtonText 
+        : "Shop Now";
+
+    var buttonLink = !string.IsNullOrWhiteSpace(settings?.ComparisonButtonLink) 
+        ? settings.ComparisonButtonLink 
+        : "/Store";
+
+    var beforeLabel = !string.IsNullOrWhiteSpace(settings?.ComparisonBeforeLabel) 
+        ? settings.ComparisonBeforeLabel 
+        : "Before";
+
+    var afterLabel = !string.IsNullOrWhiteSpace(settings?.ComparisonAfterLabel) 
+        ? settings.ComparisonAfterLabel 
+        : "After";
+
+    var beforeImage = !string.IsNullOrWhiteSpace(settings?.ComparisonBeforeImageUrl) 
+        ? settings.ComparisonBeforeImageUrl 
+        : "/images/comparison/roven-comparison-before.svg";
+
+    var afterImage = !string.IsNullOrWhiteSpace(settings?.ComparisonAfterImageUrl) 
+        ? settings.ComparisonAfterImageUrl 
+        : "/images/comparison/roven-comparison-after.svg";
+}
+
+<section id="homeComparisonSection" class="py-5 my-2" style="background-color: #FFFFFF; position: relative;">
+    <div class="container px-3 px-md-4">
+        <div class="row align-items-center g-4 g-lg-5">
+            <!-- Left Column: Editorial & Call to Action -->
+            <div class="col-12 col-lg-5 text-center text-lg-start">
+                <div class="pe-lg-3">
+                    <!-- Luxury Badge -->
+                    <div class="d-inline-flex align-items-center gap-2 px-3.5 py-1.5 rounded-pill mb-3" 
+                         style="background: rgba(129, 1, 0, 0.05); border: 1px solid rgba(181, 141, 74, 0.4); color: #810100; font-size: 0.76rem; font-weight: 700; letter-spacing: 1.2px;">
+                        <i class="fa-solid fa-code-compare" style="color: #dfb15b;"></i>
+                        <span>@badgeText</span>
+                    </div>
+
+                    <!-- Editorial Title -->
+                    <h2 class="display-6 fw-bold mb-3" style="font-family: 'Playfair Display', serif; color: #1B1717; letter-spacing: -0.5px; line-height: 1.2;">
+                        @title
+                    </h2>
+
+                    <!-- Subtitle / Narrative -->
+                    <p class="text-muted mb-4 fs-6" style="line-height: 1.8; max-width: 490px; margin-left: auto; margin-right: auto; margin-inline-start: 0;">
+                        @subtitle
+                    </p>
+
+                    <!-- Quality Promise Highlights -->
+                    <div class="d-flex flex-column gap-2.5 mb-4 text-start" style="max-width: 440px; margin-left: auto; margin-right: auto; margin-inline-start: 0;">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 26px; height: 26px; background: rgba(5, 150, 105, 0.12); color: #059669;">
+                                <i class="fa-solid fa-check" style="font-size: 0.78rem;"></i>
+                            </span>
+                            <span class="fw-semibold text-dark small" style="font-size: 0.9rem;">تركيز عالي Extrait de Parfum (30% زيوت نقية)</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 26px; height: 26px; background: rgba(5, 150, 105, 0.12); color: #059669;">
+                                <i class="fa-solid fa-check" style="font-size: 0.78rem;"></i>
+                            </span>
+                            <span class="fw-semibold text-dark small" style="font-size: 0.9rem;">ثبات وفوحان ملكي يدوم 24+ ساعة على الملابس</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2.5">
+                            <span class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 26px; height: 26px; background: rgba(5, 150, 105, 0.12); color: #059669;">
+                                <i class="fa-solid fa-check" style="font-size: 0.78rem;"></i>
+                            </span>
+                            <span class="fw-semibold text-dark small" style="font-size: 0.9rem;">حق معاينة وتجربة الطرد قبل الدفع عند الاستلام</span>
+                        </div>
+                    </div>
+
+                    <!-- CTA Button -->
+                    <div class="pt-2">
+                        <a href="@buttonLink" 
+                           class="btn btn-roven-comparison-cta px-4 py-3 rounded-pill fw-bold text-white shadow-sm d-inline-flex align-items-center justify-content-center gap-2.5" 
+                           style="background: linear-gradient(135deg, #810100 0%, #630000 100%); border: 1.5px solid #dfb15b; font-size: 0.96rem; text-decoration: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+                            <span>@buttonText</span>
+                            <i class="fa-solid fa-arrow-right" style="font-size: 0.85rem; color: #dfb15b;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Interactive Comparison Slider -->
+            <div class="col-12 col-lg-7">
+                <div class="roven-compare-card-wrapper position-relative overflow-hidden rounded-4 shadow-sm" 
+                     style="border: 1.5px solid rgba(181, 141, 74, 0.32); background: #FAF9F5;">
+                    
+                    <div class="roven-compare-box position-relative overflow-hidden" 
+                         id="rovenComparisonBox"
+                         style="--pos: 50%; user-select: none; touch-action: pan-y; cursor: ew-resize; min-height: 380px; aspect-ratio: 16/10;">
+                        
+                        <!-- Base Layer: After (Maison ROVEN) -->
+                        <img src="@afterImage" 
+                             alt="@afterLabel" 
+                             class="roven-compare-img roven-compare-after-img w-100 h-100 d-block" 
+                             style="object-fit: cover; pointer-events: none;" 
+                             loading="lazy" />
+
+                        <!-- Overlay Layer: Before (Them / Conventional) -->
+                        <div class="roven-compare-overlay position-absolute top-0 start-0 h-100 overflow-hidden" 
+                             style="width: var(--pos, 50%); pointer-events: none;">
+                            <img src="@beforeImage" 
+                                 alt="@beforeLabel" 
+                                 class="roven-compare-img roven-compare-before-img h-100 position-absolute top-0 start-0" 
+                                 style="width: 100%; min-width: 100%; object-fit: cover; max-width: none;" 
+                                 id="rovenCompareBeforeImg"
+                                 loading="lazy" />
+                        </div>
+
+                        <!-- Draggable Divider Line & Luxury Handle -->
+                        <div class="roven-compare-divider position-absolute top-0 bottom-0" 
+                             style="left: var(--pos, 50%); width: 3px; background: #dfb15b; transform: translateX(-50%); pointer-events: none; z-index: 5; box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);">
+                            
+                            <!-- Circular Floating Grip Button -->
+                            <div class="roven-compare-handle rounded-circle position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center shadow-lg" 
+                                 style="width: 44px; height: 44px; background: #FFFFFF; border: 2.5px solid #810100; box-shadow: 0 6px 18px rgba(99, 0, 0, 0.35) !important;">
+                                <div class="d-flex align-items-center justify-content-center gap-1" style="color: #810100; font-size: 0.72rem; font-weight: 800;">
+                                    <i class="fa-solid fa-chevron-left" style="font-size: 0.65rem;"></i>
+                                    <span style="letter-spacing: -1px; font-family: monospace; font-size: 0.85rem;">||</span>
+                                    <i class="fa-solid fa-chevron-right" style="font-size: 0.65rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Top-Left Floating Badge: Before Label -->
+                        <div class="position-absolute top-0 start-0 m-3 py-1 px-3 rounded-pill shadow-xs d-flex align-items-center gap-1.5" 
+                             style="background: rgba(27, 23, 23, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #FFFFFF; font-size: 0.74rem; font-weight: 700; letter-spacing: 1px; z-index: 6; pointer-events: none;">
+                            <span class="rounded-circle bg-danger" style="width: 6px; height: 6px;"></span>
+                            <span>@beforeLabel</span>
+                        </div>
+
+                        <!-- Top-Right Floating Badge: After Label -->
+                        <div class="position-absolute top-0 end-0 m-3 py-1 px-3 rounded-pill shadow-xs d-flex align-items-center gap-1.5" 
+                             style="background: rgba(129, 1, 0, 0.88); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(223, 177, 91, 0.5); color: #dfb15b; font-size: 0.74rem; font-weight: 700; letter-spacing: 1px; z-index: 6; pointer-events: none;">
+                            <i class="fa-solid fa-crown" style="font-size: 0.68rem;"></i>
+                            <span>@afterLabel</span>
+                        </div>
+
+                        <!-- Bottom Drag Hint Indicator -->
+                        <div class="position-absolute bottom-0 start-50 translate-middle-x mb-2 px-3 py-1 rounded-pill small font-monospace d-none d-md-flex align-items-center gap-1.5" 
+                             style="background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(6px); color: #1B1717; font-size: 0.72rem; font-weight: 600; z-index: 6; pointer-events: none; border: 1px solid rgba(181, 141, 74, 0.25);">
+                            <i class="fa-solid fa-arrows-left-right text-muted" style="font-size: 0.65rem;"></i>
+                            <span>اسحب للمقارنة</span>
+                        </div>
+
+                        <!-- Accessible Native Range Input Overlay -->
+                        <input type="range" 
+                               min="0" 
+                               max="100" 
+                               value="50" 
+                               id="rovenComparisonRange"
+                               class="roven-compare-range-input position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-ew-resize" 
+                               style="cursor: ew-resize; z-index: 10; margin: 0; padding: 0;" 
+                               aria-label="Before and After Quality Comparison Slider" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .btn-roven-comparison-cta:hover {
+        background: linear-gradient(135deg, #630000 0%, #400000 100%) !important;
+        border-color: #dfb15b !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(129, 1, 0, 0.35) !important;
+        color: #dfb15b !important;
+    }
+    .roven-compare-card-wrapper {
+        transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .roven-compare-card-wrapper:hover {
+        border-color: rgba(181, 141, 74, 0.6) !important;
+        box-shadow: 0 16px 40px rgba(129, 1, 0, 0.12) !important;
+    }
+    .roven-compare-range-input {
+        opacity: 0;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    .roven-compare-box {
+        touch-action: pan-y;
+    }
+    @@media (max-width: 767.98px) {
+        .roven-compare-box {
+            min-height: 320px;
+            aspect-ratio: 4/3;
+        }
+        .roven-compare-handle {
+            width: 38px !important;
+            height: 38px !important;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        function initRovenComparison() {
+            const box = document.getElementById('rovenComparisonBox');
+            const range = document.getElementById('rovenComparisonRange');
+            const beforeImg = document.getElementById('rovenCompareBeforeImg');
+            if (!box || !range) return;
+
+            function syncBeforeImageWidth() {
+                if (beforeImg) {
+                    beforeImg.style.width = box.offsetWidth + 'px';
+                }
+            }
+
+            function setPosition(percent) {
+                const clamped = Math.max(0, Math.min(100, percent));
+                box.style.setProperty('--pos', clamped + '%');
+                range.value = clamped;
+            }
+
+            range.addEventListener('input', function (e) {
+                setPosition(e.target.value);
+            });
+
+            // Smooth touch and mouse drag handling directly on container
+            let isDragging = false;
+
+            function updateFromClientX(clientX) {
+                const rect = box.getBoundingClientRect();
+                const offsetX = clientX - rect.left;
+                const percent = (offsetX / rect.width) * 100;
+                setPosition(percent);
+            }
+
+            box.addEventListener('mousedown', function (e) {
+                isDragging = true;
+                updateFromClientX(e.clientX);
+            });
+
+            window.addEventListener('mousemove', function (e) {
+                if (!isDragging) return;
+                updateFromClientX(e.clientX);
+            });
+
+            window.addEventListener('mouseup', function () {
+                isDragging = false;
+            });
+
+            box.addEventListener('touchstart', function (e) {
+                if (e.touches.length > 0) {
+                    isDragging = true;
+                    updateFromClientX(e.touches[0].clientX);
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchmove', function (e) {
+                if (!isDragging || e.touches.length === 0) return;
+                updateFromClientX(e.touches[0].clientX);
+            }, { passive: true });
+
+            window.addEventListener('touchend', function () {
+                isDragging = false;
+            });
+
+            window.addEventListener('resize', syncBeforeImageWidth);
+            syncBeforeImageWidth();
+
+            // Subtle initial entrance peek animation
+            let animated = false;
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !animated) {
+                        animated = true;
+                        let startPos = 50;
+                        let direction = -1;
+                        let step = 0;
+                        const interval = setInterval(() => {
+                            step++;
+                            if (step <= 15) {
+                                setPosition(50 + (step * -1.2)); // peek left
+                            } else if (step <= 30) {
+                                setPosition(32 + ((step - 15) * 1.2)); // back to 50
+                            } else {
+                                clearInterval(interval);
+                                setPosition(50);
+                            }
+                        }, 25);
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            observer.observe(box);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initRovenComparison);
+        } else {
+            initRovenComparison();
+        }
+    })();
+</script>

@@ -510,6 +510,12 @@
                 <span>6. FAQ Clarifications</span>
             </button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-comparison-btn" data-bs-toggle="pill" data-bs-target="#tab-comparison" type="button" role="tab" aria-controls="tab-comparison" aria-selected="false">
+                <i class="fa-solid fa-code-compare text-success"></i>
+                <span>7. Before & After (Us vs Them)</span>
+            </button>
+        </li>
     </ul>
 
     <!-- Main Form for all tabs -->
@@ -1686,7 +1692,8 @@
                         ("TrustBadges", "OrderTrustBadges", Model.OrderTrustBadges > 0 ? Model.OrderTrustBadges : 3, Model.ShowTrustBadges, "مميزات الثقة والضمان الفاخرة", "مميزات الثقة", "Trust Badges", "fa-solid fa-shield-halved", "#c0392b", "سكشن الشحن المجاني لكافة المحافظات، المعاينة قبل الدفع COD، ونسبة التركيز 30%.", "ShowTrustBadges"),
                         ("HeroBanners", "OrderHeroBanners", Model.OrderHeroBanners > 0 ? Model.OrderHeroBanners : 4, Model.ShowHeroBanners, "سلايدر البانرات الإعلانية الترويجية", "سلايدر البانرات", "Hero Banners", "fa-solid fa-images", "#2980b9", "سلايدر البانرات والعروض المتحركة داخل كونتينر مخصص (المدارة من تبويب 1).", "ShowHeroBanners"),
                         ("Categories", "OrderCategories", Model.OrderCategories > 0 ? Model.OrderCategories : 5, Model.ShowCategoriesShowcase, "استعراض أقسام وعائلات العطور", "أقسام العطور", "Categories", "fa-solid fa-layer-group", "#8e44ad", "كروت أقسام العطور الأربعة الرئيسية (Extraits, Oud & Oriental, Sets, Eaux).", "ShowCategoriesShowcase"),
-                        ("Offers", "OrderOffers", Model.OrderOffers > 0 ? Model.OrderOffers : 6, Model.SpotlightActive, "عروض وتخفيضات دار Roven الحصرية", "عروض Roven", "Special Offers", "fa-solid fa-bolt", "#f39c12", "كروت عروض العطور الفاخرة، عداد الوقت، نسبة الحجز، وأسعار التخفيض الاستثنائية.", "tab5SpotlightSwitch"),
+                        ("Comparison", "OrderComparison", Model.OrderComparison > 0 ? Model.OrderComparison : 6, Model.ComparisonActive && Model.ShowComparisonSection, "سكشن مقارنة الجودة (قبل وبعد / Us vs Them)", "مقارنة الجودة", "Before & After", "fa-solid fa-code-compare", "#2ecc71", "سكشن المقارنة التفاعلي (Before vs After) مع سلايدر السحب الحي.", "ShowComparisonSection"),
+                        ("Offers", "OrderOffers", Model.OrderOffers > 0 ? Model.OrderOffers : 7, Model.SpotlightActive, "عروض وتخفيضات دار Roven الحصرية", "عروض Roven", "Special Offers", "fa-solid fa-bolt", "#f39c12", "كروت عروض العطور الفاخرة، عداد الوقت، نسبة الحجز، وأسعار التخفيض الاستثنائية.", "tab5SpotlightSwitch"),
                         ("Featured", "OrderFeatured", Model.OrderFeatured > 0 ? Model.OrderFeatured : 7, Model.ShowFeaturedSection, "سكشن العطور المميزة (Featured)", "العطور المميزة", "Featured", "fa-solid fa-crown", "#d35400", "شبكة العطور المميزة (Master Distillations) التي تختارها الدار لعملائها.", "ShowFeaturedSection"),
                         ("BestSellers", "OrderBestSellers", Model.OrderBestSellers > 0 ? Model.OrderBestSellers : 8, Model.ShowBestSellersSection, "سكشن الأكثر مبيعاً (Best Sellers)", "الأكثر مبيعاً", "Best Sellers", "fa-solid fa-fire", "#e74c3c", "العطور الأكثر طلباً ومبيعاً ومعدلات الشراء المرتفعة عبر المتجر.", "ShowBestSellersSection"),
                         ("Testimonials", "OrderTestimonials", Model.OrderTestimonials > 0 ? Model.OrderTestimonials : 9, Model.ShowTestimonialsSection, "آراء وانطباعات رواد الدار (Testimonials)", "آراء العملاء", "Testimonials", "fa-solid fa-comment-dots", "#7f8c8d", "تقييمات وآراء العملاء وتجاربهم العطرية الفاخرة وتقييمات الـ 5 نجوم.", "ShowTestimonialsSection"),
@@ -1832,6 +1839,10 @@
                                                 else if (item.SwitchProp == "ShowCategoriesShowcase")
                                                 {
                                                     <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" asp-for="ShowCategoriesShowcase" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل استعراض الأقسام">
+                                                }
+                                                else if (item.SwitchProp == "ShowComparisonSection")
+                                                {
+                                                    <input class="form-check-input section-visibility-cb" type="checkbox" role="switch" asp-for="ShowComparisonSection" style="cursor: pointer; width: 2.2em; height: 1.2em;" title="تفعيل سكشن المقارنة قبل وبعد">
                                                 }
                                                 else if (item.SwitchProp == "ShowFeaturedSection")
                                                 {
@@ -2074,6 +2085,175 @@
                 </div>
             </div>
 
+            <!-- ============================================================== -->
+            <!-- TAB 7: BEFORE & AFTER COMPARISON SECTION (US VS THEM)           -->
+            <!-- ============================================================== -->
+            <div class="tab-pane fade tab-pane-content" id="tab-comparison" role="tabpanel" aria-labelledby="tab-comparison-btn">
+                
+                <!-- Section Header Settings Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white overflow-hidden" style="border: 1.5px solid rgba(181, 141, 74, 0.4) !important;">
+                    <div class="card-setting-header p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 bg-white border-bottom">
+                        <div>
+                            <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-2" style="background: rgba(46, 204, 113, 0.12); border: 1px solid rgba(46, 204, 113, 0.35); color: #27ae60; font-size: 0.74rem; font-weight: 700; letter-spacing: 1px;">
+                                <i class="fa-solid fa-code-compare text-success"></i>
+                                <span>HOMEPAGE SECTION — BEFORE &amp; AFTER (US VS THEM)</span>
+                            </div>
+                            <h4 class="fw-bold mb-1" style="font-family: 'Playfair Display', serif; color: #1B1717;">
+                                سكشن المقارنة التفاعلي (قبل وبعد / Us vs Them)
+                            </h4>
+                            <p class="text-muted small mb-0" style="max-width: 720px;">
+                                سكشن تفاعلي بسلايدر سحب حي يقارن جودة وتركيز عطور دار Roven بالعطور التقليدية الأخرى. يمكنك تعديل الصورتين والنصوص والشارة ورابط التوجيه بسهولة.
+                            </p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <button type="button" class="btn btn-primary btn-sm px-4 py-2.5 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center justify-content-center gap-2 text-white" style="background: #810100; border-color: #810100; width: auto !important;" data-bs-toggle="modal" data-bs-target="#editComparisonModal">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>تعديل ورفع صور المقارنة</span>
+                            </button>
+                            <button type="submit" form="resetComparisonForm" class="btn btn-outline-secondary btn-sm px-3 py-2 rounded-pill fw-semibold shadow-xs" title="استعادة الصور والإعدادات الأصلية الافتراضية">
+                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                                <span class="d-none d-sm-inline ms-1">استعادة الافتراضي</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-3 p-md-4">
+                        <!-- Before & After Live Previews Side-by-Side -->
+                        <div class="row g-4 mb-4">
+                            <!-- Before Image Preview -->
+                            <div class="col-12 col-md-6">
+                                <div class="p-3 rounded-4 border bg-light h-100 position-relative">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="rounded-circle bg-danger" style="width: 8px; height: 8px;"></span>
+                                            <span class="fw-bold text-dark small">صورة الطرف الأول (@(string.IsNullOrWhiteSpace(Model.ComparisonBeforeLabel) ? "Before" : Model.ComparisonBeforeLabel))</span>
+                                        </div>
+                                        <span class="badge bg-white text-muted border font-monospace" style="font-size: 0.72rem;">المنافسين / العطور العادية</span>
+                                    </div>
+                                    <div class="position-relative overflow-hidden rounded-3 border bg-white" style="aspect-ratio: 16/10; max-height: 240px;">
+                                        <img src="@(string.IsNullOrWhiteSpace(Model.ComparisonBeforeImageUrl) ? "/images/comparison/roven-comparison-before.svg" : Model.ComparisonBeforeImageUrl)" 
+                                             alt="Before Preview" 
+                                             id="displayComparisonBeforePreview"
+                                             style="width: 100%; height: 100%; object-fit: cover;" 
+                                             onerror="this.src='/images/comparison/roven-comparison-before.svg'" />
+                                    </div>
+                                    <div class="mt-2 text-truncate small text-muted font-monospace" style="font-size: 0.75rem;" title="@Model.ComparisonBeforeImageUrl">
+                                        <i class="fa-regular fa-image me-1"></i>المسار: @(string.IsNullOrWhiteSpace(Model.ComparisonBeforeImageUrl) ? "/images/comparison/roven-comparison-before.svg" : Model.ComparisonBeforeImageUrl)
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- After Image Preview -->
+                            <div class="col-12 col-md-6">
+                                <div class="p-3 rounded-4 border bg-light h-100 position-relative">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-crown text-warning" style="font-size: 0.78rem;"></i>
+                                            <span class="fw-bold text-dark small">صورة الطرف الثاني (@(string.IsNullOrWhiteSpace(Model.ComparisonAfterLabel) ? "After" : Model.ComparisonAfterLabel))</span>
+                                        </div>
+                                        <span class="badge bg-white text-success border font-monospace" style="font-size: 0.72rem;">دار ROVEN الفاخرة</span>
+                                    </div>
+                                    <div class="position-relative overflow-hidden rounded-3 border bg-white" style="aspect-ratio: 16/10; max-height: 240px;">
+                                        <img src="@(string.IsNullOrWhiteSpace(Model.ComparisonAfterImageUrl) ? "/images/comparison/roven-comparison-after.svg" : Model.ComparisonAfterImageUrl)" 
+                                             alt="After Preview" 
+                                             id="displayComparisonAfterPreview"
+                                             style="width: 100%; height: 100%; object-fit: cover;" 
+                                             onerror="this.src='/images/comparison/roven-comparison-after.svg'" />
+                                    </div>
+                                    <div class="mt-2 text-truncate small text-muted font-monospace" style="font-size: 0.75rem;" title="@Model.ComparisonAfterImageUrl">
+                                        <i class="fa-regular fa-image me-1"></i>المسار: @(string.IsNullOrWhiteSpace(Model.ComparisonAfterImageUrl) ? "/images/comparison/roven-comparison-after.svg" : Model.ComparisonAfterImageUrl)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Editable Settings within Main Form -->
+                        <div class="p-3.5 p-md-4 rounded-4 bg-light border">
+                            <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2" style="font-size: 0.92rem;">
+                                <i class="fa-solid fa-sliders" style="color: #810100;"></i>
+                                <span>نصوص وإعدادات السكشن السريعة</span>
+                            </h6>
+
+                            <div class="row g-3">
+                                <!-- Visibility Switch -->
+                                <div class="col-12">
+                                    <div class="form-check form-switch p-2 bg-white rounded-3 border d-flex align-items-center justify-content-between">
+                                        <label class="form-check-label fw-bold small text-dark mb-0 ps-2" for="mainFormComparisonActive">
+                                            <i class="fa-solid fa-eye me-1.5 text-primary"></i>تفعيل وإظهار سكشن المقارنة (قبل وبعد) في الصفحة الرئيسية للمتجر
+                                        </label>
+                                        <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" asp-for="ComparisonActive" id="mainFormComparisonActive" style="cursor: pointer; width: 2.4em; height: 1.25em;">
+                                    </div>
+                                </div>
+
+                                <!-- Badge Text -->
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">نص الشارة العلوية (Badge Text)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-tag"></i></span>
+                                        <input asp-for="ComparisonBadgeText" class="form-control rounded-start-3" placeholder="MAISON ROVEN • QUALITY PROMISE" />
+                                    </div>
+                                    <small class="text-muted" style="font-size: 0.73rem;">النص في الكبسولة الصغيرة أعلى العنوان</small>
+                                </div>
+
+                                <!-- Title -->
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">العنوان الرئيسي (Title)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-heading"></i></span>
+                                        <input asp-for="ComparisonTitle" class="form-control rounded-start-3" placeholder="US VS THEM" />
+                                    </div>
+                                    <small class="text-muted" style="font-size: 0.73rem;">العنوان البارز في العمود الأيمن/الأيسر</small>
+                                </div>
+
+                                <!-- Subtitle -->
+                                <div class="col-12">
+                                    <label class="form-label small fw-bold text-secondary mb-1">النص الوصفي التوضيحي (Subtitle)</label>
+                                    <textarea asp-for="ComparisonSubtitle" class="form-control rounded-3" rows="2" placeholder="Why settle for the brand name when you can wear the same scent for a fraction of the price?"></textarea>
+                                </div>
+
+                                <!-- Button Text & Link -->
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">نص زر التوجيه (Button Text)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-square-arrow-up-right"></i></span>
+                                        <input asp-for="ComparisonButtonText" class="form-control rounded-start-3" placeholder="Shop Now" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">رابط زر التوجيه (Button Link)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-link"></i></span>
+                                        <input asp-for="ComparisonButtonLink" class="form-control rounded-start-3 font-monospace" placeholder="/Store" />
+                                    </div>
+                                </div>
+
+                                <!-- Labels for Before & After -->
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">تسمية الطرف الأول (Before Label)</label>
+                                    <input asp-for="ComparisonBeforeLabel" class="form-control rounded-3" placeholder="Before" />
+                                    <small class="text-muted" style="font-size: 0.73rem;">الاسم العائم أعلى يسار الصورة (افتراضي: Before أو Them)</small>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">تسمية الطرف الثاني (After Label)</label>
+                                    <input asp-for="ComparisonAfterLabel" class="form-control rounded-3" placeholder="After" />
+                                    <small class="text-muted" style="font-size: 0.73rem;">الاسم العائم أعلى يمين الصورة (افتراضي: After أو Maison ROVEN)</small>
+                                </div>
+
+                                <!-- Image URLs (fallback/direct) -->
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">مسار صورة Before الحالية</label>
+                                    <input asp-for="ComparisonBeforeImageUrl" class="form-control rounded-3 font-monospace form-control-sm" placeholder="/images/comparison/roven-comparison-before.svg" />
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label small fw-bold text-secondary mb-1">مسار صورة After الحالية</label>
+                                    <input asp-for="ComparisonAfterImageUrl" class="form-control rounded-3 font-monospace form-control-sm" placeholder="/images/comparison/roven-comparison-after.svg" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- Sticky Bottom Save Bar -->
@@ -2138,6 +2318,10 @@
 </form>
 
 <form id="resetMainBrandHeroForm" asp-controller="HomeControl" asp-action="ResetMainBrandHero" method="post" class="d-none" onsubmit="return confirm('هل أنت متأكد من استعادة صور وإعدادات الهيرو الأصلية الافتراضية للدار؟');">
+    @Html.AntiForgeryToken()
+</form>
+
+<form id="resetComparisonForm" asp-controller="HomeControl" asp-action="ResetComparisonSection" method="post" class="d-none" onsubmit="return confirm('هل أنت متأكد من استعادة صور وإعدادات سكشن المقارنة الافتراضية للدار؟');">
     @Html.AntiForgeryToken()
 </form>
 
@@ -2259,6 +2443,122 @@
                         </button>
                         <button type="submit" class="btn fw-bold px-4 py-2.5 rounded-pill shadow-sm text-white" style="background: #810100; border: none;">
                             <i class="fa-solid fa-floppy-disk me-1"></i> حفظ وتحديث الهيرو
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Edit Before & After Comparison Section -->
+<div class="modal fade" id="editComparisonModal" tabindex="-1" aria-labelledby="editComparisonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow-lg bg-white">
+            <div class="modal-header border-bottom pb-3 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="modal-title fw-bold" id="editComparisonModalLabel" style="color: #1B1717; font-family: 'Playfair Display', serif;">
+                    <i class="fa-solid fa-code-compare text-success me-2"></i>تعديل ورفع صور سكشن المقارنة (Before &amp; After)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="HomeControl" asp-action="UpdateComparison" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-3">
+                        
+                        <!-- Before Image Upload Card -->
+                        <div class="p-3 rounded-3 bg-light border">
+                            <label class="form-label small fw-bold text-dark d-flex align-items-center gap-1.5 mb-1">
+                                <span class="rounded-circle bg-danger" style="width: 8px; height: 8px;"></span>
+                                <span>صورة الطرف الأول (Before Image - العطور التقليدية / المنافسين)</span>
+                            </label>
+                            <div class="text-muted small mb-2" style="font-size: 0.76rem;">
+                                ارفع ملف صورة (WebP, PNG, JPG) أو أدخل رابط مباشر. المقاس الموصى به: 900 × 600 بكسل (أو نسبة 16:10 / 4:3).
+                            </div>
+                            <input type="file" name="beforeImage" id="compBeforeFileInput" accept="image/*" class="form-control rounded-3" />
+                            <div class="row g-2 mt-2">
+                                <div class="col-12 col-md-8">
+                                    <label class="form-label text-muted small mb-1" style="font-size: 0.75rem;">مسار / رابط الصورة المباشر:</label>
+                                    <input type="text" name="beforeImageUrl" id="compBeforeUrlInput" value="@Model.ComparisonBeforeImageUrl" class="form-control form-control-sm rounded-3 font-monospace" placeholder="/images/comparison/roven-comparison-before.svg" />
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label text-muted small mb-1" style="font-size: 0.75rem;">تسمية الطرف (Before Label):</label>
+                                    <input type="text" name="comparisonBeforeLabel" value="@(string.IsNullOrWhiteSpace(Model.ComparisonBeforeLabel) ? "Before" : Model.ComparisonBeforeLabel)" class="form-control form-control-sm rounded-3 fw-bold" placeholder="Before" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- After Image Upload Card -->
+                        <div class="p-3 rounded-3 bg-light border">
+                            <label class="form-label small fw-bold text-dark d-flex align-items-center gap-1.5 mb-1">
+                                <i class="fa-solid fa-crown text-warning" style="font-size: 0.8rem;"></i>
+                                <span>صورة الطرف الثاني (After Image - عطور دار ROVEN الفاخرة)</span>
+                            </label>
+                            <div class="text-muted small mb-2" style="font-size: 0.76rem;">
+                                ارفع ملف صورة (WebP, PNG, JPG) أو أدخل رابط مباشر. يجب أن تكون بنفس أبعاد ومقاس صورة Before لتطابق السلايدر بدقة.
+                            </div>
+                            <input type="file" name="afterImage" id="compAfterFileInput" accept="image/*" class="form-control rounded-3" />
+                            <div class="row g-2 mt-2">
+                                <div class="col-12 col-md-8">
+                                    <label class="form-label text-muted small mb-1" style="font-size: 0.75rem;">مسار / رابط الصورة المباشر:</label>
+                                    <input type="text" name="afterImageUrl" id="compAfterUrlInput" value="@Model.ComparisonAfterImageUrl" class="form-control form-control-sm rounded-3 font-monospace" placeholder="/images/comparison/roven-comparison-after.svg" />
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label text-muted small mb-1" style="font-size: 0.75rem;">تسمية الطرف (After Label):</label>
+                                    <input type="text" name="comparisonAfterLabel" value="@(string.IsNullOrWhiteSpace(Model.ComparisonAfterLabel) ? "After" : Model.ComparisonAfterLabel)" class="form-control form-control-sm rounded-3 fw-bold" placeholder="After" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Badge & Title -->
+                        <div class="row g-2">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">نص الشارة العلوية (Badge Text)</label>
+                                <input type="text" name="comparisonBadgeText" value="@Model.ComparisonBadgeText" class="form-control rounded-3" placeholder="MAISON ROVEN • QUALITY PROMISE" />
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">العنوان الرئيسي (Title)</label>
+                                <input type="text" name="comparisonTitle" value="@Model.ComparisonTitle" class="form-control rounded-3" placeholder="US VS THEM" />
+                            </div>
+                        </div>
+
+                        <!-- Subtitle -->
+                        <div>
+                            <label class="form-label small fw-bold text-dark mb-1">النص الوصفي التوضيحي (Subtitle)</label>
+                            <textarea name="comparisonSubtitle" class="form-control rounded-3" rows="2" placeholder="Why settle for the brand name when you can wear the same scent for a fraction of the price?">@Model.ComparisonSubtitle</textarea>
+                        </div>
+
+                        <!-- Button Text & Link -->
+                        <div class="row g-2">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">نص الزر (Button Text)</label>
+                                <input type="text" name="comparisonButtonText" value="@(string.IsNullOrWhiteSpace(Model.ComparisonButtonText) ? "Shop Now" : Model.ComparisonButtonText)" class="form-control rounded-3" placeholder="Shop Now" />
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small fw-bold text-dark mb-1">رابط الزر (Button Link)</label>
+                                <input type="text" name="comparisonButtonLink" value="@(string.IsNullOrWhiteSpace(Model.ComparisonButtonLink) ? "/Store" : Model.ComparisonButtonLink)" class="form-control rounded-3 font-monospace" placeholder="/Store" />
+                            </div>
+                        </div>
+
+                        <!-- Active Toggle -->
+                        <div class="form-check form-switch mt-1">
+                            <input type="checkbox" name="comparisonActive" class="form-check-input" value="true" @(Model.ComparisonActive ? "checked" : "") id="modalCompActiveCheck" style="cursor: pointer; width: 2.2em; height: 1.2em;" />
+                            <label class="form-check-label small fw-bold ms-2 pt-1" for="modalCompActiveCheck">
+                                إظهار وتفعيل سكشن المقارنة في الصفحة الرئيسية للمتجر
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 pb-4 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2" onclick="setComparisonDefaults();" title="استعادة المسارات الأصلية الافتراضية">
+                        <i class="fa-solid fa-arrow-rotate-left me-1"></i>استعادة المسارات الافتراضية
+                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary px-4 py-2.5 rounded-pill" data-bs-dismiss="modal">
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn fw-bold px-4 py-2.5 rounded-pill shadow-sm text-white" style="background: #810100; border: none;">
+                            <i class="fa-solid fa-floppy-disk me-1"></i> حفظ وتحديث المقارنة
                         </button>
                     </div>
                 </div>
@@ -3513,6 +3813,7 @@
                     'TrustBadges',
                     'HeroBanners',
                     'Categories',
+                    'Comparison',
                     'Offers',
                     'Featured',
                     'BestSellers',
@@ -3547,6 +3848,13 @@
         const mobileInput = document.getElementById('mainHeroMobileUrlInput');
         if (desktopInput) desktopInput.value = '/images/banners/roven-hero-main.png';
         if (mobileInput) mobileInput.value = '/images/banners/roven-hero-main-sm.png';
+    }
+
+    function setComparisonDefaults() {
+        const beforeInput = document.getElementById('compBeforeUrlInput');
+        const afterInput = document.getElementById('compAfterUrlInput');
+        if (beforeInput) beforeInput.value = '/images/comparison/roven-comparison-before.svg';
+        if (afterInput) afterInput.value = '/images/comparison/roven-comparison-after.svg';
     }
 
     // ==============================================================

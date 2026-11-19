@@ -14,7 +14,8 @@
         ("TrustBadges", settings?.OrderTrustBadges > 0 ? settings.OrderTrustBadges : 3, settings?.ShowTrustBadges ?? true),
         ("HeroBanners", settings?.OrderHeroBanners > 0 ? settings.OrderHeroBanners : 4, settings?.ShowHeroBanners ?? true),
         ("Categories", settings?.OrderCategories > 0 ? settings.OrderCategories : 5, settings?.ShowCategoriesShowcase ?? true),
-        ("Offers", settings?.OrderOffers > 0 ? settings.OrderOffers : 6, settings?.SpotlightActive ?? true),
+        ("Comparison", settings?.OrderComparison > 0 ? settings.OrderComparison : 6, (settings?.ComparisonActive ?? true) && (settings?.ShowComparisonSection ?? true)),
+        ("Offers", settings?.OrderOffers > 0 ? settings.OrderOffers : 7, settings?.SpotlightActive ?? true),
         ("Featured", settings?.OrderFeatured > 0 ? settings.OrderFeatured : 7, settings?.ShowFeaturedSection ?? true),
         ("BestSellers", settings?.OrderBestSellers > 0 ? settings.OrderBestSellers : 8, settings?.ShowBestSellersSection ?? true),
         ("Testimonials", settings?.OrderTestimonials > 0 ? settings.OrderTestimonials : 9, settings?.ShowTestimonialsSection ?? true),
@@ -67,6 +68,10 @@
         case "Categories":
             <!-- 5. INTERACTIVE CATEGORY SHOWCASE (Fragrance Departments) -->
             <partial name="Partials/_CategoryShowcase" model="Model" />
+            break;
+        case "Comparison":
+            <!-- 6. BEFORE & AFTER / US VS THEM INTERACTIVE COMPARISON SLIDER -->
+            <partial name="Partials/_ComparisonSlider" model="Model" />
             break;
         case "Offers":
             <!-- 6. FLASH DEAL / SPOTLIGHT FRAGRANCES (Multi-Product Special Offers) -->

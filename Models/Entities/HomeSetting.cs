@@ -165,6 +165,37 @@ public class HomeSetting
     [MaxLength(500)]
     public string FaqSubtitle { get; set; } = "Everything you need to know about concentrations, parcel inspection, and authenticity";
 
+    // Before & After / Us vs Them Image Comparison Section
+    public bool ComparisonActive { get; set; } = true;
+    public bool ShowComparisonSection { get; set; } = true;
+    public int OrderComparison { get; set; } = 6;
+
+    [MaxLength(150)]
+    public string ComparisonBadgeText { get; set; } = "MAISON ROVEN • QUALITY PROMISE";
+
+    [MaxLength(300)]
+    public string ComparisonTitle { get; set; } = "US VS THEM";
+
+    public string ComparisonSubtitle { get; set; } = "Why settle for the brand name when you can wear the same scent for a fraction of the price?";
+
+    [MaxLength(100)]
+    public string ComparisonButtonText { get; set; } = "Shop Now";
+
+    [MaxLength(300)]
+    public string ComparisonButtonLink { get; set; } = "/Store";
+
+    [MaxLength(500)]
+    public string? ComparisonBeforeImageUrl { get; set; } = null;
+
+    [MaxLength(500)]
+    public string? ComparisonAfterImageUrl { get; set; } = null;
+
+    [MaxLength(100)]
+    public string ComparisonBeforeLabel { get; set; } = "Before";
+
+    [MaxLength(100)]
+    public string ComparisonAfterLabel { get; set; } = "After";
+
     // Section Toggles
     public bool ShowBrandHero { get; set; } = true;
     public bool ShowHeroBanners { get; set; } = true;

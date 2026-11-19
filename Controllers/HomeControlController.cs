@@ -79,12 +79,24 @@ public class HomeControlController : Controller
             if (settings.OrderTrustBadges <= 0) { settings.OrderTrustBadges = 3; needsSave = true; }
             if (settings.OrderHeroBanners <= 0) { settings.OrderHeroBanners = 4; needsSave = true; }
             if (settings.OrderCategories <= 0) { settings.OrderCategories = 5; needsSave = true; }
-            if (settings.OrderOffers <= 0) { settings.OrderOffers = 6; needsSave = true; }
-            if (settings.OrderFeatured <= 0) { settings.OrderFeatured = 7; needsSave = true; }
-            if (settings.OrderBestSellers <= 0) { settings.OrderBestSellers = 8; needsSave = true; }
-            if (settings.OrderTestimonials <= 0) { settings.OrderTestimonials = 9; needsSave = true; }
-            if (settings.OrderFaq <= 0) { settings.OrderFaq = 10; needsSave = true; }
-            if (settings.OrderNewsletter <= 0) { settings.OrderNewsletter = 11; needsSave = true; }
+            if (settings.OrderComparison <= 0) { settings.OrderComparison = 6; needsSave = true; }
+            if (settings.OrderOffers <= 0) { settings.OrderOffers = 7; needsSave = true; }
+            if (settings.OrderFeatured <= 0) { settings.OrderFeatured = 8; needsSave = true; }
+            if (settings.OrderBestSellers <= 0) { settings.OrderBestSellers = 9; needsSave = true; }
+            if (settings.OrderTestimonials <= 0) { settings.OrderTestimonials = 10; needsSave = true; }
+            if (settings.OrderFaq <= 0) { settings.OrderFaq = 11; needsSave = true; }
+            if (settings.OrderNewsletter <= 0) { settings.OrderNewsletter = 12; needsSave = true; }
+
+            // Ensure Comparison section defaults
+            if (string.IsNullOrWhiteSpace(settings.ComparisonBadgeText)) { settings.ComparisonBadgeText = "MAISON ROVEN • QUALITY PROMISE"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonTitle)) { settings.ComparisonTitle = "US VS THEM"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonSubtitle)) { settings.ComparisonSubtitle = "Why settle for the brand name when you can wear the same scent for a fraction of the price?"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonButtonText)) { settings.ComparisonButtonText = "Shop Now"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonButtonLink)) { settings.ComparisonButtonLink = "/Store"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonBeforeLabel)) { settings.ComparisonBeforeLabel = "Before"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonAfterLabel)) { settings.ComparisonAfterLabel = "After"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonBeforeImageUrl)) { settings.ComparisonBeforeImageUrl = "/images/comparison/roven-comparison-before.svg"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonAfterImageUrl)) { settings.ComparisonAfterImageUrl = "/images/comparison/roven-comparison-after.svg"; needsSave = true; }
 
             // Ensure Main Brand Hero properties are initialized with approved defaults
             if (string.IsNullOrWhiteSpace(settings.BrandHeroDesktopImageUrl))
@@ -346,6 +358,106 @@ public class HomeControlController : Controller
         TempData["SuccessMessage"] = "تمت استعادة صور وإعدادات بانر الهيرو الأساسي الافتراضية بنجاح!";
         return RedirectToAction(nameof(Index));
     }
+
+    #region Before & After Comparison Section Management
+
+    // POST: /HomeControl/UpdateComparison
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateComparison(
+        bool comparisonActive,
+        string? comparisonBadgeText,
+        string? comparisonTitle,
+        string? comparisonSubtitle,
+        string? comparisonButtonText,
+        string? comparisonButtonLink,
+        string? comparisonBeforeLabel,
+        string? comparisonAfterLabel,
+        IFormFile? beforeImage,
+        string? beforeImageUrl,
+        IFormFile? afterImage,
+        string? afterImageUrl)
+    {
+        var settings = await _context.HomeSettings.FirstOrDefaultAsync();
+        if (settings == null)
+        {
+            settings = new HomeSetting();
+            _context.HomeSettings.Add(settings);
+        }
+
+        settings.ComparisonActive = comparisonActive;
+        settings.ShowComparisonSection = comparisonActive;
+        settings.ComparisonBadgeText = !string.IsNullOrWhiteSpace(comparisonBadgeText) ? comparisonBadgeText.Trim() : "MAISON ROVEN • QUALITY PROMISE";
+        settings.ComparisonTitle = !string.IsNullOrWhiteSpace(comparisonTitle) ? comparisonTitle.Trim() : "US VS THEM";
+        settings.ComparisonSubtitle = !string.IsNullOrWhiteSpace(comparisonSubtitle) ? comparisonSubtitle.Trim() : "Why settle for the brand name when you can wear the same scent for a fraction of the price?";
+        settings.ComparisonButtonText = !string.IsNullOrWhiteSpace(comparisonButtonText) ? comparisonButtonText.Trim() : "Shop Now";
+        settings.ComparisonButtonLink = !string.IsNullOrWhiteSpace(comparisonButtonLink) ? comparisonButtonLink.Trim() : "/Store";
+        settings.ComparisonBeforeLabel = !string.IsNullOrWhiteSpace(comparisonBeforeLabel) ? comparisonBeforeLabel.Trim() : "Before";
+        settings.ComparisonAfterLabel = !string.IsNullOrWhiteSpace(comparisonAfterLabel) ? comparisonAfterLabel.Trim() : "After";
+
+        if (beforeImage != null && beforeImage.Length > 0)
+        {
+            var savedBefore = await SaveBannerFileAsync(beforeImage, "comp_before");
+            if (!string.IsNullOrWhiteSpace(savedBefore))
+            {
+                settings.ComparisonBeforeImageUrl = savedBefore;
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(beforeImageUrl))
+        {
+            settings.ComparisonBeforeImageUrl = beforeImageUrl.Trim();
+        }
+
+        if (afterImage != null && afterImage.Length > 0)
+        {
+            var savedAfter = await SaveBannerFileAsync(afterImage, "comp_after");
+            if (!string.IsNullOrWhiteSpace(savedAfter))
+            {
+                settings.ComparisonAfterImageUrl = savedAfter;
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(afterImageUrl))
+        {
+            settings.ComparisonAfterImageUrl = afterImageUrl.Trim();
+        }
+
+        await _context.SaveChangesAsync();
+        await AutoSyncLocalImagesToCloudinaryAsync();
+        InvalidateStoreCache();
+
+        TempData["SuccessMessage"] = "تم تحديث إعدادات وصور سكشن المقارنة (قبل وبعد / Before & After) بنجاح!";
+        return RedirectToAction(nameof(Index), new { tab = "tab-comparison" });
+    }
+
+    // POST: /HomeControl/ResetComparisonSection
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetComparisonSection()
+    {
+        var settings = await _context.HomeSettings.FirstOrDefaultAsync();
+        if (settings != null)
+        {
+            settings.ComparisonActive = true;
+            settings.ShowComparisonSection = true;
+            settings.ComparisonBadgeText = "MAISON ROVEN • QUALITY PROMISE";
+            settings.ComparisonTitle = "US VS THEM";
+            settings.ComparisonSubtitle = "Why settle for the brand name when you can wear the same scent for a fraction of the price?";
+            settings.ComparisonButtonText = "Shop Now";
+            settings.ComparisonButtonLink = "/Store";
+            settings.ComparisonBeforeLabel = "Before";
+            settings.ComparisonAfterLabel = "After";
+            settings.ComparisonBeforeImageUrl = "/images/comparison/roven-comparison-before.svg";
+            settings.ComparisonAfterImageUrl = "/images/comparison/roven-comparison-after.svg";
+
+            await _context.SaveChangesAsync();
+            InvalidateStoreCache();
+        }
+
+        TempData["SuccessMessage"] = "تمت استعادة الإعدادات والصور الافتراضية لسكشن المقارنة بنجاح!";
+        return RedirectToAction(nameof(Index), new { tab = "tab-comparison" });
+    }
+
+    #endregion
 
     private async Task<string?> SaveBannerFileAsync(IFormFile? file, string prefix)
     {
@@ -759,6 +871,19 @@ public class HomeControlController : Controller
         settings.ShowBestSellersSection = model.ShowBestSellersSection;
         settings.ShowFaqSection = model.ShowFaqSection;
         settings.ShowNewsletterSection = model.ShowNewsletterSection;
+        settings.ShowComparisonSection = model.ShowComparisonSection;
+        settings.ComparisonActive = model.ComparisonActive;
+
+        // Comparison Section Details
+        if (!string.IsNullOrWhiteSpace(model.ComparisonBadgeText)) settings.ComparisonBadgeText = model.ComparisonBadgeText.Trim();
+        if (!string.IsNullOrWhiteSpace(model.ComparisonTitle)) settings.ComparisonTitle = model.ComparisonTitle.Trim();
+        if (!string.IsNullOrWhiteSpace(model.ComparisonSubtitle)) settings.ComparisonSubtitle = model.ComparisonSubtitle.Trim();
+        if (!string.IsNullOrWhiteSpace(model.ComparisonButtonText)) settings.ComparisonButtonText = model.ComparisonButtonText.Trim();
+        if (!string.IsNullOrWhiteSpace(model.ComparisonButtonLink)) settings.ComparisonButtonLink = model.ComparisonButtonLink.Trim();
+        if (!string.IsNullOrWhiteSpace(model.ComparisonBeforeLabel)) settings.ComparisonBeforeLabel = model.ComparisonBeforeLabel.Trim();
+        if (!string.IsNullOrWhiteSpace(model.ComparisonAfterLabel)) settings.ComparisonAfterLabel = model.ComparisonAfterLabel.Trim();
+        if (!string.IsNullOrWhiteSpace(model.ComparisonBeforeImageUrl)) settings.ComparisonBeforeImageUrl = model.ComparisonBeforeImageUrl.Trim();
+        if (!string.IsNullOrWhiteSpace(model.ComparisonAfterImageUrl)) settings.ComparisonAfterImageUrl = model.ComparisonAfterImageUrl.Trim();
 
         // Section Display Order
         settings.OrderBrandHero = model.OrderBrandHero > 0 ? model.OrderBrandHero : 1;
@@ -766,12 +891,13 @@ public class HomeControlController : Controller
         settings.OrderTrustBadges = model.OrderTrustBadges > 0 ? model.OrderTrustBadges : 3;
         settings.OrderHeroBanners = model.OrderHeroBanners > 0 ? model.OrderHeroBanners : 4;
         settings.OrderCategories = model.OrderCategories > 0 ? model.OrderCategories : 5;
-        settings.OrderOffers = model.OrderOffers > 0 ? model.OrderOffers : 6;
-        settings.OrderFeatured = model.OrderFeatured > 0 ? model.OrderFeatured : 7;
-        settings.OrderBestSellers = model.OrderBestSellers > 0 ? model.OrderBestSellers : 8;
-        settings.OrderTestimonials = model.OrderTestimonials > 0 ? model.OrderTestimonials : 9;
-        settings.OrderFaq = model.OrderFaq > 0 ? model.OrderFaq : 10;
-        settings.OrderNewsletter = model.OrderNewsletter > 0 ? model.OrderNewsletter : 11;
+        settings.OrderComparison = model.OrderComparison > 0 ? model.OrderComparison : 6;
+        settings.OrderOffers = model.OrderOffers > 0 ? model.OrderOffers : 7;
+        settings.OrderFeatured = model.OrderFeatured > 0 ? model.OrderFeatured : 8;
+        settings.OrderBestSellers = model.OrderBestSellers > 0 ? model.OrderBestSellers : 9;
+        settings.OrderTestimonials = model.OrderTestimonials > 0 ? model.OrderTestimonials : 10;
+        settings.OrderFaq = model.OrderFaq > 0 ? model.OrderFaq : 11;
+        settings.OrderNewsletter = model.OrderNewsletter > 0 ? model.OrderNewsletter : 12;
 
         await _context.SaveChangesAsync();
         await AutoSyncLocalImagesToCloudinaryAsync();

@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="900" height="600">
+  <defs>
+    <linearGradient id="bgAfter" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCFAF6" />
+      <stop offset="100%" stop-color="#F5EFE4" />
+    </linearGradient>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#dfb15b" />
+      <stop offset="50%" stop-color="#ffdc89" />
+      <stop offset="100%" stop-color="#b8860b" />
+    </linearGradient>
+    <linearGradient id="crimsonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#810100" />
+      <stop offset="100%" stop-color="#550000" />
+    </linearGradient>
+    <filter id="shadowAfter" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-opacity="0.1" flood-color="#810100" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="600" fill="url(#bgAfter)" />
+
+  <!-- Luxury Gold Ring and Ambient Glow -->
+  <circle cx="740" cy="300" r="230" fill="none" stroke="#dfb15b" stroke-width="1.5" opacity="0.35" stroke-dasharray="6 4" />
+  <circle cx="740" cy="300" r="160" fill="url(#goldGradient)" opacity="0.08" />
+
+  <!-- Maison ROVEN Flacon Artwork Silhouette in Background -->
+  <g transform="translate(640, 120)">
+    <!-- Aura mist -->
+    <path d="M100 80 Q130 30 190 20 Q150 70 170 120" stroke="url(#goldGradient)" stroke-width="2" fill="none" opacity="0.5" />
+    <circle cx="180" cy="40" r="3" fill="#dfb15b" opacity="0.6" />
+    <circle cx="195" cy="65" r="2" fill="#dfb15b" opacity="0.4" />
+    <circle cx="160" cy="25" r="2.5" fill="#dfb15b" opacity="0.5" />
+
+    <!-- Luxurious Cap (Faceted Octagon) -->
+    <polygon points="70,0 130,0 150,30 130,60 70,60 50,30" fill="#1B1717" stroke="url(#goldGradient)" stroke-width="2" />
+    <!-- Gold Neck Collar -->
+    <rect x="80" y="60" width="40" height="15" fill="url(#goldGradient)" />
+    <!-- Flacon Body (Heavy Crystal & Royal Crimson) -->
+    <rect x="25" y="75" width="150" height="240" rx="18" fill="url(#crimsonGradient)" stroke="url(#goldGradient)" stroke-width="3" filter="url(#shadowAfter)" />
+    <!-- Inner Gold Frame -->
+    <rect x="40" y="110" width="120" height="170" rx="10" fill="none" stroke="url(#goldGradient)" stroke-width="1.2" opacity="0.75" />
+    <!-- ROVEN Logo on Bottle -->
+    <text x="100" y="170" text-anchor="middle" font-family="'Cinzel', 'Playfair Display', serif" font-size="20" font-weight="800" fill="#dfb15b" letter-spacing="3">ROVEN</text>
+    <line x1="60" y1="182" x2="140" y2="182" stroke="#dfb15b" stroke-width="1" opacity="0.6" />
+    <text x="100" y="200" text-anchor="middle" font-family="'Montserrat', sans-serif" font-size="9" font-weight="600" fill="#FFFFFF" letter-spacing="2">EXTRAIT DE PARFUM</text>
+    <text x="100" y="220" text-anchor="middle" font-family="'Montserrat', sans-serif" font-size="8" font-weight="700" fill="#dfb15b" letter-spacing="1">30% PURE ESSENCE</text>
+  </g>
+
+  <!-- Header Badge -->
+  <g transform="translate(60, 60)">
+    <rect x="0" y="0" width="160" height="32" rx="16" fill="url(#crimsonGradient)" />
+    <text x="80" y="21" text-anchor="middle" font-family="'Cinzel', 'Playfair Display', serif" font-size="13" font-weight="800" fill="#dfb15b" letter-spacing="1.5">AFTER / MAISON ROVEN</text>
+  </g>
+
+  <!-- Comparison Points List -->
+  <g transform="translate(60, 125)">
+    <!-- Point 1 -->
+    <g transform="translate(0, 0)" filter="url(#shadowAfter)">
+      <rect width="480" height="82" rx="14" fill="#FFFFFF" stroke="rgba(223, 177, 91, 0.45)" stroke-width="1.5" />
+      <circle cx="44" cy="41" r="22" fill="#D1FAE5" />
+      <!-- Clock / Lasting icon -->
+      <circle cx="44" cy="41" r="10" stroke="#059669" stroke-width="2.2" fill="none" />
+      <polyline points="44,36 44,41 49,43" stroke="#059669" stroke-width="2.2" stroke-linecap="round" fill="none" />
+      <text x="82" y="34" font-family="'Playfair Display', 'Cinzel', serif" font-size="16" font-weight="800" fill="#810100" letter-spacing="0.5">LASTS 24+ HOURS</text>
+      <text x="82" y="56" font-family="'Montserrat', sans-serif" font-size="12.5" font-weight="500" fill="#1F2937">Extraits matured for 60 days, delivering eternal sillage</text>
+    </g>
+
+    <!-- Point 2 -->
+    <g transform="translate(0, 100)" filter="url(#shadowAfter)">
+      <rect width="480" height="82" rx="14" fill="#FFFFFF" stroke="rgba(223, 177, 91, 0.45)" stroke-width="1.5" />
+      <circle cx="44" cy="41" r="22" fill="#D1FAE5" />
+      <!-- Lightning / Strong scent icon -->
+      <path d="M45 30 L38 41 H44 L43 52 L51 40 H45 Z" stroke="#059669" stroke-width="2" stroke-linejoin="round" fill="#059669" opacity="0.85" />
+      <text x="82" y="34" font-family="'Playfair Display', 'Cinzel', serif" font-size="16" font-weight="800" fill="#810100" letter-spacing="0.5">30% PURE OIL CONCENTRATION</text>
+      <text x="82" y="56" font-family="'Montserrat', sans-serif" font-size="12.5" font-weight="500" fill="#1F2937">Supreme French &amp; Oriental Grasse oils with majestic projection</text>
+    </g>
+
+    <!-- Point 3 -->
+    <g transform="translate(0, 200)" filter="url(#shadowAfter)">
+      <rect width="480" height="82" rx="14" fill="#FFFFFF" stroke="rgba(223, 177, 91, 0.45)" stroke-width="1.5" />
+      <circle cx="44" cy="41" r="22" fill="#D1FAE5" />
+      <!-- Safe leaf / fabric icon -->
+      <path d="M44 32 C37 36 36 45 44 50 C51 45 51 36 44 32 Z" stroke="#059669" stroke-width="2.2" fill="none" />
+      <line x1="44" y1="36" x2="44" y2="48" stroke="#059669" stroke-width="1.8" />
+      <text x="82" y="34" font-family="'Playfair Display', 'Cinzel', serif" font-size="16" font-weight="800" fill="#810100" letter-spacing="0.5">SAFE ON SKIN &amp; FABRICS</text>
+      <text x="82" y="56" font-family="'Montserrat', sans-serif" font-size="12.5" font-weight="500" fill="#1F2937">Zero staining, premium cosmetic-grade formulation</text>
+    </g>
+
+    <!-- Point 4 -->
+    <g transform="translate(0, 300)" filter="url(#shadowAfter)">
+      <rect width="480" height="82" rx="14" fill="#FFFFFF" stroke="rgba(223, 177, 91, 0.45)" stroke-width="1.5" />
+      <circle cx="44" cy="41" r="22" fill="#D1FAE5" />
+      <!-- Shield / Guarantee icon -->
+      <path d="M44 31 L52 35 V42 C52 47 48 51 44 52 C40 51 36 47 36 42 V35 Z" stroke="#059669" stroke-width="2" fill="none" />
+      <path d="M40 41 L43 44 L48 38" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      <text x="82" y="34" font-family="'Playfair Display', 'Cinzel', serif" font-size="16" font-weight="800" fill="#810100" letter-spacing="0.5">INSPECT BEFORE YOU PAY (COD)</text>
+      <text x="82" y="56" font-family="'Montserrat', sans-serif" font-size="12.5" font-weight="500" fill="#1F2937">Open and inspect packaging before courier payment nationwide</text>
+    </g>
+  </g>
+</svg>

@@ -753,6 +753,51 @@ namespace Stockify.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<bool>("ComparisonActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ComparisonAfterImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ComparisonAfterLabel")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ComparisonBadgeText")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("ComparisonBeforeImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ComparisonBeforeLabel")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ComparisonButtonLink")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("ComparisonButtonText")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ComparisonSubtitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ComparisonTitle")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
                     b.Property<string>("ContactEmail")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -860,6 +905,9 @@ namespace Stockify.Migrations
                     b.Property<int>("OrderCategories")
                         .HasColumnType("int");
 
+                    b.Property<int>("OrderComparison")
+                        .HasColumnType("int");
+
                     b.Property<int>("OrderFaq")
                         .HasColumnType("int");
 
@@ -891,6 +939,9 @@ namespace Stockify.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("ShowCategoriesShowcase")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ShowComparisonSection")
                         .HasColumnType("bit");
 
                     b.Property<bool>("ShowFaqSection")
