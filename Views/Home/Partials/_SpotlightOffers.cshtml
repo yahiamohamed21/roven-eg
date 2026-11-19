@@ -218,6 +218,13 @@
         </section>
 
         <script>
+            function rovenScrollTrack(trackId, direction) {
+                var track = document.getElementById(trackId);
+                if (!track) return;
+                var step = track.clientWidth || 400;
+                track.scrollBy({ left: direction * step, behavior: 'smooth' });
+            }
+
             function rovenScrollToOffer(index) {
                 var track = document.getElementById('rovenOffersTrack');
                 if (!track) return;
