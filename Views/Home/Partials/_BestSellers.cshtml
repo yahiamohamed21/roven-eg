@@ -2,7 +2,7 @@
 @if ((Model.Settings?.ShowBestSellersSection != false) && Model.BestSellers.Any())
 {
     <section id="homeBestSellersSection" class="py-5 bg-white border-top border-bottom overflow-hidden w-100" style="border-color: #e8e3d5 !important;">
-        <div class="container">
+        <div class="container position-relative">
             <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-4">
                 <div>
                     <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-semibold mb-2 d-inline-flex align-items-center gap-2 shadow-xs" style="background-color: #EDEBDD !important; color: #630000 !important; border: 1px solid rgba(99, 0, 0, 0.2) !important; font-size: 0.78rem;">
@@ -18,68 +18,79 @@
                 </a>
             </div>
 
-            <div class="row g-4">
-                @foreach (var product in Model.BestSellers)
-                {
-                    <div class="col-12 col-sm-6 col-lg-3">
-                        <div class="product-card roven-store-flacon-card" data-details-url="@Url.Action("Details", "Store", new { id = product.Id })">
-                            <a asp-controller="Store" asp-action="Details" asp-route-id="@product.Id" class="product-image-container d-block position-relative text-decoration-none" title="عرض تفاصيل عطر @product.Name">
-                                @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
-                                {
-                                    <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='/images/products/perfume_default.svg'" />
-                                }
-                                else
-                                {
-                                    <i class="fa-solid fa-spray-can-sparkles display-4" style="color: #EDEBDD;"></i>
-                                }
-                                <div class="position-absolute top-0 end-0 m-3 z-2">
-                                    <span class="badge roven-badge-featured shadow-xs">
-                                        <i class="fa-solid fa-fire me-1"></i>Best Seller
-                                    </span>
-                                </div>
-                            </a>
+            <!-- Horizontal X-Axis Scroll Carousel Track (4 Products per view) -->
+            <div class="roven-products-carousel-wrap position-relative">
+                <!-- Navigation Arrow Controls -->
+                <button type="button" class="roven-products-nav-btn roven-products-nav-prev d-none d-md-flex" onclick="rovenScrollTrack('bestSellersProductsTrack', -1)" aria-label="Previous parfums">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button type="button" class="roven-products-nav-btn roven-products-nav-next d-none d-md-flex" onclick="rovenScrollTrack('bestSellersProductsTrack', 1)" aria-label="Next parfums">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
 
-                            <div class="p-3 d-flex flex-column flex-grow-1">
-                                <div class="roven-product-cat-wrap">
-                                    <span class="roven-product-cat-badge">
-                                        <span class="roven-cat-dot" aria-hidden="true"></span>
-                                        <span>@product.CategoryName</span>
-                                    </span>
-                                </div>
-
-                                <h4 class="roven-product-title">
-                                    <a asp-controller="Store" asp-action="Details" asp-route-id="@product.Id" title="عرض تفاصيل عطر @product.Name">
-                                        @product.Name
-                                    </a>
-                                </h4>
-
-                                <div class="roven-product-tagline">
-                                    <span>@(string.IsNullOrWhiteSpace(product.FragranceTagline) ? Model.DefaultFragranceTagline : product.FragranceTagline)</span>
-                                </div>
-
-                                <div class="roven-card-footer">
-                                    <div>
-                                        <div class="roven-price-label">Price</div>
-                                        <div class="roven-price-val">
-                                            @product.Price.ToString("N2") <span class="roven-price-curr">EGP</span>
-                                        </div>
-                                    </div>
-
-                                    @if (product.IsOutOfStock)
+                <div id="bestSellersProductsTrack" class="roven-products-track d-flex gap-3 gap-lg-4 overflow-auto pb-3">
+                    @foreach (var product in Model.BestSellers)
+                    {
+                        <div class="roven-product-track-item">
+                            <div class="product-card roven-store-flacon-card h-100 d-flex flex-column" data-details-url="@Url.Action("Details", "Store", new { id = product.Id })">
+                                <a asp-controller="Store" asp-action="Details" asp-route-id="@product.Id" class="product-image-container d-block position-relative text-decoration-none" title="عرض تفاصيل عطر @product.Name">
+                                    @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
                                     {
-                                        <button class="btn btn-sm btn-secondary rounded-pill px-3 py-1" disabled style="font-size: 0.78rem;">Unavailable</button>
+                                        <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='/images/products/perfume_default.svg'" />
                                     }
                                     else
                                     {
-                                        <button type="button" class="roven-btn-add-bag" onclick="window.addStoreItemToCart(@product.Id, 1, this)" title="Add to Bag">
-                                            <i class="fa-solid fa-bag-shopping"></i><span>Add</span>
-                                        </button>
+                                        <i class="fa-solid fa-spray-can-sparkles display-4" style="color: #EDEBDD;"></i>
                                     }
+                                    <div class="position-absolute top-0 end-0 m-3 z-2">
+                                        <span class="badge roven-badge-featured shadow-xs">
+                                            <i class="fa-solid fa-fire me-1"></i>Best Seller
+                                        </span>
+                                    </div>
+                                </a>
+
+                                <div class="p-3 d-flex flex-column flex-grow-1">
+                                    <div class="roven-product-cat-wrap">
+                                        <span class="roven-product-cat-badge">
+                                            <span class="roven-cat-dot" aria-hidden="true"></span>
+                                            <span>@product.CategoryName</span>
+                                        </span>
+                                    </div>
+
+                                    <h4 class="roven-product-title">
+                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@product.Id" title="عرض تفاصيل عطر @product.Name">
+                                            @product.Name
+                                        </a>
+                                    </h4>
+
+                                    <div class="roven-product-tagline">
+                                        <span>@(string.IsNullOrWhiteSpace(product.FragranceTagline) ? Model.DefaultFragranceTagline : product.FragranceTagline)</span>
+                                    </div>
+
+                                    <div class="roven-card-footer mt-auto">
+                                        <div>
+                                            <div class="roven-price-label">Price</div>
+                                            <div class="roven-price-val">
+                                                @product.Price.ToString("N2") <span class="roven-price-curr">EGP</span>
+                                            </div>
+                                        </div>
+
+                                        @if (product.IsOutOfStock)
+                                        {
+                                            <button class="btn btn-sm btn-secondary rounded-pill px-3 py-1" disabled style="font-size: 0.78rem;">Unavailable</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="roven-btn-add-bag" onclick="window.addStoreItemToCart(@product.Id, 1, this)" title="Add to Bag">
+                                                <i class="fa-solid fa-bag-shopping"></i><span>Add</span>
+                                            </button>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                }
+                    }
+                </div>
             </div>
         </div>
     </section>

@@ -195,6 +195,14 @@
         updateCountdown();
     })();
 
+    // Universal Horizontal Scroll Track Controller (Products & Categories)
+    window.rovenScrollTrack = function (trackId, direction) {
+        var track = document.getElementById(trackId);
+        if (!track) return;
+        var scrollAmount = Math.max(280, track.clientWidth * 0.75);
+        track.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+    };
+
     // Newsletter handler
     function handleNewsletterSubmit(e) {
         e.preventDefault();

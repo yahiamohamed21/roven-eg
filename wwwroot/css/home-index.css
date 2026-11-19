@@ -1081,6 +1081,95 @@
         }
     }
 
+    /* =====================================================================
+       Homepage Products Horizontal Scroll Carousel (4 Products Per Row + X-Scroll)
+       ===================================================================== */
+    .roven-products-carousel-wrap {
+        position: relative;
+        width: 100%;
+    }
+
+    .roven-products-track {
+        display: flex;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        scroll-snap-type: x mandatory;
+        padding: 0.5rem 0.25rem 1rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .roven-products-track::-webkit-scrollbar {
+        display: none;
+    }
+
+    .roven-product-track-item {
+        scroll-snap-align: start;
+        flex: 0 0 calc(25% - 1.15rem);
+        min-width: 255px;
+        max-width: 320px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    @media (max-width: 1199.98px) {
+        .roven-product-track-item {
+            flex: 0 0 calc(33.333% - 1rem);
+            min-width: 235px;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .roven-product-track-item {
+            flex: 0 0 calc(50% - 0.5rem);
+            min-width: 165px;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .roven-product-track-item {
+            flex: 0 0 74%;
+            min-width: 195px;
+        }
+    }
+
+    /* Product Navigation Arrows */
+    .roven-products-nav-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #630000;
+        color: #EDEBDD;
+        border: 1px solid rgba(223, 177, 91, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: calc(50% - 15px);
+        transform: translateY(-50%);
+        z-index: 5;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
+
+    .roven-products-nav-prev {
+        left: 8px;
+    }
+
+    .roven-products-nav-next {
+        right: 8px;
+    }
+
+    .roven-products-nav-btn:hover {
+        background: #810100;
+        color: #ffffff;
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 8px 24px rgba(99, 0, 0, 0.4);
+        border-color: #dfb15b;
+    }
+
     /* Flash Deal Timer Box */
     .timer-unit-box {
         background: #1B1717;
