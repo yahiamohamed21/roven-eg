@@ -831,11 +831,12 @@
         }
     }
 
-    /* Category Card Structure */
+    /* Category Card Structure - 100% Fixed Dimensions Across All States */
     .roven-cat-card {
         display: flex;
         flex-direction: column;
         width: 100%;
+        height: 440px; /* Strict fixed height on Desktop - NEVER stretches */
         border-radius: 18px;
         overflow: hidden;
         background: #1B1717;
@@ -847,26 +848,30 @@
     }
 
     .roven-cat-card:hover {
-        transform: translateY(-8px);
+        transform: translateY(-6px);
         box-shadow: 0 22px 48px rgba(99, 0, 0, 0.22);
         border-color: rgba(129, 1, 0, 0.45);
     }
 
-    /* Large Image / Poster Area */
+    @media (max-width: 767.98px) {
+        .roven-cat-card {
+            height: 320px; /* Strict fixed height on Mobile */
+        }
+    }
+
+    /* Fixed Image / Media Frame */
     .roven-cat-img-box {
         position: relative;
         width: 100%;
-        aspect-ratio: 3 / 4;
-        min-height: 380px;
-        max-height: 440px;
+        height: calc(100% - 78px); /* Strictly fills remaining space */
         overflow: hidden;
         background: #1B1717;
+        flex: 1 1 auto;
     }
 
     @media (max-width: 767.98px) {
         .roven-cat-img-box {
-            min-height: 290px;
-            aspect-ratio: 3 / 3.9;
+            height: calc(100% - 62px);
         }
     }
 
@@ -888,33 +893,23 @@
         width: 100%;
         height: 100%;
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
-        background: linear-gradient(145deg, #1f1414 0%, #2f0e0e 50%, #150808 100%);
+        background: linear-gradient(145deg, #1d1212 0%, #2b0b0e 50%, #140708 100%);
         color: #dfb15b;
         padding: 2rem 1rem;
-        text-align: center;
+        position: relative;
     }
 
     .roven-cat-placeholder i {
-        font-size: 3.2rem;
+        font-size: 3.5rem;
         color: #dfb15b;
-        filter: drop-shadow(0 4px 16px rgba(223, 177, 91, 0.3));
-        transition: transform 0.4s ease;
+        filter: drop-shadow(0 4px 18px rgba(223, 177, 91, 0.35));
+        transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .roven-cat-card:hover .roven-cat-placeholder i {
-        transform: scale(1.12);
-    }
-
-    .roven-cat-placeholder-text {
-        font-family: 'Playfair Display', Georgia, serif;
-        font-size: 1.15rem;
-        color: #EDEBDD;
-        font-weight: 700;
-        letter-spacing: 0.5px;
+        transform: scale(1.15);
     }
 
     /* Floating Parfum Count Badge */
@@ -922,7 +917,7 @@
         position: absolute;
         top: 12px;
         right: 12px;
-        background: rgba(27, 23, 23, 0.75);
+        background: rgba(27, 23, 23, 0.78);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         color: #FAF9F5;
@@ -937,22 +932,29 @@
         align-items: center;
     }
 
-    /* Bottom Bar - Matching reference with hover Shop Now */
+    /* Fixed Bottom Bar - STRICT FIXED HEIGHT, NEVER EXPANDS */
     .roven-cat-bar {
-        background: #630000;
-        padding: 0.85rem 1rem;
+        background: linear-gradient(180deg, #6d0a0a 0%, #540202 100%);
+        height: 78px;
+        width: 100%;
+        flex: 0 0 78px;
+        position: relative;
+        overflow: hidden;
+        border-top: 1px solid rgba(223, 177, 91, 0.25);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        text-align: center;
-        min-height: 58px;
-        border-top: 1px solid rgba(223, 177, 91, 0.22);
-        transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
-        position: relative;
+        padding: 0 1rem;
         z-index: 2;
+        transition: background-color 0.3s ease;
     }
 
+    .roven-cat-card:hover .roven-cat-bar {
+        background: linear-gradient(180deg, #580303 0%, #3e0000 100%);
+    }
+
+    /* Category Title - Glides up smoothly on hover */
     .roven-cat-title {
         color: #ffffff;
         font-family: 'Playfair Display', Georgia, serif;
@@ -961,50 +963,61 @@
         letter-spacing: 1.4px;
         text-transform: uppercase;
         margin: 0;
-        transition: color 0.2s ease;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 100%;
+        max-width: 95%;
+        text-align: center;
+        transform: translateY(0);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease;
     }
 
-    /* Shop Now Hover Reveal Action */
+    .roven-cat-card:hover .roven-cat-title {
+        transform: translateY(-13px);
+        color: #EDEBDD;
+    }
+
+    /* Shop Now Reveal Action - Glides in from bottom within the fixed bar */
     .roven-cat-action {
-        max-height: 0;
+        position: absolute;
+        bottom: 11px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform: translateY(40px);
         opacity: 0;
-        overflow: hidden;
-        transform: translateY(10px);
-        transition: max-height 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease, transform 0.32s ease, margin-top 0.3s ease;
-        margin-top: 0;
-    }
-
-    .roven-cat-card:hover .roven-cat-bar {
-        background: #500000;
-        padding: 0.75rem 1rem 0.95rem;
+        pointer-events: none;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
     }
 
     .roven-cat-card:hover .roven-cat-action {
-        max-height: 48px;
-        opacity: 1;
         transform: translateY(0);
-        margin-top: 8px;
+        opacity: 1;
+        pointer-events: auto;
     }
 
     .roven-cat-shop-pill {
-        background: #000000;
-        color: #ffffff;
-        border: 1px solid rgba(223, 177, 91, 0.4);
+        background: #1B1717;
+        color: #FAF9F5;
+        border: 1px solid rgba(223, 177, 91, 0.45);
         border-radius: 50px;
-        padding: 0.38rem 1.45rem;
-        font-size: 0.82rem;
-        font-weight: 600;
-        letter-spacing: 0.4px;
+        padding: 0.3rem 1.35rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.6px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 7px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
         transition: all 0.25s ease;
+    }
+
+    .roven-cat-shop-pill i {
+        font-size: 0.7rem;
+        transition: transform 0.25s ease;
     }
 
     .roven-cat-card:hover .roven-cat-shop-pill {
@@ -1015,6 +1028,10 @@
         background: #dfb15b;
         color: #1B1717;
         border-color: #dfb15b;
+    }
+
+    .roven-cat-shop-pill:hover i {
+        transform: translateX(3px);
     }
 
     /* Carousel Nav Arrows */
@@ -1055,29 +1072,33 @@
 
     @media (max-width: 767.98px) {
         .roven-cat-bar {
-            padding: 0.65rem 0.6rem;
-            min-height: 48px;
+            height: 62px;
+            flex: 0 0 62px;
         }
         .roven-cat-title {
             font-size: 0.88rem;
             letter-spacing: 0.8px;
         }
+        .roven-cat-card:hover .roven-cat-title {
+            transform: translateY(-10px);
+        }
+        .roven-cat-action {
+            bottom: 8px;
+        }
         .roven-cat-shop-pill {
-            padding: 0.25rem 0.95rem;
-            font-size: 0.72rem;
+            padding: 0.22rem 0.95rem;
+            font-size: 0.7rem;
         }
     }
 
-    /* On mobile / touch devices without hover, show shop pill cleanly */
+    /* On mobile / touch devices without hover */
     @media (hover: none) {
-        .roven-cat-action {
-            max-height: 42px;
-            opacity: 1;
-            transform: translateY(0);
-            margin-top: 6px;
+        .roven-cat-title {
+            transform: translateY(-10px);
         }
-        .roven-cat-bar {
-            padding: 0.65rem 0.6rem 0.75rem;
+        .roven-cat-action {
+            transform: translateY(0);
+            opacity: 1;
         }
     }
 
