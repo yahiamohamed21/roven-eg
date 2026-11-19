@@ -7,6 +7,8 @@
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var isHomePage = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase) 
+                  && string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase);
     var siteSetting = DbContext.HomeSettings.FirstOrDefault() ?? new Stockify.Models.Entities.HomeSetting();
     var hasFilterParams = Context.Request.Query.ContainsKey("categoryId")
                        || Context.Request.Query.ContainsKey("inStockOnly")
@@ -502,6 +504,15 @@
             }
         }
 
+        /* Eliminate Spacer Rectangle on Homepage so Capsule Floats Directly over Hero Image */
+        body.is-homepage .store-header-spacer,
+        .store-header-spacer.d-none {
+            display: none !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
         /* Floating Capsule Navbar */
         .store-navbar-capsule {
             position: fixed;
@@ -603,46 +614,103 @@
             background-color: #810100;
         }
 
-        /* Minimal Luxury Shopping Bag Button */
-        .btn-pill-cart {
-            background: transparent !important;
-            border: none !important;
-            padding: 8px 10px;
+        /* Luxury Capsule Track Order Pill */
+        .capsule-track-pill {
+            color: #1B1717 !important;
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 50px;
+            background: rgba(129, 1, 0, 0.04);
+            border: 1px solid rgba(181, 141, 74, 0.35);
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+            line-height: 1;
+        }
+
+        .capsule-track-pill i {
+            color: #810100;
+            font-size: 0.86rem;
+            transition: color 0.25s ease;
+        }
+
+        .capsule-track-pill:hover {
+            background: #810100;
+            color: #FFFFFF !important;
+            border-color: #810100;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(129, 1, 0, 0.25);
+        }
+
+        .capsule-track-pill:hover i {
+            color: #dfb15b;
+        }
+
+        /* Luxury Capsule Shopping Bag Pill (Royal Crimson) */
+        .capsule-cart-pill {
+            background: linear-gradient(135deg, #810100 0%, #630000 100%) !important;
+            color: #FFFFFF !important;
+            border: 1px solid rgba(223, 177, 91, 0.45);
+            border-radius: 50px;
+            padding: 7px 15px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            color: #1B1717;
-            font-size: 1.22rem;
-            position: relative;
+            gap: 8px;
             text-decoration: none !important;
-            border-radius: 50%;
-            transition: color 0.2s ease, transform 0.2s ease;
+            box-shadow: 0 4px 14px rgba(99, 0, 0, 0.28);
+            transition: all 0.25s ease;
+            cursor: pointer;
             outline: none !important;
+            line-height: 1;
         }
 
-        .btn-pill-cart:hover {
-            color: #810100;
-            transform: scale(1.08);
-            background-color: rgba(129, 1, 0, 0.06);
+        .capsule-cart-pill i {
+            color: #FFFFFF !important;
+            font-size: 0.95rem;
+            line-height: 1;
         }
 
-        .btn-pill-cart .store-cart-badge {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            background: #810100;
-            color: #FFFFFF;
-            font-size: 0.65rem;
+        .capsule-cart-count {
+            color: #FFFFFF !important;
+            font-size: 0.88rem;
             font-weight: 800;
-            min-width: 17px;
-            height: 17px;
-            border-radius: 50%;
-            display: flex;
+            font-family: inherit;
+            line-height: 1;
+            display: inline-block;
+        }
+
+        .capsule-cart-pill:hover {
+            background: linear-gradient(135deg, #9b0100 0%, #7d0000 100%) !important;
+            border-color: #dfb15b;
+            transform: scale(1.05);
+            box-shadow: 0 6px 18px rgba(129, 1, 0, 0.4);
+            color: #FFFFFF !important;
+        }
+
+        @@media (max-width: 576px) {
+            .capsule-cart-pill {
+                padding: 6px 12px;
+                gap: 6px;
+            }
+            .capsule-cart-pill i {
+                font-size: 0.88rem;
+            }
+            .capsule-cart-count {
+                font-size: 0.82rem;
+            }
+        }
+
+        /* Legacy fallback for btn-pill-cart */
+        .btn-pill-cart {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            line-height: 1;
-            border: 1.5px solid #FFFFFF;
-            box-shadow: 0 2px 6px rgba(129, 1, 0, 0.35);
+            text-decoration: none !important;
         }
 
         /* Nav links inside desktop capsule */
@@ -2148,7 +2216,7 @@
     
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="@(shouldSkipPreloader ? "" : "roven-loading")">
+<body class="@(shouldSkipPreloader ? "" : "roven-loading") @(isHomePage ? "is-homepage" : "")">
     <!-- ============================================================== -->
     <!-- MAISON ROVEN — HAUTE PARFUMERIE LUXURY PRELOADER               -->
     <!-- ============================================================== -->
@@ -2219,7 +2287,7 @@
                 <div class="d-flex align-items-center justify-content-between w-100 h-100 flex-nowrap">
                     <!-- Left: Hamburger Menu Button & Desktop Logo / Links -->
                     <div class="d-flex align-items-center gap-2 gap-lg-3 flex-shrink-0">
-                        <button class="btn btn-pill-menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#rovenMobileDrawer" aria-controls="rovenMobileDrawer" aria-label="Open Navigation Menu">
+                        <button class="btn btn-pill-menu d-inline-flex d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#rovenMobileDrawer" aria-controls="rovenMobileDrawer" aria-label="Open Navigation Menu">
                             <span class="pill-menu-bars">
                                 <span></span>
                                 <span></span>
@@ -2232,7 +2300,7 @@
                         </a>
 
                         <!-- Desktop Quick Nav Links -->
-                        <div class="d-none d-xl-flex align-items-center gap-1 ms-2">
+                        <div class="d-none d-lg-flex align-items-center gap-1 ms-2 ms-xl-3">
                             <a asp-controller="Home" asp-action="Index" class="store-nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")">Home</a>
                             <a asp-controller="Store" asp-action="Index" class="store-nav-link @(currentController == "Store" ? "active" : "")">Collections</a>
                             <a asp-controller="Home" asp-action="About" class="store-nav-link @(currentAction == "About" ? "active" : "")">About</a>
@@ -2263,21 +2331,21 @@
 
                     <!-- Right: Desktop Track Order & Luxury Shopping Bag -->
                     <div class="d-flex align-items-center justify-content-end gap-2 gap-md-3 flex-shrink-0">
-                        <a asp-controller="OrderTracking" asp-action="Index" class="topbar-track-pill d-none d-md-inline-flex" title="Track Your Order">
-                            <i class="fa-solid fa-box-open me-1" style="color: #810100;"></i>
+                        <a asp-controller="OrderTracking" asp-action="Index" class="capsule-track-pill d-none d-md-inline-flex" title="Track Your Order">
+                            <i class="fa-solid fa-box-open me-1"></i>
                             <span>Track Order</span>
                         </a>
 
-                        <a asp-controller="Cart" asp-action="Index" class="btn-pill-cart position-relative text-decoration-none" id="header-cart-btn" title="View Shopping Bag">
+                        <a asp-controller="Cart" asp-action="Index" class="capsule-cart-pill text-decoration-none" id="header-cart-btn" title="View Shopping Bag">
                             <i class="fa-solid fa-bag-shopping"></i>
-                            <span class="store-cart-badge" id="cart-item-count">0</span>
+                            <span class="capsule-cart-count" id="cart-item-count">0</span>
                         </a>
                     </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="store-header-spacer"></div>
+    <div class="store-header-spacer @(isHomePage ? "d-none" : "")"></div>
 
     <!-- Maison ROVEN Luxury Mobile Navigation Drawer -->
     <div class="offcanvas offcanvas-start roven-mobile-drawer" tabindex="-1" id="rovenMobileDrawer" aria-labelledby="rovenMobileDrawerLabel">
