@@ -831,7 +831,7 @@
         }
     }
 
-    /* Category Card Structure - 100% Fixed Dimensions Across All States */
+    /* Category Card Structure - 100% Fixed Dimensions Across All States - No Shadow Halo */
     .roven-cat-card {
         display: flex;
         flex-direction: column;
@@ -839,18 +839,18 @@
         height: 440px; /* Strict fixed height on Desktop - NEVER stretches */
         border-radius: 20px;
         overflow: hidden;
-        background: #FFFFFF;
+        background: #630000;
         text-decoration: none;
         position: relative;
-        box-shadow: 0 10px 30px rgba(27, 23, 23, 0.06);
-        border: 1px solid rgba(181, 141, 74, 0.32);
-        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+        box-shadow: none !important;
+        border: 1px solid rgba(181, 141, 74, 0.35);
+        transition: border-color 0.3s ease;
     }
 
     .roven-cat-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 20px 42px rgba(129, 1, 0, 0.16);
-        border-color: rgba(223, 177, 91, 0.75);
+        transform: none !important;
+        box-shadow: none !important;
+        border-color: #dfb15b !important;
     }
 
     @media (max-width: 767.98px) {
@@ -995,6 +995,8 @@
         position: relative;
         overflow: hidden;
         border-top: 1px solid rgba(223, 177, 91, 0.35);
+        border-bottom-left-radius: 19px;
+        border-bottom-right-radius: 19px;
         display: flex;
         flex-direction: column;
         align-items: center;
