@@ -473,66 +473,193 @@
         }
 
         /* ==========================================================================
-           ROVEN LUXURY STORE HEADER ARCHITECTURE (DESKTOP & MOBILE STABILITY)
+           ROVEN LUXURY STORE HEADER ARCHITECTURE (FLOATING CAPSULE & SMART HEADROOM)
            ========================================================================== */
         .store-header-wrapper {
             width: 100% !important;
             max-width: 100% !important;
             position: relative;
-            z-index: 1030;
+            z-index: 1040;
         }
 
-        .store-navbar {
-            background: #EDEBDD;
-            border-bottom: 2px solid #630000;
-            box-shadow: 0 4px 18px rgba(27, 23, 23, 0.08);
-            padding: 0.85rem 0;
-            transition: box-shadow 0.25s ease, background-color 0.25s ease;
+        .store-header-spacer {
+            height: 74px;
+            width: 100%;
         }
 
-        .store-navbar.navbar-scrolled {
-            box-shadow: 0 6px 25px rgba(27, 23, 23, 0.16) !important;
-            background-color: rgba(237, 235, 221, 0.98) !important;
-            backdrop-filter: blur(10px) !important;
-            -webkit-backdrop-filter: blur(10px) !important;
+        .has-topbar + .store-header-spacer,
+        .has-topbar .store-header-spacer {
+            height: 106px;
         }
 
-        @@media (max-width: 991.98px) {
-            .store-header-wrapper {
-                position: -webkit-sticky !important;
-                position: sticky !important;
-                top: 0 !important;
-                z-index: 1030 !important;
+        @@media (max-width: 576px) {
+            .store-header-spacer {
+                height: 68px;
             }
+            .has-topbar + .store-header-spacer,
+            .has-topbar .store-header-spacer {
+                height: 98px;
+            }
+        }
 
-            .store-topbar {
-                padding-top: max(4px, env(safe-area-inset-top, 0px)) !important;
-                padding-bottom: 4px !important;
-            }
+        /* Floating Capsule Navbar */
+        .store-navbar-capsule {
+            position: fixed;
+            top: 12px;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            width: calc(100% - 24px);
+            max-width: 520px;
+            height: 56px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(181, 141, 74, 0.28);
+            box-shadow: 0 10px 30px rgba(27, 23, 23, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03);
+            z-index: 1040;
+            transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease, top 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            will-change: transform, opacity;
+            padding: 0 0.5rem;
+        }
 
-            .store-navbar {
-                position: relative !important;
-                top: auto !important;
-                padding: 0.55rem 0 0.45rem 0 !important;
-            }
+        /* When announcement topbar is active and user is at top of page */
+        .has-topbar .store-navbar-capsule.at-top {
+            top: 44px;
+        }
 
-            /* Fallback: if announcement topbar is not rendered, navbar absorbs safe area */
-            .store-header-wrapper > .store-navbar:first-child {
-                padding-top: max(0.55rem, env(safe-area-inset-top, 0px)) !important;
+        @@media (max-width: 576px) {
+            .has-topbar .store-navbar-capsule.at-top {
+                top: 38px;
             }
+        }
+
+        /* Headroom: Hide on Scroll Down */
+        .store-navbar-capsule.navbar-hidden {
+            transform: translateY(-160%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Headroom: Reveal smoothly on Scroll Up */
+        .store-navbar-capsule.navbar-visible {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .store-navbar-capsule.navbar-floating-scrolled {
+            box-shadow: 0 14px 38px rgba(27, 23, 23, 0.12), 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: rgba(181, 141, 74, 0.45);
+            background: rgba(255, 255, 255, 0.98);
         }
 
         @@media (min-width: 992px) {
-            .store-header-wrapper {
-                position: static;
+            .store-navbar-capsule {
+                width: calc(100% - 48px);
+                max-width: 1180px;
+                height: 64px;
+                padding: 0 1.25rem;
             }
+        }
 
-            .store-navbar {
-                position: -webkit-sticky !important;
-                position: sticky !important;
-                top: 0 !important;
-                z-index: 1030 !important;
-            }
+        /* Minimal Hamburger Menu Button (3 Clean Lines) */
+        .btn-pill-menu {
+            background: transparent !important;
+            border: none !important;
+            padding: 8px 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            outline: none !important;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-pill-menu:hover {
+            background-color: rgba(129, 1, 0, 0.06) !important;
+        }
+
+        .pill-menu-bars {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 20px;
+            height: 14px;
+        }
+
+        .pill-menu-bars span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background-color: #1B1717;
+            border-radius: 2px;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-pill-menu:hover .pill-menu-bars span {
+            background-color: #810100;
+        }
+
+        /* Minimal Luxury Shopping Bag Button */
+        .btn-pill-cart {
+            background: transparent !important;
+            border: none !important;
+            padding: 8px 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #1B1717;
+            font-size: 1.22rem;
+            position: relative;
+            text-decoration: none !important;
+            border-radius: 50%;
+            transition: color 0.2s ease, transform 0.2s ease;
+            outline: none !important;
+        }
+
+        .btn-pill-cart:hover {
+            color: #810100;
+            transform: scale(1.08);
+            background-color: rgba(129, 1, 0, 0.06);
+        }
+
+        .btn-pill-cart .store-cart-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #810100;
+            color: #FFFFFF;
+            font-size: 0.65rem;
+            font-weight: 800;
+            min-width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            border: 1.5px solid #FFFFFF;
+            box-shadow: 0 2px 6px rgba(129, 1, 0, 0.35);
+        }
+
+        /* Nav links inside desktop capsule */
+        .store-nav-link {
+            color: #1B1717;
+            font-size: 0.88rem;
+            font-weight: 600;
+            padding: 0.4rem 0.75rem;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .store-nav-link:hover,
+        .store-nav-link.active {
+            color: #810100;
+            background: rgba(129, 1, 0, 0.05);
         }
 
         .store-brand {
@@ -2058,7 +2185,7 @@
     }
 
     <!-- Unified Store Header Container (Preserves Sticky & Mobile Safe-Area Stability) -->
-    <header class="store-header-wrapper">
+    <header class="store-header-wrapper @(siteSetting.AnnouncementActive ? "has-topbar" : "")" id="rovenStoreHeader">
         <!-- Top Announcement Bar -->
         @if (siteSetting.AnnouncementActive)
         {
@@ -2086,75 +2213,71 @@
             </div>
         }
 
-        <!-- Main Store Navigation Header (ROVEN Haute Parfumerie) -->
-        <nav class="store-navbar">
-        <div class="container">
-            <div class="row align-items-center g-2 g-xl-3 flex-nowrap">
-                <!-- Left: Mobile Menu Toggle & Brand Logo (Zero Hover Effect) -->
-                <div class="col-auto d-flex align-items-center gap-2">
-                    <button class="btn btn-mobile-menu d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#rovenMobileDrawer" aria-controls="rovenMobileDrawer" aria-label="Open Navigation Menu">
-                        <i class="fa-solid fa-bars-staggered"></i>
-                    </button>
-                    <a class="store-brand d-inline-flex align-items-center" asp-controller="Home" asp-action="Index" title="ROVEN Haute Parfumerie">
-                        <img src="~/images/roven-logo.png?v=roven_tp" alt="ROVEN" class="roven-nav-logo" />
-                    </a>
-                </div>
+        <!-- Main Store Floating Capsule Navigation Bar (Maison ROVEN) -->
+        <nav class="store-navbar store-navbar-capsule navbar-visible at-top" id="rovenMainNavbar">
+            <div class="container-fluid px-2 px-md-3 h-100">
+                <div class="d-flex align-items-center justify-content-between w-100 h-100 flex-nowrap">
+                    <!-- Left: Hamburger Menu Button & Desktop Logo / Links -->
+                    <div class="d-flex align-items-center gap-2 gap-lg-3 flex-shrink-0">
+                        <button class="btn btn-pill-menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#rovenMobileDrawer" aria-controls="rovenMobileDrawer" aria-label="Open Navigation Menu">
+                            <span class="pill-menu-bars">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </span>
+                        </button>
 
-                <!-- Center: Luxury Floating Search Box (Desktop Only) -->
-                <div class="col d-none d-lg-flex justify-content-center px-2 px-xl-4">
-                    <form asp-controller="Store" asp-action="Index" method="get" class="store-search-form" style="width: 100%; max-width: 360px;">
-                        <div class="store-search-box">
-                            <i class="fa-solid fa-magnifying-glass search-leading-icon"></i>
-                            <input type="text" name="search" class="form-control store-search-input" placeholder="Search fragrances, notes..." value="@Context.Request.Query["search"]" />
-                            <button class="btn btn-search-submit" type="submit">
-                                <span>Search</span>
-                            </button>
+                        <a class="store-brand d-none d-lg-inline-flex align-items-center" asp-controller="Home" asp-action="Index" title="ROVEN Haute Parfumerie">
+                            <img src="~/images/roven-logo.png?v=roven_tp" alt="ROVEN" class="roven-nav-logo" />
+                        </a>
+
+                        <!-- Desktop Quick Nav Links -->
+                        <div class="d-none d-xl-flex align-items-center gap-1 ms-2">
+                            <a asp-controller="Home" asp-action="Index" class="store-nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")">Home</a>
+                            <a asp-controller="Store" asp-action="Index" class="store-nav-link @(currentController == "Store" ? "active" : "")">Collections</a>
+                            <a asp-controller="Home" asp-action="About" class="store-nav-link @(currentAction == "About" ? "active" : "")">About</a>
+                            <a asp-controller="Home" asp-action="Contact" class="store-nav-link @(currentAction == "Contact" ? "active" : "")">Contact</a>
                         </div>
-                    </form>
-                </div>
+                    </div>
 
-                <!-- Right: Desktop Nav Links, Track Order & Luxury Cart -->
-                <div class="col-auto ms-auto d-flex justify-content-end align-items-center gap-1 gap-xl-2 flex-nowrap">
-                    <a asp-controller="Home" asp-action="Index" class="store-nav-link d-none d-xl-inline-flex @(currentController == "Home" && currentAction == "Index" ? "active" : "")">Home</a>
-                    <a asp-controller="Store" asp-action="Index" class="store-nav-link d-none d-lg-inline-flex @(currentController == "Store" ? "active" : "")">Collections</a>
-                    <a asp-controller="Home" asp-action="About" class="store-nav-link d-none d-xl-inline-flex @(currentAction == "About" ? "active" : "")">About Us</a>
-                    <a asp-controller="Home" asp-action="Contact" class="store-nav-link d-none d-xxl-inline-flex @(currentAction == "Contact" ? "active" : "")">Contact</a>
+                    <!-- Center: Mobile Centered Brand Logo (Matches Reference Photo Exactly) OR Desktop Search -->
+                    <div class="d-flex align-items-center justify-content-center flex-grow-1 px-2">
+                        <!-- Mobile Centered Brand Logo -->
+                        <a class="store-brand d-inline-flex d-lg-none align-items-center" asp-controller="Home" asp-action="Index" title="ROVEN Haute Parfumerie">
+                            <img src="~/images/roven-logo.png?v=roven_tp" alt="ROVEN" class="roven-nav-logo" />
+                        </a>
 
-                    <a asp-controller="Cart" asp-action="Index" class="store-cart-btn text-nowrap" id="header-cart-btn" title="View Shopping Bag">
-                        <i class="fa-solid fa-bag-shopping"></i>
-                        <span class="d-none d-sm-inline">Bag</span>
-                        <span class="store-cart-badge" id="cart-item-count">0</span>
-                    </a>
+                        <!-- Desktop Compact Luxury Search Box -->
+                        <div class="d-none d-lg-block w-100" style="max-width: 360px;">
+                            <form asp-controller="Store" asp-action="Index" method="get" class="store-search-form m-0">
+                                <div class="store-search-box">
+                                    <i class="fa-solid fa-magnifying-glass search-leading-icon"></i>
+                                    <input type="text" name="search" class="form-control store-search-input" placeholder="Search fragrances, notes..." value="@Context.Request.Query["search"]" />
+                                    <button class="btn btn-search-submit" type="submit">
+                                        <span>Search</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right: Desktop Track Order & Luxury Shopping Bag -->
+                    <div class="d-flex align-items-center justify-content-end gap-2 gap-md-3 flex-shrink-0">
+                        <a asp-controller="OrderTracking" asp-action="Index" class="topbar-track-pill d-none d-md-inline-flex" title="Track Your Order">
+                            <i class="fa-solid fa-box-open me-1" style="color: #810100;"></i>
+                            <span>Track Order</span>
+                        </a>
+
+                        <a asp-controller="Cart" asp-action="Index" class="btn-pill-cart position-relative text-decoration-none" id="header-cart-btn" title="View Shopping Bag">
+                            <i class="fa-solid fa-bag-shopping"></i>
+                            <span class="store-cart-badge" id="cart-item-count">0</span>
+                        </a>
+                    </div>
                 </div>
             </div>
-
-
-
-            <!-- Desktop Department Quick Navigation Bar -->
-            <div class="d-none d-lg-flex align-items-center justify-content-center gap-4 pt-2 mt-2 border-top" style="border-color: rgba(99, 0, 0, 0.1) !important; font-size: 0.85rem; letter-spacing: 0.5px;">
-                <a asp-controller="Store" asp-action="Index" class="text-decoration-none fw-semibold" style="color: #630000;">
-                    ALL FRAGRANCES
-                </a>
-                <span class="opacity-25">&bull;</span>
-                <a asp-controller="Store" asp-action="Index" asp-route-categoryId="1" class="text-decoration-none fw-semibold" style="color: #1B1717;">
-                    EXTRAIT DE PARFUM
-                </a>
-                <span class="opacity-25">&bull;</span>
-                <a asp-controller="Store" asp-action="Index" asp-route-categoryId="2" class="text-decoration-none fw-semibold" style="color: #1B1717;">
-                    EAU DE PARFUM
-                </a>
-                <span class="opacity-25">&bull;</span>
-                <a asp-controller="Store" asp-action="Index" asp-route-categoryId="3" class="text-decoration-none fw-semibold" style="color: #1B1717;">
-                    PRIVATE OUD & ORIENTAL
-                </a>
-                <span class="opacity-25">&bull;</span>
-                <a asp-controller="Store" asp-action="Index" asp-route-categoryId="4" class="text-decoration-none fw-semibold" style="color: #1B1717;">
-                    DISCOVERY COFFRETS
-                </a>
-            </div>
-        </div>
         </nav>
     </header>
+    <div class="store-header-spacer"></div>
 
     <!-- Maison ROVEN Luxury Mobile Navigation Drawer -->
     <div class="offcanvas offcanvas-start roven-mobile-drawer" tabindex="-1" id="rovenMobileDrawer" aria-labelledby="rovenMobileDrawerLabel">
@@ -2986,17 +3109,57 @@
 
     @await RenderSectionAsync("Scripts", required: false)
     <script>
-        // Smooth Sticky Navbar Enhancement
-        window.addEventListener('scroll', function() {
-            var nav = document.querySelector('.store-navbar');
-            if (nav) {
-                if (window.scrollY > 15) {
-                    nav.classList.add('navbar-scrolled');
+        // ========================================================================
+        // SMART FLOATING NAVBAR (Headroom Controller: Hide on Scroll Down, Reveal on Scroll Up)
+        // ========================================================================
+        (function() {
+            var navbar = document.getElementById('rovenMainNavbar');
+            if (!navbar) return;
+
+            var lastScrollY = Math.max(0, window.pageYOffset || document.documentElement.scrollTop);
+            var threshold = 8;
+            var isTicking = false;
+
+            function onScrollHandler() {
+                var currentScrollY = Math.max(0, window.pageYOffset || document.documentElement.scrollTop);
+                var diff = currentScrollY - lastScrollY;
+
+                // At the top of page
+                if (currentScrollY <= 35) {
+                    navbar.classList.add('at-top');
+                    navbar.classList.remove('navbar-hidden');
+                    navbar.classList.add('navbar-visible');
+                    navbar.classList.remove('navbar-floating-scrolled');
                 } else {
-                    nav.classList.remove('navbar-scrolled');
+                    navbar.classList.remove('at-top');
+                    navbar.classList.add('navbar-floating-scrolled');
+
+                    // Significant downward scroll -> Hide smoothly
+                    if (diff > threshold && currentScrollY > 75) {
+                        navbar.classList.add('navbar-hidden');
+                        navbar.classList.remove('navbar-visible');
+                    } 
+                    // Significant upward scroll -> Reveal smoothly
+                    else if (diff < -threshold) {
+                        navbar.classList.remove('navbar-hidden');
+                        navbar.classList.add('navbar-visible');
+                    }
                 }
+
+                lastScrollY = currentScrollY;
+                isTicking = false;
             }
-        }, { passive: true });
+
+            window.addEventListener('scroll', function() {
+                if (!isTicking) {
+                    window.requestAnimationFrame(onScrollHandler);
+                    isTicking = true;
+                }
+            }, { passive: true });
+
+            // Initialize state on load
+            onScrollHandler();
+        })();
 
         // Global Product Card Direct Navigation (Flacon Click-to-Details)
         document.addEventListener('click', function (e) {
