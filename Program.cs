@@ -120,6 +120,34 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<ApplicationDbContext>();
         // Auto-apply migrations if pending
         await context.Database.MigrateAsync();
+
+        // Ensure Comparison Section settings are initialized with active status
+        var homeSetting = await context.HomeSettings.FirstOrDefaultAsync();
+        if (homeSetting != null)
+        {
+            bool modified = false;
+            if (string.IsNullOrWhiteSpace(homeSetting.ComparisonTitle) || (!homeSetting.ComparisonActive && homeSetting.OrderComparison <= 0))
+            {
+                homeSetting.ComparisonTitle = "US VS THEM";
+                homeSetting.ComparisonBadgeText = "MAISON ROVEN • QUALITY PROMISE";
+                homeSetting.ComparisonSubtitle = "Why settle for the brand name when you can wear the same scent for a fraction of the price?";
+                homeSetting.ComparisonButtonText = "Shop Now";
+                homeSetting.ComparisonButtonLink = "/Store";
+                homeSetting.ComparisonBeforeLabel = "Before";
+                homeSetting.ComparisonAfterLabel = "After";
+                homeSetting.ComparisonBeforeImageUrl = "/images/comparison/roven-comparison-before.svg";
+                homeSetting.ComparisonAfterImageUrl = "/images/comparison/roven-comparison-after.svg";
+                homeSetting.ComparisonActive = true;
+                homeSetting.ShowComparisonSection = true;
+                homeSetting.OrderComparison = 6;
+                modified = true;
+            }
+            if (modified)
+            {
+                await context.SaveChangesAsync();
+            }
+        }
+
         await DbInitializer.SeedRolesAndAdminAsync(services);
         await DbInitializer.AutoSyncImagesToCloudinaryAsync(services);
     }

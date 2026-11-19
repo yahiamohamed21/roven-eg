@@ -30,6 +30,23 @@ public class HomeController : Controller
         if (string.IsNullOrWhiteSpace(settings.SpotlightSubtitle))
             settings.SpotlightSubtitle = "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";
 
+        // Ensure Comparison defaults if newly migrated
+        if (string.IsNullOrWhiteSpace(settings.ComparisonTitle) || (!settings.ComparisonActive && settings.OrderComparison <= 0))
+        {
+            settings.ComparisonTitle = "US VS THEM";
+            settings.ComparisonBadgeText = "MAISON ROVEN • QUALITY PROMISE";
+            settings.ComparisonSubtitle = "Why settle for the brand name when you can wear the same scent for a fraction of the price?";
+            settings.ComparisonButtonText = "Shop Now";
+            settings.ComparisonButtonLink = "/Store";
+            settings.ComparisonBeforeLabel = "Before";
+            settings.ComparisonAfterLabel = "After";
+            settings.ComparisonBeforeImageUrl = "/images/comparison/roven-comparison-before.svg";
+            settings.ComparisonAfterImageUrl = "/images/comparison/roven-comparison-after.svg";
+            settings.ComparisonActive = true;
+            settings.ShowComparisonSection = true;
+            settings.OrderComparison = 6;
+        }
+
         // 1. Featured Products (Custom curated selection from Dashboard or fallback to IsFeatured)
         List<StoreProductCardViewModel> featured = new();
 
@@ -384,6 +401,23 @@ public class HomeController : Controller
             settings.SpotlightTitle = "عروض وتخفيضات دار Roven الحصرية";
         if (string.IsNullOrWhiteSpace(settings.SpotlightSubtitle))
             settings.SpotlightSubtitle = "إصدارات عطرية مختارة بتخفيضات استثنائية لفترة محدودة، مع شحن لكافة المحافظات وإمكانية معاينة الطرد قبل الدفع عند الاستلام.";
+
+        // Ensure Comparison defaults if newly migrated
+        if (string.IsNullOrWhiteSpace(settings.ComparisonTitle) || (!settings.ComparisonActive && settings.OrderComparison <= 0))
+        {
+            settings.ComparisonTitle = "US VS THEM";
+            settings.ComparisonBadgeText = "MAISON ROVEN • QUALITY PROMISE";
+            settings.ComparisonSubtitle = "Why settle for the brand name when you can wear the same scent for a fraction of the price?";
+            settings.ComparisonButtonText = "Shop Now";
+            settings.ComparisonButtonLink = "/Store";
+            settings.ComparisonBeforeLabel = "Before";
+            settings.ComparisonAfterLabel = "After";
+            settings.ComparisonBeforeImageUrl = "/images/comparison/roven-comparison-before.svg";
+            settings.ComparisonAfterImageUrl = "/images/comparison/roven-comparison-after.svg";
+            settings.ComparisonActive = true;
+            settings.ShowComparisonSection = true;
+            settings.OrderComparison = 6;
+        }
         return View(settings);
     }
 
