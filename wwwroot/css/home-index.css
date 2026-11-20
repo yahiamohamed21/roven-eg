@@ -680,26 +680,39 @@
     }
 
     .carousel-control-prev, .carousel-control-next {
-        width: 50px;
-        height: 50px;
+        width: 44px;
+        height: 44px;
         top: 50%;
         transform: translateY(-50%);
-        background: rgba(27, 23, 23, 0.75);
+        background: #810100;
         border-radius: 50%;
-        border: 1px solid rgba(237, 235, 221, 0.25);
+        border: 1.5px solid rgba(223, 177, 91, 0.5);
         backdrop-filter: blur(8px);
         margin: 0 20px;
-        opacity: 0.85;
-        color: #EDEBDD;
-        transition: all 0.2s;
+        opacity: 0.95;
+        color: #FAF9F5;
+        box-shadow: 0 4px 16px rgba(129, 1, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 10;
+    }
+
+    .carousel-control-prev i, .carousel-control-next i {
+        font-size: 0.95rem;
+        color: #FAF9F5;
+        transition: color 0.25s ease;
     }
 
     .carousel-control-prev:hover, .carousel-control-next:hover {
-        background: #630000;
-        border-color: #810100;
+        background: #dfb15b;
+        border-color: #dfb15b;
         opacity: 1;
-        box-shadow: 0 0 20px rgba(99, 0, 0, 0.6);
-        color: #EDEBDD;
+        box-shadow: 0 8px 24px rgba(223, 177, 91, 0.55), 0 2px 8px rgba(0, 0, 0, 0.15);
+        color: #1B1717;
+        transform: translateY(-50%) scale(1.12);
+    }
+
+    .carousel-control-prev:hover i, .carousel-control-next:hover i {
+        color: #1B1717;
     }
 
     /* ========================================================================
@@ -1260,14 +1273,14 @@
         transform: translateX(3px);
     }
 
-    /* Carousel Nav Circular Buttons */
+    /* Carousel Nav Circular Buttons (Unified Luxury ROVEN Standard) */
     .roven-cat-nav-btn {
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: #FFFFFF;
-        color: #810100;
-        border: 1.5px solid rgba(223, 177, 91, 0.4);
+        background: #810100;
+        color: #FAF9F5;
+        border: 1.5px solid rgba(223, 177, 91, 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1277,23 +1290,58 @@
         z-index: 5;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 16px rgba(129, 1, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12);
+        padding: 0;
+        outline: none;
+    }
+
+    .roven-cat-nav-btn i {
+        font-size: 0.95rem;
+        color: #FAF9F5;
+        transition: color 0.25s ease;
+        line-height: 1;
     }
 
     .roven-cat-nav-prev {
-        left: -14px;
+        left: -22px;
     }
 
     .roven-cat-nav-next {
-        right: -14px;
+        right: -22px;
+    }
+
+    @media (min-width: 1400px) {
+        .roven-cat-nav-prev {
+            left: -26px;
+        }
+        .roven-cat-nav-next {
+            right: -26px;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .roven-cat-nav-prev {
+            left: -12px;
+        }
+        .roven-cat-nav-next {
+            right: -12px;
+        }
     }
 
     .roven-cat-nav-btn:hover {
-        background: #810100;
-        color: #FFFFFF;
-        border-color: #810100;
-        transform: translateY(-50%) scale(1.08);
-        box-shadow: 0 8px 24px rgba(129, 1, 0, 0.25);
+        background: #dfb15b;
+        color: #1B1717;
+        border-color: #dfb15b;
+        transform: translateY(-50%) scale(1.12);
+        box-shadow: 0 8px 24px rgba(223, 177, 91, 0.55), 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .roven-cat-nav-btn:hover i {
+        color: #1B1717;
+    }
+
+    .roven-cat-nav-btn:active {
+        transform: translateY(-50%) scale(0.96);
     }
 
     /* Pagination Dots matching mockup */
@@ -1404,14 +1452,14 @@
         border-color: #dfb15b !important;
     }
 
-    /* Product Navigation Arrows */
+    /* Product Navigation Arrows (Unified Luxury ROVEN Standard) */
     .roven-products-nav-btn {
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: #630000;
-        color: #EDEBDD;
-        border: 1px solid rgba(223, 177, 91, 0.4);
+        background: #810100;
+        color: #FAF9F5;
+        border: 1.5px solid rgba(223, 177, 91, 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1420,24 +1468,59 @@
         transform: translateY(-50%);
         z-index: 5;
         cursor: pointer;
-        transition: all 0.25s ease;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 16px rgba(129, 1, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12);
+        padding: 0;
+        outline: none;
+    }
+
+    .roven-products-nav-btn i {
+        font-size: 0.95rem;
+        color: #FAF9F5;
+        transition: color 0.25s ease;
+        line-height: 1;
     }
 
     .roven-products-nav-prev {
-        left: 8px;
+        left: -22px;
     }
 
     .roven-products-nav-next {
-        right: 8px;
+        right: -22px;
+    }
+
+    @media (min-width: 1400px) {
+        .roven-products-nav-prev {
+            left: -26px;
+        }
+        .roven-products-nav-next {
+            right: -26px;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .roven-products-nav-prev {
+            left: -12px;
+        }
+        .roven-products-nav-next {
+            right: -12px;
+        }
     }
 
     .roven-products-nav-btn:hover {
-        background: #810100;
-        color: #ffffff;
-        transform: translateY(-50%) scale(1.1);
-        box-shadow: 0 8px 24px rgba(99, 0, 0, 0.4);
+        background: #dfb15b;
+        color: #1B1717;
         border-color: #dfb15b;
+        transform: translateY(-50%) scale(1.12);
+        box-shadow: 0 8px 24px rgba(223, 177, 91, 0.55), 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .roven-products-nav-btn:hover i {
+        color: #1B1717;
+    }
+
+    .roven-products-nav-btn:active {
+        transform: translateY(-50%) scale(0.96);
     }
 
     /* =====================================================================
@@ -1702,14 +1785,14 @@
         transform: translateY(-2px);
     }
 
-    /* Offers Navigation Buttons */
+    /* Offers Navigation Buttons (Unified Luxury ROVEN Standard) */
     .roven-offers-nav-btn {
-        width: 46px;
-        height: 46px;
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
         background: #810100;
-        color: #EDEBDD;
-        border: 1px solid rgba(223, 177, 91, 0.4);
+        color: #FAF9F5;
+        border: 1.5px solid rgba(223, 177, 91, 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1718,24 +1801,59 @@
         transform: translateY(-50%);
         z-index: 6;
         cursor: pointer;
-        transition: all 0.25s ease;
-        box-shadow: 0 6px 20px rgba(99, 0, 0, 0.25);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 16px rgba(129, 1, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12);
+        padding: 0;
+        outline: none;
+    }
+
+    .roven-offers-nav-btn i {
+        font-size: 0.95rem;
+        color: #FAF9F5;
+        transition: color 0.25s ease;
+        line-height: 1;
     }
 
     .roven-offers-nav-prev {
-        left: -18px;
+        left: -22px;
     }
 
     .roven-offers-nav-next {
-        right: -18px;
+        right: -22px;
+    }
+
+    @media (min-width: 1400px) {
+        .roven-offers-nav-prev {
+            left: -26px;
+        }
+        .roven-offers-nav-next {
+            right: -26px;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .roven-offers-nav-prev {
+            left: -12px;
+        }
+        .roven-offers-nav-next {
+            right: -12px;
+        }
     }
 
     .roven-offers-nav-btn:hover {
-        background: #630000;
-        color: #ffffff;
-        transform: translateY(-50%) scale(1.1);
-        box-shadow: 0 8px 26px rgba(99, 0, 0, 0.4);
+        background: #dfb15b;
+        color: #1B1717;
         border-color: #dfb15b;
+        transform: translateY(-50%) scale(1.12);
+        box-shadow: 0 8px 24px rgba(223, 177, 91, 0.55), 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .roven-offers-nav-btn:hover i {
+        color: #1B1717;
+    }
+
+    .roven-offers-nav-btn:active {
+        transform: translateY(-50%) scale(0.96);
     }
 
     .roven-offers-dot {
@@ -2492,7 +2610,7 @@
         box-shadow: 0 0 12px rgba(223, 177, 91, 0.8) !important;
     }
 
-    /* Navigation Arrows: Always accessible, visible & touch-friendly on both Desktop & Mobile */
+    /* Navigation Arrows (Unified Luxury ROVEN Standard) */
     #heroHomeCarousel .carousel-control-prev,
     #heroHomeCarousel .carousel-control-next {
         display: flex !important;
@@ -2500,28 +2618,55 @@
         height: 44px;
         top: 50%;
         transform: translateY(-50%);
-        background: rgba(20, 8, 8, 0.72) !important;
+        background: #810100 !important;
         border-radius: 50%;
-        border: 1px solid rgba(223, 177, 91, 0.35);
+        border: 1.5px solid rgba(223, 177, 91, 0.5) !important;
         backdrop-filter: blur(8px);
-        margin: 0 16px;
-        opacity: 0.85;
-        transition: all 0.25s ease;
-        color: #fdf4dc !important;
+        opacity: 0.95;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        color: #FAF9F5 !important;
         z-index: 10;
+        box-shadow: 0 4px 16px rgba(129, 1, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12);
+        padding: 0;
+        outline: none;
     }
 
-    #heroHomeCarousel:hover .carousel-control-prev,
-    #heroHomeCarousel:hover .carousel-control-next {
-        opacity: 1;
+    #heroHomeCarousel .carousel-control-prev {
+        left: 18px !important;
+        margin: 0 !important;
+    }
+
+    #heroHomeCarousel .carousel-control-next {
+        right: 18px !important;
+        margin: 0 !important;
+    }
+
+    #heroHomeCarousel .carousel-control-prev i,
+    #heroHomeCarousel .carousel-control-next i {
+        font-size: 0.95rem;
+        color: #FAF9F5 !important;
+        transition: color 0.25s ease;
+        line-height: 1;
     }
 
     #heroHomeCarousel .carousel-control-prev:hover,
     #heroHomeCarousel .carousel-control-next:hover {
-        background: #810100 !important;
-        border-color: #dfb15b;
-        box-shadow: 0 0 16px rgba(129, 1, 0, 0.7);
-        color: #ffffff !important;
+        background: #dfb15b !important;
+        border-color: #dfb15b !important;
+        box-shadow: 0 8px 24px rgba(223, 177, 91, 0.55), 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+        color: #1B1717 !important;
+        transform: translateY(-50%) scale(1.12);
+        opacity: 1;
+    }
+
+    #heroHomeCarousel .carousel-control-prev:hover i,
+    #heroHomeCarousel .carousel-control-next:hover i {
+        color: #1B1717 !important;
+    }
+
+    #heroHomeCarousel .carousel-control-prev:active,
+    #heroHomeCarousel .carousel-control-next:active {
+        transform: translateY(-50%) scale(0.96);
     }
 
     @media (max-width: 768px) {
@@ -2800,14 +2945,14 @@
         box-shadow: 0 16px 36px rgba(129, 1, 0, 0.12) !important;
     }
 
-    /* Carousel Nav Arrows */
+    /* Carousel Nav Arrows (Unified Luxury ROVEN Standard) */
     .roven-testimonials-nav-btn {
         width: 44px;
         height: 44px;
         border-radius: 50%;
         background: #810100;
         color: #FAF9F5;
-        border: 1.5px solid #dfb15b;
+        border: 1.5px solid rgba(223, 177, 91, 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -2816,22 +2961,57 @@
         transform: translateY(-50%);
         z-index: 5;
         cursor: pointer;
-        transition: all 0.25s ease;
-        box-shadow: 0 6px 18px rgba(129, 1, 0, 0.25);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 16px rgba(129, 1, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12);
+        padding: 0;
+        outline: none;
+    }
+
+    .roven-testimonials-nav-btn i {
+        font-size: 0.95rem;
+        color: #FAF9F5;
+        transition: color 0.25s ease;
+        line-height: 1;
     }
 
     .roven-testimonials-nav-prev {
-        left: -14px;
+        left: -22px;
     }
 
     .roven-testimonials-nav-next {
-        right: -14px;
+        right: -22px;
+    }
+
+    @media (min-width: 1400px) {
+        .roven-testimonials-nav-prev {
+            left: -26px;
+        }
+        .roven-testimonials-nav-next {
+            right: -26px;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .roven-testimonials-nav-prev {
+            left: -12px;
+        }
+        .roven-testimonials-nav-next {
+            right: -12px;
+        }
     }
 
     .roven-testimonials-nav-btn:hover {
         background: #dfb15b;
         color: #1B1717;
-        transform: translateY(-50%) scale(1.08);
-        box-shadow: 0 8px 24px rgba(223, 177, 91, 0.35);
         border-color: #dfb15b;
+        transform: translateY(-50%) scale(1.12);
+        box-shadow: 0 8px 24px rgba(223, 177, 91, 0.55), 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .roven-testimonials-nav-btn:hover i {
+        color: #1B1717;
+    }
+
+    .roven-testimonials-nav-btn:active {
+        transform: translateY(-50%) scale(0.96);
     }
