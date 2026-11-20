@@ -26,6 +26,20 @@
 
     if (offers.Any())
     {
+        <style>
+            .roven-spotlight-hero-card {
+                background: linear-gradient(145deg, #620005 0%, #460003 40%, #280002 80%, #170001 100%) !important;
+            }
+            .roven-offer-img-frame {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            .roven-spotlight-hero-card:hover .roven-offer-img-frame {
+                border-color: transparent !important;
+                box-shadow: none !important;
+            }
+        </style>
         <section id="homeSpotlightSection" class="roven-spotlight-section py-5 w-100 position-relative overflow-hidden" style="background-color: #FFFFFF;">
             <div class="container position-relative">
                 <!-- Section Header -->
@@ -80,7 +94,7 @@
                                                 @if (!string.IsNullOrWhiteSpace(offer.CustomImageUrl))
                                                 {
                                                     <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none" title="@offer.DisplayTitle">
-                                                        <img src="@offer.CustomImageUrl" alt="@offer.DisplayTitle" class="img-fluid rounded-3" style="max-height: 340px; width: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='/roven/products/653512e607aa40008b9c03356653409f.jpg';" />
+                                                        <img src="@offer.CustomImageUrl" alt="@offer.DisplayTitle" class="img-fluid rounded-4 shadow-sm" style="max-height: 380px; width: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='/roven/products/653512e607aa40008b9c03356653409f.jpg';" />
                                                     </a>
                                                 }
                                                 else if (isDuo)
