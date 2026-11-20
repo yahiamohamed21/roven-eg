@@ -913,7 +913,7 @@
                                                                 <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; flex-shrink: 0;" title="@prod?.Name">
                                                                     @if (!string.IsNullOrWhiteSpace(prod?.ImageUrl))
                                                                     {
-                                                                        <img src="@prod.ImageUrl" alt="@prod.Name" style="width: 100%; height: 100%; object-fit: cover;" />
+                                                                        <img src="@prod.ImageUrl" alt="@prod.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
                                                                     }
                                                                     else
                                                                     {
@@ -926,7 +926,7 @@
                                                                 <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; flex-shrink: 0;" title="@prod2?.Name">
                                                                     @if (!string.IsNullOrWhiteSpace(prod2?.ImageUrl))
                                                                     {
-                                                                        <img src="@prod2.ImageUrl" alt="@prod2.Name" style="width: 100%; height: 100%; object-fit: cover;" />
+                                                                        <img src="@prod2.ImageUrl" alt="@prod2.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
                                                                     }
                                                                     else
                                                                     {
@@ -943,7 +943,7 @@
                                                             <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; flex-shrink: 0;">
                                                                 @if (!string.IsNullOrWhiteSpace(prod?.ImageUrl))
                                                                 {
-                                                                    <img src="@prod.ImageUrl" alt="@prod.Name" style="width: 100%; height: 100%; object-fit: cover;" />
+                                                                    <img src="@prod.ImageUrl" alt="@prod.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
                                                                 }
                                                                 else
                                                                 {
@@ -1114,8 +1114,8 @@
                                             else if (isDuo)
                                             {
                                                 <div class="position-relative" style="width: 58px; height: 58px; flex-shrink: 0;">
-                                                    <img src="@prod?.ImageUrl" alt="@prod?.Name" class="rounded-3 border position-absolute top-0 start-0" style="width: 38px; height: 38px; object-fit: cover; z-index: 2;" onerror="this.src='/images/placeholder.svg'" />
-                                                    <img src="@prod2?.ImageUrl" alt="@prod2?.Name" class="rounded-3 border position-absolute bottom-0 end-0" style="width: 38px; height: 38px; object-fit: cover; z-index: 1;" onerror="this.src='/images/placeholder.svg'" />
+                                                    <img src="@(string.IsNullOrWhiteSpace(prod?.ImageUrl) ? "/images/placeholder.svg" : prod.ImageUrl)" alt="@prod?.Name" class="rounded-3 border position-absolute top-0 start-0" style="width: 38px; height: 38px; object-fit: cover; z-index: 2;" onerror="this.src='/images/placeholder.svg'" />
+                                                    <img src="@(string.IsNullOrWhiteSpace(prod2?.ImageUrl) ? "/images/placeholder.svg" : prod2.ImageUrl)" alt="@prod2?.Name" class="rounded-3 border position-absolute bottom-0 end-0" style="width: 38px; height: 38px; object-fit: cover; z-index: 1;" onerror="this.src='/images/placeholder.svg'" />
                                                 </div>
                                                 <div class="flex-grow-1" style="min-width: 0;">
                                                     @if (!string.IsNullOrWhiteSpace(offer.Title))
@@ -2715,11 +2715,11 @@
                             <div class="d-flex flex-wrap gap-3 align-items-center">
                                 <div>
                                     <div class="small text-muted mb-1 font-monospace">Desktop (1920x800):</div>
-                                    <img id="editBannerDesktopPreview" src="" alt="Desktop Preview" class="rounded border shadow-xs" style="width: 180px; height: 75px; object-fit: cover; border-color: #ddd !important;" />
+                                    <img id="editBannerDesktopPreview" src="/images/placeholder.svg" alt="Desktop Preview" class="rounded border shadow-xs" style="width: 180px; height: 75px; object-fit: cover; border-color: #ddd !important;" />
                                 </div>
                                 <div id="editBannerMobilePreviewWrap">
                                     <div class="small text-muted mb-1 font-monospace">Mobile (750x1000):</div>
-                                    <img id="editBannerMobilePreview" src="" alt="Mobile Preview" class="rounded border shadow-xs" style="width: 60px; height: 75px; object-fit: cover; border-color: #ddd !important;" />
+                                    <img id="editBannerMobilePreview" src="/images/placeholder.svg" alt="Mobile Preview" class="rounded border shadow-xs" style="width: 60px; height: 75px; object-fit: cover; border-color: #ddd !important;" />
                                 </div>
                             </div>
                         </div>
@@ -3619,7 +3619,7 @@
 </div>
 
 @section Scripts {
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script src="~/lib/sortablejs/sortable.min.js" asp-append-version="true"></script>
 <script>
     function openEditBannerModal(id, title, desktopUrl, mobileUrl, redirectLink, altText, isActive, order) {
         document.getElementById('editBannerId').value = id;
