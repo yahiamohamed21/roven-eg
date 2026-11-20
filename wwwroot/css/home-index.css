@@ -1582,20 +1582,20 @@
     }
 
     .roven-spotlight-hero-card {
-        background: linear-gradient(145deg, #810100 0%, #680001 50%, #4a0002 100%);
+        background: linear-gradient(145deg, #520D0D 0%, #440A0A 52%, #360707 100%) !important;
         isolation: isolate;
-        border: 1.5px solid rgba(223, 177, 91, 0.4);
+        border: 1px solid rgba(223, 177, 91, 0.22) !important;
         border-radius: 24px;
-        padding: 2.75rem 3rem;
+        padding: 2.5rem 3rem;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 16px 44px rgba(0, 0, 0, 0.35), 0 0 20px rgba(223, 177, 91, 0.08) !important;
+        box-shadow: 0 20px 48px rgba(35, 4, 4, 0.5), 0 8px 24px rgba(0, 0, 0, 0.3) !important;
         transition: border-color 0.3s ease, box-shadow 0.3s ease;
         width: 100%;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        min-height: 540px;
+        min-height: 520px;
     }
 
     .roven-spotlight-hero-card > .row {
@@ -1606,8 +1606,7 @@
 
     .roven-spotlight-hero-card:hover {
         transform: none !important;
-        box-shadow: 0 20px 52px rgba(0, 0, 0, 0.65), 0 0 32px rgba(223, 177, 91, 0.22) !important;
-        border-color: #dfb15b !important;
+        border-color: rgba(223, 177, 91, 0.5) !important;
     }
 
     .roven-spotlight-hero-card::before,
@@ -1619,42 +1618,49 @@
     .roven-offer-img-frame {
         background: transparent !important;
         border: none !important;
-        border-radius: 20px;
-        padding: 0;
-        position: relative;
-        overflow: visible;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 420px;
-        min-height: 420px;
-        max-height: 420px;
-        width: 100%;
+        border-radius: 18px !important;
+        padding: 0 !important;
+        position: relative !important;
+        overflow: hidden !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        aspect-ratio: 1 / 1 !important;
+        width: 100% !important;
+        max-width: 380px !important;
+        height: 380px !important;
+        margin: 0 auto !important;
         box-shadow: none !important;
-        transition: none;
+    }
+
+    .roven-offer-img-frame::before,
+    .roven-offer-img-frame::after {
+        display: none !important;
+        content: none !important;
     }
 
     .roven-offer-img-frame img {
-        max-height: 380px;
-        max-width: 100%;
-        object-fit: contain;
-        mix-blend-mode: lighten;
-        mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 98%);
-        -webkit-mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 98%);
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        border-radius: 18px !important;
+        mix-blend-mode: normal !important;
+        mask-image: none !important;
+        -webkit-mask-image: none !important;
+        border: none !important;
+        box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38) !important;
+        display: block !important;
+    }
+
+    .roven-spotlight-hero-card:hover .roven-offer-img-frame {
         border: none !important;
         box-shadow: none !important;
     }
 
-    .roven-spotlight-hero-card:hover .roven-offer-img-frame {
-        transform: none !important;
-        box-shadow: none !important;
-        border-color: transparent !important;
-    }
-
     .roven-offer-discount-badge {
-        background: #810100;
+        background: #5A0C0C;
         color: #FAF9F5;
-        border: 1px solid #dfb15b;
+        border: 1px solid rgba(223, 177, 91, 0.75);
         font-size: 0.82rem;
         font-weight: 800;
         padding: 5px 13px;
@@ -1783,7 +1789,7 @@
     }
 
     .roven-offer-shop-btn {
-        background: #810100;
+        background: linear-gradient(135deg, #550D0D 0%, #440A0A 100%) !important;
         color: #FAF9F5;
         font-weight: 700;
         border-radius: 50px;
@@ -1836,7 +1842,7 @@
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: #810100;
+        background: #440A0A;
         color: #FAF9F5;
         border: 1.5px solid rgba(223, 177, 91, 0.5);
         display: flex;
@@ -1931,18 +1937,22 @@
             height: 290px;
             min-height: 290px;
             max-height: 290px;
-            padding: 0;
+            padding: 0 !important;
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
+            border-radius: 16px !important;
         }
         .roven-offer-img-frame img {
-            max-height: 270px;
-            mix-blend-mode: lighten;
-            mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 98%);
-            -webkit-mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 98%);
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 16px !important;
+            mix-blend-mode: normal !important;
+            mask-image: none !important;
+            -webkit-mask-image: none !important;
             border: none !important;
-            box-shadow: none !important;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35) !important;
         }
         .roven-offer-title {
             font-size: 1.75rem;
