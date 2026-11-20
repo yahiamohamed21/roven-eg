@@ -52,37 +52,66 @@
     <div class="roven-compare-ambient-glow-secondary" aria-hidden="true"></div>
 
     <div class="container px-3 px-md-4 position-relative" style="z-index: 2;">
+        
+        <!-- Mobile-Only Header: US VS THEM & Subtitle above the comparison slider image -->
+        <div class="d-lg-none text-center mb-4 pb-1">
+            <h2 class="roven-compare-title mb-2">
+                @if (title.Trim().Equals("US VS THEM", StringComparison.OrdinalIgnoreCase))
+                {
+                    <span class="roven-title-us">US</span>
+                    <span class="roven-title-vs-pill">VS</span>
+                    <span class="roven-title-them">THEM</span>
+                }
+                else
+                {
+                    <span>@title</span>
+                }
+            </h2>
+
+            <div class="roven-editorial-flourish mb-3 d-flex align-items-center justify-content-center gap-2">
+                <span class="flourish-line"></span>
+                <span class="flourish-gem">◈</span>
+                <span class="flourish-line-long"></span>
+            </div>
+
+            <p class="roven-compare-subtitle mb-0">
+                @subtitle
+            </p>
+        </div>
+
         <div class="row align-items-center g-4 g-xl-5">
             
             <!-- Left Column: Editorial & Quality Value Props (order-2 on mobile, order-1 on desktop) -->
             <div class="col-12 col-lg-5 text-center text-lg-start order-2 order-lg-1">
                 <div class="roven-compare-editorial pe-lg-2">
                     
-                    <!-- Editorial Haute Headline: US VS THEM -->
-                    <h2 class="roven-compare-title mb-3">
-                        @if (title.Trim().Equals("US VS THEM", StringComparison.OrdinalIgnoreCase))
-                        {
-                            <span class="roven-title-us">US</span>
-                            <span class="roven-title-vs-pill">VS</span>
-                            <span class="roven-title-them">THEM</span>
-                        }
-                        else
-                        {
-                            <span>@title</span>
-                        }
-                    </h2>
+                    <!-- Desktop-Only Headline: US VS THEM & Subtitle -->
+                    <div class="d-none d-lg-block">
+                        <h2 class="roven-compare-title mb-3">
+                            @if (title.Trim().Equals("US VS THEM", StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="roven-title-us">US</span>
+                                <span class="roven-title-vs-pill">VS</span>
+                                <span class="roven-title-them">THEM</span>
+                            }
+                            else
+                            {
+                                <span>@title</span>
+                            }
+                        </h2>
 
-                    <!-- Decorative Gold Flourish Divider -->
-                    <div class="roven-editorial-flourish mb-4 d-flex align-items-center justify-content-center justify-content-lg-start gap-2">
-                        <span class="flourish-line"></span>
-                        <span class="flourish-gem">◈</span>
-                        <span class="flourish-line-long"></span>
+                        <!-- Decorative Gold Flourish Divider -->
+                        <div class="roven-editorial-flourish mb-4 d-flex align-items-center justify-content-center justify-content-lg-start gap-2">
+                            <span class="flourish-line"></span>
+                            <span class="flourish-gem">◈</span>
+                            <span class="flourish-line-long"></span>
+                        </div>
+
+                        <!-- Narrative Subtitle -->
+                        <p class="roven-compare-subtitle mb-4 pb-2">
+                            @subtitle
+                        </p>
                     </div>
-
-                    <!-- Narrative Subtitle -->
-                    <p class="roven-compare-subtitle mb-4 pb-2">
-                        @subtitle
-                    </p>
 
                     <!-- Atelier Quality Signatures (3 Refined Luxury Plaque Cards) -->
                     <div class="roven-compare-features d-flex flex-column gap-3 mb-4 pb-2 text-start">
