@@ -29,11 +29,6 @@
     <text x="100" y="180" text-anchor="middle" font-family="'Montserrat', sans-serif" font-size="10" fill="#666">Eau de Toilette</text>
   </g>
 
-  <!-- Header watermark -->
-  <g transform="translate(60, 60)">
-    <rect x="0" y="0" width="130" height="32" rx="16" fill="#DC2626" opacity="0.12" />
-    <text x="65" y="21" text-anchor="middle" font-family="'Cinzel', 'Playfair Display', serif" font-size="13" font-weight="800" fill="#DC2626" letter-spacing="1.5">BEFORE / THEM</text>
-  </g>
 
   <!-- Comparison Points List -->
   <g transform="translate(60, 125)">

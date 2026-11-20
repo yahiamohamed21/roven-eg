@@ -44,33 +44,42 @@
 }
 
 <!-- ======================================================================== -->
-<!-- 6. MAISON ROVEN LUXURY COMPARISON SLIDER (US VS THEM • ATELIER QUALITY) -->
+<!-- MAISON ROVEN HAUTE PARFUMERIE COMPARISON SHOWCASE (US VS THEM)           -->
 <!-- ======================================================================== -->
-<section id="homeComparisonSection" class="py-5 my-3" style="background-color: #FFFFFF; position: relative;">
-    <div class="container px-3 px-md-4">
-        <div class="row align-items-center g-4 g-lg-5">
+<section id="homeComparisonSection" class="roven-compare-section position-relative">
+    <!-- Top & Bottom Ambient Glows -->
+    <div class="roven-compare-ambient-glow" aria-hidden="true"></div>
+
+    <div class="container px-3 px-md-4 position-relative" style="z-index: 2;">
+        <div class="row align-items-center g-4 g-xl-5">
+            
             <!-- Left Column: Editorial & Quality Value Props -->
             <div class="col-12 col-lg-5 text-center text-lg-start">
-                <div class="pe-lg-3">
-                    <!-- Luxury Badge -->
-                    <div class="roven-compare-badge px-3.5 py-1.5 rounded-pill mb-3">
-                        <i class="fa-solid fa-gem" style="color: #dfb15b;"></i>
+                <div class="roven-compare-editorial pe-lg-2">
+                    
+                    <!-- Royal Luxury Badge -->
+                    <div class="roven-compare-badge mb-3">
+                        <span class="roven-badge-sparkle">✦</span>
                         <span>@badgeText</span>
+                        <span class="roven-badge-sparkle">✦</span>
                     </div>
 
-                    <!-- Editorial Title -->
+                    <!-- Editorial Haute Headline -->
                     <h2 class="roven-compare-title mb-3">
                         @title
                     </h2>
+                    <div class="roven-title-gold-accent mb-3 d-none d-lg-block"></div>
 
-                    <!-- Subtitle / Narrative -->
+                    <!-- Narrative Subtitle -->
                     <p class="roven-compare-subtitle mb-4">
                         @subtitle
                     </p>
 
-                    <!-- Quality Promise Luxury Feature Cards -->
+                    <!-- Atelier Quality Signatures (3 Refined Value Cards) -->
                     <div class="roven-compare-features d-flex flex-column gap-2.5 mb-4 text-start">
-                        <div class="roven-feature-card d-flex align-items-center gap-3 p-3 rounded-3">
+                        
+                        <!-- Signature 1: Concentration -->
+                        <div class="roven-feature-card d-flex align-items-center gap-3">
                             <div class="roven-feature-icon-box flex-shrink-0">
                                 <i class="fa-solid fa-droplet"></i>
                             </div>
@@ -78,161 +87,214 @@
                                 <div class="roven-feature-name">Extrait de Parfum (30% Pure Concentration)</div>
                                 <div class="roven-feature-desc">أعلى تركيز زيوت عطرية نقية معتمدة لثبات وفوحان فائق</div>
                             </div>
+                            <div class="roven-feature-gold-chip">30%</div>
                         </div>
 
-                        <div class="roven-feature-card d-flex align-items-center gap-3 p-3 rounded-3">
+                        <!-- Signature 2: Longevity -->
+                        <div class="roven-feature-card d-flex align-items-center gap-3">
                             <div class="roven-feature-icon-box flex-shrink-0">
-                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                <i class="fa-solid fa-hourglass-half"></i>
                             </div>
                             <div class="flex-grow-1">
-                                <div class="roven-feature-name">24+ Hours Royal Longevity & Sillage</div>
+                                <div class="roven-feature-name">24+ Hours Royal Longevity &amp; Sillage</div>
                                 <div class="roven-feature-desc">ثبات وفوحان ملكي يدوم أكثر من 24 ساعة على الملابس</div>
                             </div>
+                            <div class="roven-feature-gold-chip">24h+</div>
                         </div>
 
-                        <div class="roven-feature-card d-flex align-items-center gap-3 p-3 rounded-3">
+                        <!-- Signature 3: Risk-Free Guarantee -->
+                        <div class="roven-feature-card d-flex align-items-center gap-3">
                             <div class="roven-feature-icon-box flex-shrink-0">
-                                <i class="fa-solid fa-shield-halved"></i>
+                                <i class="fa-solid fa-shield-heart"></i>
                             </div>
                             <div class="flex-grow-1">
                                 <div class="roven-feature-name">100% Risk-Free Inspection on Delivery</div>
                                 <div class="roven-feature-desc">حق المعاينة والتجربة الكاملة قبل استلام الطرد والدفع</div>
                             </div>
+                            <div class="roven-feature-gold-chip">100%</div>
                         </div>
                     </div>
 
-                    <!-- CTA Button -->
-                    <div class="pt-2">
+                    <!-- Atelier Velvet CTA Button -->
+                    <div class="pt-1">
                         <a href="@buttonLink" class="roven-compare-cta-btn">
-                            <span>@buttonText</span>
-                            <i class="fa-solid fa-arrow-right"></i>
+                            <span class="roven-btn-text">@buttonText</span>
+                            <span class="roven-btn-arrow-wrap">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </span>
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: Interactive Comparison Slider -->
+            <!-- Right Column: High-Jewelry Comparison Showcase -->
             <div class="col-12 col-lg-7">
-                <div class="roven-compare-card-wrapper position-relative overflow-hidden">
-                    <div class="roven-compare-box position-relative overflow-hidden" 
+                <div class="roven-showcase-pedestal">
+                    
+                    <!-- Showcase Frame with Exact 1600/1194 Flacon Ratio -->
+                    <div class="roven-compare-stage position-relative overflow-hidden" 
                          id="rovenComparisonBox"
-                         style="--pos: 50%; user-select: none; touch-action: pan-y; cursor: ew-resize; min-height: 380px; aspect-ratio: 16/10;">
+                         style="--pos: 50%;">
                         
-                        <!-- Base Layer: After (Maison ROVEN) -->
+                        <!-- Base Layer: After (Maison ROVEN Royal Flacon) -->
                         <img src="@afterImage" 
                              alt="@afterLabel" 
                              class="roven-compare-img roven-compare-after-img w-100 h-100 d-block" 
-                             style="object-fit: cover; object-position: center; pointer-events: none;" 
-                             loading="lazy" />
+                             loading="eager" />
 
-                        <!-- Overlay Layer: Before (Them / Conventional) -->
-                        <div class="roven-compare-overlay position-absolute top-0 start-0 h-100 overflow-hidden" 
-                             style="width: var(--pos, 50%); pointer-events: none;">
-                            <img src="@beforeImage" 
-                                 alt="@beforeLabel" 
-                                 class="roven-compare-img roven-compare-before-img h-100 position-absolute top-0 start-0" 
-                                 style="width: 100%; min-width: 100%; object-fit: cover; object-position: center; max-width: none;" 
-                                 id="rovenCompareBeforeImg"
-                                 loading="lazy" />
-                        </div>
+                        <!-- Top Layer: Before (Them / Conventional), Clipped at Slider Position -->
+                        <img src="@beforeImage" 
+                             alt="@beforeLabel" 
+                             class="roven-compare-img roven-compare-before-img w-100 h-100 position-absolute top-0 start-0" 
+                             loading="eager" />
 
-                        <!-- Draggable Divider Line & Luxury Floating Handle -->
+                        <!-- Draggable Gold Hairline Laser Divider -->
                         <div class="roven-compare-divider position-absolute top-0 bottom-0" 
-                             style="left: var(--pos, 50%); width: 2.5px; background: #dfb15b; transform: translateX(-50%); pointer-events: none; z-index: 5; box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);">
+                             aria-hidden="true">
                             
-                            <!-- Circular Floating Luxury Grip Button -->
-                            <div class="roven-compare-handle rounded-circle position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center">
-                                <div class="d-flex align-items-center justify-content-center gap-1">
-                                    <i class="fa-solid fa-chevron-left" style="font-size: 0.68rem; color: #810100;"></i>
-                                    <span style="display: inline-block; width: 2px; height: 14px; background: #dfb15b; border-radius: 2px;"></span>
-                                    <i class="fa-solid fa-chevron-right" style="font-size: 0.68rem; color: #810100;"></i>
+                            <!-- Jewelry Dial Handle with Crimson Core and Gold Ring -->
+                            <div class="roven-jewelry-handle position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center">
+                                <div class="roven-handle-core d-flex align-items-center justify-content-center">
+                                    <i class="fa-solid fa-chevron-left roven-handle-chevron"></i>
+                                    <span class="roven-handle-bar"></span>
+                                    <i class="fa-solid fa-chevron-right roven-handle-chevron"></i>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Accessible Native Range Input Overlay -->
+                        <!-- Accessible Native Range Control Overlay -->
                         <input type="range" 
                                min="0" 
                                max="100" 
                                value="50" 
                                id="rovenComparisonRange"
-                               class="roven-compare-range-input position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-ew-resize" 
-                               style="cursor: ew-resize; z-index: 10; margin: 0; padding: 0;" 
+                               class="roven-range-slider-input position-absolute top-0 start-0 w-100 h-100" 
                                aria-label="Before and After Quality Comparison Slider" />
                     </div>
                 </div>
 
-                <!-- Subtle Clean Drag Caption Beneath Card -->
-                <div class="text-center mt-3 d-flex align-items-center justify-content-center gap-2 text-muted" style="font-size: 0.82rem; font-weight: 500;">
-                    <i class="fa-solid fa-arrows-left-right" style="color: #dfb15b; font-size: 0.78rem;"></i>
-                    <span>اسحب المقبض يميناً ويساراً لاكتشاف الفرق • Drag slider to compare</span>
+                <!-- Sleek Frosted Glass Interaction Hint Pill -->
+                <div class="roven-compare-hint-wrap text-center mt-3">
+                    <div class="roven-compare-hint-pill d-inline-flex align-items-center justify-content-center gap-2">
+                        <i class="fa-solid fa-arrow-left-long roven-cue-arrow left"></i>
+                        <span>اسحب المقبض يميناً ويساراً لاكتشاف الفرق • Drag slider to compare</span>
+                        <i class="fa-solid fa-arrow-right-long roven-cue-arrow right"></i>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
 </section>
 
 <style>
+    /* ==========================================================================
+       MAISON ROVEN COMPARISON SECTION STYLING (HAUTE PARFUMERIE)
+       ========================================================================== */
+    .roven-compare-section {
+        background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F4 18%, #F5F1E8 50%, #FAF8F4 82%, #FFFFFF 100%);
+        padding: 4.5rem 0;
+        border-top: 1px solid rgba(223, 177, 91, 0.22);
+        border-bottom: 1px solid rgba(223, 177, 91, 0.22);
+        overflow: hidden;
+    }
+
+    .roven-compare-ambient-glow {
+        position: absolute;
+        top: 20%;
+        right: 10%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(223, 177, 91, 0.12) 0%, rgba(129, 1, 0, 0.04) 50%, transparent 70%);
+        filter: blur(60px);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* Left Column Typography */
     .roven-compare-badge {
-        background: linear-gradient(135deg, rgba(129, 1, 0, 0.05) 0%, rgba(223, 177, 91, 0.12) 100%);
-        border: 1px solid rgba(181, 141, 74, 0.38);
-        color: #810100;
-        font-size: 0.76rem;
-        font-weight: 800;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
         display: inline-flex;
         align-items: center;
         gap: 8px;
+        padding: 6px 18px;
+        border-radius: 50px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(247, 243, 235, 0.95) 100%);
+        border: 1px solid rgba(223, 177, 91, 0.55);
+        color: #810100;
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        box-shadow: 0 4px 15px rgba(223, 177, 91, 0.12);
+    }
+
+    .roven-badge-sparkle {
+        color: #dfb15b;
+        font-size: 0.85rem;
     }
 
     .roven-compare-title {
-        font-family: 'Playfair Display', Georgia, serif;
-        font-size: clamp(2.2rem, 3.8vw, 3.2rem);
+        font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+        font-size: clamp(2.3rem, 4vw, 3.4rem);
         font-weight: 800;
         color: #1B1717;
         letter-spacing: -0.5px;
-        line-height: 1.15;
+        line-height: 1.12;
+    }
+
+    .roven-title-gold-accent {
+        width: 65px;
+        height: 2.5px;
+        background: linear-gradient(90deg, #dfb15b 0%, rgba(223, 177, 91, 0.2) 100%);
+        border-radius: 2px;
     }
 
     .roven-compare-subtitle {
-        color: #5a544c;
+        color: #554e46;
         font-size: 1.02rem;
         line-height: 1.75;
-        max-width: 490px;
+        max-width: 480px;
+        font-weight: 400;
     }
 
+    /* 3 Refined Feature Cards */
     .roven-feature-card {
-        background: #FAF9F5;
-        border: 1px solid rgba(181, 141, 74, 0.22);
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(223, 177, 91, 0.28);
         border-radius: 14px;
-        transition: all 0.25s ease;
+        padding: 12px 16px;
+        position: relative;
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
     }
 
     .roven-feature-card:hover {
         background: #FFFFFF;
-        border-color: rgba(181, 141, 74, 0.5);
-        transform: translateX(4px);
+        border-color: #dfb15b;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(129, 1, 0, 0.07), 0 2px 8px rgba(223, 177, 91, 0.15);
     }
 
     .roven-feature-icon-box {
         width: 42px;
         height: 42px;
         border-radius: 12px;
-        background: linear-gradient(135deg, rgba(129, 1, 0, 0.08) 0%, rgba(223, 177, 91, 0.16) 100%);
-        color: #810100;
-        border: 1px solid rgba(181, 141, 74, 0.3);
+        background: linear-gradient(135deg, #810100 0%, #5a0000 100%);
+        color: #dfb15b;
+        border: 1px solid rgba(223, 177, 91, 0.45);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.15rem;
+        font-size: 1.05rem;
+        box-shadow: 0 4px 10px rgba(129, 1, 0, 0.25);
         transition: all 0.25s ease;
     }
 
     .roven-feature-card:hover .roven-feature-icon-box {
-        background: #810100;
-        color: #dfb15b;
-        border-color: #810100;
+        transform: scale(1.06) rotate(3deg);
+        box-shadow: 0 6px 14px rgba(129, 1, 0, 0.35);
     }
 
     .roven-feature-name {
@@ -245,118 +307,265 @@
     .roven-feature-desc {
         color: #6e675f;
         font-size: 0.8rem;
-        line-height: 1.4;
+        line-height: 1.45;
         margin-top: 2px;
     }
 
-    .roven-compare-cta-btn {
-        background: linear-gradient(135deg, #810100 0%, #630000 100%);
-        color: #FFFFFF !important;
-        border: 1.5px solid rgba(223, 177, 91, 0.45);
-        border-radius: 50px;
-        padding: 0.9rem 2.5rem;
-        font-size: 0.92rem;
+    .roven-feature-gold-chip {
+        font-size: 0.72rem;
         font-weight: 800;
-        letter-spacing: 1px;
+        color: #810100;
+        background: rgba(223, 177, 91, 0.16);
+        border: 1px solid rgba(223, 177, 91, 0.35);
+        padding: 3px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+    }
+
+    /* Royal Velvet CTA Button */
+    .roven-compare-cta-btn {
+        background: linear-gradient(135deg, #810100 0%, #560000 100%);
+        color: #FFFFFF !important;
+        border: 1.5px solid #dfb15b;
+        border-radius: 50px;
+        padding: 0.88rem 2.4rem;
+        font-size: 0.94rem;
+        font-weight: 800;
+        letter-spacing: 1.5px;
         text-transform: uppercase;
         text-decoration: none !important;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        box-shadow: 0 6px 20px rgba(129, 1, 0, 0.28);
+        gap: 14px;
+        box-shadow: 0 8px 24px rgba(129, 1, 0, 0.32), 0 0 15px rgba(223, 177, 91, 0.25);
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .roven-compare-cta-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.7s ease;
+    }
+
+    .roven-compare-cta-btn:hover::before {
+        left: 100%;
     }
 
     .roven-compare-cta-btn:hover {
-        background: linear-gradient(135deg, #9b0100 0%, #7d0000 100%);
-        border-color: #dfb15b;
+        background: linear-gradient(135deg, #9b0100 0%, #6f0000 100%);
+        border-color: #ffd885;
         transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(129, 1, 0, 0.38);
+        box-shadow: 0 12px 32px rgba(129, 1, 0, 0.45), 0 0 25px rgba(223, 177, 91, 0.4);
         color: #FFFFFF !important;
     }
 
-    .roven-compare-cta-btn i {
+    .roven-btn-arrow-wrap {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(223, 177, 91, 0.25);
+        border: 1px solid #dfb15b;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.25s ease, background 0.25s ease;
+    }
+
+    .roven-btn-arrow-wrap i {
         color: #dfb15b;
+        font-size: 0.75rem;
         transition: transform 0.25s ease;
     }
 
-    .roven-compare-cta-btn:hover i {
+    .roven-compare-cta-btn:hover .roven-btn-arrow-wrap {
+        background: #dfb15b;
         transform: translateX(4px);
     }
 
-    .roven-compare-card-wrapper {
-        border: 1.5px solid rgba(181, 141, 74, 0.35);
-        border-radius: 24px;
-        overflow: hidden;
-        background: #FAF9F5;
-        box-shadow: none !important;
-        transition: border-color 0.3s ease;
+    .roven-compare-cta-btn:hover .roven-btn-arrow-wrap i {
+        color: #810100;
     }
 
-    .roven-compare-card-wrapper:hover {
-        border-color: #dfb15b !important;
-        box-shadow: none !important;
+    /* Right Column: Showcase Pedestal Frame */
+    .roven-showcase-pedestal {
+        padding: 8px;
+        border-radius: 28px;
+        background: linear-gradient(135deg, rgba(223, 177, 91, 0.45) 0%, rgba(255, 255, 255, 0.9) 45%, rgba(129, 1, 0, 0.25) 100%);
+        box-shadow: 0 25px 60px -15px rgba(129, 1, 0, 0.14), 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
     }
 
-    .roven-compare-handle {
-        width: 48px;
-        height: 48px;
-        background: #FFFFFF;
-        border: 2.5px solid #810100;
-        box-shadow: 0 4px 16px rgba(129, 1, 0, 0.28) !important;
+    .roven-showcase-pedestal:hover {
+        box-shadow: 0 30px 70px -15px rgba(129, 1, 0, 0.2), 0 0 30px rgba(223, 177, 91, 0.25);
+    }
+
+    .roven-compare-stage {
+        border-radius: 22px;
+        aspect-ratio: 1600 / 1194;
+        background-color: #F1EAE0;
         cursor: ew-resize;
-        transition: transform 0.2s ease, border-color 0.2s ease;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: pan-y;
     }
 
-    .roven-compare-box:hover .roven-compare-handle {
-        transform: translate(-50%, -50%) scale(1.08);
-        border-color: #dfb15b;
+    .roven-compare-img {
+        object-fit: cover;
+        object-position: center;
+        pointer-events: none;
+        user-select: none;
     }
 
-    .roven-compare-range-input {
+    /* Clip-path reveal for Before image */
+    .roven-compare-before-img {
+        clip-path: inset(0 calc(100% - var(--pos, 50%)) 0 0);
+        z-index: 2;
+        transition: none;
+    }
+
+    /* Laser Divider Line */
+    .roven-compare-divider {
+        left: var(--pos, 50%);
+        width: 3px;
+        background: linear-gradient(180deg, rgba(223, 177, 91, 0.3) 0%, #dfb15b 15%, #dfb15b 85%, rgba(223, 177, 91, 0.3) 100%);
+        transform: translateX(-50%);
+        pointer-events: none;
+        z-index: 5;
+        box-shadow: 0 0 12px rgba(223, 177, 91, 0.8), 0 0 3px rgba(129, 1, 0, 0.6);
+    }
+
+    /* Jewelry Dial Handle */
+    .roven-jewelry-handle {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #dfb15b 0%, #b58d4a 100%);
+        padding: 3px;
+        box-shadow: 0 8px 24px rgba(129, 1, 0, 0.4), 0 0 0 5px rgba(223, 177, 91, 0.25), 0 0 18px rgba(223, 177, 91, 0.55);
+        cursor: ew-resize;
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .roven-handle-core {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #9e0201 0%, #630000 70%, #400000 100%);
+        border: 1.5px solid rgba(255, 215, 130, 0.6);
+        gap: 4px;
+    }
+
+    .roven-handle-chevron {
+        color: #dfb15b;
+        font-size: 0.72rem;
+    }
+
+    .roven-handle-bar {
+        display: inline-block;
+        width: 2px;
+        height: 14px;
+        background: #dfb15b;
+        border-radius: 2px;
+        opacity: 0.85;
+    }
+
+    .roven-compare-stage:hover .roven-jewelry-handle {
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 10px 28px rgba(129, 1, 0, 0.5), 0 0 0 7px rgba(223, 177, 91, 0.35), 0 0 25px rgba(223, 177, 91, 0.7);
+    }
+
+    /* Native Accessible Range Input */
+    .roven-range-slider-input {
         opacity: 0;
+        cursor: ew-resize;
+        z-index: 10;
+        margin: 0;
+        padding: 0;
         -webkit-appearance: none;
         appearance: none;
     }
 
-    .roven-compare-box {
-        touch-action: pan-y;
+    /* Interaction Hint Pill */
+    .roven-compare-hint-pill {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(223, 177, 91, 0.4);
+        padding: 6px 18px;
+        border-radius: 50px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #5a544c;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     }
 
-    @@media (max-width: 767.98px) {
-        .roven-compare-box {
-            min-height: 300px;
-            aspect-ratio: 4/3;
+    .roven-cue-arrow {
+        color: #b58d4a;
+        font-size: 0.75rem;
+        animation: rovenArrowBounce 1.8s infinite ease-in-out;
+    }
+
+    .roven-cue-arrow.left {
+        animation-delay: 0s;
+    }
+
+    .roven-cue-arrow.right {
+        animation-delay: 0.9s;
+    }
+
+    @@keyframes rovenArrowBounce {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(3px); }
+    }
+
+    /* Responsive Adjustments */
+    @@media (max-width: 991.98px) {
+        .roven-compare-section {
+            padding: 3.5rem 0;
         }
-        .roven-compare-handle {
-            width: 40px !important;
-            height: 40px !important;
+        .roven-compare-title {
+            font-size: 2.2rem;
+        }
+        .roven-compare-subtitle {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .roven-jewelry-handle {
+            width: 44px;
+            height: 44px;
+        }
+        .roven-handle-bar {
+            height: 12px;
+        }
+        .roven-handle-chevron {
+            font-size: 0.65rem;
         }
         .roven-feature-card {
-            padding: 0.75rem !important;
+            padding: 10px 14px;
         }
         .roven-feature-icon-box {
             width: 38px;
             height: 38px;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
     }
 </style>
 
 <script>
     (function () {
-        function initRovenComparison() {
+        function initRovenHauteComparison() {
             const box = document.getElementById('rovenComparisonBox');
             const range = document.getElementById('rovenComparisonRange');
-            const beforeImg = document.getElementById('rovenCompareBeforeImg');
             if (!box || !range) return;
-
-            function syncBeforeImageWidth() {
-                if (beforeImg) {
-                    beforeImg.style.width = box.offsetWidth + 'px';
-                }
-            }
 
             function setPosition(percent) {
                 const clamped = Math.max(0, Math.min(100, percent));
@@ -368,7 +577,7 @@
                 setPosition(e.target.value);
             });
 
-            // Smooth touch and mouse drag handling directly on container
+            // Smooth direct touch & mouse dragging
             let isDragging = false;
 
             function updateFromClientX(clientX) {
@@ -408,27 +617,19 @@
                 isDragging = false;
             });
 
-            window.addEventListener('resize', syncBeforeImageWidth);
-            window.addEventListener('load', syncBeforeImageWidth);
-            if (beforeImg) {
-                beforeImg.addEventListener('load', syncBeforeImageWidth);
-            }
-            syncBeforeImageWidth();
-
-            // IntersectionObserver entrance peek animation
+            // Gentle initial peek animation on scroll entrance
             let animated = false;
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting && !animated) {
                         animated = true;
-                        syncBeforeImageWidth();
                         let step = 0;
                         const interval = setInterval(() => {
                             step++;
-                            if (step <= 15) {
-                                setPosition(50 + (step * -1.2)); // peek left
-                            } else if (step <= 30) {
-                                setPosition(32 + ((step - 15) * 1.2)); // back to 50
+                            if (step <= 16) {
+                                setPosition(50 + (step * -1.25)); // reveal left up to 30%
+                            } else if (step <= 32) {
+                                setPosition(30 + ((step - 16) * 1.25)); // return smoothly to 50%
                             } else {
                                 clearInterval(interval);
                                 setPosition(50);
@@ -436,15 +637,15 @@
                         }, 25);
                     }
                 });
-            }, { threshold: 0.3 });
+            }, { threshold: 0.35 });
 
             observer.observe(box);
         }
 
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initRovenComparison);
+            document.addEventListener('DOMContentLoaded', initRovenHauteComparison);
         } else {
-            initRovenComparison();
+            initRovenHauteComparison();
         }
     })();
 </script>

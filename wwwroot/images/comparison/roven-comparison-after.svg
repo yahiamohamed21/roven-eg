@@ -48,11 +48,6 @@
     <text x="100" y="220" text-anchor="middle" font-family="'Montserrat', sans-serif" font-size="8" font-weight="700" fill="#dfb15b" letter-spacing="1">30% PURE ESSENCE</text>
   </g>
 
-  <!-- Header Badge -->
-  <g transform="translate(60, 60)">
-    <rect x="0" y="0" width="160" height="32" rx="16" fill="url(#crimsonGradient)" />
-    <text x="80" y="21" text-anchor="middle" font-family="'Cinzel', 'Playfair Display', serif" font-size="13" font-weight="800" fill="#dfb15b" letter-spacing="1.5">AFTER / MAISON ROVEN</text>
-  </g>
 
   <!-- Comparison Points List -->
   <g transform="translate(60, 125)">
