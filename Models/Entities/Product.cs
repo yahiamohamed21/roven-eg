@@ -1,4 +1,6 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Stockify.Models.Enums;
 
 namespace Stockify.Models.Entities;
 
@@ -22,10 +24,24 @@ public class Product
     public bool IsBestSeller { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    // Fragrance Discovery Profile (Find Your Scent)
+    public FragranceProjection? Projection { get; set; }
+
+    [StringLength(150)]
+    public string? InspiredBy { get; set; }
+
+    public bool IsFragranceProfileApproved { get; set; } = false;
+    public DateTime? FragranceProfileReviewedAt { get; set; }
+
     public int CategoryId { get; set; }
     public Category? Category { get; set; }
 
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     public ICollection<InventoryTransaction> InventoryTransactions { get; set; } = new List<InventoryTransaction>();
     public ICollection<ProductReview> Reviews { get; set; } = new List<ProductReview>();
+
+    // Fragrance Discovery Navigations
+    public ICollection<ProductTargetAudience> TargetAudiences { get; set; } = new List<ProductTargetAudience>();
+    public ICollection<ProductSeason> Seasons { get; set; } = new List<ProductSeason>();
+    public ICollection<ProductFragranceNote> ProductFragranceNotes { get; set; } = new List<ProductFragranceNote>();
 }

@@ -29,6 +29,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<MediaDeletionJob> MediaDeletionJobs => Set<MediaDeletionJob>();
     public DbSet<HomeFaqItem> HomeFaqItems => Set<HomeFaqItem>();
 
+    // Fragrance Discovery (Find Your Scent)
+    public DbSet<FragranceNote> FragranceNotes => Set<FragranceNote>();
+    public DbSet<FragranceNoteQuickPick> FragranceNoteQuickPicks => Set<FragranceNoteQuickPick>();
+    public DbSet<ProductTargetAudience> ProductTargetAudiences => Set<ProductTargetAudience>();
+    public DbSet<ProductSeason> ProductSeasons => Set<ProductSeason>();
+    public DbSet<ProductFragranceNote> ProductFragranceNotes => Set<ProductFragranceNote>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -83,6 +90,62 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             b.HasIndex(v => v.VisitedAt);
             b.HasIndex(v => v.SessionId);
+        });
+
+        // Fragrance Discovery (Find Your Scent)
+        builder.Entity<FragranceNote>(b =>
+        {
+            b.HasIndex(n => n.Name).IsUnique();
+            b.HasIndex(n => n.Category);
+            b.HasIndex(n => n.IsActive);
+            b.HasIndex(n => n.DisplayOrder);
+        });
+
+        builder.Entity<FragranceNoteQuickPick>(b =>
+        {
+            b.HasKey(qp => new { qp.FragranceNoteId, qp.Context });
+            b.HasOne(qp => qp.FragranceNote)
+             .WithMany(fn => fn.QuickPicks)
+             .HasForeignKey(qp => qp.FragranceNoteId)
+             .OnDelete(DeleteBehavior.Cascade);
+            b.HasIndex(qp => qp.Context);
+            b.HasIndex(qp => qp.DisplayOrder);
+        });
+
+        builder.Entity<ProductTargetAudience>(b =>
+        {
+            b.HasKey(pta => new { pta.ProductId, pta.Audience });
+            b.HasOne(pta => pta.Product)
+             .WithMany(p => p.TargetAudiences)
+             .HasForeignKey(pta => pta.ProductId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ProductSeason>(b =>
+        {
+            b.HasKey(ps => new { ps.ProductId, ps.Season });
+            b.HasOne(ps => ps.Product)
+             .WithMany(p => p.Seasons)
+             .HasForeignKey(ps => ps.ProductId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ProductFragranceNote>(b =>
+        {
+            b.HasKey(pfn => new { pfn.ProductId, pfn.FragranceNoteId });
+            b.HasOne(pfn => pfn.Product)
+             .WithMany(p => p.ProductFragranceNotes)
+             .HasForeignKey(pfn => pfn.ProductId)
+             .OnDelete(DeleteBehavior.Cascade);
+            b.HasOne(pfn => pfn.FragranceNote)
+             .WithMany(fn => fn.ProductFragranceNotes)
+             .HasForeignKey(pfn => pfn.FragranceNoteId)
+             .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<Product>(b =>
+        {
+            b.HasIndex(p => p.IsFragranceProfileApproved);
         });
 
         // Discovers and applies all IEntityTypeConfiguration classes

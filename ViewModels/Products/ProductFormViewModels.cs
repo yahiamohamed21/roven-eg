@@ -1,10 +1,40 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Stockify.Common.Validation;
+using Stockify.Models.Enums;
 
 namespace Stockify.ViewModels.Products;
 
-public class ProductCreateViewModel
+public class FragranceNoteOptionViewModel
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string ArabicName { get; set; } = string.Empty;
+    public FragranceNoteCategory Category { get; set; }
+}
+
+public class FragranceNoteCategoryGroupViewModel
+{
+    public FragranceNoteCategory Category { get; set; }
+    public string CategoryNameEn { get; set; } = string.Empty;
+    public string CategoryNameAr { get; set; } = string.Empty;
+    public List<FragranceNoteOptionViewModel> Notes { get; set; } = new();
+}
+
+public interface IFragranceProfileFormModel
+{
+    List<AudienceTarget> SelectedAudiences { get; set; }
+    List<FragranceSeason> SelectedSeasons { get; set; }
+    FragranceProjection? Projection { get; set; }
+    string? InspiredBy { get; set; }
+    List<int> SelectedFragranceNoteIds { get; set; }
+    bool IsFragranceProfileApproved { get; set; }
+    DateTime? FragranceProfileReviewedAt { get; }
+    List<FragranceNoteCategoryGroupViewModel> AvailableNotesGrouped { get; set; }
+}
+
+public class ProductCreateViewModel : IFragranceProfileFormModel
 {
     [Required(ErrorMessage = "Product name is required.")]
     [StringLength(150, ErrorMessage = "Product name cannot exceed 150 characters.")]
@@ -54,9 +84,34 @@ public class ProductCreateViewModel
     public bool IsBestSeller { get; set; } = false;
 
     public IEnumerable<SelectListItem> CategoriesList { get; set; } = new List<SelectListItem>();
+
+    // Fragrance Discovery Profile (Find Your Scent ✨)
+    [Display(Name = "Target Audience (الفئة المستهدفة)")]
+    public List<AudienceTarget> SelectedAudiences { get; set; } = new();
+
+    [ExclusiveAllYearSeason]
+    [Display(Name = "Best Seasons (الفصول المناسبة)")]
+    public List<FragranceSeason> SelectedSeasons { get; set; } = new();
+
+    [Display(Name = "Projection / Sillage (قوة الفوحان والثبات)")]
+    public FragranceProjection? Projection { get; set; }
+
+    [StringLength(150, ErrorMessage = "Inspired By cannot exceed 150 characters.")]
+    [Display(Name = "Inspired By (مستوحى من عطر عالمي)")]
+    public string? InspiredBy { get; set; }
+
+    [Display(Name = "Fragrance Notes (النوتات العطرية المكونة)")]
+    public List<int> SelectedFragranceNoteIds { get; set; } = new();
+
+    [Display(Name = "Approve for Recommendations (اعتماد العطر في نظام ترشيحات Find Your Scent)")]
+    public bool IsFragranceProfileApproved { get; set; } = false;
+
+    public DateTime? FragranceProfileReviewedAt => null;
+
+    public List<FragranceNoteCategoryGroupViewModel> AvailableNotesGrouped { get; set; } = new();
 }
 
-public class ProductEditViewModel
+public class ProductEditViewModel : IFragranceProfileFormModel
 {
     public int Id { get; set; }
 
@@ -114,5 +169,29 @@ public class ProductEditViewModel
     public IFormFile? ImageFile { get; set; }
 
     public IEnumerable<SelectListItem> CategoriesList { get; set; } = new List<SelectListItem>();
-}
 
+    // Fragrance Discovery Profile (Find Your Scent ✨)
+    [Display(Name = "Target Audience (الفئة المستهدفة)")]
+    public List<AudienceTarget> SelectedAudiences { get; set; } = new();
+
+    [ExclusiveAllYearSeason]
+    [Display(Name = "Best Seasons (الفصول المناسبة)")]
+    public List<FragranceSeason> SelectedSeasons { get; set; } = new();
+
+    [Display(Name = "Projection / Sillage (قوة الفوحان والثبات)")]
+    public FragranceProjection? Projection { get; set; }
+
+    [StringLength(150, ErrorMessage = "Inspired By cannot exceed 150 characters.")]
+    [Display(Name = "Inspired By (مستوحى من عطر عالمي)")]
+    public string? InspiredBy { get; set; }
+
+    [Display(Name = "Fragrance Notes (النوتات العطرية المكونة)")]
+    public List<int> SelectedFragranceNoteIds { get; set; } = new();
+
+    [Display(Name = "Approve for Recommendations (اعتماد العطر في نظام ترشيحات Find Your Scent)")]
+    public bool IsFragranceProfileApproved { get; set; } = false;
+
+    public DateTime? FragranceProfileReviewedAt { get; set; }
+
+    public List<FragranceNoteCategoryGroupViewModel> AvailableNotesGrouped { get; set; } = new();
+}

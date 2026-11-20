@@ -1,0 +1,1406 @@
+/**
+ * ROVEN — FIND YOUR SCENT
+ * Haute Parfumerie Interactive Discovery Quiz Styles
+ */
+
+/* ==========================================================================
+   1. FLOATING CTA BUTTON
+   ========================================================================== */
+.roven-find-scent-btn {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1040;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 22px;
+    background: linear-gradient(135deg, #420B0B 0%, #630000 60%, #420B0B 100%);
+    color: #EDEBDD !important;
+    border: 1.5px solid rgba(181, 141, 74, 0.45);
+    border-radius: 50px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-decoration: none !important;
+    box-shadow: 0 8px 24px rgba(66, 11, 11, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.roven-find-scent-btn:hover,
+.roven-find-scent-btn:focus-visible {
+    background: linear-gradient(135deg, #520E0E 0%, #750000 60%, #520E0E 100%);
+    color: #FFFFFF !important;
+    transform: translateY(-2.5px) scale(1.02);
+    border-color: rgba(212, 175, 55, 0.75);
+    box-shadow: 0 12px 30px rgba(66, 11, 11, 0.45), 0 0 18px rgba(181, 141, 74, 0.35);
+}
+
+.roven-find-scent-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.roven-find-scent-btn .btn-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(181, 141, 74, 0.2);
+    color: #EDEBDD;
+    font-size: 0.85rem;
+    transition: transform 0.3s ease;
+}
+
+.roven-find-scent-btn:hover .btn-icon-wrapper {
+    transform: rotate(15deg) scale(1.1);
+    color: #FFFFFF;
+    background: rgba(181, 141, 74, 0.35);
+}
+
+.roven-find-scent-btn .btn-search-icon,
+.roven-find-scent-btn .btn-compass {
+    color: #D4AF37;
+    font-size: 0.85rem;
+    transition: transform 0.3s ease;
+}
+
+@keyframes rovenSparklePulse {
+    0%, 100% { transform: scale(1); opacity: 0.85; }
+    50% { transform: scale(1.22); opacity: 1; filter: drop-shadow(0 0 4px #D4AF37); }
+}
+
+@media (max-width: 768px) {
+    .roven-find-scent-btn {
+        right: 16px;
+        bottom: 20px;
+        padding: 10px 18px;
+        font-size: 0.84rem;
+        gap: 8px;
+    }
+    .roven-find-scent-btn .btn-icon-wrapper {
+        width: 24px;
+        height: 24px;
+        font-size: 0.78rem;
+    }
+}
+
+/* ==========================================================================
+   2. QUIZ MODAL OVERLAY & BACKDROP (SCROLL-LOCK ISOLATION)
+   ========================================================================== */
+html.roven-quiz-open,
+body.roven-quiz-open {
+    overflow: hidden !important;
+    height: 100% !important;
+    touch-action: none !important;
+}
+
+.roven-quiz-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2050;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(14, 10, 10, 0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.28s ease;
+    overscroll-behavior: contain;
+    touch-action: none;
+}
+
+.roven-quiz-backdrop.active {
+    display: flex;
+    opacity: 1;
+}
+
+.roven-quiz-modal {
+    position: relative;
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    background: #FFFFFF;
+    border-radius: 20px;
+    border: 1px solid rgba(181, 141, 74, 0.28);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4), 0 2px 10px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    overscroll-behavior: contain;
+    transform: translateY(16px) scale(0.98);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease;
+}
+
+.roven-quiz-backdrop.active .roven-quiz-modal {
+    transform: translateY(0) scale(1);
+}
+
+/* ==========================================================================
+   3. MODAL HEADER & PROGRESS BAR
+   ========================================================================== */
+.roven-quiz-header {
+    position: relative;
+    padding: 18px 24px 14px 24px;
+    background: #FFFFFF;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+}
+
+.roven-quiz-brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.roven-quiz-brand-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.roven-quiz-crest {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #420B0B;
+    color: #EDEBDD;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 6px rgba(66, 11, 11, 0.2);
+}
+
+.roven-quiz-brand-title {
+    font-family: inherit;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #1B1717;
+    margin: 0;
+    letter-spacing: 0.3px;
+}
+
+.roven-quiz-brand-title span {
+    color: #B58D4A;
+}
+
+.roven-quiz-close-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #FAF9F5;
+    color: #6c757d;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.roven-quiz-close-btn:hover {
+    background: #420B0B;
+    color: #FFFFFF;
+    border-color: #420B0B;
+    transform: rotate(90deg);
+}
+
+.roven-quiz-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.82rem;
+}
+
+.roven-quiz-step-label {
+    font-weight: 700;
+    color: #420B0B;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.roven-quiz-progress-text {
+    font-weight: 600;
+    color: #8A8275;
+}
+
+.roven-quiz-progress-track {
+    width: 100%;
+    height: 5px;
+    background: #F0EDE5;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.roven-quiz-progress-fill {
+    height: 100%;
+    width: 20%;
+    background: linear-gradient(90deg, #420B0B 0%, #B58D4A 60%, #D4AF37 100%);
+    border-radius: 10px;
+    transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   4. MODAL BODY & STEP PANELS
+   ========================================================================== */
+.roven-quiz-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 24px;
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Custom Sleek Scrollbar */
+.roven-quiz-body::-webkit-scrollbar {
+    width: 6px;
+}
+.roven-quiz-body::-webkit-scrollbar-track {
+    background: #FAF9F5;
+}
+.roven-quiz-body::-webkit-scrollbar-thumb {
+    background: #D9D4C7;
+    border-radius: 10px;
+}
+.roven-quiz-body::-webkit-scrollbar-thumb:hover {
+    background: #B58D4A;
+}
+
+.roven-step-panel {
+    display: none;
+    opacity: 0;
+    transform: translateX(12px);
+    transition: opacity 0.24s ease, transform 0.24s ease;
+}
+
+.roven-step-panel.active {
+    display: block;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.roven-step-heading {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #1B1717;
+    margin-bottom: 6px;
+    letter-spacing: -0.2px;
+}
+
+.roven-step-subheading {
+    font-size: 0.9rem;
+    color: #7A7265;
+    margin-bottom: 22px;
+}
+
+/* ==========================================================================
+   5. SELECTION CARDS (STEP 1: DIRECTION)
+   ========================================================================== */
+.roven-direction-card {
+    position: relative;
+    border: 1.5px solid #EBE7DD;
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    user-select: none;
+}
+
+.roven-direction-card:hover {
+    border-color: #B58D4A;
+    background: #FAF9F5;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(66, 11, 11, 0.06);
+}
+
+.roven-direction-card.selected {
+    border-color: #420B0B;
+    background: #FFFDFC;
+    box-shadow: 0 8px 22px rgba(66, 11, 11, 0.12);
+}
+
+.roven-direction-icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+    transition: all 0.22s ease;
+}
+
+.roven-direction-card[data-direction="ForHer"] .roven-direction-icon-box {
+    background: #FFF0F3;
+    color: #D81B60;
+}
+.roven-direction-card[data-direction="ForHim"] .roven-direction-icon-box {
+    background: #EDF4FB;
+    color: #1976D2;
+}
+.roven-direction-card[data-direction="Unisex"] .roven-direction-icon-box {
+    background: #FAF4E6;
+    color: #B58D4A;
+}
+
+.roven-direction-card.selected .roven-direction-icon-box {
+    background: #420B0B;
+    color: #EDEBDD;
+}
+
+.roven-direction-content {
+    flex-grow: 1;
+}
+
+.roven-direction-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #1B1717;
+    margin-bottom: 2px;
+}
+
+.roven-direction-desc {
+    font-size: 0.83rem;
+    color: #7A7265;
+    margin: 0;
+}
+
+.roven-radio-check-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #D5CEBE;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.roven-direction-card.selected .roven-radio-check-circle {
+    border-color: #420B0B;
+    background: #420B0B;
+    color: #EDEBDD;
+}
+
+.roven-radio-check-circle i {
+    font-size: 0.65rem;
+    display: none;
+}
+
+.roven-direction-card.selected .roven-radio-check-circle i {
+    display: block;
+}
+
+/* ==========================================================================
+   6. FRAGRANCE NOTES CLOUD & QUICK PICKS (STEPS 2 & 3)
+   ========================================================================== */
+.roven-notes-search-box {
+    position: relative;
+    margin-bottom: 18px;
+}
+
+.roven-notes-search-input {
+    width: 100%;
+    height: 44px;
+    background: #FAF9F5;
+    border: 1.5px solid #E5DFD1;
+    border-radius: 50px;
+    padding: 0 44px 0 42px;
+    font-size: 0.88rem;
+    color: #1B1717;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.roven-notes-search-input:focus {
+    background: #FFFFFF;
+    border-color: #420B0B;
+    box-shadow: 0 2px 10px rgba(66, 11, 11, 0.1);
+}
+
+.roven-notes-search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #A0988A;
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+.roven-notes-clear-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #A0988A;
+    cursor: pointer;
+    font-size: 0.95rem;
+    padding: 4px;
+}
+
+.roven-quick-picks-section {
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    background: #FAF9F5;
+    border: 1px solid rgba(181, 141, 74, 0.2);
+    border-radius: 14px;
+}
+
+.roven-quick-picks-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #5A5348;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.roven-notes-pill-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.roven-note-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: #FFFFFF;
+    border: 1.5px solid #E5DFD1;
+    border-radius: 50px;
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: #2D2727;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.roven-note-pill:hover {
+    border-color: #B58D4A;
+    background: #FFFDF9;
+    transform: translateY(-1.5px);
+}
+
+.roven-note-pill.selected {
+    background: #420B0B;
+    color: #FFFFFF;
+    border-color: #420B0B;
+    box-shadow: 0 4px 12px rgba(66, 11, 11, 0.25);
+}
+
+.roven-note-pill.selected-avoid {
+    background: #751414;
+    color: #FFFFFF;
+    border-color: #751414;
+    box-shadow: 0 4px 12px rgba(117, 20, 20, 0.25);
+}
+
+.roven-note-pill .note-ar {
+    font-size: 0.76rem;
+    opacity: 0.75;
+    font-weight: normal;
+}
+
+.roven-note-pill.selected .note-ar,
+.roven-note-pill.selected-avoid .note-ar {
+    opacity: 0.9;
+    color: #EDEBDD;
+}
+
+.roven-note-pill .note-check-icon {
+    display: none;
+    font-size: 0.72rem;
+}
+
+.roven-note-pill.selected .note-check-icon,
+.roven-note-pill.selected-avoid .note-check-icon {
+    display: inline-block;
+}
+
+/* Category Accordions */
+.roven-cat-accordion-item {
+    border: 1px solid #ECE7DC;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    background: #FFFFFF;
+}
+
+.roven-cat-accordion-btn {
+    width: 100%;
+    padding: 12px 16px;
+    background: #FAF9F5;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s ease;
+}
+
+.roven-cat-accordion-btn:hover {
+    background: #F3EFE6;
+}
+
+.roven-cat-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #1B1717;
+}
+
+.roven-cat-badge {
+    font-size: 0.74rem;
+    padding: 3px 9px;
+    border-radius: 50px;
+    background: #EBE5D8;
+    color: #5A5348;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.roven-cat-badge.has-selected {
+    background: #420B0B;
+    color: #FFFFFF;
+}
+
+.roven-cat-accordion-body {
+    padding: 14px 16px;
+    border-top: 1px solid #ECE7DC;
+    background: #FFFFFF;
+}
+
+/* Conflict Alert Toast */
+.roven-quiz-alert {
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: rovenSlideDown 0.25s ease;
+}
+
+.roven-quiz-alert-warning {
+    background: #FFF8E6;
+    border: 1px solid #FFE082;
+    color: #8D6E14;
+}
+
+@keyframes rovenSlideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   7. SELECTION CARDS (STEP 4: SEASONS)
+   ========================================================================== */
+.roven-season-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.roven-season-card {
+    border: 1.5px solid #EBE7DD;
+    background: #FFFFFF;
+    border-radius: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    user-select: none;
+}
+
+.roven-season-card.season-all-year-card {
+    grid-column: span 2;
+    background: #FFFDF9;
+    border-color: rgba(181, 141, 74, 0.4);
+}
+
+.roven-season-card:hover {
+    border-color: #B58D4A;
+    background: #FAF9F5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(66, 11, 11, 0.05);
+}
+
+.roven-season-card.selected {
+    border-color: #420B0B;
+    background: #FFFDFC;
+    box-shadow: 0 6px 18px rgba(66, 11, 11, 0.1);
+}
+
+.roven-season-card.season-all-year-card.selected {
+    border-color: #B58D4A;
+    background: #FAF7F0;
+    box-shadow: 0 6px 20px rgba(181, 141, 74, 0.2);
+}
+
+.roven-season-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.roven-season-card[data-season="Spring"] .roven-season-icon-box { background: #E8F5E9; color: #2E7D32; }
+.roven-season-card[data-season="Summer"] .roven-season-icon-box { background: #FFF8E1; color: #F57F17; }
+.roven-season-card[data-season="Fall"] .roven-season-icon-box { background: #FBE9E7; color: #D84315; }
+.roven-season-card[data-season="Winter"] .roven-season-icon-box { background: #E1F5FE; color: #0277BD; }
+.roven-season-card[data-season="AllYear"] .roven-season-icon-box { background: #FFF4DE; color: #B58D4A; }
+
+.roven-season-card.selected .roven-season-icon-box {
+    background: #420B0B;
+    color: #EDEBDD;
+}
+.roven-season-card.season-all-year-card.selected .roven-season-icon-box {
+    background: #B58D4A;
+    color: #FFFFFF;
+}
+
+.roven-season-content {
+    flex-grow: 1;
+}
+
+.roven-season-title {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: #1B1717;
+    margin-bottom: 2px;
+}
+
+.roven-season-desc {
+    font-size: 0.78rem;
+    color: #7A7265;
+    margin: 0;
+}
+
+/* ==========================================================================
+   8. SELECTION CARDS (STEP 5: PROJECTION)
+   ========================================================================== */
+.roven-projection-card {
+    border: 1.5px solid #EBE7DD;
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    user-select: none;
+}
+
+.roven-projection-card:hover {
+    border-color: #B58D4A;
+    background: #FAF9F5;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(66, 11, 11, 0.06);
+}
+
+.roven-projection-card.selected {
+    border-color: #420B0B;
+    background: #FFFDFC;
+    box-shadow: 0 8px 22px rgba(66, 11, 11, 0.12);
+}
+
+.roven-projection-icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    background: #FAF4E6;
+    color: #B58D4A;
+    transition: all 0.2s ease;
+}
+
+.roven-projection-card.selected .roven-projection-icon-box {
+    background: #420B0B;
+    color: #EDEBDD;
+}
+
+.roven-projection-content {
+    flex-grow: 1;
+}
+
+.roven-projection-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #1B1717;
+    margin-bottom: 2px;
+}
+
+.roven-projection-desc {
+    font-size: 0.83rem;
+    color: #7A7265;
+    margin: 0;
+}
+
+/* ==========================================================================
+   9. MODAL FOOTER & ACTION BUTTONS
+   ========================================================================== */
+.roven-quiz-footer {
+    padding: 16px 24px;
+    background: #FFFFFF;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.roven-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: #FAF9F5;
+    border: 1px solid #DCD6C7;
+    border-radius: 50px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #5A5348;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.roven-btn-secondary:hover {
+    background: #EDE8DC;
+    color: #1B1717;
+}
+
+.roven-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 26px;
+    background: linear-gradient(135deg, #420B0B 0%, #630000 100%);
+    border: none;
+    border-radius: 50px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #EDEBDD;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(66, 11, 11, 0.25);
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.roven-btn-primary:hover {
+    background: linear-gradient(135deg, #520E0E 0%, #7A0000 100%);
+    color: #FFFFFF;
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 18px rgba(66, 11, 11, 0.35);
+}
+
+.roven-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.roven-btn-skip {
+    background: transparent;
+    border: none;
+    color: #8A8275;
+    font-size: 0.83rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 12px;
+    transition: color 0.2s ease;
+}
+
+.roven-btn-skip:hover {
+    color: #420B0B;
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   10. TRANSITION / PHASE 4 BRIDGE SCREEN
+   ========================================================================== */
+.roven-quiz-loading-view {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.roven-quiz-spinner {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 20px auto;
+    border-radius: 50%;
+    border: 3px solid #EDE8DC;
+    border-top-color: #B58D4A;
+    border-right-color: #420B0B;
+    animation: rovenSpin 1s infinite linear;
+}
+
+@keyframes rovenSpin {
+    to { transform: rotate(360deg); }
+}
+
+@media (max-width: 576px) {
+    .roven-quiz-modal {
+        max-height: 94vh;
+        border-radius: 16px;
+    }
+    .roven-quiz-header {
+        padding: 14px 16px 12px 16px;
+    }
+    .roven-quiz-body {
+        padding: 16px;
+    }
+    .roven-quiz-footer {
+        padding: 12px 16px;
+    }
+    .roven-season-cards-grid {
+        grid-template-columns: 1fr;
+    }
+    .roven-season-card.season-all-year-card {
+        grid-column: span 1;
+    }
+    .roven-step-heading {
+        font-size: 1.18rem;
+    }
+}
+
+/* ==========================================================================
+   11. PHASE 5: RECOMMENDATION RESULTS INTERFACE
+   ========================================================================== */
+.roven-results-panel {
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.roven-results-panel.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.roven-results-hero {
+    padding: 10px 0 16px 0;
+    border-bottom: 1px solid #ECE7DC;
+    margin-bottom: 24px !important;
+}
+
+.roven-results-eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: #B58D4A;
+    margin-bottom: 6px;
+}
+
+.roven-results-title {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: #1B1717;
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+}
+
+.roven-results-subtitle {
+    font-size: 0.92rem;
+    color: #6C6356;
+    margin-bottom: 14px;
+}
+
+.roven-results-pill-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.roven-btn-outline-gold {
+    background: transparent;
+    color: #8C6A2E;
+    border: 1px solid #C4A562;
+    padding: 4px 14px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+}
+
+.roven-btn-outline-gold:hover {
+    background: #B58D4A;
+    color: #FFFFFF;
+    border-color: #B58D4A;
+    transform: translateY(-1px);
+}
+
+.roven-recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ==========================================================================
+   12. RECOMMENDATION CARD COMPONENT
+   ========================================================================== */
+.roven-recommendation-card {
+    position: relative;
+    background: #FFFFFF;
+    border: 1.5px solid #EBE7DD;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+}
+
+.roven-recommendation-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 36px rgba(66, 11, 11, 0.1), 0 2px 10px rgba(0, 0, 0, 0.04);
+    border-color: rgba(181, 141, 74, 0.55);
+}
+
+.roven-recommendation-card.is-best-match {
+    border: 2px solid #B58D4A;
+    background: linear-gradient(180deg, #FFFDF8 0%, #FFFFFF 100%);
+    box-shadow: 0 12px 32px rgba(181, 141, 74, 0.16), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* Image Showcase */
+.rec-card-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    background: linear-gradient(135deg, #F8F6F0 0%, #EFEAE0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.roven-recommendation-card.is-best-match .rec-card-image-wrapper {
+    background: linear-gradient(135deg, #FAF7EE 0%, #EAE4D2 100%);
+}
+
+.rec-card-img {
+    max-height: 82%;
+    max-width: 80%;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.18));
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.roven-recommendation-card:hover .rec-card-img {
+    transform: scale(1.05);
+}
+
+/* Overlaid Badges */
+.rec-badge-audience {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: rgba(27, 23, 23, 0.88);
+    color: #EDEBDD;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 50px;
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rec-favorite-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6C6356;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rec-favorite-btn:hover {
+    background: #FFFFFF;
+    color: #D32F2F;
+    transform: scale(1.12);
+}
+
+.rec-favorite-btn.active {
+    color: #D32F2F;
+    background: #FFFFFF;
+}
+
+.rec-match-badge {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    background: linear-gradient(135deg, #420B0B 0%, #630000 100%);
+    color: #D4AF37;
+    border: 1.5px solid rgba(212, 175, 55, 0.45);
+    padding: 4px 14px;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    box-shadow: 0 4px 14px rgba(66, 11, 11, 0.35);
+    backdrop-filter: blur(4px);
+}
+
+.rec-match-number {
+    font-size: 0.96rem;
+    font-weight: 800;
+    color: #EDEBDD;
+}
+
+.rec-match-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #D4AF37;
+}
+
+/* Card Content */
+.rec-card-content {
+    padding: 22px 24px;
+}
+
+.rec-rank-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.rec-rank-badge {
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rec-rank-best {
+    background: linear-gradient(135deg, #B58D4A 0%, #D4AF37 100%);
+    color: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(181, 141, 74, 0.3);
+}
+
+.rec-rank-great {
+    background: #2D2727;
+    color: #EDEBDD;
+}
+
+.rec-rank-good {
+    background: #5A5348;
+    color: #FFFFFF;
+}
+
+.rec-rank-standard {
+    background: #7A7265;
+    color: #FFFFFF;
+}
+
+.rec-bottle-size-badge {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #7A7265;
+    background: #FAF8F2;
+    padding: 3px 9px;
+    border-radius: 6px;
+    border: 1px solid #ECE7DC;
+    display: inline-flex;
+    align-items: center;
+}
+
+.rec-product-name {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #1B1717;
+    margin: 4px 0 6px 0;
+    letter-spacing: -0.2px;
+}
+
+.rec-product-tagline {
+    font-size: 0.86rem;
+    color: #7A7265;
+    margin-bottom: 14px;
+    line-height: 1.45;
+}
+
+.rec-price-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-top: 1px solid #F0EDE5;
+    border-bottom: 1px solid #F0EDE5;
+    margin-bottom: 16px;
+}
+
+.rec-price {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #420B0B;
+}
+
+.rec-price-currency {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-right: 3px;
+    color: #6C6356;
+}
+
+.rec-inspired-by {
+    font-size: 0.82rem;
+    color: #7A7265;
+    font-style: italic;
+}
+
+.rec-inspired-name {
+    font-weight: 700;
+    color: #B58D4A;
+    font-style: normal;
+}
+
+/* Sections Inside Card */
+.rec-section-box {
+    background: #FAF9F5;
+    border: 1px solid #EBE7DD;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+}
+
+.rec-section-title {
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #5A5348;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.rec-section-title i {
+    color: #B58D4A;
+    font-size: 0.85rem;
+}
+
+.rec-reasons-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+    font-size: 0.84rem;
+    color: #332D2D;
+}
+
+.rec-reasons-list li {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.rec-reasons-list li:last-child {
+    margin-bottom: 0;
+}
+
+.rec-reasons-list li i {
+    color: #1B5E20;
+    font-size: 0.85rem;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+/* Key Notes Chips */
+.rec-notes-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.rec-note-chip {
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 50px;
+    background: #FFFFFF;
+    border: 1px solid #DFD9CC;
+    color: #2D2727;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.rec-note-chip.is-loved-match {
+    background: #420B0B;
+    color: #FFFFFF;
+    border-color: #420B0B;
+    box-shadow: 0 2px 6px rgba(66, 11, 11, 0.25);
+}
+
+.rec-note-chip.is-loved-match i {
+    color: #D4AF37;
+    font-size: 0.72rem;
+}
+
+/* Buy Now Action */
+.rec-buy-action {
+    margin-top: 18px;
+}
+
+.roven-btn-buy-now {
+    width: 100%;
+    height: 48px;
+    background: linear-gradient(135deg, #420B0B 0%, #630000 60%, #420B0B 100%);
+    color: #EDEBDD;
+    border: 1.5px solid rgba(181, 141, 74, 0.45);
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 6px 18px rgba(66, 11, 11, 0.25);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.roven-btn-buy-now:hover {
+    background: linear-gradient(135deg, #520E0E 0%, #750000 60%, #520E0E 100%);
+    color: #FFFFFF;
+    transform: translateY(-2px);
+    border-color: #D4AF37;
+    box-shadow: 0 10px 26px rgba(66, 11, 11, 0.38);
+}
+
+.roven-btn-buy-now.btn-added-state {
+    background: #1B5E20 !important;
+    border-color: #2E7D32 !important;
+    color: #FFFFFF !important;
+    transform: none !important;
+    box-shadow: 0 4px 12px rgba(27, 94, 32, 0.3) !important;
+}
+
+/* Empty State & Error State */
+.roven-empty-state,
+.roven-error-state {
+    background: #FAF9F5;
+    border: 1.5px dashed #DCD5C6;
+    border-radius: 18px;
+    padding: 40px 24px;
+}
+
+.roven-empty-title,
+.roven-error-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #1B1717;
+    margin-bottom: 8px;
+}
+
+.roven-empty-desc,
+.roven-error-desc {
+    font-size: 0.9rem;
+    color: #6C6356;
+    max-width: 440px;
+    margin: 0 auto 20px auto;
+}
+
+@media (max-width: 576px) {
+    .rec-card-image-wrapper {
+        height: 210px;
+    }
+    .rec-card-content {
+        padding: 16px;
+    }
+    .rec-product-name {
+        font-size: 1.25rem;
+    }
+    .roven-results-title {
+        font-size: 1.35rem;
+    }
+    .rec-section-box {
+        padding: 10px 12px;
+    }
+    .roven-btn-buy-now {
+        height: 44px;
+        font-size: 0.88rem;
+    }
+}
+

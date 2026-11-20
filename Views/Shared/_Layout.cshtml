@@ -237,6 +237,10 @@
                             <i class="fa-solid fa-spray-can-sparkles"></i>
                             <span>Products Catalog</span>
                         </a>
+                        <a class="nav-link @(currentController == "FragranceNotes" ? "active" : "")" asp-controller="FragranceNotes" asp-action="Index">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Fragrance Notes (كتالوج النوتات)</span>
+                        </a>
                     }
                     @if (User.HasPermission(Permissions.Categories))
                     {

@@ -7,7 +7,7 @@ namespace Stockify.Models.Entities;
 public class HomeSetting
 {
     [Key]
-    public int Id { get; set; } = 1;
+    public int Id { get; set; }
 
     // Announcement Top Bar
     [MaxLength(300)]

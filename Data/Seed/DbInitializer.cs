@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Stockify.Common.Constants;
 using Stockify.Models.Entities;
+using Stockify.Models.Enums;
 using Stockify.Services.Interfaces;
 using System.IO;
 
@@ -346,5 +347,364 @@ public static class DbInitializer
         {
             // Silently ignore startup sync errors to prevent blocking application boot
         }
+    }
+
+    public static async Task SeedFragranceDiscoveryBaselineAsync(IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        // 1. Seed Fragrance Notes Catalog if empty
+        if (!await context.FragranceNotes.AnyAsync())
+        {
+            var notes = new List<FragranceNote>
+            {
+                // Citrus
+                new() { Name = "Bergamot", ArabicName = "برغموت", Category = FragranceNoteCategory.Citrus, DisplayOrder = 1, IsActive = true },
+                new() { Name = "Lemon", ArabicName = "ليمون", Category = FragranceNoteCategory.Citrus, DisplayOrder = 2, IsActive = true },
+                new() { Name = "Mandarin Orange", ArabicName = "يوسفي", Category = FragranceNoteCategory.Citrus, DisplayOrder = 3, IsActive = true },
+                new() { Name = "Grapefruit", ArabicName = "جريب فروت", Category = FragranceNoteCategory.Citrus, DisplayOrder = 4, IsActive = true },
+                new() { Name = "Orange", ArabicName = "برتقال", Category = FragranceNoteCategory.Citrus, DisplayOrder = 5, IsActive = true },
+                new() { Name = "Neroli", ArabicName = "نيرولي", Category = FragranceNoteCategory.Citrus, DisplayOrder = 6, IsActive = true },
+                new() { Name = "Lime", ArabicName = "لايم", Category = FragranceNoteCategory.Citrus, DisplayOrder = 7, IsActive = true },
+
+                // Floral
+                new() { Name = "Rose", ArabicName = "ورد", Category = FragranceNoteCategory.Floral, DisplayOrder = 10, IsActive = true },
+                new() { Name = "Jasmine", ArabicName = "ياسمين", Category = FragranceNoteCategory.Floral, DisplayOrder = 11, IsActive = true },
+                new() { Name = "Lavender", ArabicName = "لافندر", Category = FragranceNoteCategory.Floral, DisplayOrder = 12, IsActive = true },
+                new() { Name = "Iris", ArabicName = "سوسن", Category = FragranceNoteCategory.Floral, DisplayOrder = 13, IsActive = true },
+                new() { Name = "Orange Blossom", ArabicName = "زهر البرتقال", Category = FragranceNoteCategory.Floral, DisplayOrder = 14, IsActive = true },
+                new() { Name = "Violet", ArabicName = "بنفسج", Category = FragranceNoteCategory.Floral, DisplayOrder = 15, IsActive = true },
+                new() { Name = "Ylang-Ylang", ArabicName = "يلانج يلانج", Category = FragranceNoteCategory.Floral, DisplayOrder = 16, IsActive = true },
+
+                // Woody
+                new() { Name = "Cedar", ArabicName = "خشب الأرز", Category = FragranceNoteCategory.Woody, DisplayOrder = 20, IsActive = true },
+                new() { Name = "Sandalwood", ArabicName = "خشب الصندل", Category = FragranceNoteCategory.Woody, DisplayOrder = 21, IsActive = true },
+                new() { Name = "Vetiver", ArabicName = "نجيل الهند", Category = FragranceNoteCategory.Woody, DisplayOrder = 22, IsActive = true },
+                new() { Name = "Patchouli", ArabicName = "باتشولي", Category = FragranceNoteCategory.Woody, DisplayOrder = 23, IsActive = true },
+                new() { Name = "Guaiac Wood", ArabicName = "خشب الغاياك", Category = FragranceNoteCategory.Woody, DisplayOrder = 24, IsActive = true },
+                new() { Name = "Cashmere Wood", ArabicName = "خشب الكشمير", Category = FragranceNoteCategory.Woody, DisplayOrder = 25, IsActive = true },
+                new() { Name = "Leather", ArabicName = "جلود", Category = FragranceNoteCategory.Woody, DisplayOrder = 26, IsActive = true },
+
+                // Oriental / Amber
+                new() { Name = "Amber", ArabicName = "عنبر", Category = FragranceNoteCategory.OrientalAmber, DisplayOrder = 30, IsActive = true },
+                new() { Name = "Oud", ArabicName = "عود", Category = FragranceNoteCategory.OrientalAmber, DisplayOrder = 31, IsActive = true },
+                new() { Name = "Incense", ArabicName = "بخور", Category = FragranceNoteCategory.OrientalAmber, DisplayOrder = 32, IsActive = true },
+                new() { Name = "Saffron", ArabicName = "زعفران", Category = FragranceNoteCategory.OrientalAmber, DisplayOrder = 33, IsActive = true },
+                new() { Name = "Benzoin", ArabicName = "بنزوين", Category = FragranceNoteCategory.OrientalAmber, DisplayOrder = 34, IsActive = true },
+                new() { Name = "Cinnamon", ArabicName = "قرفة", Category = FragranceNoteCategory.OrientalAmber, DisplayOrder = 35, IsActive = true },
+
+                // Fresh / Aromatic
+                new() { Name = "Mint", ArabicName = "نعناع", Category = FragranceNoteCategory.FreshAromatic, DisplayOrder = 40, IsActive = true },
+                new() { Name = "Cardamom", ArabicName = "حبهان / هيل", Category = FragranceNoteCategory.FreshAromatic, DisplayOrder = 41, IsActive = true },
+                new() { Name = "Pink Pepper", ArabicName = "فلفل وردي", Category = FragranceNoteCategory.FreshAromatic, DisplayOrder = 42, IsActive = true },
+                new() { Name = "Black Pepper", ArabicName = "فلفل أسود", Category = FragranceNoteCategory.FreshAromatic, DisplayOrder = 43, IsActive = true },
+                new() { Name = "Sage", ArabicName = "مرمرية", Category = FragranceNoteCategory.FreshAromatic, DisplayOrder = 44, IsActive = true },
+                new() { Name = "Ginger", ArabicName = "زنجبيل", Category = FragranceNoteCategory.FreshAromatic, DisplayOrder = 45, IsActive = true },
+                new() { Name = "Apple", ArabicName = "تفاح", Category = FragranceNoteCategory.FreshAromatic, DisplayOrder = 46, IsActive = true },
+                new() { Name = "Nutmeg", ArabicName = "جوزة الطيب", Category = FragranceNoteCategory.FreshAromatic, DisplayOrder = 47, IsActive = true },
+
+                // Gourmand / Sweet
+                new() { Name = "Vanilla", ArabicName = "فانيلا", Category = FragranceNoteCategory.GourmandSweet, DisplayOrder = 50, IsActive = true },
+                new() { Name = "Tonka Bean", ArabicName = "فول التونكا", Category = FragranceNoteCategory.GourmandSweet, DisplayOrder = 51, IsActive = true },
+                new() { Name = "Tobacco", ArabicName = "تبغ", Category = FragranceNoteCategory.GourmandSweet, DisplayOrder = 52, IsActive = true },
+                new() { Name = "Honey", ArabicName = "عسل", Category = FragranceNoteCategory.GourmandSweet, DisplayOrder = 53, IsActive = true },
+                new() { Name = "Dark Chocolate", ArabicName = "شوكولاتة داكنة", Category = FragranceNoteCategory.GourmandSweet, DisplayOrder = 54, IsActive = true },
+                new() { Name = "Caramel", ArabicName = "كراميل", Category = FragranceNoteCategory.GourmandSweet, DisplayOrder = 55, IsActive = true },
+                new() { Name = "Coffee", ArabicName = "قهوة", Category = FragranceNoteCategory.GourmandSweet, DisplayOrder = 56, IsActive = true },
+                new() { Name = "Rum", ArabicName = "رم", Category = FragranceNoteCategory.GourmandSweet, DisplayOrder = 57, IsActive = true },
+                new() { Name = "Brown Sugar", ArabicName = "سكر بني", Category = FragranceNoteCategory.GourmandSweet, DisplayOrder = 58, IsActive = true },
+                new() { Name = "White Musk", ArabicName = "مسك أبيض", Category = FragranceNoteCategory.GourmandSweet, DisplayOrder = 59, IsActive = true }
+            };
+
+            context.FragranceNotes.AddRange(notes);
+            await context.SaveChangesAsync();
+        }
+
+        // 2. Seed Quick Picks if empty
+        if (!await context.FragranceNoteQuickPicks.AnyAsync())
+        {
+            var allNotes = await context.FragranceNotes.ToDictionaryAsync(n => n.Name.ToLower(), n => n.Id);
+
+            int order = 1;
+            // Loved Notes Quick Picks
+            string[] loveNoteNames = ["vanilla", "amber", "bergamot", "lavender", "oud", "rose", "cedar", "cardamom"];
+            foreach (var name in loveNoteNames)
+            {
+                if (allNotes.TryGetValue(name, out var noteId))
+                {
+                    context.FragranceNoteQuickPicks.Add(new FragranceNoteQuickPick
+                    {
+                        FragranceNoteId = noteId,
+                        Context = QuickPickContext.Love,
+                        DisplayOrder = order++
+                    });
+                }
+            }
+
+            // Avoided Notes Quick Picks
+            order = 1;
+            string[] avoidNoteNames = ["oud", "tobacco", "patchouli", "leather", "incense", "rose"];
+            foreach (var name in avoidNoteNames)
+            {
+                if (allNotes.TryGetValue(name, out var noteId))
+                {
+                    context.FragranceNoteQuickPicks.Add(new FragranceNoteQuickPick
+                    {
+                        FragranceNoteId = noteId,
+                        Context = QuickPickContext.Avoid,
+                        DisplayOrder = order++
+                    });
+                }
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        // 3. Seed Baseline Products in LocalDB if Products table is empty
+        var defaultCategory = await context.Categories.FirstOrDefaultAsync();
+        int categoryId = defaultCategory?.Id ?? 1;
+
+        if (!await context.Products.AnyAsync())
+        {
+            var baselineProducts = new List<Product>
+            {
+                new()
+                {
+                    Sku = "1",
+                    Name = "STAR",
+                    Description = "Perfume Star – Inspired by Bleu de Chanel. Blends fresh citrus notes with aromatic accords and a refined woody finish.",
+                    FragranceTagline = "Extrait de Parfum • 30% Pure Concentration",
+                    Price = 550.00m,
+                    StockQuantity = 10,
+                    ReorderLevel = 5,
+                    CategoryId = categoryId,
+                    ImageUrl = "/uploads/star_blended.jpg",
+                    IsActive = true,
+                    IsPublished = true,
+                    IsFeatured = true,
+                    IsBestSeller = true,
+                    Projection = FragranceProjection.Strong,
+                    InspiredBy = "Bleu de Chanel",
+                    IsFragranceProfileApproved = false,
+                    FragranceProfileReviewedAt = null,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new()
+                {
+                    Sku = "2",
+                    Name = "VELVET",
+                    Description = "Perfume Velvet – Inspired by Grand Soir Maison Francis Kurkdjian. Rich, warm amber with radiant vanilla and sophisticated tonka bean.",
+                    FragranceTagline = "Extrait de Parfum • 30% Pure Concentration",
+                    Price = 600.00m,
+                    StockQuantity = 10,
+                    ReorderLevel = 5,
+                    CategoryId = categoryId,
+                    ImageUrl = "/uploads/velvet_blended.jpg",
+                    IsActive = true,
+                    IsPublished = true,
+                    IsFeatured = true,
+                    IsBestSeller = false,
+                    Projection = FragranceProjection.Enormous,
+                    InspiredBy = "Grand Soir",
+                    IsFragranceProfileApproved = false,
+                    FragranceProfileReviewedAt = null,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new()
+                {
+                    Sku = "5",
+                    Name = "VENOUM",
+                    Description = "Perfume Venoum – A seductive, intoxicating dark oriental blend featuring aged rum, smoky tobacco, honey, and roasted coffee.",
+                    FragranceTagline = "Extrait de Parfum • 30% Pure Concentration",
+                    Price = 800.00m,
+                    StockQuantity = 10,
+                    ReorderLevel = 5,
+                    CategoryId = categoryId,
+                    ImageUrl = "/roven/products/venoum.webp",
+                    IsActive = true,
+                    IsPublished = true,
+                    IsFeatured = false,
+                    IsBestSeller = false,
+                    Projection = FragranceProjection.Enormous,
+                    InspiredBy = "Black Phantom",
+                    IsFragranceProfileApproved = false,
+                    FragranceProfileReviewedAt = null,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new()
+                {
+                    Sku = "6",
+                    Name = "ROYAL",
+                    Description = "Perfume Royal – Inspired by Layton. Distinguished blend of crisp apple, bergamot, fresh lavender, warm cardamom, and vanilla.",
+                    FragranceTagline = "Extrait de Parfum • 30% Pure Concentration",
+                    Price = 600.00m,
+                    StockQuantity = 10,
+                    ReorderLevel = 5,
+                    CategoryId = categoryId,
+                    ImageUrl = "/roven/products/royal.webp",
+                    IsActive = true,
+                    IsPublished = true,
+                    IsFeatured = false,
+                    IsBestSeller = false,
+                    Projection = FragranceProjection.Strong,
+                    InspiredBy = "Layton",
+                    IsFragranceProfileApproved = false,
+                    FragranceProfileReviewedAt = null,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new()
+                {
+                    Sku = "7",
+                    Name = "WANTED",
+                    Description = "Perfume Wanted – An irresistible spicy woody scent driven by warm cinnamon, mandarin, cedarwood, and smoldering incense.",
+                    FragranceTagline = "Extrait de Parfum • 30% Pure Concentration",
+                    Price = 600.00m,
+                    StockQuantity = 10,
+                    ReorderLevel = 5,
+                    CategoryId = categoryId,
+                    ImageUrl = "/roven/products/wanted.webp",
+                    IsActive = true,
+                    IsPublished = true,
+                    IsFeatured = false,
+                    IsBestSeller = false,
+                    Projection = FragranceProjection.Strong,
+                    InspiredBy = "Wanted by Night",
+                    IsFragranceProfileApproved = false,
+                    FragranceProfileReviewedAt = null,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new()
+                {
+                    Sku = "9",
+                    Name = "VANILLA RUSH",
+                    Description = "Perfume Vanilla Rush – An opulent, velvety gourmand sensation featuring golden Madagascar vanilla, brown sugar, caramel, and amber.",
+                    FragranceTagline = "Extrait de Parfum • 30% Pure Concentration",
+                    Price = 800.00m,
+                    StockQuantity = 10,
+                    ReorderLevel = 5,
+                    CategoryId = categoryId,
+                    ImageUrl = "/roven/products/vanilla_rush.webp",
+                    IsActive = true,
+                    IsPublished = true,
+                    IsFeatured = false,
+                    IsBestSeller = true,
+                    Projection = FragranceProjection.Enormous,
+                    InspiredBy = "Vanilla 28 / Bianco Latte",
+                    IsFragranceProfileApproved = false,
+                    FragranceProfileReviewedAt = null,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new()
+                {
+                    Sku = "10",
+                    Name = "FRUITY ELIXIR",
+                    Description = "Perfume Fruity Elixir – Inspired by Erba Pura. A radiant, juicy explosion of Mediterranean citrus, luscious fruits, and pure white musk.",
+                    FragranceTagline = "Extrait de Parfum • 30% Pure Concentration",
+                    Price = 600.00m,
+                    StockQuantity = 10,
+                    ReorderLevel = 5,
+                    CategoryId = categoryId,
+                    ImageUrl = "/roven/products/fruity_elixir.webp",
+                    IsActive = true,
+                    IsPublished = true,
+                    IsFeatured = false,
+                    IsBestSeller = false,
+                    Projection = FragranceProjection.Moderate,
+                    InspiredBy = "Erba Pura",
+                    IsFragranceProfileApproved = false,
+                    FragranceProfileReviewedAt = null,
+                    CreatedAt = DateTime.UtcNow
+                }
+            };
+
+            context.Products.AddRange(baselineProducts);
+            await context.SaveChangesAsync();
+        }
+
+        // 4. Attach Draft Fragrance Profiles to Baseline Products if not yet attached
+        var notesDict = await context.FragranceNotes.ToDictionaryAsync(n => n.Name.ToLower(), n => n.Id);
+
+        // Helper to safely assign draft profile by SKU
+        async Task AssignDraftProfileAsync(string sku, List<AudienceTarget> audiences, List<FragranceSeason> seasons, List<string> noteNames)
+        {
+            var prod = await context.Products
+                .Include(p => p.TargetAudiences)
+                .Include(p => p.Seasons)
+                .Include(p => p.ProductFragranceNotes)
+                .FirstOrDefaultAsync(p => p.Sku == sku);
+
+            if (prod == null) return;
+
+            // Only attach if no profile joins exist yet (idempotent, never overwrite admin edits)
+            if (!prod.TargetAudiences.Any())
+            {
+                foreach (var aud in audiences)
+                {
+                    prod.TargetAudiences.Add(new ProductTargetAudience { ProductId = prod.Id, Audience = aud });
+                }
+            }
+
+            if (!prod.Seasons.Any())
+            {
+                foreach (var s in seasons)
+                {
+                    prod.Seasons.Add(new ProductSeason { ProductId = prod.Id, Season = s });
+                }
+            }
+
+            if (!prod.ProductFragranceNotes.Any())
+            {
+                foreach (var nName in noteNames)
+                {
+                    if (notesDict.TryGetValue(nName.ToLower(), out var nId))
+                    {
+                        prod.ProductFragranceNotes.Add(new ProductFragranceNote
+                        {
+                            ProductId = prod.Id,
+                            FragranceNoteId = nId,
+                            AddedAt = DateTime.UtcNow
+                        });
+                    }
+                }
+            }
+        }
+
+        await AssignDraftProfileAsync("1", 
+            [AudienceTarget.ForHim], 
+            [FragranceSeason.Spring, FragranceSeason.Summer, FragranceSeason.Fall], 
+            ["Grapefruit", "Lemon", "Mint", "Ginger", "Nutmeg", "Jasmine", "Incense", "Vetiver", "Cedar", "Sandalwood", "Patchouli"]);
+
+        await AssignDraftProfileAsync("2", 
+            [AudienceTarget.Unisex], 
+            [FragranceSeason.Fall, FragranceSeason.Winter], 
+            ["Amber", "Vanilla", "Tonka Bean", "Benzoin", "Lavender"]);
+
+        await AssignDraftProfileAsync("5", 
+            [AudienceTarget.ForHim, AudienceTarget.Unisex], 
+            [FragranceSeason.Fall, FragranceSeason.Winter], 
+            ["Tobacco", "Honey", "Rum", "Dark Chocolate", "Coffee", "Caramel"]);
+
+        await AssignDraftProfileAsync("6", 
+            [AudienceTarget.ForHim], 
+            [FragranceSeason.Spring, FragranceSeason.Fall, FragranceSeason.Winter], 
+            ["Apple", "Bergamot", "Lavender", "Cardamom", "Vanilla", "Black Pepper", "Patchouli"]);
+
+        await AssignDraftProfileAsync("7", 
+            [AudienceTarget.ForHim], 
+            [FragranceSeason.Spring, FragranceSeason.Summer, FragranceSeason.Fall], 
+            ["Cinnamon", "Mandarin Orange", "Lavender", "Cedar", "Incense"]);
+
+        await AssignDraftProfileAsync("9", 
+            [AudienceTarget.ForHer, AudienceTarget.Unisex], 
+            [FragranceSeason.Fall, FragranceSeason.Winter], 
+            ["Vanilla", "Brown Sugar", "Tonka Bean", "Caramel", "White Musk", "Amber"]);
+
+        await AssignDraftProfileAsync("10", 
+            [AudienceTarget.ForHer, AudienceTarget.Unisex], 
+            [FragranceSeason.Spring, FragranceSeason.Summer], 
+            ["Orange", "Bergamot", "Lemon", "White Musk", "Vanilla"]);
+
+        await context.SaveChangesAsync();
     }
 }

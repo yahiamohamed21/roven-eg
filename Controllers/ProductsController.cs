@@ -126,7 +126,8 @@ public class ProductsController : Controller
     {
         var model = new ProductCreateViewModel
         {
-            CategoriesList = await GetCategoriesSelectListAsync()
+            CategoriesList = await GetCategoriesSelectListAsync(),
+            AvailableNotesGrouped = await GetGroupedFragranceNotesAsync()
         };
         return View(model);
     }
@@ -150,9 +151,16 @@ public class ProductsController : Controller
             ModelState.AddModelError("ImageFile", imageError!);
         }
 
+        // Validate approval requirements if admin checked approval
+        if (model.IsFragranceProfileApproved)
+        {
+            ValidateFragranceProfileCompleteness(model.SelectedAudiences, model.SelectedSeasons, model.Projection, model.SelectedFragranceNoteIds);
+        }
+
         if (!ModelState.IsValid)
         {
             model.CategoriesList = await GetCategoriesSelectListAsync();
+            model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
             return View(model);
         }
 
@@ -168,6 +176,7 @@ public class ProductsController : Controller
                 _logger?.LogError(ex, "Failed to upload image for new product: {Name}", model.Name);
                 ModelState.AddModelError("ImageFile", "فشل حفظ أو رفع صورة المنتج. يرجى التأكد من صلاحية الملف والمحاولة مرة أخرى.");
                 model.CategoriesList = await GetCategoriesSelectListAsync();
+                model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
                 return View(model);
             }
         }
@@ -186,8 +195,35 @@ public class ProductsController : Controller
             IsActive = true,
             IsFeatured = model.IsFeatured,
             IsBestSeller = model.IsBestSeller,
+            Projection = model.Projection,
+            InspiredBy = string.IsNullOrWhiteSpace(model.InspiredBy) ? null : model.InspiredBy.Trim(),
+            IsFragranceProfileApproved = model.IsFragranceProfileApproved,
+            FragranceProfileReviewedAt = model.IsFragranceProfileApproved ? DateTime.UtcNow : null,
             CreatedAt = DateTime.UtcNow
         };
+
+        // Add Target Audiences
+        foreach (var aud in model.SelectedAudiences.Distinct())
+        {
+            product.TargetAudiences.Add(new ProductTargetAudience { Product = product, Audience = aud });
+        }
+
+        // Add Seasons
+        foreach (var season in model.SelectedSeasons.Distinct())
+        {
+            product.Seasons.Add(new ProductSeason { Product = product, Season = season });
+        }
+
+        // Add Fragrance Notes
+        foreach (var noteId in model.SelectedFragranceNoteIds.Distinct())
+        {
+            product.ProductFragranceNotes.Add(new ProductFragranceNote
+            {
+                Product = product,
+                FragranceNoteId = noteId,
+                AddedAt = DateTime.UtcNow
+            });
+        }
 
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
@@ -216,7 +252,12 @@ public class ProductsController : Controller
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Edit(int id)
     {
-        var product = await _context.Products.FindAsync(id);
+        var product = await _context.Products
+            .Include(p => p.TargetAudiences)
+            .Include(p => p.Seasons)
+            .Include(p => p.ProductFragranceNotes)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
         if (product == null)
         {
             return NotFound();
@@ -237,7 +278,17 @@ public class ProductsController : Controller
             IsFeatured = product.IsFeatured,
             IsBestSeller = product.IsBestSeller,
             ExistingImageUrl = product.ImageUrl,
-            CategoriesList = await GetCategoriesSelectListAsync()
+            CategoriesList = await GetCategoriesSelectListAsync(),
+
+            // Fragrance Discovery Profile
+            Projection = product.Projection,
+            InspiredBy = product.InspiredBy,
+            IsFragranceProfileApproved = product.IsFragranceProfileApproved,
+            FragranceProfileReviewedAt = product.FragranceProfileReviewedAt,
+            SelectedAudiences = product.TargetAudiences.Select(a => a.Audience).ToList(),
+            SelectedSeasons = product.Seasons.Select(s => s.Season).ToList(),
+            SelectedFragranceNoteIds = product.ProductFragranceNotes.Select(n => n.FragranceNoteId).ToList(),
+            AvailableNotesGrouped = await GetGroupedFragranceNotesAsync()
         };
 
         return View(model);
@@ -254,7 +305,12 @@ public class ProductsController : Controller
             return BadRequest();
         }
 
-        var product = await _context.Products.FindAsync(id);
+        var product = await _context.Products
+            .Include(p => p.TargetAudiences)
+            .Include(p => p.Seasons)
+            .Include(p => p.ProductFragranceNotes)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
         if (product == null)
         {
             return NotFound();
@@ -271,10 +327,20 @@ public class ProductsController : Controller
             ModelState.AddModelError("ImageFile", imageError!);
         }
 
+        // Detect whether fragrance profile changed
+        bool fragranceProfileChanged = FragranceProfileHasChanged(product, model);
+
+        // Validate completeness if admin checked approval
+        if (model.IsFragranceProfileApproved)
+        {
+            ValidateFragranceProfileCompleteness(model.SelectedAudiences, model.SelectedSeasons, model.Projection, model.SelectedFragranceNoteIds);
+        }
+
         if (!ModelState.IsValid)
         {
             model.ExistingImageUrl = product.ImageUrl;
             model.CategoriesList = await GetCategoriesSelectListAsync();
+            model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
             return View(model);
         }
 
@@ -294,6 +360,7 @@ public class ProductsController : Controller
                 ModelState.AddModelError("ImageFile", "فشل حفظ أو رفع صورة المنتج البديلة. يرجى التأكد من صلاحية الملف والمحاولة مرة أخرى.");
                 model.ExistingImageUrl = product.ImageUrl;
                 model.CategoriesList = await GetCategoriesSelectListAsync();
+                model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
                 return View(model);
             }
         }
@@ -343,6 +410,67 @@ public class ProductsController : Controller
         product.IsFeatured = model.IsFeatured;
         product.IsBestSeller = model.IsBestSeller;
 
+        // Fragrance Profile Update & Approval Invalidation Logic
+        product.Projection = model.Projection;
+        product.InspiredBy = string.IsNullOrWhiteSpace(model.InspiredBy) ? null : model.InspiredBy.Trim();
+
+        if (model.IsFragranceProfileApproved)
+        {
+            // Explicit admin approval with full validation passed
+            product.IsFragranceProfileApproved = true;
+            if (!product.FragranceProfileReviewedAt.HasValue || fragranceProfileChanged)
+            {
+                product.FragranceProfileReviewedAt = DateTime.UtcNow;
+            }
+        }
+        else
+        {
+            // Reset approval if unapproved or if fragrance attributes changed without explicit approval
+            product.IsFragranceProfileApproved = false;
+            product.FragranceProfileReviewedAt = null;
+        }
+
+        // Synchronize Target Audiences
+        var selectedAudiences = model.SelectedAudiences.Distinct().ToHashSet();
+        var audiencesToRemove = product.TargetAudiences.Where(a => !selectedAudiences.Contains(a.Audience)).ToList();
+        foreach (var item in audiencesToRemove) product.TargetAudiences.Remove(item);
+        foreach (var aud in selectedAudiences)
+        {
+            if (!product.TargetAudiences.Any(a => a.Audience == aud))
+            {
+                product.TargetAudiences.Add(new ProductTargetAudience { ProductId = product.Id, Audience = aud });
+            }
+        }
+
+        // Synchronize Seasons
+        var selectedSeasons = model.SelectedSeasons.Distinct().ToHashSet();
+        var seasonsToRemove = product.Seasons.Where(s => !selectedSeasons.Contains(s.Season)).ToList();
+        foreach (var item in seasonsToRemove) product.Seasons.Remove(item);
+        foreach (var season in selectedSeasons)
+        {
+            if (!product.Seasons.Any(ps => ps.Season == season))
+            {
+                product.Seasons.Add(new ProductSeason { ProductId = product.Id, Season = season });
+            }
+        }
+
+        // Synchronize Fragrance Notes
+        var selectedNotes = model.SelectedFragranceNoteIds.Distinct().ToHashSet();
+        var notesToRemove = product.ProductFragranceNotes.Where(pfn => !selectedNotes.Contains(pfn.FragranceNoteId)).ToList();
+        foreach (var item in notesToRemove) product.ProductFragranceNotes.Remove(item);
+        foreach (var noteId in selectedNotes)
+        {
+            if (!product.ProductFragranceNotes.Any(pfn => pfn.FragranceNoteId == noteId))
+            {
+                product.ProductFragranceNotes.Add(new ProductFragranceNote
+                {
+                    ProductId = product.Id,
+                    FragranceNoteId = noteId,
+                    AddedAt = DateTime.UtcNow
+                });
+            }
+        }
+
         try
         {
             _context.Products.Update(product);
@@ -359,6 +487,7 @@ public class ProductsController : Controller
             ModelState.AddModelError("", "حدث خطأ أثناء حفظ بيانات العطر في قاعدة البيانات.");
             model.ExistingImageUrl = oldImageUrl;
             model.CategoriesList = await GetCategoriesSelectListAsync();
+            model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
             return View(model);
         }
 
@@ -560,6 +689,104 @@ public class ProductsController : Controller
     {
         return await _imageStorageService.UploadImageAsync(file, "roven/products");
     }
+
+    private async Task<List<FragranceNoteCategoryGroupViewModel>> GetGroupedFragranceNotesAsync()
+    {
+        var notes = await _context.FragranceNotes
+            .Where(n => n.IsActive)
+            .OrderBy(n => n.Category)
+            .ThenBy(n => n.DisplayOrder)
+            .ThenBy(n => n.Name)
+            .Select(n => new FragranceNoteOptionViewModel
+            {
+                Id = n.Id,
+                Name = n.Name,
+                ArabicName = n.ArabicName,
+                Category = n.Category
+            })
+            .ToListAsync();
+
+        return notes
+            .GroupBy(n => n.Category)
+            .OrderBy(g => (int)g.Key)
+            .Select(g => new FragranceNoteCategoryGroupViewModel
+            {
+                Category = g.Key,
+                CategoryNameEn = GetCategoryNameEn(g.Key),
+                CategoryNameAr = GetCategoryNameAr(g.Key),
+                Notes = g.ToList()
+            })
+            .ToList();
+    }
+
+    private void ValidateFragranceProfileCompleteness(
+        List<AudienceTarget> audiences,
+        List<FragranceSeason> seasons,
+        FragranceProjection? projection,
+        List<int> noteIds)
+    {
+        if (!audiences.Any())
+        {
+            ModelState.AddModelError("SelectedAudiences", "To approve this product for fragrance recommendations, at least one Target Audience must be selected.");
+        }
+        if (!seasons.Any())
+        {
+            ModelState.AddModelError("SelectedSeasons", "To approve this product for fragrance recommendations, at least one Season must be selected.");
+        }
+        if (!projection.HasValue)
+        {
+            ModelState.AddModelError("Projection", "To approve this product for fragrance recommendations, a Projection intensity must be selected.");
+        }
+        if (!noteIds.Any())
+        {
+            ModelState.AddModelError("SelectedFragranceNoteIds", "To approve this product for fragrance recommendations, at least one Fragrance Note must be selected.");
+        }
+    }
+
+    private static bool FragranceProfileHasChanged(Product product, ProductEditViewModel model)
+    {
+        var currentAudiences = product.TargetAudiences.Select(a => a.Audience).ToHashSet();
+        var newAudiences = model.SelectedAudiences.ToHashSet();
+        if (!currentAudiences.SetEquals(newAudiences)) return true;
+
+        var currentSeasons = product.Seasons.Select(s => s.Season).ToHashSet();
+        var newSeasons = model.SelectedSeasons.ToHashSet();
+        if (!currentSeasons.SetEquals(newSeasons)) return true;
+
+        var currentNotes = product.ProductFragranceNotes.Select(n => n.FragranceNoteId).ToHashSet();
+        var newNotes = model.SelectedFragranceNoteIds.ToHashSet();
+        if (!currentNotes.SetEquals(newNotes)) return true;
+
+        if (product.Projection != model.Projection) return true;
+
+        var currentInspired = (product.InspiredBy ?? string.Empty).Trim();
+        var newInspired = (model.InspiredBy ?? string.Empty).Trim();
+        if (!string.Equals(currentInspired, newInspired, StringComparison.OrdinalIgnoreCase)) return true;
+
+        return false;
+    }
+
+    private static string GetCategoryNameEn(FragranceNoteCategory category) => category switch
+    {
+        FragranceNoteCategory.Citrus => "Citrus",
+        FragranceNoteCategory.Floral => "Floral",
+        FragranceNoteCategory.Woody => "Woody",
+        FragranceNoteCategory.OrientalAmber => "Oriental / Amber",
+        FragranceNoteCategory.FreshAromatic => "Fresh / Aromatic",
+        FragranceNoteCategory.GourmandSweet => "Gourmand / Sweet",
+        _ => "General"
+    };
+
+    private static string GetCategoryNameAr(FragranceNoteCategory category) => category switch
+    {
+        FragranceNoteCategory.Citrus => "حمضيات",
+        FragranceNoteCategory.Floral => "زهور",
+        FragranceNoteCategory.Woody => "أخشاب",
+        FragranceNoteCategory.OrientalAmber => "شرقي وعنبر",
+        FragranceNoteCategory.FreshAromatic => "منعش وأروماتيك",
+        FragranceNoteCategory.GourmandSweet => "غورماند وحلويات",
+        _ => "عام"
+    };
 
     #endregion
 }

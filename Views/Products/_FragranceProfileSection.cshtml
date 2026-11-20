@@ -1,0 +1,289 @@
+@model Stockify.ViewModels.Products.IFragranceProfileFormModel
+@using Stockify.Models.Enums
+
+<div class="card border-0 shadow-sm rounded-3 mt-4" style="border-left: 4px solid #B58D4A !important;">
+    <div class="card-header bg-white py-3 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+        <div class="d-flex align-items-center gap-2.5">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle p-2" style="background-color: #420B0B; color: #EDEBDD; width: 36px; height: 36px;">
+                <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 0.95rem; color: #EDEBDD;"></i>
+            </div>
+            <div>
+                <h5 class="fw-bold mb-0 text-dark">Fragrance Profile (Find Your Scent ✨)</h5>
+                <small class="text-muted">ملف العطر والخصائص الشمية لتغذية محرك ترشيحات واكتشاف العطور</small>
+            </div>
+        </div>
+
+        <div>
+            @if (Model.IsFragranceProfileApproved)
+            {
+                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1.5 fs-7 d-inline-flex align-items-center gap-1.5">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Approved for Quiz</span>
+                    @if (Model.FragranceProfileReviewedAt.HasValue)
+                    {
+                        <span class="text-muted fw-normal">(@Model.FragranceProfileReviewedAt.Value.ToString("dd MMM yyyy"))</span>
+                    }
+                </span>
+            }
+            else
+            {
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3 py-1.5 fs-7 d-inline-flex align-items-center gap-1.5">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>Draft / Pending Review</span>
+                </span>
+            }
+        </div>
+    </div>
+
+    <div class="card-body p-4">
+        <!-- 1. Target Audience & Seasons Row -->
+        <div class="row g-4 mb-4">
+            <!-- Target Audience -->
+            <div class="col-12 col-lg-6">
+                <label class="form-label fw-bold text-dark d-flex align-items-center justify-content-between mb-1">
+                    <span>
+                        <i class="fa-solid fa-users text-secondary me-1.5"></i>
+                        Target Audience (الفئة المستهدفة)
+                        <span class="text-danger">*</span>
+                    </span>
+                    <span class="text-muted small fw-normal">Multi-select</span>
+                </label>
+                <span asp-validation-for="SelectedAudiences" class="text-danger small d-block mb-2"></span>
+
+                <div class="d-flex flex-wrap gap-2">
+                    @{
+                        var audiences = new[]
+                        {
+                            (Value: AudienceTarget.ForHim, LabelEn: "For Him", LabelAr: "للرجال", Icon: "fa-mars"),
+                            (Value: AudienceTarget.ForHer, LabelEn: "For Her", LabelAr: "للنساء", Icon: "fa-venus"),
+                            (Value: AudienceTarget.Unisex, LabelEn: "Unisex", LabelAr: "للجنسين", Icon: "fa-venus-mars")
+                        };
+                    }
+                    @foreach (var aud in audiences)
+                    {
+                        var isChecked = Model.SelectedAudiences.Contains(aud.Value);
+                        <label class="btn btn-outline-secondary audience-pill-btn rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 shadow-xs cursor-pointer @(isChecked ? "active btn-dark text-white border-dark" : "bg-white")" style="transition: all 0.2s ease;">
+                            <input type="checkbox" name="SelectedAudiences" value="@((int)aud.Value)" class="d-none audience-checkbox" @(isChecked ? "checked" : "") />
+                            <i class="fa-solid @aud.Icon"></i>
+                            <span class="fw-semibold">@aud.LabelEn</span>
+                            <span class="small opacity-75">(@aud.LabelAr)</span>
+                        </label>
+                    }
+                </div>
+                <small class="text-muted d-block mt-2">
+                    يمكن اختيار تصنيف واحد أو أكثر (مثال: For Him + Unisex).
+                </small>
+            </div>
+
+            <!-- Best Seasons -->
+            <div class="col-12 col-lg-6">
+                <label class="form-label fw-bold text-dark d-flex align-items-center justify-content-between mb-1">
+                    <span>
+                        <i class="fa-solid fa-cloud-sun text-secondary me-1.5"></i>
+                        Best Season(s) (الفصول المناسبة)
+                        <span class="text-danger">*</span>
+                    </span>
+                    <span class="badge bg-light text-muted border fw-normal" id="seasonExclusivityNotice">All Year is Exclusive</span>
+                </label>
+                <span asp-validation-for="SelectedSeasons" class="text-danger small d-block mb-2"></span>
+
+                <div class="d-flex flex-wrap gap-2" id="seasonsPillsContainer">
+                    @{
+                        var seasons = new[]
+                        {
+                            (Value: FragranceSeason.Spring, LabelEn: "Spring", LabelAr: "الربيع", Icon: "fa-seedling", IsAllYear: false),
+                            (Value: FragranceSeason.Summer, LabelEn: "Summer", LabelAr: "الصيف", Icon: "fa-sun", IsAllYear: false),
+                            (Value: FragranceSeason.Fall, LabelEn: "Fall", LabelAr: "الخريف", Icon: "fa-leaf", IsAllYear: false),
+                            (Value: FragranceSeason.Winter, LabelEn: "Winter", LabelAr: "الشتاء", Icon: "fa-snowflake", IsAllYear: false),
+                            (Value: FragranceSeason.AllYear, LabelEn: "All Year", LabelAr: "طوال العام", Icon: "fa-calendar-check", IsAllYear: true)
+                        };
+                    }
+                    @foreach (var s in seasons)
+                    {
+                        var isChecked = Model.SelectedSeasons.Contains(s.Value);
+                        <label class="btn btn-outline-secondary season-pill-btn rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2 shadow-xs cursor-pointer @(isChecked ? (s.IsAllYear ? "active btn-warning text-dark border-warning" : "active btn-dark text-white border-dark") : "bg-white")" 
+                               data-is-all-year="@(s.IsAllYear ? "true" : "false")" style="transition: all 0.2s ease;">
+                            <input type="checkbox" name="SelectedSeasons" value="@((int)s.Value)" class="d-none season-checkbox" @(isChecked ? "checked" : "") />
+                            <i class="fa-solid @s.Icon"></i>
+                            <span class="fw-semibold">@s.LabelEn</span>
+                            <span class="small opacity-75">(@s.LabelAr)</span>
+                        </label>
+                    }
+                </div>
+                <small class="text-muted d-block mt-2" id="seasonHelpText">
+                    اختيار "All Year" حصري ويلغي الفصول الفردية، واختيار أي فصل فردي يلغي "All Year".
+                </small>
+            </div>
+        </div>
+
+        <hr class="my-3 opacity-10" />
+
+        <!-- 2. Projection & Inspired By Row -->
+        <div class="row g-4 mb-4">
+            <!-- Projection / Sillage -->
+            <div class="col-12 col-lg-7">
+                <label class="form-label fw-bold text-dark d-flex align-items-center justify-content-between mb-1">
+                    <span>
+                        <i class="fa-solid fa-wind text-secondary me-1.5"></i>
+                        Projection / Sillage (قوة الفوحان والانتشار)
+                        <span class="text-danger">*</span>
+                    </span>
+                    <span class="text-muted small fw-normal">Single select</span>
+                </label>
+                <span asp-validation-for="Projection" class="text-danger small d-block mb-2"></span>
+
+                <div class="row g-2">
+                    @{
+                        var projections = new[]
+                        {
+                            (Value: FragranceProjection.Moderate, NameEn: "Moderate", NameAr: "ثبات هادئ", Desc: "Soft landing • فوحان ناعم ومريح"),
+                            (Value: FragranceProjection.Strong, NameEn: "Strong", NameAr: "فوحان ملحوظ", Desc: "Noticeable • يترك أثراً واضحاً"),
+                            (Value: FragranceProjection.Enormous, NameEn: "Enormous", NameAr: "فوحان طاغي", Desc: "Fills the room • يملأ المكان بحضور مميز")
+                        };
+                    }
+                    @foreach (var proj in projections)
+                    {
+                        var isChecked = Model.Projection == proj.Value;
+                        <div class="col-12 col-md-4">
+                            <label class="card border rounded-3 p-2.5 h-100 projection-card cursor-pointer @(isChecked ? "border-dark bg-dark text-white" : "bg-white")" style="transition: all 0.2s ease;">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <input type="radio" name="Projection" value="@((int)proj.Value)" class="projection-radio form-check-input mt-0" @(isChecked ? "checked" : "") />
+                                    <span class="fw-bold fs-7">@proj.NameEn</span>
+                                    <span class="small opacity-75">(@proj.NameAr)</span>
+                                </div>
+                                <div class="small opacity-75 mt-1" style="font-size: 0.75rem;">@proj.Desc</div>
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Inspired By -->
+            <div class="col-12 col-lg-5">
+                <label asp-for="InspiredBy" class="form-label fw-bold text-dark mb-1">
+                    <i class="fa-solid fa-flask text-secondary me-1.5"></i>
+                    Inspired By (مستوحى من عطر عالمي)
+                </label>
+                <input asp-for="InspiredBy" class="form-control" placeholder="e.g. Bleu de Chanel, Grand Soir, Erba Pura" />
+                <span asp-validation-for="InspiredBy" class="text-danger small"></span>
+                <small class="text-muted d-block mt-1">اختياري — يساعد في توجيه التوصيات والمقارنات الشمية.</small>
+            </div>
+        </div>
+
+        <hr class="my-3 opacity-10" />
+
+        <!-- 3. Fragrance Notes Multi-Select Section -->
+        <div class="mb-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-2">
+                <div>
+                    <label class="form-label fw-bold text-dark mb-0">
+                        <i class="fa-solid fa-droplet text-secondary me-1.5"></i>
+                        Fragrance Notes (النوتات العطرية المكونة)
+                        <span class="text-danger">*</span>
+                    </label>
+                    <span class="text-muted small d-block">اختر النوتات المكونة للهرم العطري لهذا المنتج.</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-dark rounded-pill px-3 py-2 fs-7" id="selectedNotesBadge">
+                        Selected: <span id="selectedNotesCount">@Model.SelectedFragranceNoteIds.Count</span> notes
+                    </span>
+                    <button type="button" class="btn btn-sm btn-link text-danger text-decoration-none p-0 @(Model.SelectedFragranceNoteIds.Any() ? "" : "d-none")" id="btnClearAllNotes">
+                        Clear all
+                    </button>
+                </div>
+            </div>
+            <span asp-validation-for="SelectedFragranceNoteIds" class="text-danger small d-block mb-2"></span>
+
+            <!-- Live Search Bar -->
+            <div class="input-group mb-3">
+                <span class="input-group-text bg-white border-end-0 text-muted">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" id="fragranceNoteSearchInput" class="form-control border-start-0" placeholder="Search notes by English or Arabic name (e.g. Vanilla, برغموت, Bergamot, فانيلا)..." autocomplete="off" />
+                <button type="button" class="btn btn-outline-secondary d-none" id="btnClearNoteSearch">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Notes by Category Accordion -->
+            <div class="accordion" id="fragranceNotesAccordion">
+                @if (Model.AvailableNotesGrouped != null && Model.AvailableNotesGrouped.Any())
+                {
+                    int catIndex = 0;
+                    foreach (var group in Model.AvailableNotesGrouped)
+                    {
+                        catIndex++;
+                        var groupSelectedCount = group.Notes.Count(n => Model.SelectedFragranceNoteIds.Contains(n.Id));
+                        var collapseId = $"collapseCat{catIndex}";
+                        var headingId = $"headingCat{catIndex}";
+
+                        <div class="accordion-item border rounded-3 mb-2 category-accordion-group" data-category="@((int)group.Category)">
+                            <h2 class="accordion-header" id="@headingId">
+                                <button class="accordion-button py-2.5 px-3 bg-light bg-opacity-50 text-dark fw-bold d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="true" aria-controls="@collapseId">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fa-solid fa-tag text-primary opacity-75"></i>
+                                        <span>@group.CategoryNameEn</span>
+                                        <span class="text-muted small fw-normal">(@group.CategoryNameAr)</span>
+                                    </div>
+                                    <span class="badge @(groupSelectedCount > 0 ? "bg-primary" : "bg-secondary bg-opacity-25 text-dark") rounded-pill ms-auto me-3 cat-selected-counter" data-cat-id="@((int)group.Category)">
+                                        @(groupSelectedCount > 0 ? $"{groupSelectedCount} selected" : $"{group.Notes.Count} notes")
+                                    </span>
+                                </button>
+                            </h2>
+                            <div id="@collapseId" class="accordion-collapse collapse show" aria-labelledby="@headingId">
+                                <div class="accordion-body p-3 bg-white">
+                                    <div class="d-flex flex-wrap gap-2 notes-pill-cloud">
+                                        @foreach (var note in group.Notes)
+                                        {
+                                            var isNoteSelected = Model.SelectedFragranceNoteIds.Contains(note.Id);
+                                            <label class="btn btn-outline-light border text-dark note-pill-btn rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 shadow-2xs cursor-pointer @(isNoteSelected ? "active btn-primary text-white border-primary" : "bg-white")" 
+                                                   data-note-id="@note.Id"
+                                                   data-note-name-en="@note.Name.ToLower()"
+                                                   data-note-name-ar="@note.ArabicName"
+                                                   style="transition: all 0.15s ease;">
+                                                <input type="checkbox" name="SelectedFragranceNoteIds" value="@note.Id" class="d-none note-checkbox" @(isNoteSelected ? "checked" : "") />
+                                                <span class="fw-semibold">@note.Name</span>
+                                                <span class="small opacity-75">(@note.ArabicName)</span>
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-warning border-0 p-3 small">
+                        No active fragrance notes available in catalog. Please seed or add notes from <a asp-controller="FragranceNotes" asp-action="Index">Fragrance Notes Management</a>.
+                    </div>
+                }
+            </div>
+        </div>
+
+        <hr class="my-3 opacity-10" />
+
+        <!-- 4. Approval Checkbox & Notice Card -->
+        <div class="card border rounded-3 p-3 @(Model.IsFragranceProfileApproved ? "border-success bg-success bg-opacity-10" : "border-warning bg-warning bg-opacity-10")">
+            <div class="d-flex align-items-start gap-3">
+                <div class="form-check form-switch pt-1">
+                    <input class="form-check-input" type="checkbox" asp-for="IsFragranceProfileApproved" id="approvalSwitch" style="width: 2.5em; height: 1.3em;">
+                </div>
+                <div class="flex-grow-1">
+                    <label class="form-check-label fw-bold text-dark mb-1 cursor-pointer" for="approvalSwitch">
+                        Approve for Recommendations (اعتماد العطر في نظام ترشيحات Find Your Scent ✨)
+                    </label>
+                    <p class="text-secondary small mb-1">
+                        عند تفعيل هذا الخيار، سيصبح العطر مؤهلاً للظهور في نتائج وتوصيات اختبار اكتشاف العطور للعملاء، شريطة اكتمال كافة حقول ملف العطر (الفئة المستهدفة، النوتات، الفصول، الفوحان).
+                    </p>
+                    <div class="text-muted small d-flex align-items-center gap-1.5">
+                        <i class="fa-solid fa-circle-exclamation text-warning"></i>
+                        <span>
+                            <strong>تنبيه الأمان:</strong> تعديل أي من بيانات ملف العطر مستقبلاً سيعيد ضبط حالة الاعتماد تلقائياً لمنع ظهور بيانات غير مراجعة للمستخدمين.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

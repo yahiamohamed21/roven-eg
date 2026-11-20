@@ -462,6 +462,70 @@ namespace Stockify.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("Stockify.Models.Entities.FragranceNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ArabicName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category");
+
+                    b.HasIndex("DisplayOrder");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("FragranceNotes");
+                });
+
+            modelBuilder.Entity("Stockify.Models.Entities.FragranceNoteQuickPick", b =>
+                {
+                    b.Property<int>("FragranceNoteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Context")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("FragranceNoteId", "Context");
+
+                    b.HasIndex("Context");
+
+                    b.HasIndex("DisplayOrder");
+
+                    b.ToTable("FragranceNoteQuickPicks");
+                });
+
             modelBuilder.Entity("Stockify.Models.Entities.Governorate", b =>
                 {
                     b.Property<int>("Id")
@@ -1254,12 +1318,19 @@ namespace Stockify.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<DateTime?>("FragranceProfileReviewedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("FragranceTagline")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("InspiredBy")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -1276,6 +1347,9 @@ namespace Stockify.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("IsFragranceProfileApproved")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsPublished")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -1288,6 +1362,9 @@ namespace Stockify.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("Projection")
+                        .HasColumnType("int");
 
                     b.Property<int>("ReorderLevel")
                         .HasColumnType("int");
@@ -1304,10 +1381,30 @@ namespace Stockify.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("IsFragranceProfileApproved");
+
                     b.HasIndex("Sku")
                         .IsUnique();
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("Stockify.Models.Entities.ProductFragranceNote", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FragranceNoteId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ProductId", "FragranceNoteId");
+
+                    b.HasIndex("FragranceNoteId");
+
+                    b.ToTable("ProductFragranceNotes");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.ProductReview", b =>
@@ -1362,6 +1459,32 @@ namespace Stockify.Migrations
                     b.HasIndex("ShowOnHome");
 
                     b.ToTable("ProductReviews");
+                });
+
+            modelBuilder.Entity("Stockify.Models.Entities.ProductSeason", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Season")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "Season");
+
+                    b.ToTable("ProductSeasons");
+                });
+
+            modelBuilder.Entity("Stockify.Models.Entities.ProductTargetAudience", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Audience")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "Audience");
+
+                    b.ToTable("ProductTargetAudiences");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.SiteVisit", b =>
@@ -1464,6 +1587,17 @@ namespace Stockify.Migrations
                     b.Navigation("RecoveredOrder");
                 });
 
+            modelBuilder.Entity("Stockify.Models.Entities.FragranceNoteQuickPick", b =>
+                {
+                    b.HasOne("Stockify.Models.Entities.FragranceNote", "FragranceNote")
+                        .WithMany("QuickPicks")
+                        .HasForeignKey("FragranceNoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FragranceNote");
+                });
+
             modelBuilder.Entity("Stockify.Models.Entities.HomeOffer", b =>
                 {
                     b.HasOne("Stockify.Models.Entities.Product", "Product")
@@ -1554,10 +1688,51 @@ namespace Stockify.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Stockify.Models.Entities.ProductFragranceNote", b =>
+                {
+                    b.HasOne("Stockify.Models.Entities.FragranceNote", "FragranceNote")
+                        .WithMany("ProductFragranceNotes")
+                        .HasForeignKey("FragranceNoteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Stockify.Models.Entities.Product", "Product")
+                        .WithMany("ProductFragranceNotes")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FragranceNote");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Stockify.Models.Entities.ProductReview", b =>
                 {
                     b.HasOne("Stockify.Models.Entities.Product", "Product")
                         .WithMany("Reviews")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Stockify.Models.Entities.ProductSeason", b =>
+                {
+                    b.HasOne("Stockify.Models.Entities.Product", "Product")
+                        .WithMany("Seasons")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Stockify.Models.Entities.ProductTargetAudience", b =>
+                {
+                    b.HasOne("Stockify.Models.Entities.Product", "Product")
+                        .WithMany("TargetAudiences")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1580,6 +1755,13 @@ namespace Stockify.Migrations
                     b.Navigation("Orders");
                 });
 
+            modelBuilder.Entity("Stockify.Models.Entities.FragranceNote", b =>
+                {
+                    b.Navigation("ProductFragranceNotes");
+
+                    b.Navigation("QuickPicks");
+                });
+
             modelBuilder.Entity("Stockify.Models.Entities.Order", b =>
                 {
                     b.Navigation("InventoryTransactions");
@@ -1593,7 +1775,13 @@ namespace Stockify.Migrations
 
                     b.Navigation("OrderItems");
 
+                    b.Navigation("ProductFragranceNotes");
+
                     b.Navigation("Reviews");
+
+                    b.Navigation("Seasons");
+
+                    b.Navigation("TargetAudiences");
                 });
 #pragma warning restore 612, 618
         }

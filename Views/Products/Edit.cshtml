@@ -152,6 +152,10 @@
                             </div>
                         </div>
 
+                        <div class="col-12">
+                            <partial name="_FragranceProfileSection" model="Model" />
+                        </div>
+
                         <div class="col-12 mt-4 text-end">
                             <a asp-action="Index" class="btn btn-light border px-4 me-2">Cancel</a>
                             <button type="submit" class="btn btn-primary px-4 shadow-sm">
@@ -167,6 +171,7 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/admin-fragrance-profile.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const fileInput = document.getElementById('productImageInput');

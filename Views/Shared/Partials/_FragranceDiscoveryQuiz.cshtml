@@ -1,0 +1,394 @@
+@* 
+    MAISON ROVEN — FIND YOUR SCENT
+    Interactive Customer Fragrance Discovery Quiz & Floating CTA Component
+*@
+
+<!-- 1. Floating Entry Button -->
+<button type="button" id="rovenFindScentFloatingBtn" class="roven-find-scent-btn" aria-label="Find Your Scent ✨" title="Find Your Scent ✨">
+    <span class="btn-icon-wrapper">
+        <i class="fa-solid fa-magnifying-glass btn-search-icon"></i>
+    </span>
+    <span>Find Your Scent ✨</span>
+</button>
+
+<!-- 2. Responsive Quiz Modal Overlay -->
+<div id="rovenQuizBackdrop" class="roven-quiz-backdrop" role="dialog" aria-modal="true" aria-labelledby="rovenQuizTitle" tabindex="-1">
+    <div class="roven-quiz-modal" id="rovenQuizModal">
+        <!-- Header -->
+        <div class="roven-quiz-header">
+            <div class="roven-quiz-brand-row">
+                <div class="roven-quiz-brand-left">
+                    <div class="roven-quiz-crest">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <h3 id="rovenQuizTitle" class="roven-quiz-brand-title">ROVEN <span>• FIND YOUR SCENT</span></h3>
+                </div>
+                <button type="button" id="rovenQuizCloseBtn" class="roven-quiz-close-btn" aria-label="Close Quiz">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="roven-quiz-meta-row">
+                <span id="rovenQuizStepLabel" class="roven-quiz-step-label">Step 1 of 5</span>
+                <span id="rovenQuizProgressText" class="roven-quiz-progress-text">20% Complete</span>
+            </div>
+            <div class="roven-quiz-progress-track">
+                <div id="rovenQuizProgressFill" class="roven-quiz-progress-fill" style="width: 20%;"></div>
+            </div>
+        </div>
+
+        <!-- Body with 5 Step Panels -->
+        <div class="roven-quiz-body">
+            <!-- Step 1: Direction -->
+            <div id="rovenStepPanel1" class="roven-step-panel active">
+                <h4 class="roven-step-heading">Who is it for?</h4>
+                <p class="roven-step-subheading">Select your olfactive orientation to tailor the perfume recommendations.</p>
+                
+                <div class="d-flex flex-column gap-3">
+                    <!-- For Her -->
+                    <div class="roven-direction-card" data-direction="ForHer">
+                        <div class="roven-direction-icon-box">
+                            <i class="fa-solid fa-venus"></i>
+                        </div>
+                        <div class="roven-direction-content">
+                            <div class="roven-direction-title">For Her</div>
+                            <div class="roven-direction-desc">Floral, soft, luminous • Radiant feminine elegance and delicate floral whispers</div>
+                        </div>
+                        <div class="roven-radio-check-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+
+                    <!-- For Him -->
+                    <div class="roven-direction-card" data-direction="ForHim">
+                        <div class="roven-direction-icon-box">
+                            <i class="fa-solid fa-mars"></i>
+                        </div>
+                        <div class="roven-direction-content">
+                            <div class="roven-direction-title">For Him</div>
+                            <div class="roven-direction-desc">Bold, woody, deep • Confident masculine presence with warm, rich woods</div>
+                        </div>
+                        <div class="roven-radio-check-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+
+                    <!-- Unisex -->
+                    <div class="roven-direction-card" data-direction="Unisex">
+                        <div class="roven-direction-icon-box">
+                            <i class="fa-solid fa-venus-mars"></i>
+                        </div>
+                        <div class="roven-direction-content">
+                            <div class="roven-direction-title">Unisex</div>
+                            <div class="roven-direction-desc">Versatile, modern • Sophisticated contemporary signature crafted for everyone</div>
+                        </div>
+                        <div class="roven-radio-check-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Loved Notes -->
+            <div id="rovenStepPanel2" class="roven-step-panel">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <h4 class="roven-step-heading mb-0">What do you love?</h4>
+                    <span class="badge bg-dark rounded-pill px-3 py-1.5 fs-7" id="rovenLovedCountBadge">
+                        0 selected
+                    </span>
+                </div>
+                <p class="roven-step-subheading">Pick notes you adore (optional).</p>
+
+                <!-- Conflict notice container -->
+                <div id="rovenLovedConflictAlert" class="roven-quiz-alert roven-quiz-alert-warning d-none">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="rovenLovedConflictMsg"></span>
+                </div>
+
+                <!-- Quick Picks -->
+                <div class="roven-quick-picks-section">
+                    <div class="roven-quick-picks-title">
+                        <i class="fa-solid fa-heart text-danger"></i>
+                        <span>Popular Quick Picks</span>
+                    </div>
+                    <div id="rovenLovedQuickPicksContainer" class="roven-notes-pill-cloud">
+                        <!-- Loaded dynamically via JS -->
+                        <div class="text-muted small py-2"><i class="fa-solid fa-spinner fa-spin me-1.5"></i>Loading quick picks...</div>
+                    </div>
+                </div>
+
+                <!-- Search input -->
+                <div class="roven-notes-search-box">
+                    <i class="fa-solid fa-magnifying-glass roven-notes-search-icon"></i>
+                    <input type="text" id="rovenLovedSearchInput" class="roven-notes-search-input" placeholder="Search notes (e.g. Vanilla, Bergamot, Amber)..." autocomplete="off" />
+                    <button type="button" id="rovenLovedClearSearchBtn" class="roven-notes-clear-btn d-none" aria-label="Clear search">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Categories Accordion -->
+                <div id="rovenLovedCategoriesContainer">
+                    <!-- Loaded dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Step 3: Avoided Notes -->
+            <div id="rovenStepPanel3" class="roven-step-panel">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <h4 class="roven-step-heading mb-0">What to avoid?</h4>
+                    <span class="badge bg-secondary rounded-pill px-3 py-1.5 fs-7" id="rovenAvoidedCountBadge">
+                        0 selected
+                    </span>
+                </div>
+                <p class="roven-step-subheading">Notes you'd rather skip (optional).</p>
+
+                <!-- Conflict notice container -->
+                <div id="rovenAvoidedConflictAlert" class="roven-quiz-alert roven-quiz-alert-warning d-none">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="rovenAvoidedConflictMsg"></span>
+                </div>
+
+                <!-- Quick Picks -->
+                <div class="roven-quick-picks-section">
+                    <div class="roven-quick-picks-title">
+                        <i class="fa-solid fa-ban text-secondary"></i>
+                        <span>Commonly Avoided Quick Picks</span>
+                    </div>
+                    <div id="rovenAvoidedQuickPicksContainer" class="roven-notes-pill-cloud">
+                        <!-- Loaded dynamically via JS -->
+                        <div class="text-muted small py-2"><i class="fa-solid fa-spinner fa-spin me-1.5"></i>Loading quick picks...</div>
+                    </div>
+                </div>
+
+                <!-- Search input -->
+                <div class="roven-notes-search-box">
+                    <i class="fa-solid fa-magnifying-glass roven-notes-search-icon"></i>
+                    <input type="text" id="rovenAvoidedSearchInput" class="roven-notes-search-input" placeholder="Search notes to skip..." autocomplete="off" />
+                    <button type="button" id="rovenAvoidedClearSearchBtn" class="roven-notes-clear-btn d-none" aria-label="Clear search">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Categories Accordion -->
+                <div id="rovenAvoidedCategoriesContainer">
+                    <!-- Loaded dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Step 4: Season -->
+            <div id="rovenStepPanel4" class="roven-step-panel">
+                <h4 class="roven-step-heading">When should this fragrance perform best?</h4>
+                <p class="roven-step-subheading">Choose your preferred seasons. "All Year" is exclusive.</p>
+
+                <div class="roven-season-cards-grid">
+                    <!-- Spring -->
+                    <div class="roven-season-card" data-season="Spring">
+                        <div class="roven-season-icon-box">
+                            <i class="fa-solid fa-seedling"></i>
+                        </div>
+                        <div class="roven-season-content">
+                            <div class="roven-season-title">Spring</div>
+                            <div class="roven-season-desc">Light & fresh • Pure floral freshness and renewed vibrant energy</div>
+                        </div>
+                        <div class="roven-radio-check-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+
+                    <!-- Summer -->
+                    <div class="roven-season-card" data-season="Summer">
+                        <div class="roven-season-icon-box">
+                            <i class="fa-solid fa-sun"></i>
+                        </div>
+                        <div class="roven-season-content">
+                            <div class="roven-season-title">Summer</div>
+                            <div class="roven-season-desc">Citrus & aquatic • Crisp sparkling citrus and sunlit aquatic breezes</div>
+                        </div>
+                        <div class="roven-radio-check-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+
+                    <!-- Fall -->
+                    <div class="roven-season-card" data-season="Fall">
+                        <div class="roven-season-icon-box">
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+                        <div class="roven-season-content">
+                            <div class="roven-season-title">Fall</div>
+                            <div class="roven-season-desc">Warm & spicy • Refined autumn spices and balanced amber warmth</div>
+                        </div>
+                        <div class="roven-radio-check-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+
+                    <!-- Winter -->
+                    <div class="roven-season-card" data-season="Winter">
+                        <div class="roven-season-icon-box">
+                            <i class="fa-solid fa-snowflake"></i>
+                        </div>
+                        <div class="roven-season-content">
+                            <div class="roven-season-title">Winter</div>
+                            <div class="roven-season-desc">Rich & cozy • Opulent depth with velvety winter warmth and longevity</div>
+                        </div>
+                        <div class="roven-radio-check-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+
+                    <!-- All Year -->
+                    <div class="roven-season-card season-all-year-card" data-season="AllYear" data-is-all-year="true">
+                        <div class="roven-season-icon-box">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <div class="roven-season-content">
+                            <div class="roven-season-title">All Year</div>
+                            <div class="roven-season-desc">Versatile signature • Timeless all-season profile perfect for every occasion</div>
+                        </div>
+                        <div class="roven-radio-check-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Projection -->
+            <div id="rovenStepPanel5" class="roven-step-panel">
+                <h4 class="roven-step-heading">How much presence should it leave behind?</h4>
+                <p class="roven-step-subheading">Define your desired sillage and projection intensity.</p>
+
+                <div class="d-flex flex-column gap-3">
+                    <!-- Moderate -->
+                    <div class="roven-projection-card" data-projection="Moderate">
+                        <div class="roven-projection-icon-box">
+                            <i class="fa-solid fa-feather-pointed"></i>
+                        </div>
+                        <div class="roven-projection-content">
+                            <div class="roven-projection-title">Moderate</div>
+                            <div class="roven-projection-desc">Soft landing • An intimate, refined aura whispering effortless elegance</div>
+                        </div>
+                        <div class="roven-radio-check-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+
+                    <!-- Strong -->
+                    <div class="roven-projection-card" data-projection="Strong">
+                        <div class="roven-projection-icon-box">
+                            <i class="fa-solid fa-bell"></i>
+                        </div>
+                        <div class="roven-projection-content">
+                            <div class="roven-projection-title">Strong</div>
+                            <div class="roven-projection-desc">Noticeable • Distinct radiant sillage leaving an alluring fragrant trail</div>
+                        </div>
+                        <div class="roven-radio-check-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+
+                    <!-- Enormous -->
+                    <div class="roven-projection-card" data-projection="Enormous">
+                        <div class="roven-projection-icon-box">
+                            <i class="fa-solid fa-burst"></i>
+                        </div>
+                        <div class="roven-projection-content">
+                            <div class="roven-projection-title">Enormous</div>
+                            <div class="roven-projection-desc">Fills the room • A commanding, unforgettable presence that captivates the room</div>
+                        </div>
+                        <div class="roven-radio-check-circle">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transition / Complete Screen -->
+            <div id="rovenStepPanelComplete" class="roven-step-panel roven-quiz-loading-view">
+                <div class="roven-quiz-spinner"></div>
+                <h4 class="roven-step-heading mb-2">Analyzing Your Fragrance Taste...</h4>
+                <p class="roven-step-subheading mb-4">Our master perfumer recommendation engine is evaluating ROVEN atelier compositions against your exact selections.</p>
+                <div class="badge bg-light text-dark border px-3 py-2 rounded-pill small" id="rovenQuizSummaryBadge">
+                    <!-- Answers summary populated via JS -->
+                </div>
+            </div>
+
+            <!-- Results Screen (Phase 5) -->
+            <div id="rovenStepPanelResults" class="roven-step-panel roven-results-panel">
+                <!-- Results Header -->
+                <div class="roven-results-hero text-center mb-4">
+                    <span class="roven-results-eyebrow">QUIZ COMPLETE</span>
+                    <h3 class="roven-results-title">Your Perfect Matches</h3>
+                    <p class="roven-results-subtitle">These fragrances align beautifully with your preferences.</p>
+                    
+                    <div class="roven-results-pill-bar mt-2">
+                        <span id="rovenResultsFilterSummary" class="badge bg-light text-dark border px-3 py-1.5 rounded-pill small"></span>
+                        <button type="button" id="rovenResultsEditPrefBtn" class="roven-btn-outline-gold btn-sm ms-2" title="Edit your selections">
+                            <i class="fa-solid fa-sliders me-1"></i>Edit Preferences
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Results Container (Populated dynamically via JS) -->
+                <div id="rovenRecommendationsContainer" class="roven-recommendations-list">
+                    <!-- Rendered dynamically via JS -->
+                </div>
+
+                <!-- Empty Results State (Hidden by default, shown when matches == 0) -->
+                <div id="rovenEmptyResultsContainer" class="roven-empty-state d-none text-center py-5">
+                    <div class="roven-empty-icon mb-3">
+                        <i class="fa-solid fa-compass-drafting fa-3x text-muted opacity-75"></i>
+                    </div>
+                    <h4 class="roven-empty-title">No strong matches found.</h4>
+                    <p class="roven-empty-desc">Try adjusting your preferences to discover more fragrances from our atelier collection.</p>
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <button type="button" id="rovenEmptyEditBtn" class="roven-btn-primary px-4">
+                            <i class="fa-solid fa-sliders me-2"></i>Edit My Preferences
+                        </button>
+                        <button type="button" id="rovenEmptyResetBtn" class="roven-btn-secondary px-4">
+                            <i class="fa-solid fa-rotate-right me-2"></i>Try Again
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error State Container (Hidden by default, shown on network/server error) -->
+                <div id="rovenErrorStateContainer" class="roven-error-state d-none text-center py-5">
+                    <div class="roven-error-icon mb-3">
+                        <i class="fa-solid fa-triangle-exclamation fa-3x text-warning"></i>
+                    </div>
+                    <h4 class="roven-error-title">Unable to Calculate Recommendations</h4>
+                    <p class="roven-error-desc" id="rovenErrorMessage">An error occurred while evaluating your fragrance profile.</p>
+                    <button type="button" id="rovenRetryCalculationBtn" class="roven-btn-primary px-4 mt-3">
+                        <i class="fa-solid fa-rotate-right me-2"></i>Retry Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="roven-quiz-footer">
+            <button type="button" id="rovenQuizPrevBtn" class="roven-btn-secondary d-none">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Previous</span>
+            </button>
+
+            <button type="button" id="rovenQuizSkipBtn" class="roven-btn-skip d-none">
+                Skip This Step
+            </button>
+
+            <button type="button" id="rovenQuizRetakeFooterBtn" class="roven-btn-secondary d-none">
+                <i class="fa-solid fa-rotate-right me-1.5"></i>
+                <span>Retake Quiz</span>
+            </button>
+
+            <button type="button" id="rovenQuizNextBtn" class="roven-btn-primary ms-auto">
+                <span id="rovenQuizNextBtnText">Next</span>
+                <i class="fa-solid fa-arrow-right" id="rovenQuizNextBtnIcon"></i>
+            </button>
+
+            <button type="button" id="rovenQuizCloseFooterBtn" class="roven-btn-primary d-none ms-auto">
+                <span>Done</span>
+                <i class="fa-solid fa-check ms-1.5"></i>
+            </button>
+        </div>
+    </div>
+</div>

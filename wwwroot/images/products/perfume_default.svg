@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="pBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCFAF7"/>
+      <stop offset="100%" stop-color="#F2EAE0"/>
+    </linearGradient>
+    <linearGradient id="pGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E5C178"/>
+      <stop offset="50%" stop-color="#DFB15B"/>
+      <stop offset="100%" stop-color="#A57A2A"/>
+    </linearGradient>
+    <linearGradient id="pGlassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.8)"/>
+      <stop offset="100%" stop-color="rgba(223,177,91,0.15)"/>
+    </linearGradient>
+    <filter id="pShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="15" flood-color="#810100" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="500" height="500" fill="url(#pBgGrad)" rx="20"/>
+  <!-- Bottle Group -->
+  <g transform="translate(250, 220)" filter="url(#pShadow)">
+    <!-- Golden Cap -->
+    <rect x="-22" y="-115" width="44" height="40" rx="4" fill="url(#pGoldGrad)"/>
+    <rect x="-26" y="-76" width="52" height="6" rx="2" fill="url(#pGoldGrad)"/>
+    <!-- Atomizer Neck -->
+    <rect x="-12" y="-72" width="24" height="14" fill="#DFB15B"/>
+    <!-- Glass Bottle Body -->
+    <path d="M -55,-58 L 55,-58 C 65,-58 72,-50 72,-40 L 72,90 C 72,104 60,115 46,115 L -46,115 C -60,115 -72,104 -72,90 L -72,-40 C -72,-50 -65,-58 -55,-58 Z" fill="url(#pGlassGrad)" stroke="#810100" stroke-width="2.5"/>
+    <!-- Inner Juice Level -->
+    <path d="M -64,-20 L 64,-20 L 64,88 C 64,98 55,107 43,107 L -43,107 C -55,107 -64,98 -64,88 Z" fill="#DFB15B" opacity="0.2"/>
+    <!-- Label -->
+    <rect x="-42" y="-5" width="84" height="68" rx="4" fill="#FFFFFF" stroke="#DFB15B" stroke-width="1.2"/>
+    <text x="0" y="20" font-family="'Cinzel', serif, 'Times New Roman'" font-size="13" font-weight="700" fill="#810100" text-anchor="middle" letter-spacing="1.5">ROVEN</text>
+    <line x1="-25" y1="28" x2="25" y2="28" stroke="#DFB15B" stroke-width="0.8"/>
+    <text x="0" y="42" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="7.5" font-weight="600" fill="#333333" text-anchor="middle" letter-spacing="0.8">EXTRAIT DE PARFUM</text>
+    <text x="0" y="55" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="7" fill="#7A6B58" text-anchor="middle">30% CONCENTRATION</text>
+  </g>
+  <text x="250" y="385" font-family="'Cinzel', serif, 'Times New Roman'" font-size="16" font-weight="700" fill="#810100" text-anchor="middle" letter-spacing="2">MAISON ROVEN</text>
+  <text x="250" y="408" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#7A6B58" text-anchor="middle">Haute Parfumerie</text>
+</svg>

@@ -16,6 +16,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IImageStorageService, CloudinaryImageStorageService>();
         services.AddScoped<IStoreCacheService, StoreCacheService>();
+        services.AddScoped<IFragranceRecommendationService, FragranceRecommendationService>();
         services.AddSingleton<IMediaDeletionQueue, MediaDeletionQueue>();
         services.AddHostedService<MediaDeletionBackgroundService>();
 

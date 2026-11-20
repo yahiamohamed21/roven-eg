@@ -901,7 +901,7 @@
                             <a asp-action="Details" asp-route-id="@product.Id" class="product-image-container d-block text-decoration-none position-relative" title="عرض تفاصيل عطر @product.Name">
                                 @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
                                 {
-                                    <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.src='/images/products/perfume_default.svg'" />
+                                    <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null;this.src='/images/products/perfume_default.svg';" />
                                 }
                                 else
                                 {

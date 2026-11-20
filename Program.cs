@@ -118,8 +118,12 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        // Auto-apply migrations if pending
-        await context.Database.MigrateAsync();
+        // Auto-apply migrations only if explicitly configured (disabled by default for strict safety)
+        var configuration = services.GetRequiredService<IConfiguration>();
+        if (configuration.GetValue<bool>("AutoMigrateDatabase", false))
+        {
+            await context.Database.MigrateAsync();
+        }
 
         // Ensure Comparison Section settings are initialized with active status
         var homeSetting = await context.HomeSettings.FirstOrDefaultAsync();
@@ -149,6 +153,7 @@ using (var scope = app.Services.CreateScope())
         }
 
         await DbInitializer.SeedRolesAndAdminAsync(services);
+        await DbInitializer.SeedFragranceDiscoveryBaselineAsync(services);
         await DbInitializer.AutoSyncImagesToCloudinaryAsync(services);
     }
     catch (Exception ex)
