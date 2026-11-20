@@ -164,33 +164,35 @@ body.roven-quiz-open {
 .roven-quiz-brand-left {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
-.roven-quiz-crest {
-    width: 28px;
+.roven-quiz-brand-logo {
     height: 28px;
-    border-radius: 50%;
-    background: #420B0B;
-    color: #EDEBDD;
+    width: auto;
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.roven-quiz-brand-sep {
+    color: #B58D4A;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    box-shadow: 0 2px 6px rgba(66, 11, 11, 0.2);
 }
 
-.roven-quiz-brand-title {
-    font-family: inherit;
-    font-size: 1.05rem;
+.roven-quiz-brand-tagline {
+    font-size: 0.95rem;
     font-weight: 800;
-    color: #1B1717;
-    margin: 0;
-    letter-spacing: 0.3px;
-}
-
-.roven-quiz-brand-title span {
     color: #B58D4A;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
 }
 
 .roven-quiz-close-btn {
@@ -814,34 +816,77 @@ body.roven-quiz-open {
     color: #1B1717;
 }
 
-.roven-btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 11px 26px;
-    background: linear-gradient(135deg, #420B0B 0%, #630000 100%);
-    border: none;
-    border-radius: 50px;
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: #EDEBDD;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(66, 11, 11, 0.25);
-    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+.roven-btn-primary,
+.roven-quiz-modal .roven-btn-primary,
+#rovenQuizNextBtn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 11px 26px !important;
+    background: linear-gradient(135deg, #440A0A 0%, #630000 100%) !important;
+    border: 1px solid rgba(223, 177, 91, 0.45) !important;
+    border-radius: 50px !important;
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+    color: #FAF9F5 !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 14px rgba(66, 11, 11, 0.25) !important;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    text-decoration: none !important;
 }
 
-.roven-btn-primary:hover {
-    background: linear-gradient(135deg, #520E0E 0%, #7A0000 100%);
-    color: #FFFFFF;
-    transform: translateY(-1.5px);
-    box-shadow: 0 6px 18px rgba(66, 11, 11, 0.35);
+.roven-btn-primary span,
+.roven-btn-primary i,
+.roven-quiz-modal .roven-btn-primary span,
+.roven-quiz-modal .roven-btn-primary i,
+#rovenQuizNextBtn span,
+#rovenQuizNextBtn i {
+    color: #FAF9F5 !important;
 }
 
-.roven-btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+.roven-btn-primary:hover,
+.roven-btn-primary:focus,
+.roven-btn-primary:active,
+.roven-quiz-modal .roven-btn-primary:hover,
+.roven-quiz-modal .roven-btn-primary:focus,
+.roven-quiz-modal .roven-btn-primary:active,
+#rovenQuizNextBtn:hover,
+#rovenQuizNextBtn:focus,
+#rovenQuizNextBtn:active {
+    background: linear-gradient(135deg, #5A0E0E 0%, #7A0000 100%) !important;
+    color: #FFFFFF !important;
+    border-color: rgba(223, 177, 91, 0.9) !important;
+    transform: translateY(-1.5px) !important;
+    box-shadow: 0 6px 20px rgba(66, 11, 11, 0.45) !important;
+}
+
+.roven-btn-primary:hover span,
+.roven-btn-primary:hover i,
+.roven-btn-primary:focus span,
+.roven-btn-primary:focus i,
+.roven-btn-primary:active span,
+.roven-btn-primary:active i,
+.roven-quiz-modal .roven-btn-primary:hover span,
+.roven-quiz-modal .roven-btn-primary:hover i,
+.roven-quiz-modal .roven-btn-primary:focus span,
+.roven-quiz-modal .roven-btn-primary:focus i,
+.roven-quiz-modal .roven-btn-primary:active span,
+.roven-quiz-modal .roven-btn-primary:active i,
+#rovenQuizNextBtn:hover span,
+#rovenQuizNextBtn:hover i,
+#rovenQuizNextBtn:focus span,
+#rovenQuizNextBtn:focus i,
+#rovenQuizNextBtn:active span,
+#rovenQuizNextBtn:active i {
+    color: #FFFFFF !important;
+}
+
+.roven-btn-primary:disabled,
+#rovenQuizNextBtn:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .roven-btn-skip {
