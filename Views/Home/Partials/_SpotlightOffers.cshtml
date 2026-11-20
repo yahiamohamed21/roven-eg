@@ -98,7 +98,7 @@
                                                 @if (!string.IsNullOrWhiteSpace(offer.CustomImageUrl))
                                                 {
                                                     <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none" title="@offer.DisplayTitle">
-                                                        <img src="@offer.CustomImageUrl" alt="@offer.DisplayTitle" class="img-fluid rounded-3" style="max-height: 330px; width: 100%; object-fit: contain;" />
+                                                        <img src="@offer.CustomImageUrl" alt="@offer.DisplayTitle" class="img-fluid rounded-3" style="max-height: 340px; width: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='/roven/products/653512e607aa40008b9c03356653409f.jpg';" />
                                                     </a>
                                                 }
                                                 else if (isDuo)
@@ -107,7 +107,7 @@
                                                         <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-block text-center w-50" title="@offer.ProductName">
                                                             @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
                                                             {
-                                                                <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid" style="max-height: 290px; object-fit: contain;" />
+                                                                <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid" style="max-height: 300px; object-fit: contain;" onerror="this.onerror=null; this.src='/roven/products/653512e607aa40008b9c03356653409f.jpg';" />
                                                             }
                                                             else
                                                             {
@@ -118,7 +118,7 @@
                                                         <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.SecondProductId" class="d-block text-center w-50" title="@offer.SecondProductName">
                                                             @if (!string.IsNullOrWhiteSpace(offer.SecondProductImageUrl))
                                                             {
-                                                                <img src="@offer.SecondProductImageUrl" alt="@offer.SecondProductName" class="img-fluid" style="max-height: 290px; object-fit: contain;" />
+                                                                <img src="@offer.SecondProductImageUrl" alt="@offer.SecondProductName" class="img-fluid" style="max-height: 300px; object-fit: contain;" onerror="this.onerror=null; this.src='/roven/products/653512e607aa40008b9c03356653409f.jpg';" />
                                                             }
                                                             else
                                                             {
@@ -132,7 +132,7 @@
                                                     <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none" title="@offer.ProductName">
                                                         @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
                                                         {
-                                                            <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid" style="max-height: 330px; object-fit: contain;" />
+                                                            <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid" style="max-height: 340px; object-fit: contain;" onerror="this.onerror=null; this.src='/roven/products/653512e607aa40008b9c03356653409f.jpg';" />
                                                         }
                                                         else
                                                         {
@@ -165,7 +165,7 @@
                                                 </p>
 
                                                 <!-- Fragrance / Feature Pills -->
-                                                <div class="d-flex flex-wrap gap-2 mb-4">
+                                                <div class="roven-offer-pills-wrap d-flex flex-wrap gap-2 mb-4">
                                                     @if (offer.FeaturePillsList.Any())
                                                     {
                                                         @foreach (var pill in offer.FeaturePillsList)
@@ -192,7 +192,7 @@
                                                 </div>
 
                                                 <!-- Price and Savings Row -->
-                                                <div class="d-flex flex-wrap align-items-baseline gap-3 mb-4">
+                                                <div class="roven-offer-price-row d-flex flex-wrap align-items-baseline gap-3 mb-4">
                                                     <div class="roven-offer-price-main">
                                                         <span>LE</span> @offer.OfferPrice.ToString("N0")
                                                     </div>

@@ -1323,6 +1323,7 @@
         scrollbar-width: none;
         -ms-overflow-style: none;
         gap: 1.5rem;
+        align-items: stretch;
     }
 
     .roven-offers-track::-webkit-scrollbar {
@@ -1334,17 +1335,30 @@
         min-width: 100%;
         max-width: 100%;
         scroll-snap-align: start;
+        display: flex;
+        height: 100%;
     }
 
     .roven-spotlight-hero-card {
         background: #FFFFFF;
-        border: 1px solid rgba(181, 141, 74, 0.35);
+        border: 1.5px solid rgba(181, 141, 74, 0.35);
         border-radius: 24px;
         padding: 2.75rem 3rem;
         position: relative;
         overflow: hidden;
         box-shadow: none !important;
         transition: border-color 0.3s ease;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 540px;
+    }
+
+    .roven-spotlight-hero-card > .row {
+        width: 100%;
+        margin: 0;
+        align-items: center;
     }
 
     .roven-spotlight-hero-card:hover {
@@ -1363,15 +1377,24 @@
         background: radial-gradient(circle at 50% 50%, #FFFFFF 0%, #FAF8F3 100%);
         border: 1px solid rgba(181, 141, 74, 0.22);
         border-radius: 20px;
-        padding: 2rem 1.5rem;
+        padding: 1.5rem;
         position: relative;
         overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 400px;
+        height: 420px;
+        min-height: 420px;
+        max-height: 420px;
+        width: 100%;
         box-shadow: none !important;
         transition: border-color 0.3s ease;
+    }
+
+    .roven-offer-img-frame img {
+        max-height: 330px;
+        max-width: 100%;
+        object-fit: contain;
     }
 
     .roven-spotlight-hero-card:hover .roven-offer-img-frame {
@@ -1409,14 +1432,33 @@
         line-height: 1.2;
         text-transform: uppercase;
         margin-bottom: 0.85rem;
+        min-height: 3.2rem;
+        display: flex;
+        align-items: center;
     }
 
     .roven-offer-desc {
         color: #55504a;
         font-size: 0.95rem;
-        line-height: 1.65;
-        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
         max-width: 540px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-height: 4.8rem;
+        max-height: 4.8rem;
+    }
+
+    .roven-offer-pills-wrap {
+        min-height: 3.2rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 1.25rem !important;
     }
 
     .roven-offer-pill {
@@ -1437,6 +1479,14 @@
         background: #EDEBDD;
         border-color: #810100;
         color: #810100;
+    }
+
+    .roven-offer-price-row {
+        min-height: 3.2rem;
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 1.5rem !important;
     }
 
     .roven-offer-price-main {
@@ -1575,13 +1625,31 @@
         .roven-spotlight-hero-card {
             padding: 1.75rem 1.25rem;
             border-radius: 20px;
+            min-height: auto;
         }
         .roven-offer-img-frame {
-            min-height: 280px;
+            height: 290px;
+            min-height: 290px;
+            max-height: 290px;
             padding: 1.25rem;
+        }
+        .roven-offer-img-frame img {
+            max-height: 250px;
         }
         .roven-offer-title {
             font-size: 1.75rem;
+            min-height: 2.2rem;
+        }
+        .roven-offer-desc {
+            font-size: 0.88rem;
+            min-height: 4.2rem;
+            max-height: 4.2rem;
+        }
+        .roven-offer-pills-wrap {
+            min-height: auto;
+        }
+        .roven-offer-price-row {
+            min-height: auto;
         }
         .roven-offers-nav-btn {
             width: 38px;
