@@ -2994,44 +2994,191 @@
     </div>
 </div>
 
-<!-- Modal: Add New Home Offer (Spotlight Card Layout) -->
-<div class="modal fade" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
+<!-- ======================================================================== -->
+<!-- MAISON ROVEN LUXURY SPOTLIGHT OFFER STUDIO (ADD & EDIT MODALS)           -->
+<!-- ======================================================================== -->
+<style>
+    .roven-studio-modal .modal-content {
+        border-radius: 26px !important;
+        overflow: hidden !important;
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45) !important;
+        border: 1.5px solid rgba(223, 177, 91, 0.45) !important;
+        background: #FFFFFF;
+    }
+    .roven-studio-header {
+        background: linear-gradient(135deg, #1B1717 0%, #2f0101 60%, #4a0000 100%) !important;
+        border-bottom: 2px solid #dfb15b !important;
+        padding: 1.35rem 1.85rem !important;
+    }
+    .roven-studio-icon-box {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(223, 177, 91, 0.18);
+        border: 1.5px solid #dfb15b;
+        color: #dfb15b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        flex-shrink: 0;
+    }
+    .roven-studio-card {
+        background: #FAF9F6;
+        border: 1px solid rgba(223, 177, 91, 0.35);
+        border-radius: 18px;
+        padding: 1.3rem 1.45rem;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02);
+        transition: all 0.25s ease;
+    }
+    .roven-studio-card:hover {
+        border-color: rgba(223, 177, 91, 0.7);
+        box-shadow: 0 8px 24px rgba(129, 1, 0, 0.06);
+    }
+    .roven-section-badge-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #810100 0%, #520000 100%);
+        color: #dfb15b;
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        border: 1px solid rgba(223, 177, 91, 0.45);
+        box-shadow: 0 3px 10px rgba(129, 1, 0, 0.25);
+    }
+    .roven-studio-input {
+        border: 1px solid rgba(181, 141, 74, 0.35) !important;
+        border-radius: 10px !important;
+        background: #FFFFFF !important;
+        font-size: 0.92rem !important;
+        padding: 0.58rem 0.85rem !important;
+        transition: all 0.2s ease !important;
+    }
+    .roven-studio-input:focus {
+        border-color: #dfb15b !important;
+        box-shadow: 0 0 0 3.5px rgba(223, 177, 91, 0.22) !important;
+        background: #FFFFFF !important;
+    }
+    .roven-preset-chip {
+        background: #FFFFFF;
+        border: 1px solid rgba(223, 177, 91, 0.45);
+        color: #5a5249;
+        padding: 4px 11px;
+        border-radius: 50px;
+        font-size: 0.73rem;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        user-select: none;
+    }
+    .roven-preset-chip:hover {
+        background: #810100;
+        color: #dfb15b;
+        border-color: #810100;
+        transform: translateY(-1.5px);
+        box-shadow: 0 3px 8px rgba(129, 1, 0, 0.2);
+    }
+    .roven-upload-dropzone {
+        background: #FFFFFF;
+        border: 1.5px dashed rgba(223, 177, 91, 0.6);
+        border-radius: 14px;
+        padding: 1.1rem;
+        text-align: center;
+        transition: all 0.25s ease;
+        cursor: pointer;
+        display: block;
+    }
+    .roven-upload-dropzone:hover {
+        border-color: #810100;
+        background: #FAF8F4;
+        transform: translateY(-1px);
+    }
+    .roven-preview-pill {
+        background: #FAF8F4;
+        border: 1px solid rgba(223, 177, 91, 0.4);
+        color: #1B1717;
+        font-size: 0.73rem;
+        font-weight: 600;
+        padding: 4px 11px;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+    }
+    .roven-studio-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 15;
+        background: #FAF8F4;
+        border-top: 1px solid rgba(223, 177, 91, 0.35);
+        padding: 1rem 1.85rem;
+    }
+    .roven-studio-save-btn {
+        background: linear-gradient(135deg, #810100 0%, #580000 100%) !important;
+        border: 1.5px solid #dfb15b !important;
+        color: #FFFFFF !important;
+        border-radius: 50px !important;
+        padding: 0.72rem 2.5rem !important;
+        font-size: 0.95rem !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px !important;
+        box-shadow: 0 8px 22px rgba(129, 1, 0, 0.35) !important;
+        transition: all 0.25s ease !important;
+    }
+    .roven-studio-save-btn:hover {
+        background: linear-gradient(135deg, #9b0100 0%, #700000 100%) !important;
+        border-color: #ffe090 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 28px rgba(129, 1, 0, 0.45) !important;
+    }
+</style>
+
+<!-- Modal: Add New Home Offer (Spotlight Studio Layout) -->
+<div class="modal fade roven-studio-modal" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
-            <div class="modal-header border-0 pb-0 pt-4 px-4 bg-light rounded-top-4">
-                <div>
-                    <h5 class="modal-title fw-bold" id="addOfferModalLabel" style="color: #1B1717;">
-                        <i class="fa-solid fa-gem text-gold me-2"></i>إضافة وضبط عرض مميز جديد (Spotlight Offer)
-                    </h5>
-                    <p class="text-muted small mb-0 mt-1">
-                        صمم كارت العرض الترويجي ليطابق نفس تفاصيل وهوية الصفحة الرئيسية (صورة إعلانية مخصصة، شارة الخصم، عنوان، وصف تسويقي، ومميزات).
-                    </p>
+        <div class="modal-content">
+            <div class="modal-header roven-studio-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="roven-studio-icon-box">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-white mb-0.5" id="addOfferModalLabel" style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.35rem; letter-spacing: 0.5px;">
+                            استوديو إضافة وتصميم عرض مميز • Spotlight Studio
+                        </h5>
+                        <p class="text-white-50 small mb-0">
+                            صمم كارت العرض الترويجي ليطابق هوية دار روفين الملكية (البنر الإعلاني، التسعير، الخصومات، والتاجات).
+                        </p>
+                    </div>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white opacity-75" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form asp-controller="HomeControl" asp-action="AddHomeOffer" method="post" enctype="multipart/form-data" id="addOfferForm">
                 @Html.AntiForgeryToken()
-                <div class="modal-body p-4">
+                <div class="modal-body p-3 p-md-4" style="background: #FAF8F4;">
                     <div class="row g-4">
-                        <!-- Left Column: Form Settings (7 cols) -->
+                        <!-- Left Column: Form Controls (7 cols) -->
                         <div class="col-12 col-xl-7">
-                            <div class="d-flex flex-column gap-3">
+                            <div class="d-flex flex-column gap-3.5">
 
-                                <!-- Card 1: ربط العطور والتسعير -->
-                                <div class="p-3.5 rounded-4 border bg-white shadow-sm">
-                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-                                        <span class="fw-bold small text-dark d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-spray-can-sparkles text-danger"></i>
-                                            1. ربط العطور من الكتالوج والتسعير
-                                        </span>
-                                        <span class="badge bg-light text-muted border font-monospace small">Cart Integrated</span>
+                                <!-- Card 1: ربط العطور والتسعير الذكي -->
+                                <div class="roven-studio-card">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-bottom-color: rgba(223, 177, 91, 0.25) !important;">
+                                        <div class="roven-section-badge-pill">
+                                            <i class="fa-solid fa-tag"></i>
+                                            <span>1. ربط العطر من الكتالوج والتسعير الذكي</span>
+                                        </div>
+                                        <span class="badge rounded-pill px-3 py-1 font-monospace" style="background: rgba(223, 177, 91, 0.15); color: #810100; border: 1px solid rgba(223, 177, 91, 0.4);">Cart Integrated</span>
                                     </div>
 
                                     <div class="row g-3">
                                         <!-- Product 1 -->
                                         <div class="col-12 col-md-6">
                                             <label class="form-label small fw-bold text-dark">العطر الأول (الأساسي) <span class="text-danger">*</span></label>
-                                            <select name="productId" id="addOfferProduct1Select" class="form-select rounded-3" required onchange="onAddOfferFormChange()">
+                                            <select name="productId" id="addOfferProduct1Select" class="form-select roven-studio-input" required onchange="onAddOfferFormChange()">
                                                 <option value="" selected disabled>-- اختر العطر من الكتالوج --</option>
                                                 @foreach (var prod in products)
                                                 {
@@ -3045,7 +3192,7 @@
                                             <label class="form-label small fw-bold text-dark">
                                                 العطر الثاني <span class="badge bg-warning-subtle text-dark border border-warning-subtle ms-1 font-monospace">اختياري لباقة عطرين</span>
                                             </label>
-                                            <select name="secondProductId" id="addOfferProduct2Select" class="form-select rounded-3" onchange="onAddOfferFormChange()">
+                                            <select name="secondProductId" id="addOfferProduct2Select" class="form-select roven-studio-input" onchange="onAddOfferFormChange()">
                                                 <option value="">-- لا يوجد (عرض عطر واحد فقط) --</option>
                                                 @foreach (var prod in products)
                                                 {
@@ -3058,8 +3205,8 @@
                                         <div class="col-12 col-md-6">
                                             <label class="form-label small fw-bold text-dark">سعر العرض الترويجي (ج.م) <span class="text-danger">*</span></label>
                                             <div class="input-group">
-                                                <input type="number" step="0.01" min="1" name="offerPrice" id="addOfferPriceInput" class="form-control rounded-start-3 font-monospace fw-bold" placeholder="مثال: 468" required oninput="onAddOfferFormChange()" />
-                                                <span class="input-group-text bg-light font-monospace">EGP</span>
+                                                <input type="number" step="0.01" min="1" name="offerPrice" id="addOfferPriceInput" class="form-control roven-studio-input font-monospace fw-bold" placeholder="مثال: 468" required oninput="onAddOfferFormChange()" />
+                                                <span class="input-group-text bg-white border-start-0 font-monospace" style="border-color: rgba(181, 141, 74, 0.35); color: #810100; font-weight: 700;">EGP</span>
                                             </div>
                                         </div>
 
@@ -3070,111 +3217,122 @@
                                                 <i class="fa-solid fa-circle-info text-muted ms-1" title="اتركه فارغاً ليُحسب تلقائياً من الكتالوج، أو حدد سعراً كـ 550 ج.م لإظهار الخصم والتوفير المطلوب"></i>
                                             </label>
                                             <div class="input-group">
-                                                <input type="number" step="0.01" min="1" name="originalPriceOverride" id="addOfferOrigPriceInput" class="form-control rounded-start-3 font-monospace" placeholder="تلقائي من الكتالوج" oninput="onAddOfferFormChange()" />
-                                                <span class="input-group-text bg-light font-monospace">EGP</span>
+                                                <input type="number" step="0.01" min="1" name="originalPriceOverride" id="addOfferOrigPriceInput" class="form-control roven-studio-input font-monospace" placeholder="تلقائي من الكتالوج" oninput="onAddOfferFormChange()" />
+                                                <span class="input-group-text bg-white border-start-0 font-monospace" style="border-color: rgba(181, 141, 74, 0.35); color: #810100; font-weight: 700;">EGP</span>
                                             </div>
                                         </div>
 
-                                        <!-- Pricing Summary & Savings -->
+                                        <!-- Pricing Summary Plaque -->
                                         <div class="col-12">
-                                            <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center justify-content-between" id="addOfferPricingSummary">
-                                                <span class="small text-muted"><i class="fa-solid fa-calculator me-1"></i>حدد العطور وسعر العرض لحساب نسبة الخصم والتوفير تلقائياً.</span>
+                                            <div class="p-2.5 rounded-3 border bg-white shadow-xs" id="addOfferPricingSummary">
+                                                <span class="small text-muted py-1 d-flex align-items-center gap-1.5"><i class="fa-solid fa-calculator text-gold"></i>حدد العطور وسعر العرض لحساب نسبة الخصم والتوفير الملكي تلقائياً.</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Card 2: صورة العرض الترويجية المخصصة -->
-                                <div class="p-3.5 rounded-4 border bg-white shadow-sm">
-                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-                                        <span class="fw-bold small text-dark d-flex align-items-center gap-2">
-                                            <i class="fa-regular fa-image text-gold"></i>
-                                            2. صورة العرض الترويجية (Lifestyle Promotional Banner)
-                                        </span>
-                                        <span class="badge bg-light text-muted border small">مثل بوستر STAR الإعلاني</span>
+                                <div class="roven-studio-card">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-bottom-color: rgba(223, 177, 91, 0.25) !important;">
+                                        <div class="roven-section-badge-pill">
+                                            <i class="fa-regular fa-image"></i>
+                                            <span>2. صورة العرض الترويجية (Lifestyle Promotional Banner)</span>
+                                        </div>
+                                        <span class="text-muted small font-monospace">600x600 px مربع</span>
                                     </div>
 
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6">
-                                            <label class="form-label small fw-bold text-dark">رفع صورة من جهازك</label>
-                                            <input type="file" name="offerImage" id="addOfferImageFileInput" accept="image/*" class="form-control rounded-3" onchange="previewAddOfferFile(this)" />
-                                            <div class="form-text small" style="font-size: 0.74rem;">المقاس المفضل: 600x600 px أو مربع (Aspect Ratio 1:1).</div>
+                                            <label class="form-label small fw-bold text-dark">رفع صورة مخصصة من جهازك</label>
+                                            <label class="roven-upload-dropzone">
+                                                <i class="fa-solid fa-cloud-arrow-up text-gold fs-3 mb-1"></i>
+                                                <div class="fw-bold text-dark small">انقر لاختيار ملف صورة</div>
+                                                <div class="text-muted" style="font-size: 0.72rem;">PNG, JPG, WEBP بجودة عالية</div>
+                                                <input type="file" name="offerImage" id="addOfferImageFileInput" accept="image/*" class="d-none" onchange="previewAddOfferFile(this)" />
+                                            </label>
+                                            <div id="addOfferFileNameDisplay" class="small text-success mt-1 fw-semibold font-monospace" style="display: none;"></div>
                                         </div>
 
                                         <div class="col-12 col-md-6">
                                             <label class="form-label small fw-bold text-dark">أو مسار / رابط الصورة المباشر</label>
-                                            <input type="text" name="customImageUrl" id="addOfferCustomImageUrlInput" class="form-control rounded-3 font-monospace" placeholder="https://res.cloudinary.com/... أو /images/..." oninput="onAddOfferFormChange()" />
-                                            <div class="form-text small" style="font-size: 0.74rem;">إن تركتهما فارغين ستظهر صورة زجاجة العطر من الكتالوج.</div>
+                                            <input type="text" name="customImageUrl" id="addOfferCustomImageUrlInput" class="form-control roven-studio-input font-monospace" placeholder="https://res.cloudinary.com/... أو /images/..." oninput="onAddOfferFormChange()" />
+                                            <div class="form-text small mt-1" style="font-size: 0.75rem; color: #6a6259;">يمكنك لصق رابط صورة جاهزة مباشرة مثل بنر الزجاجة مع الفواكه والستائر.</div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Card 3: نصوص العرض والمميزات -->
-                                <div class="p-3.5 rounded-4 border bg-white shadow-sm">
-                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-                                        <span class="fw-bold small text-dark d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-pen-nib text-primary"></i>
-                                            3. هوية ونصوص الكارت (كما تظهر في الهوم)
-                                        </span>
+                                <!-- Card 3: هوية ونصوص الكارت -->
+                                <div class="roven-studio-card">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-bottom-color: rgba(223, 177, 91, 0.25) !important;">
+                                        <div class="roven-section-badge-pill">
+                                            <i class="fa-solid fa-pen-nib"></i>
+                                            <span>3. هوية ونصوص الكارت الإعلاني (Storefront Branding)</span>
+                                        </div>
                                     </div>
 
                                     <div class="row g-3">
                                         <!-- Badge Label -->
                                         <div class="col-12 col-md-6">
                                             <label class="form-label small fw-bold text-dark">شارة العرض العلوية (Subtitle / Badge)</label>
-                                            <input type="text" name="badgeText" id="addOfferBadgeInput" class="form-control rounded-3" value="HOT DEAL • عرض مميز" oninput="onAddOfferFormChange()" />
-                                            <div class="d-flex flex-wrap gap-1 mt-1.5">
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setAddBadge('HOT DEAL • عرض مميز')">HOT DEAL</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setAddBadge('EXCLUSIVE • خصم خاص')">EXCLUSIVE</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setAddBadge('DUO BUNDLE • باقة عطرين')">DUO BUNDLE</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setAddBadge('BEST SELLER • الأكثر طلباً')">BEST SELLER</button>
+                                            <input type="text" name="badgeText" id="addOfferBadgeInput" class="form-control roven-studio-input" placeholder="HOT DEAL • عرض مميز" oninput="onAddOfferFormChange()" />
+                                            <div class="d-flex flex-wrap gap-1 mt-2">
+                                                <span class="roven-preset-chip" onclick="setAddBadge('HOT DEAL • عرض مميز')">🔥 HOT DEAL</span>
+                                                <span class="roven-preset-chip" onclick="setAddBadge('EXCLUSIVE • خصم خاص')">👑 EXCLUSIVE</span>
+                                                <span class="roven-preset-chip" onclick="setAddBadge('BEST SELLER • الأكثر طلباً')">💎 BEST SELLER</span>
+                                                <span class="roven-preset-chip" onclick="setAddBadge('DUO BUNDLE • باقة عطرين')">🎁 DUO BUNDLE</span>
+                                                <span class="roven-preset-chip" onclick="setAddBadge('WINTER OFFER • عرض الشتاء')">❄️ WINTER SALE</span>
                                             </div>
                                         </div>
 
                                         <!-- Title -->
                                         <div class="col-12 col-md-6">
                                             <label class="form-label small fw-bold text-dark">العنوان الرئيسي للعرض (Title)</label>
-                                            <input type="text" name="title" id="addOfferTitleInput" class="form-control rounded-3 fw-bold" placeholder="مثال: STAR أو باقة التميز" oninput="onAddOfferFormChange()" />
-                                            <div class="form-text small" style="font-size: 0.74rem;">اتركه فارغاً للتسمية بأسماء العطور تلقائياً.</div>
+                                            <input type="text" name="title" id="addOfferTitleInput" class="form-control roven-studio-input fw-bold" placeholder="مثال: STAR أو روج فيلور" oninput="onAddOfferFormChange()" />
+                                            <div class="form-text small mt-1" style="font-size: 0.74rem;">اتركه فارغاً للاعتماد التلقائي على اسم العطر من الكتالوج.</div>
                                         </div>
 
                                         <!-- Custom Description -->
                                         <div class="col-12">
                                             <label class="form-label small fw-bold text-dark">وصف العرض التسويقي (Marketing Description)</label>
-                                            <textarea name="customDescription" id="addOfferCustomDescInput" rows="3" class="form-control rounded-3" placeholder="مثال: Perfume Star – Inspired by Bleu de Chanel Discover a captivating fragrance inspired by the elegance and sophistication of Bleu de Chanel. Perfume Star blends fresh citrus notes with aromatic accords..." oninput="onAddOfferFormChange()"></textarea>
-                                            <div class="form-text small" style="font-size: 0.74rem;">نص تسويقي جذاب يبرز المكونات، الطابع العطري، والإيحاء الفاخر.</div>
+                                            <textarea name="customDescription" id="addOfferCustomDescInput" rows="3" class="form-control roven-studio-input" placeholder="اكتب وصفاً جذاباً للنوتات العطرية وقوة الفوحان..." oninput="onAddOfferFormChange()"></textarea>
                                         </div>
 
                                         <!-- Feature Pills -->
                                         <div class="col-12">
                                             <label class="form-label small fw-bold text-dark d-flex align-items-center justify-content-between">
                                                 <span>مميزات وتاجات العرض (Feature Pills - مفصولة بفاصلة)</span>
-                                                <span class="text-muted small font-normal" style="font-size: 0.75rem;">انقر للإضافة السريعة</span>
+                                                <span class="text-gold small fw-bold" style="font-size: 0.75rem;">انقر للإضافة السريعة</span>
                                             </label>
-                                            <input type="text" name="featurePills" id="addOfferPillsInput" class="form-control rounded-3" value="Best Seller, Extrait de Parfum, 30% Pure Concentration, Cash on Delivery, Free Inspection on Delivery" oninput="onAddOfferFormChange()" />
-                                            <div class="d-flex flex-wrap gap-1 mt-1.5">
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendAddPill('Best Seller')">+ Best Seller</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendAddPill('Extrait de Parfum')">+ Extrait de Parfum</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendAddPill('30% Pure Concentration')">+ 30% Concentration</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendAddPill('Cash on Delivery')">+ الدفع عند الاستلام</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendAddPill('Free Inspection on Delivery')">+ معاينة عند الاستلام</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendAddPill('ثبات 24+ ساعة')">+ ثبات 24+ ساعة</button>
+                                            <input type="text" name="featurePills" id="addOfferPillsInput" class="form-control roven-studio-input" placeholder="Best Seller, Extrait de Parfum, 30% Pure Concentration" oninput="onAddOfferFormChange()" />
+                                            <div class="d-flex flex-wrap gap-1 mt-2">
+                                                <span class="roven-preset-chip" onclick="appendAddPill('Best Seller')">+ Best Seller</span>
+                                                <span class="roven-preset-chip" onclick="appendAddPill('Extrait de Parfum')">+ Extrait de Parfum</span>
+                                                <span class="roven-preset-chip" onclick="appendAddPill('30% Pure Concentration')">+ 30% Pure Concentration</span>
+                                                <span class="roven-preset-chip" onclick="appendAddPill('Cash on Delivery')">+ الدفع عند الاستلام</span>
+                                                <span class="roven-preset-chip" onclick="appendAddPill('Free Inspection on Delivery')">+ معاينة عند الاستلام</span>
+                                                <span class="roven-preset-chip" onclick="appendAddPill('ثبات 24+ ساعة')">+ ثبات 24+ ساعة</span>
                                             </div>
                                         </div>
 
                                         <!-- Button Text -->
-                                        <div class="col-12">
+                                        <div class="col-12 col-md-8">
                                             <label class="form-label small fw-bold text-dark">نص زر الشراء (Button Call To Action)</label>
-                                            <input type="text" name="buttonText" id="addOfferBtnTextInput" class="form-control rounded-3 font-monospace" value="SHOP THE SET" oninput="onAddOfferFormChange()" />
+                                            <input type="text" name="buttonText" id="addOfferBtnTextInput" class="form-control roven-studio-input font-monospace fw-bold" placeholder="SHOP THE SET" oninput="onAddOfferFormChange()" />
+                                        </div>
+
+                                        <!-- Display Order -->
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label small fw-bold text-dark">ترتيب العرض</label>
+                                            <input type="number" name="displayOrder" id="addOfferOrderInput" value="1" class="form-control roven-studio-input font-monospace" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Card 4: إعدادات إضافية متقدمة (مطوية) -->
-                                <div class="accordion border rounded-4 overflow-hidden" id="addOfferAdvancedAccordion">
+                                <div class="accordion border rounded-4 overflow-hidden" id="addOfferAdvancedAccordion" style="border-color: rgba(223, 177, 91, 0.35) !important;">
                                     <div class="accordion-item border-0">
                                         <h2 class="accordion-header">
-                                            <button class="accordion-button collapsed py-2.5 px-3 bg-light text-dark fw-bold small" type="button" data-bs-toggle="collapse" data-bs-target="#addOfferAdvancedCollapse" aria-expanded="false">
+                                            <button class="accordion-button collapsed py-2.5 px-3 bg-white text-dark fw-bold small" type="button" data-bs-toggle="collapse" data-bs-target="#addOfferAdvancedCollapse" aria-expanded="false">
                                                 <i class="fa-solid fa-sliders text-muted me-2"></i>
                                                 إعدادات متقدمة إضافية (الكمية، نسبة الحجز، وموعد الانتهاء)
                                             </button>
@@ -3183,22 +3341,22 @@
                                             <div class="accordion-body p-3 bg-white">
                                                 <div class="row g-3">
                                                     <div class="col-12 col-md-4">
-                                                        <label class="form-label small fw-bold text-dark">نسبة الحجز الظاهرية (%)</label>
+                                                        <label class="form-label small fw-bold text-dark">نسبة الحجز (%)</label>
                                                         <div class="input-group">
-                                                            <input type="number" min="1" max="100" name="allocatedPercent" class="form-control rounded-start-3 font-monospace" value="82" />
+                                                            <input type="number" min="0" max="100" name="allocatedPercent" id="addOfferAllocatedInput" value="82" class="form-control roven-studio-input font-monospace" />
                                                             <span class="input-group-text bg-light">%</span>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label class="form-label small fw-bold text-dark">الكمية المتبقية</label>
                                                         <div class="input-group">
-                                                            <input type="number" min="1" name="remainingCount" class="form-control rounded-start-3 font-monospace" value="15" />
+                                                            <input type="number" min="0" name="remainingCount" id="addOfferRemainingInput" value="15" class="form-control roven-studio-input font-monospace" />
                                                             <span class="input-group-text bg-light">باقة</span>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 col-md-4">
-                                                        <label class="form-label small fw-bold text-dark">موعد انتهاء العرض</label>
-                                                        <input type="datetime-local" name="endTime" class="form-control rounded-3" value="@DateTime.Now.AddDays(7).ToString("yyyy-MM-ddTHH:mm")" />
+                                                        <label class="form-label small fw-bold text-dark">موعد الانتهاء</label>
+                                                        <input type="datetime-local" name="endTime" id="addOfferEndTimeInput" class="form-control roven-studio-input" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -3212,70 +3370,78 @@
                         <!-- Right Column: Interactive Live Card Preview (5 cols) -->
                         <div class="col-12 col-xl-5">
                             <div class="sticky-top" style="top: 15px;">
-                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1">
                                     <span class="small fw-bold text-dark d-flex align-items-center gap-1.5">
                                         <i class="fa-solid fa-eye text-gold"></i>
-                                        معاينة مباشرة كما تظهر للزوار في الهوم
+                                        <span>معاينة حية كما تظهر في الصفحة الرئيسية</span>
                                     </span>
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill font-monospace small">Live Preview</span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill font-monospace small px-2.5 py-1">
+                                        <span class="spinner-grow spinner-grow-sm me-1" style="width: 7px; height: 7px;"></span> Live Storefront
+                                    </span>
                                 </div>
 
                                 <!-- The Luxury Card Container matching _SpotlightOffers.cshtml -->
-                                <div class="roven-modal-offer-preview-box p-3 rounded-4 border bg-white shadow-sm position-relative overflow-hidden" style="border: 1px solid rgba(223, 177, 91, 0.3) !important;">
+                                <div class="roven-studio-preview-card p-3 p-md-4 rounded-4 position-relative overflow-hidden" 
+                                     style="background: #FFFFFF; border: 1.5px solid rgba(223, 177, 91, 0.45); box-shadow: 0 15px 45px -10px rgba(129, 1, 0, 0.12), 0 5px 20px rgba(0, 0, 0, 0.04);">
                                     
                                     <!-- Image frame -->
-                                    <div class="position-relative rounded-3 overflow-hidden bg-light border mb-3 d-flex align-items-center justify-content-center" style="height: 220px; background: #faf9f7;">
-                                        <span id="previewAddOfferBadgeDisc" class="badge position-absolute top-0 start-0 m-2 fw-bold text-white shadow-sm" style="background: #810100; font-size: 0.75rem; border-radius: 6px; padding: 4px 8px;">
+                                    <div class="position-relative rounded-3 overflow-hidden mb-3 d-flex align-items-center justify-content-center" 
+                                         style="height: 245px; background: linear-gradient(180deg, #FAF8F4 0%, #F5EFE6 100%); border: 1px solid rgba(223, 177, 91, 0.3);">
+                                        <span id="previewAddOfferBadgeDisc" 
+                                              class="position-absolute top-0 start-0 m-3 fw-bold text-white shadow-sm font-monospace" 
+                                              style="background: linear-gradient(135deg, #810100 0%, #550000 100%); border: 1px solid #dfb15b; font-size: 0.8rem; border-radius: 8px; padding: 5px 12px; letter-spacing: 1px; z-index: 2;">
                                             15% OFF
                                         </span>
-                                        <img id="previewAddOfferImg" src="/images/placeholder.svg" alt="Offer Preview" style="max-height: 200px; max-width: 100%; object-fit: contain;" />
+                                        <img id="previewAddOfferImg" src="/images/placeholder.svg" alt="Offer Preview" style="max-height: 225px; max-width: 95%; object-fit: contain; filter: drop-shadow(0 10px 18px rgba(0,0,0,0.08));" onerror="this.src='/images/placeholder.svg'" />
                                     </div>
 
                                     <!-- Content -->
                                     <div class="px-1">
                                         <!-- Subtitle -->
-                                        <div id="previewAddOfferSubtitle" class="font-monospace fw-bold text-uppercase mb-1" style="color: #810100; font-size: 0.72rem; letter-spacing: 1px;">
+                                        <div id="previewAddOfferSubtitle" class="fw-bold text-uppercase mb-1" style="color: #810100; font-size: 0.78rem; letter-spacing: 1.5px; font-weight: 800;">
                                             HOT DEAL • عرض مميز
                                         </div>
 
                                         <!-- Title -->
-                                        <h4 id="previewAddOfferTitle" class="fw-bold text-dark mb-2" style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.35rem; letter-spacing: 0.5px;">
+                                        <h3 id="previewAddOfferTitle" class="fw-bold text-dark mb-2" style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.65rem; letter-spacing: -0.5px; line-height: 1.15; text-transform: uppercase;">
                                             STAR
-                                        </h4>
+                                        </h3>
 
                                         <!-- Description -->
-                                        <p id="previewAddOfferDesc" class="text-muted small mb-2" style="font-size: 0.8rem; line-height: 1.45; min-height: 40px;">
-                                            Perfume Star – Inspired by Bleu de Chanel Discover a captivating fragrance...
+                                        <p id="previewAddOfferDesc" class="text-muted small mb-3" style="font-size: 0.82rem; line-height: 1.6; color: #5a534b !important; min-height: 44px;">
+                                            Experience the pinnacle of haute perfumerie. Handcrafted with rare Grasse botanicals, pure oriental oils, and eternal sillage.
                                         </p>
 
                                         <!-- Pills -->
-                                        <div id="previewAddOfferPills" class="d-flex flex-wrap gap-1 mb-3">
-                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;"><i class="fa-solid fa-gem text-warning me-1"></i>Best Seller</span>
-                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;">Extrait de Parfum</span>
-                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;">30% Pure Concentration</span>
+                                        <div id="previewAddOfferPills" class="d-flex flex-wrap gap-1.5 mb-3.5">
+                                            <span class="roven-preview-pill"><i class="fa-solid fa-gem text-gold me-1"></i> Best Seller</span>
+                                            <span class="roven-preview-pill">Extrait de Parfum</span>
+                                            <span class="roven-preview-pill">30% Pure Concentration</span>
+                                            <span class="roven-preview-pill">Cash on Delivery</span>
+                                            <span class="roven-preview-pill">Free Inspection on Delivery</span>
                                         </div>
 
                                         <!-- Price -->
-                                        <div class="d-flex align-items-baseline gap-2 mb-3">
-                                            <div class="fw-bold text-dark font-monospace fs-5" id="previewAddOfferPriceMain">
-                                                <span style="font-size: 0.8rem; color: #666;">LE</span> 468
+                                        <div class="d-flex flex-wrap align-items-baseline gap-2.5 mb-3.5 pt-2 border-top" style="border-top-color: rgba(223, 177, 91, 0.25) !important;">
+                                            <div class="fw-bold" id="previewAddOfferPriceMain" style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.65rem; color: #810100; font-weight: 800;">
+                                                <span style="font-size: 0.85rem; color: #810100; font-family: sans-serif; font-weight: 700;">LE</span> 468
                                             </div>
-                                            <div class="text-muted text-decoration-line-through font-monospace small" id="previewAddOfferPriceOld">
-                                                <span style="font-size: 0.7rem;">LE</span> 550
+                                            <div class="text-muted text-decoration-line-through font-monospace small" id="previewAddOfferPriceOld" style="font-size: 0.88rem; color: #999;">
+                                                <span style="font-size: 0.75rem;">LE</span> 550
                                             </div>
-                                            <div class="badge bg-success-subtle text-success border border-success-subtle font-monospace px-2 py-0.5 small" id="previewAddOfferSavings">
+                                            <div class="badge font-monospace px-2.5 py-1 small fw-bold" id="previewAddOfferSavings" style="background: #E8F5E9; color: #1B5E20; border: 1px solid #A5D6A7; font-size: 0.75rem; border-radius: 6px;">
                                                 You save LE 82
                                             </div>
                                         </div>
 
                                         <!-- Action Button -->
                                         <div class="d-flex align-items-center gap-2">
-                                            <button type="button" class="btn text-white rounded-pill px-3 py-2 fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-2" style="background: #810100; font-size: 0.82rem; pointer-events: none;">
+                                            <button type="button" class="btn text-white rounded-pill px-4 py-2.5 fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background: linear-gradient(135deg, #810100 0%, #550000 100%); border: 1.5px solid #dfb15b; font-size: 0.88rem; letter-spacing: 1.2px; text-transform: uppercase; pointer-events: none;">
                                                 <span id="previewAddOfferBtnText">SHOP THE SET</span>
-                                                <i class="fa-solid fa-arrow-right"></i>
+                                                <i class="fa-solid fa-arrow-right" style="color: #dfb15b;"></i>
                                             </button>
-                                            <span class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; pointer-events: none;">
-                                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+                                            <span class="btn rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; border: 1.5px solid rgba(223, 177, 91, 0.5); background: #FAF8F4; color: #810100; pointer-events: none;">
+                                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
                                             </span>
                                         </div>
                                     </div>
@@ -3285,57 +3451,66 @@
 
                     </div>
                 </div>
-
-                <div class="modal-footer border-0 pt-0 pb-4 px-4 bg-light rounded-bottom-4">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm" style="background: #810100; border-color: #810100;">
-                        <i class="fa-solid fa-plus me-1"></i> حفظ ونشر العرض في الهوم
-                    </button>
+                <div class="modal-footer roven-studio-footer d-flex align-items-center justify-content-between">
+                    <span class="small fw-semibold text-muted d-flex align-items-center gap-1.5">
+                        <i class="fa-solid fa-bolt text-gold"></i> التعديلات تنعكس فوراً وبشكل حي على الصفحة الرئيسية
+                    </span>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="submit" class="btn roven-studio-save-btn">
+                            <i class="fa-solid fa-sparkles me-1 text-gold"></i> حفظ وإضافة العرض المميز
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Modal: Edit Home Offer (Spotlight Card Layout) -->
-<div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
+<!-- Modal: Edit Home Offer (Spotlight Studio Layout) -->
+<div class="modal fade roven-studio-modal" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
-            <div class="modal-header border-0 pb-0 pt-4 px-4 bg-light rounded-top-4">
-                <div>
-                    <h5 class="modal-title fw-bold" id="editOfferModalLabel" style="color: #1B1717;">
-                        <i class="fa-solid fa-pen-to-square text-primary me-2"></i>تعديل بيانات العرض المميز (Spotlight Offer)
-                    </h5>
-                    <p class="text-muted small mb-0 mt-1">
-                        تعديل الصورة الترويجية، العناوين، الأوصاف التسويقية، والمميزات الترويجية للعرض.
-                    </p>
+        <div class="modal-content">
+            <div class="modal-header roven-studio-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="roven-studio-icon-box">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-white mb-0.5" id="editOfferModalLabel" style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.35rem; letter-spacing: 0.5px;">
+                            استوديو تعديل بيانات العرض المميز • Spotlight Studio
+                        </h5>
+                        <p class="text-white-50 small mb-0">
+                            تعديل الصورة الترويجية، العناوين، الأوصاف التسويقية، والمميزات الترويجية للعرض.
+                        </p>
+                    </div>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white opacity-75" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form asp-controller="HomeControl" asp-action="UpdateHomeOffer" method="post" enctype="multipart/form-data" id="editOfferForm">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="id" id="editOfferId" />
-                <div class="modal-body p-4">
+                <div class="modal-body p-3 p-md-4" style="background: #FAF8F4;">
                     <div class="row g-4">
                         <!-- Left Column: Form Settings (7 cols) -->
                         <div class="col-12 col-xl-7">
-                            <div class="d-flex flex-column gap-3">
+                            <div class="d-flex flex-column gap-3.5">
 
-                                <!-- Card 1: ربط العطور والتسعير -->
-                                <div class="p-3.5 rounded-4 border bg-white shadow-sm">
-                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-                                        <span class="fw-bold small text-dark d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-spray-can-sparkles text-danger"></i>
-                                            1. ربط العطور من الكتالوج والتسعير
-                                        </span>
-                                        <span class="badge bg-light text-muted border font-monospace small">Cart Integrated</span>
+                                <!-- Card 1: ربط العطور والتسعير الذكي -->
+                                <div class="roven-studio-card">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-bottom-color: rgba(223, 177, 91, 0.25) !important;">
+                                        <div class="roven-section-badge-pill">
+                                            <i class="fa-solid fa-tag"></i>
+                                            <span>1. ربط العطور من الكتالوج والتسعير الذكي</span>
+                                        </div>
+                                        <span class="badge rounded-pill px-3 py-1 font-monospace" style="background: rgba(223, 177, 91, 0.15); color: #810100; border: 1px solid rgba(223, 177, 91, 0.4);">Cart Integrated</span>
                                     </div>
 
                                     <div class="row g-3">
                                         <!-- Product 1 -->
                                         <div class="col-12 col-md-6">
                                             <label class="form-label small fw-bold text-dark">العطر الأول (الأساسي) <span class="text-danger">*</span></label>
-                                            <select name="productId" id="editOfferProduct1Select" class="form-select rounded-3" required onchange="onEditOfferFormChange()">
+                                            <select name="productId" id="editOfferProduct1Select" class="form-select roven-studio-input" required onchange="onEditOfferFormChange()">
                                                 @foreach (var prod in products)
                                                 {
                                                     <option value="@prod.Id" data-price="@prod.Price" data-img="@prod.ImageUrl" data-name="@prod.Name" data-desc="@prod.Description" data-cat="@(prod.Category?.Name ?? "ROVEN")">@prod.Name (@prod.Price.ToString("N0") ج.م)</option>
@@ -3348,7 +3523,7 @@
                                             <label class="form-label small fw-bold text-dark">
                                                 العطر الثاني <span class="badge bg-warning-subtle text-dark border border-warning-subtle ms-1 font-monospace">اختياري لباقة عطرين</span>
                                             </label>
-                                            <select name="secondProductId" id="editOfferProduct2Select" class="form-select rounded-3" onchange="onEditOfferFormChange()">
+                                            <select name="secondProductId" id="editOfferProduct2Select" class="form-select roven-studio-input" onchange="onEditOfferFormChange()">
                                                 <option value="">-- لا يوجد (عرض عطر واحد فقط) --</option>
                                                 @foreach (var prod in products)
                                                 {
@@ -3361,8 +3536,8 @@
                                         <div class="col-12 col-md-6">
                                             <label class="form-label small fw-bold text-dark">سعر العرض الترويجي (ج.م) <span class="text-danger">*</span></label>
                                             <div class="input-group">
-                                                <input type="number" step="0.01" min="1" name="offerPrice" id="editOfferPriceInput" class="form-control rounded-start-3 font-monospace fw-bold" required oninput="onEditOfferFormChange()" />
-                                                <span class="input-group-text bg-light font-monospace">EGP</span>
+                                                <input type="number" step="0.01" min="1" name="offerPrice" id="editOfferPriceInput" class="form-control roven-studio-input font-monospace fw-bold" required oninput="onEditOfferFormChange()" />
+                                                <span class="input-group-text bg-white border-start-0 font-monospace" style="border-color: rgba(181, 141, 74, 0.35); color: #810100; font-weight: 700;">EGP</span>
                                             </div>
                                         </div>
 
@@ -3373,111 +3548,120 @@
                                                 <i class="fa-solid fa-circle-info text-muted ms-1" title="اتركه فارغاً ليُحسب تلقائياً من الكتالوج، أو حدد سعراً كـ 550 ج.م لإظهار الخصم والتوفير المطلوب"></i>
                                             </label>
                                             <div class="input-group">
-                                                <input type="number" step="0.01" min="1" name="originalPriceOverride" id="editOfferOrigPriceInput" class="form-control rounded-start-3 font-monospace" placeholder="تلقائي من الكتالوج" oninput="onEditOfferFormChange()" />
-                                                <span class="input-group-text bg-light font-monospace">EGP</span>
+                                                <input type="number" step="0.01" min="1" name="originalPriceOverride" id="editOfferOrigPriceInput" class="form-control roven-studio-input font-monospace" placeholder="تلقائي من الكتالوج" oninput="onEditOfferFormChange()" />
+                                                <span class="input-group-text bg-white border-start-0 font-monospace" style="border-color: rgba(181, 141, 74, 0.35); color: #810100; font-weight: 700;">EGP</span>
                                             </div>
                                         </div>
 
-                                        <!-- Pricing Summary -->
+                                        <!-- Pricing Summary Plaque -->
                                         <div class="col-12">
-                                            <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center justify-content-between" id="editOfferPricingSummary"></div>
+                                            <div class="p-2.5 rounded-3 border bg-white shadow-xs" id="editOfferPricingSummary"></div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Card 2: صورة العرض الترويجية المخصصة -->
-                                <div class="p-3.5 rounded-4 border bg-white shadow-sm">
-                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-                                        <span class="fw-bold small text-dark d-flex align-items-center gap-2">
-                                            <i class="fa-regular fa-image text-gold"></i>
-                                            2. صورة العرض الترويجية (Lifestyle Promotional Banner)
-                                        </span>
+                                <div class="roven-studio-card">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-bottom-color: rgba(223, 177, 91, 0.25) !important;">
+                                        <div class="roven-section-badge-pill">
+                                            <i class="fa-regular fa-image"></i>
+                                            <span>2. صورة العرض الترويجية (Lifestyle Promotional Banner)</span>
+                                        </div>
+                                        <span class="text-muted small font-monospace">600x600 px مربع</span>
                                     </div>
 
                                     <div class="row g-3">
                                         <div class="col-12 col-md-6">
                                             <label class="form-label small fw-bold text-dark">تغيير الصورة (رفع من جهازك)</label>
-                                            <input type="file" name="offerImage" id="editOfferImageFileInput" accept="image/*" class="form-control rounded-3" onchange="previewEditOfferFile(this)" />
-                                            <div class="form-text small" style="font-size: 0.74rem;">المقاس المفضل: 600x600 px أو مربع.</div>
+                                            <label class="roven-upload-dropzone">
+                                                <i class="fa-solid fa-cloud-arrow-up text-gold fs-3 mb-1"></i>
+                                                <div class="fw-bold text-dark small">انقر لاختيار ملف صورة جديد</div>
+                                                <div class="text-muted" style="font-size: 0.72rem;">PNG, JPG, WEBP بجودة عالية</div>
+                                                <input type="file" name="offerImage" id="editOfferImageFileInput" accept="image/*" class="d-none" onchange="previewEditOfferFile(this)" />
+                                            </label>
+                                            <div id="editOfferFileNameDisplay" class="small text-success mt-1 fw-semibold font-monospace" style="display: none;"></div>
                                         </div>
 
                                         <div class="col-12 col-md-6">
                                             <label class="form-label small fw-bold text-dark">أو مسار / رابط الصورة المباشر</label>
-                                            <input type="text" name="customImageUrl" id="editOfferCustomImageUrlInput" class="form-control rounded-3 font-monospace" placeholder="https://res.cloudinary.com/... أو /images/..." oninput="onEditOfferFormChange()" />
+                                            <input type="text" name="customImageUrl" id="editOfferCustomImageUrlInput" class="form-control roven-studio-input font-monospace" placeholder="https://res.cloudinary.com/... أو /images/..." oninput="onEditOfferFormChange()" />
+                                            <div class="form-text small mt-1" style="font-size: 0.75rem; color: #6a6259;">يمكنك لصق رابط صورة جاهزة مباشرة مثل بنر الزجاجة مع الفواكه والستائر.</div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Card 3: نصوص العرض والمميزات -->
-                                <div class="p-3.5 rounded-4 border bg-white shadow-sm">
-                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-                                        <span class="fw-bold small text-dark d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-pen-nib text-primary"></i>
-                                            3. هوية ونصوص الكارت (كما تظهر في الهوم)
-                                        </span>
+                                <div class="roven-studio-card">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style="border-bottom-color: rgba(223, 177, 91, 0.25) !important;">
+                                        <div class="roven-section-badge-pill">
+                                            <i class="fa-solid fa-pen-nib"></i>
+                                            <span>3. هوية ونصوص الكارت الإعلاني (Storefront Branding)</span>
+                                        </div>
                                     </div>
 
                                     <div class="row g-3">
                                         <!-- Badge Label -->
                                         <div class="col-12 col-md-6">
                                             <label class="form-label small fw-bold text-dark">شارة العرض العلوية (Subtitle / Badge)</label>
-                                            <input type="text" name="badgeText" id="editOfferBadgeInput" class="form-control rounded-3" oninput="onEditOfferFormChange()" />
-                                            <div class="d-flex flex-wrap gap-1 mt-1.5">
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setEditBadge('HOT DEAL • عرض مميز')">HOT DEAL</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setEditBadge('EXCLUSIVE • خصم خاص')">EXCLUSIVE</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setEditBadge('DUO BUNDLE • باقة عطرين')">DUO BUNDLE</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setEditBadge('BEST SELLER • الأكثر طلباً')">BEST SELLER</button>
+                                            <input type="text" name="badgeText" id="editOfferBadgeInput" class="form-control roven-studio-input" oninput="onEditOfferFormChange()" />
+                                            <div class="d-flex flex-wrap gap-1 mt-2">
+                                                <span class="roven-preset-chip" onclick="setEditBadge('HOT DEAL • عرض مميز')">🔥 HOT DEAL</span>
+                                                <span class="roven-preset-chip" onclick="setEditBadge('EXCLUSIVE • خصم خاص')">👑 EXCLUSIVE</span>
+                                                <span class="roven-preset-chip" onclick="setEditBadge('BEST SELLER • الأكثر طلباً')">💎 BEST SELLER</span>
+                                                <span class="roven-preset-chip" onclick="setEditBadge('DUO BUNDLE • باقة عطرين')">🎁 DUO BUNDLE</span>
+                                                <span class="roven-preset-chip" onclick="setEditBadge('WINTER OFFER • عرض الشتاء')">❄️ WINTER SALE</span>
                                             </div>
                                         </div>
 
                                         <!-- Title -->
                                         <div class="col-12 col-md-6">
                                             <label class="form-label small fw-bold text-dark">العنوان الرئيسي للعرض (Title)</label>
-                                            <input type="text" name="title" id="editOfferTitleInput" class="form-control rounded-3 fw-bold" placeholder="عنوان العرض..." oninput="onEditOfferFormChange()" />
+                                            <input type="text" name="title" id="editOfferTitleInput" class="form-control roven-studio-input fw-bold" placeholder="عنوان العرض..." oninput="onEditOfferFormChange()" />
+                                            <div class="form-text small mt-1" style="font-size: 0.74rem;">اتركه فارغاً للاعتماد التلقائي على اسم العطر من الكتالوج.</div>
                                         </div>
 
                                         <!-- Custom Description -->
                                         <div class="col-12">
                                             <label class="form-label small fw-bold text-dark">وصف العرض التسويقي (Marketing Description)</label>
-                                            <textarea name="customDescription" id="editOfferCustomDescInput" rows="3" class="form-control rounded-3" placeholder="الوصف التسويقي للعرض..." oninput="onEditOfferFormChange()"></textarea>
+                                            <textarea name="customDescription" id="editOfferCustomDescInput" rows="3" class="form-control roven-studio-input" placeholder="الوصف التسويقي للعرض..." oninput="onEditOfferFormChange()"></textarea>
                                         </div>
 
                                         <!-- Feature Pills -->
                                         <div class="col-12">
                                             <label class="form-label small fw-bold text-dark d-flex align-items-center justify-content-between">
                                                 <span>مميزات وتاجات العرض (Feature Pills - مفصولة بفاصلة)</span>
-                                                <span class="text-muted small font-normal" style="font-size: 0.75rem;">انقر للإضافة السريعة</span>
+                                                <span class="text-gold small fw-bold" style="font-size: 0.75rem;">انقر للإضافة السريعة</span>
                                             </label>
-                                            <input type="text" name="featurePills" id="editOfferPillsInput" class="form-control rounded-3" oninput="onEditOfferFormChange()" />
-                                            <div class="d-flex flex-wrap gap-1 mt-1.5">
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendEditPill('Best Seller')">+ Best Seller</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendEditPill('Extrait de Parfum')">+ Extrait de Parfum</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendEditPill('30% Pure Concentration')">+ 30% Concentration</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendEditPill('Cash on Delivery')">+ الدفع عند الاستلام</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendEditPill('Free Inspection on Delivery')">+ معاينة عند الاستلام</button>
-                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendEditPill('ثبات 24+ ساعة')">+ ثبات 24+ ساعة</button>
+                                            <input type="text" name="featurePills" id="editOfferPillsInput" class="form-control roven-studio-input" oninput="onEditOfferFormChange()" />
+                                            <div class="d-flex flex-wrap gap-1 mt-2">
+                                                <span class="roven-preset-chip" onclick="appendEditPill('Best Seller')">+ Best Seller</span>
+                                                <span class="roven-preset-chip" onclick="appendEditPill('Extrait de Parfum')">+ Extrait de Parfum</span>
+                                                <span class="roven-preset-chip" onclick="appendEditPill('30% Pure Concentration')">+ 30% Pure Concentration</span>
+                                                <span class="roven-preset-chip" onclick="appendEditPill('Cash on Delivery')">+ الدفع عند الاستلام</span>
+                                                <span class="roven-preset-chip" onclick="appendEditPill('Free Inspection on Delivery')">+ معاينة عند الاستلام</span>
+                                                <span class="roven-preset-chip" onclick="appendEditPill('ثبات 24+ ساعة')">+ ثبات 24+ ساعة</span>
                                             </div>
                                         </div>
 
                                         <!-- Button Text -->
                                         <div class="col-12 col-md-8">
                                             <label class="form-label small fw-bold text-dark">نص زر الشراء (Button Call To Action)</label>
-                                            <input type="text" name="buttonText" id="editOfferBtnTextInput" class="form-control rounded-3 font-monospace" oninput="onEditOfferFormChange()" />
+                                            <input type="text" name="buttonText" id="editOfferBtnTextInput" class="form-control roven-studio-input font-monospace fw-bold" oninput="onEditOfferFormChange()" />
                                         </div>
 
                                         <!-- Display Order -->
                                         <div class="col-12 col-md-4">
                                             <label class="form-label small fw-bold text-dark">ترتيب العرض</label>
-                                            <input type="number" name="displayOrder" id="editOfferOrderInput" class="form-control rounded-3 font-monospace" />
+                                            <input type="number" name="displayOrder" id="editOfferOrderInput" class="form-control roven-studio-input font-monospace" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Card 4: إعدادات إضافية متقدمة (مطوية) -->
-                                <div class="accordion border rounded-4 overflow-hidden" id="editOfferAdvancedAccordion">
+                                <div class="accordion border rounded-4 overflow-hidden" id="editOfferAdvancedAccordion" style="border-color: rgba(223, 177, 91, 0.35) !important;">
                                     <div class="accordion-item border-0">
                                         <h2 class="accordion-header">
-                                            <button class="accordion-button collapsed py-2.5 px-3 bg-light text-dark fw-bold small" type="button" data-bs-toggle="collapse" data-bs-target="#editOfferAdvancedCollapse" aria-expanded="false">
+                                            <button class="accordion-button collapsed py-2.5 px-3 bg-white text-dark fw-bold small" type="button" data-bs-toggle="collapse" data-bs-target="#editOfferAdvancedCollapse" aria-expanded="false">
                                                 <i class="fa-solid fa-sliders text-muted me-2"></i>
                                                 إعدادات متقدمة إضافية (الكمية، نسبة الحجز، وموعد الانتهاء)
                                             </button>
@@ -3488,20 +3672,20 @@
                                                     <div class="col-12 col-md-4">
                                                         <label class="form-label small fw-bold text-dark">نسبة الحجز (%)</label>
                                                         <div class="input-group">
-                                                            <input type="number" min="0" max="100" name="allocatedPercent" id="editOfferAllocatedInput" class="form-control rounded-start-3 font-monospace" />
+                                                            <input type="number" min="0" max="100" name="allocatedPercent" id="editOfferAllocatedInput" class="form-control roven-studio-input font-monospace" />
                                                             <span class="input-group-text bg-light">%</span>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label class="form-label small fw-bold text-dark">الكمية المتبقية</label>
                                                         <div class="input-group">
-                                                            <input type="number" min="0" name="remainingCount" id="editOfferRemainingInput" class="form-control rounded-start-3 font-monospace" />
+                                                            <input type="number" min="0" name="remainingCount" id="editOfferRemainingInput" class="form-control roven-studio-input font-monospace" />
                                                             <span class="input-group-text bg-light">باقة</span>
                                                         </div>
                                                     </div>
                                                     <div class="col-12 col-md-4">
                                                         <label class="form-label small fw-bold text-dark">موعد الانتهاء</label>
-                                                        <input type="datetime-local" name="endTime" id="editOfferEndTimeInput" class="form-control rounded-3" />
+                                                        <input type="datetime-local" name="endTime" id="editOfferEndTimeInput" class="form-control roven-studio-input" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -3515,70 +3699,78 @@
                         <!-- Right Column: Interactive Live Card Preview (5 cols) -->
                         <div class="col-12 col-xl-5">
                             <div class="sticky-top" style="top: 15px;">
-                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center justify-content-between mb-2 pb-1">
                                     <span class="small fw-bold text-dark d-flex align-items-center gap-1.5">
                                         <i class="fa-solid fa-eye text-gold"></i>
-                                        معاينة مباشرة كما تظهر للزوار في الهوم
+                                        <span>معاينة حية كما تظهر في الصفحة الرئيسية</span>
                                     </span>
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill font-monospace small">Live Preview</span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill font-monospace small px-2.5 py-1">
+                                        <span class="spinner-grow spinner-grow-sm me-1" style="width: 7px; height: 7px;"></span> Live Storefront
+                                    </span>
                                 </div>
 
                                 <!-- The Luxury Card Container matching _SpotlightOffers.cshtml -->
-                                <div class="roven-modal-offer-preview-box p-3 rounded-4 border bg-white shadow-sm position-relative overflow-hidden" style="border: 1px solid rgba(223, 177, 91, 0.3) !important;">
+                                <div class="roven-studio-preview-card p-3 p-md-4 rounded-4 position-relative overflow-hidden" 
+                                     style="background: #FFFFFF; border: 1.5px solid rgba(223, 177, 91, 0.45); box-shadow: 0 15px 45px -10px rgba(129, 1, 0, 0.12), 0 5px 20px rgba(0, 0, 0, 0.04);">
                                     
                                     <!-- Image frame -->
-                                    <div class="position-relative rounded-3 overflow-hidden bg-light border mb-3 d-flex align-items-center justify-content-center" style="height: 220px; background: #faf9f7;">
-                                        <span id="previewEditOfferBadgeDisc" class="badge position-absolute top-0 start-0 m-2 fw-bold text-white shadow-sm" style="background: #810100; font-size: 0.75rem; border-radius: 6px; padding: 4px 8px;">
+                                    <div class="position-relative rounded-3 overflow-hidden mb-3 d-flex align-items-center justify-content-center" 
+                                         style="height: 245px; background: linear-gradient(180deg, #FAF8F4 0%, #F5EFE6 100%); border: 1px solid rgba(223, 177, 91, 0.3);">
+                                        <span id="previewEditOfferBadgeDisc" 
+                                              class="position-absolute top-0 start-0 m-3 fw-bold text-white shadow-sm font-monospace" 
+                                              style="background: linear-gradient(135deg, #810100 0%, #550000 100%); border: 1px solid #dfb15b; font-size: 0.8rem; border-radius: 8px; padding: 5px 12px; letter-spacing: 1px; z-index: 2;">
                                             15% OFF
                                         </span>
-                                        <img id="previewEditOfferImg" src="/images/placeholder.svg" alt="Offer Preview" style="max-height: 200px; max-width: 100%; object-fit: contain;" />
+                                        <img id="previewEditOfferImg" src="/images/placeholder.svg" alt="Offer Preview" style="max-height: 225px; max-width: 95%; object-fit: contain; filter: drop-shadow(0 10px 18px rgba(0,0,0,0.08));" onerror="this.src='/images/placeholder.svg'" />
                                     </div>
 
                                     <!-- Content -->
                                     <div class="px-1">
                                         <!-- Subtitle -->
-                                        <div id="previewEditOfferSubtitle" class="font-monospace fw-bold text-uppercase mb-1" style="color: #810100; font-size: 0.72rem; letter-spacing: 1px;">
+                                        <div id="previewEditOfferSubtitle" class="fw-bold text-uppercase mb-1" style="color: #810100; font-size: 0.78rem; letter-spacing: 1.5px; font-weight: 800;">
                                             HOT DEAL • عرض مميز
                                         </div>
 
                                         <!-- Title -->
-                                        <h4 id="previewEditOfferTitle" class="fw-bold text-dark mb-2" style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.35rem; letter-spacing: 0.5px;">
+                                        <h3 id="previewEditOfferTitle" class="fw-bold text-dark mb-2" style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.65rem; letter-spacing: -0.5px; line-height: 1.15; text-transform: uppercase;">
                                             STAR
-                                        </h4>
+                                        </h3>
 
                                         <!-- Description -->
-                                        <p id="previewEditOfferDesc" class="text-muted small mb-2" style="font-size: 0.8rem; line-height: 1.45; min-height: 40px;">
-                                            Perfume Star – Inspired by Bleu de Chanel Discover a captivating fragrance...
+                                        <p id="previewEditOfferDesc" class="text-muted small mb-3" style="font-size: 0.82rem; line-height: 1.6; color: #5a534b !important; min-height: 44px;">
+                                            Experience the pinnacle of haute perfumerie. Handcrafted with rare Grasse botanicals, pure oriental oils, and eternal sillage.
                                         </p>
 
                                         <!-- Pills -->
-                                        <div id="previewEditOfferPills" class="d-flex flex-wrap gap-1 mb-3">
-                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;"><i class="fa-solid fa-gem text-warning me-1"></i>Best Seller</span>
-                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;">Extrait de Parfum</span>
-                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;">30% Pure Concentration</span>
+                                        <div id="previewEditOfferPills" class="d-flex flex-wrap gap-1.5 mb-3.5">
+                                            <span class="roven-preview-pill"><i class="fa-solid fa-gem text-gold me-1"></i> Best Seller</span>
+                                            <span class="roven-preview-pill">Extrait de Parfum</span>
+                                            <span class="roven-preview-pill">30% Pure Concentration</span>
+                                            <span class="roven-preview-pill">Cash on Delivery</span>
+                                            <span class="roven-preview-pill">Free Inspection on Delivery</span>
                                         </div>
 
                                         <!-- Price -->
-                                        <div class="d-flex align-items-baseline gap-2 mb-3">
-                                            <div class="fw-bold text-dark font-monospace fs-5" id="previewEditOfferPriceMain">
-                                                <span style="font-size: 0.8rem; color: #666;">LE</span> 468
+                                        <div class="d-flex flex-wrap align-items-baseline gap-2.5 mb-3.5 pt-2 border-top" style="border-top-color: rgba(223, 177, 91, 0.25) !important;">
+                                            <div class="fw-bold" id="previewEditOfferPriceMain" style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.65rem; color: #810100; font-weight: 800;">
+                                                <span style="font-size: 0.85rem; color: #810100; font-family: sans-serif; font-weight: 700;">LE</span> 468
                                             </div>
-                                            <div class="text-muted text-decoration-line-through font-monospace small" id="previewEditOfferPriceOld">
-                                                <span style="font-size: 0.7rem;">LE</span> 550
+                                            <div class="text-muted text-decoration-line-through font-monospace small" id="previewEditOfferPriceOld" style="font-size: 0.88rem; color: #999;">
+                                                <span style="font-size: 0.75rem;">LE</span> 550
                                             </div>
-                                            <div class="badge bg-success-subtle text-success border border-success-subtle font-monospace px-2 py-0.5 small" id="previewEditOfferSavings">
+                                            <div class="badge font-monospace px-2.5 py-1 small fw-bold" id="previewEditOfferSavings" style="background: #E8F5E9; color: #1B5E20; border: 1px solid #A5D6A7; font-size: 0.75rem; border-radius: 6px;">
                                                 You save LE 82
                                             </div>
                                         </div>
 
                                         <!-- Action Button -->
                                         <div class="d-flex align-items-center gap-2">
-                                            <button type="button" class="btn text-white rounded-pill px-3 py-2 fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-2" style="background: #810100; font-size: 0.82rem; pointer-events: none;">
+                                            <button type="button" class="btn text-white rounded-pill px-4 py-2.5 fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background: linear-gradient(135deg, #810100 0%, #550000 100%); border: 1.5px solid #dfb15b; font-size: 0.88rem; letter-spacing: 1.2px; text-transform: uppercase; pointer-events: none;">
                                                 <span id="previewEditOfferBtnText">SHOP THE SET</span>
-                                                <i class="fa-solid fa-arrow-right"></i>
+                                                <i class="fa-solid fa-arrow-right" style="color: #dfb15b;"></i>
                                             </button>
-                                            <span class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; pointer-events: none;">
-                                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+                                            <span class="btn rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; border: 1.5px solid rgba(223, 177, 91, 0.5); background: #FAF8F4; color: #810100; pointer-events: none;">
+                                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
                                             </span>
                                         </div>
                                     </div>
@@ -3588,17 +3780,21 @@
 
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0 pb-4 px-4 bg-light rounded-bottom-4">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm" style="background: #810100; border-color: #810100;">
-                        <i class="fa-solid fa-check me-1"></i> حفظ وتحديث بيانات العرض
-                    </button>
+                <div class="modal-footer roven-studio-footer d-flex align-items-center justify-content-between">
+                    <span class="small fw-semibold text-muted d-flex align-items-center gap-1.5">
+                        <i class="fa-solid fa-bolt text-gold"></i> التعديلات تنعكس فوراً وبشكل حي على الصفحة الرئيسية
+                    </span>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="submit" class="btn roven-studio-save-btn">
+                            <i class="fa-solid fa-check-double me-1 text-gold"></i> حفظ وتحديث بيانات العرض
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
 <!-- Modal: Confirm Delete Offer -->
 <div class="modal fade" id="deleteOfferModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -3724,6 +3920,74 @@
         }
     }
 
+    function setAddBadge(val) {
+        const el = document.getElementById('addOfferBadgeInput');
+        if (el) {
+            el.value = val;
+            onAddOfferFormChange();
+        }
+    }
+
+    function setEditBadge(val) {
+        const el = document.getElementById('editOfferBadgeInput');
+        if (el) {
+            el.value = val;
+            onEditOfferFormChange();
+        }
+    }
+
+    function appendAddPill(pill) {
+        const input = document.getElementById('addOfferPillsInput');
+        if (input) {
+            const current = (input.value || '').trim();
+            if (!current) {
+                input.value = pill;
+            } else if (!current.split(',').map(s => s.trim().toLowerCase()).includes(pill.toLowerCase())) {
+                input.value = current + ', ' + pill;
+            }
+        }
+        onAddOfferFormChange();
+    }
+
+    function appendEditPill(pill) {
+        const input = document.getElementById('editOfferPillsInput');
+        if (input) {
+            const current = (input.value || '').trim();
+            if (!current) {
+                input.value = pill;
+            } else if (!current.split(',').map(s => s.trim().toLowerCase()).includes(pill.toLowerCase())) {
+                input.value = current + ', ' + pill;
+            }
+        }
+        onEditOfferFormChange();
+    }
+
+    function previewAddOfferFile(input) {
+        if (input.files && input.files[0]) {
+            if (addOfferFilePreviewUrl) URL.revokeObjectURL(addOfferFilePreviewUrl);
+            addOfferFilePreviewUrl = URL.createObjectURL(input.files[0]);
+            const nameDisplay = document.getElementById('addOfferFileNameDisplay');
+            if (nameDisplay) {
+                nameDisplay.style.display = 'block';
+                nameDisplay.innerHTML = `<i class="fa-solid fa-check-circle me-1"></i> تم اختيار: ${input.files[0].name}`;
+            }
+            onAddOfferFormChange();
+        }
+    }
+
+    function previewEditOfferFile(input) {
+        if (input.files && input.files[0]) {
+            if (editOfferFilePreviewUrl) URL.revokeObjectURL(editOfferFilePreviewUrl);
+            editOfferFilePreviewUrl = URL.createObjectURL(input.files[0]);
+            const nameDisplay = document.getElementById('editOfferFileNameDisplay');
+            if (nameDisplay) {
+                nameDisplay.style.display = 'block';
+                nameDisplay.innerHTML = `<i class="fa-solid fa-check-circle me-1"></i> تم اختيار: ${input.files[0].name}`;
+            }
+            onEditOfferFormChange();
+        }
+    }
+
     function onAddOfferFormChange() {
         const s1 = document.getElementById('addOfferProduct1Select');
         const s2 = document.getElementById('addOfferProduct2Select');
@@ -3767,10 +4031,22 @@
 
         if (summary) {
             if (effectiveOrig > 0 && currentOfferPrice > 0) {
-                summary.innerHTML = `<span class="small fw-semibold text-dark"><i class="fa-solid fa-calculator text-danger me-1"></i>السعر الأصلي: <strong>${effectiveOrig.toLocaleString()} ج.م</strong> &bull; سعر العرض: <strong class="text-danger">${currentOfferPrice.toLocaleString()} ج.م</strong></span>
-                                     <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill font-monospace">توفير: ${saving.toLocaleString()} ج.م (${discPercent}% خصم)</span>`;
+                summary.innerHTML = `
+                    <div class="d-flex align-items-center justify-content-between w-100 flex-wrap gap-2 py-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-light text-muted border px-2.5 py-1.5 font-monospace" style="font-size: 0.78rem;">
+                                الأصلي: <del class="text-secondary">${effectiveOrig.toLocaleString()} ج.م</del>
+                            </span>
+                            <span class="badge px-3 py-1.5 font-monospace fw-bold text-white shadow-xs" style="background: linear-gradient(135deg, #810100 0%, #550000 100%); border: 1px solid #dfb15b; font-size: 0.8rem;">
+                                سعر العرض: ${currentOfferPrice.toLocaleString()} ج.م
+                            </span>
+                        </div>
+                        <span class="badge px-3 py-1.5 rounded-pill font-monospace fw-bold" style="background: #E8F5E9; color: #1B5E20; border: 1px solid #A5D6A7; font-size: 0.78rem;">
+                            <i class="fa-solid fa-sparkles me-1 text-success"></i> وفرت ${saving.toLocaleString()} ج.م (${discPercent}% خصم)
+                        </span>
+                    </div>`;
             } else {
-                summary.innerHTML = `<span class="small text-muted"><i class="fa-solid fa-calculator me-1"></i>حدد العطور وسعر العرض لحساب نسبة الخصم والتوفير تلقائياً.</span>`;
+                summary.innerHTML = `<span class="small text-muted py-1 d-flex align-items-center gap-1.5"><i class="fa-solid fa-calculator text-gold"></i>حدد العطور وسعر العرض لحساب نسبة الخصم والتوفير الملكي تلقائياً.</span>`;
             }
         }
 
@@ -3813,11 +4089,11 @@
 
         if (previewTitle) {
             if (titleInput.value.trim() !== '') {
-                previewTitle.innerText = titleInput.value.trim();
+                previewTitle.innerText = titleInput.value.trim().toUpperCase();
             } else if (isDuo) {
-                previewTitle.innerText = `${opt1?.getAttribute('data-name') || 'عطر 1'} + ${opt2?.getAttribute('data-name') || 'عطر 2'}`;
+                previewTitle.innerText = `${opt1?.getAttribute('data-name') || 'عطر 1'} + ${opt2?.getAttribute('data-name') || 'عطر 2'}`.toUpperCase();
             } else {
-                previewTitle.innerText = opt1?.getAttribute('data-name') || 'STAR';
+                previewTitle.innerText = (opt1?.getAttribute('data-name') || 'STAR').toUpperCase();
             }
         }
 
@@ -3834,19 +4110,19 @@
         if (previewPills) {
             const rawPills = (pillsInput.value || '').split(',').map(s => s.trim()).filter(s => s.length > 0);
             if (rawPills.length > 0) {
-                previewPills.innerHTML = rawPills.map(p => `<span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;"><i class="fa-solid fa-gem text-warning me-1"></i>${p}</span>`).join(' ');
+                previewPills.innerHTML = rawPills.map(p => `<span class="roven-preview-pill"><i class="fa-solid fa-gem text-gold me-1"></i>${p}</span>`).join(' ');
             } else {
-                previewPills.innerHTML = `<span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;">Extrait de Parfum</span>`;
+                previewPills.innerHTML = `<span class="roven-preview-pill"><i class="fa-solid fa-gem text-gold me-1"></i>Extrait de Parfum</span>`;
             }
         }
 
         if (previewPriceMain) {
-            previewPriceMain.innerHTML = `<span style="font-size: 0.8rem; color: #666;">LE</span> ${currentOfferPrice > 0 ? currentOfferPrice.toLocaleString() : '0'}`;
+            previewPriceMain.innerHTML = `<span style="font-size: 0.85rem; color: #810100; font-family: sans-serif; font-weight: 700;">LE</span> ${currentOfferPrice > 0 ? currentOfferPrice.toLocaleString() : '0'}`;
         }
 
         if (previewPriceOld) {
             if (effectiveOrig > currentOfferPrice) {
-                previewPriceOld.innerHTML = `<span style="font-size: 0.7rem;">LE</span> ${effectiveOrig.toLocaleString()}`;
+                previewPriceOld.innerHTML = `<span style="font-size: 0.75rem;">LE</span> ${effectiveOrig.toLocaleString()}`;
                 previewPriceOld.style.display = 'inline-block';
             } else {
                 previewPriceOld.style.display = 'none';
@@ -3863,7 +4139,7 @@
         }
 
         if (previewBtnText) {
-            previewBtnText.innerText = btnTextInput.value.trim() || (isDuo ? 'SHOP THE BUNDLE' : 'SHOP THE SET');
+            previewBtnText.innerText = (btnTextInput.value.trim() || (isDuo ? 'SHOP THE BUNDLE' : 'SHOP THE SET')).toUpperCase();
         }
     }
 
@@ -3900,8 +4176,20 @@
 
         if (summary) {
             if (effectiveOrig > 0 && currentOfferPrice > 0) {
-                summary.innerHTML = `<span class="small fw-semibold text-dark"><i class="fa-solid fa-calculator text-danger me-1"></i>السعر الأصلي: <strong>${effectiveOrig.toLocaleString()} ج.م</strong> &bull; سعر العرض: <strong class="text-danger">${currentOfferPrice.toLocaleString()} ج.م</strong></span>
-                                     <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill font-monospace">توفير: ${saving.toLocaleString()} ج.م (${discPercent}% خصم)</span>`;
+                summary.innerHTML = `
+                    <div class="d-flex align-items-center justify-content-between w-100 flex-wrap gap-2 py-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-light text-muted border px-2.5 py-1.5 font-monospace" style="font-size: 0.78rem;">
+                                الأصلي: <del class="text-secondary">${effectiveOrig.toLocaleString()} ج.م</del>
+                            </span>
+                            <span class="badge px-3 py-1.5 font-monospace fw-bold text-white shadow-xs" style="background: linear-gradient(135deg, #810100 0%, #550000 100%); border: 1px solid #dfb15b; font-size: 0.8rem;">
+                                سعر العرض: ${currentOfferPrice.toLocaleString()} ج.م
+                            </span>
+                        </div>
+                        <span class="badge px-3 py-1.5 rounded-pill font-monospace fw-bold" style="background: #E8F5E9; color: #1B5E20; border: 1px solid #A5D6A7; font-size: 0.78rem;">
+                            <i class="fa-solid fa-sparkles me-1 text-success"></i> وفرت ${saving.toLocaleString()} ج.م (${discPercent}% خصم)
+                        </span>
+                    </div>`;
             } else {
                 summary.innerHTML = '';
             }
@@ -3946,11 +4234,11 @@
 
         if (previewTitle) {
             if (titleInput.value.trim() !== '') {
-                previewTitle.innerText = titleInput.value.trim();
+                previewTitle.innerText = titleInput.value.trim().toUpperCase();
             } else if (isDuo) {
-                previewTitle.innerText = `${opt1?.getAttribute('data-name') || 'عطر 1'} + ${opt2?.getAttribute('data-name') || 'عطر 2'}`;
+                previewTitle.innerText = `${opt1?.getAttribute('data-name') || 'عطر 1'} + ${opt2?.getAttribute('data-name') || 'عطر 2'}`.toUpperCase();
             } else {
-                previewTitle.innerText = opt1?.getAttribute('data-name') || 'STAR';
+                previewTitle.innerText = (opt1?.getAttribute('data-name') || 'STAR').toUpperCase();
             }
         }
 
@@ -3967,19 +4255,19 @@
         if (previewPills) {
             const rawPills = (pillsInput.value || '').split(',').map(s => s.trim()).filter(s => s.length > 0);
             if (rawPills.length > 0) {
-                previewPills.innerHTML = rawPills.map(p => `<span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;"><i class="fa-solid fa-gem text-warning me-1"></i>${p}</span>`).join(' ');
+                previewPills.innerHTML = rawPills.map(p => `<span class="roven-preview-pill"><i class="fa-solid fa-gem text-gold me-1"></i>${p}</span>`).join(' ');
             } else {
-                previewPills.innerHTML = `<span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;">Extrait de Parfum</span>`;
+                previewPills.innerHTML = `<span class="roven-preview-pill"><i class="fa-solid fa-gem text-gold me-1"></i>Extrait de Parfum</span>`;
             }
         }
 
         if (previewPriceMain) {
-            previewPriceMain.innerHTML = `<span style="font-size: 0.8rem; color: #666;">LE</span> ${currentOfferPrice > 0 ? currentOfferPrice.toLocaleString() : '0'}`;
+            previewPriceMain.innerHTML = `<span style="font-size: 0.85rem; color: #810100; font-family: sans-serif; font-weight: 700;">LE</span> ${currentOfferPrice > 0 ? currentOfferPrice.toLocaleString() : '0'}`;
         }
 
         if (previewPriceOld) {
             if (effectiveOrig > currentOfferPrice) {
-                previewPriceOld.innerHTML = `<span style="font-size: 0.7rem;">LE</span> ${effectiveOrig.toLocaleString()}`;
+                previewPriceOld.innerHTML = `<span style="font-size: 0.75rem;">LE</span> ${effectiveOrig.toLocaleString()}`;
                 previewPriceOld.style.display = 'inline-block';
             } else {
                 previewPriceOld.style.display = 'none';
@@ -3996,10 +4284,9 @@
         }
 
         if (previewBtnText) {
-            previewBtnText.innerText = btnTextInput.value.trim() || (isDuo ? 'SHOP THE BUNDLE' : 'SHOP THE SET');
+            previewBtnText.innerText = (btnTextInput.value.trim() || (isDuo ? 'SHOP THE BUNDLE' : 'SHOP THE SET')).toUpperCase();
         }
     }
-
     function openEditOfferFromButton(btn) {
         if (!btn) return;
         const d = btn.dataset;
