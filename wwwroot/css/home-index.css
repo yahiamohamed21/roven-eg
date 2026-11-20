@@ -993,7 +993,7 @@
     .roven-cat-card:hover {
         transform: translateY(-6px);
         border-color: #dfb15b;
-        box-shadow: 0 0 24px rgba(223, 177, 91, 0.42), 0 20px 44px rgba(27, 23, 23, 0.28);
+        box-shadow: 0 0 26px rgba(223, 177, 91, 0.45);
     }
 
     @media (max-width: 767.98px) {

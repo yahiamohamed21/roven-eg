@@ -1,6 +1,42 @@
 @model Stockify.ViewModels.Store.StoreHomeViewModel
 @if (Model.Settings?.ShowCategoriesShowcase != false)
 {
+<style>
+    /* Absolute Zero Dark / Black Overlay on Category Cards */
+    .roven-cat-scrim {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+    .roven-cat-card:hover {
+        box-shadow: 0 0 26px rgba(223, 177, 91, 0.45) !important;
+    }
+    .roven-cat-shop-pill,
+    .roven-cat-card:hover .roven-cat-shop-pill {
+        background: transparent !important;
+        background-color: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
+        border: 1.5px solid #dfb15b !important;
+        color: #FAF9F5 !important;
+    }
+    .roven-cat-card:hover .roven-cat-shop-pill:hover {
+        background: #dfb15b !important;
+        background-color: #dfb15b !important;
+        color: #1B1717 !important;
+        border-color: #dfb15b !important;
+        box-shadow: 0 4px 18px rgba(223, 177, 91, 0.55) !important;
+    }
+    .roven-cat-bottom-content,
+    .roven-cat-hover-reveal,
+    .roven-cat-action {
+        background: transparent !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+</style>
 <section class="roven-categories-showcase-section py-5 w-100 position-relative overflow-hidden">
     <!-- Ambient Luxury Gold Glow -->
     <div class="roven-cat-ambient-glow" aria-hidden="true"></div>
@@ -72,11 +108,9 @@
 
                             @if (hasDedicatedImage)
                             {
-                                <!-- Image Card Canvas -->
+                                <!-- Image Card Canvas (100% Clear, No Dark Scrim Overlay) -->
                                 <div class="roven-cat-img-box">
                                     <img src="@catImage" alt="@cat.Name" class="roven-cat-img" loading="lazy" onerror="this.parentElement.style.display='none'; this.parentElement.nextElementSibling.style.display='flex';" />
-                                    <!-- Gradient Vignette Scrim for perfect text contrast -->
-                                    <div class="roven-cat-scrim" aria-hidden="true"></div>
                                 </div>
                                 <!-- Fallback Velvet Canvas if image fails to load -->
                                 <div class="roven-cat-placeholder" style="display: none;">
