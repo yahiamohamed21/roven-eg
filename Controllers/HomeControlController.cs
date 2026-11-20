@@ -938,7 +938,21 @@ public class HomeControlController : Controller
     // POST: /HomeControl/AddHomeOffer
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddHomeOffer(int productId, int? secondProductId, string? title, decimal offerPrice, string? badgeText, int? allocatedPercent, int? remainingCount, DateTime? endTime)
+    public async Task<IActionResult> AddHomeOffer(
+        int productId, 
+        int? secondProductId, 
+        string? title, 
+        decimal offerPrice, 
+        decimal? originalPriceOverride,
+        string? badgeText, 
+        IFormFile? offerImage,
+        string? customImageUrl,
+        string? customDescription,
+        string? buttonText,
+        string? featurePills,
+        int? allocatedPercent, 
+        int? remainingCount, 
+        DateTime? endTime)
     {
         var product = await _context.Products.FindAsync(productId);
         if (product == null)
@@ -959,8 +973,19 @@ public class HomeControlController : Controller
             offerPrice = totalOriginalPrice;
         }
 
+        // Process custom image upload if provided
+        string? finalImageUrl = null;
+        if (offerImage != null && offerImage.Length > 0)
+        {
+            finalImageUrl = await SaveBannerFileAsync(offerImage, "offer");
+        }
+        if (string.IsNullOrWhiteSpace(finalImageUrl) && !string.IsNullOrWhiteSpace(customImageUrl))
+        {
+            finalImageUrl = customImageUrl.Trim();
+        }
+
         var existingCount = await _context.HomeOffers.CountAsync();
-        var defaultBadge = secondProduct != null ? "DUO BUNDLE • عرض عطرين" : "EXCLUSIVE • عرض خاص";
+        var defaultBadge = secondProduct != null ? "DUO BUNDLE • عرض عطرين" : "HOT DEAL • عرض مميز";
 
         var newOffer = new HomeOffer
         {
@@ -968,7 +993,12 @@ public class HomeControlController : Controller
             SecondProductId = secondProduct?.Id,
             Title = string.IsNullOrWhiteSpace(title) ? null : title.Trim(),
             OfferPrice = offerPrice,
+            OriginalPriceOverride = (originalPriceOverride.HasValue && originalPriceOverride.Value > 0) ? originalPriceOverride.Value : null,
             BadgeText = string.IsNullOrWhiteSpace(badgeText) ? defaultBadge : badgeText.Trim(),
+            CustomImageUrl = finalImageUrl,
+            CustomDescription = string.IsNullOrWhiteSpace(customDescription) ? null : customDescription.Trim(),
+            ButtonText = string.IsNullOrWhiteSpace(buttonText) ? (secondProduct != null ? "SHOP THE BUNDLE" : "SHOP THE SET") : buttonText.Trim(),
+            FeaturePills = string.IsNullOrWhiteSpace(featurePills) ? null : featurePills.Trim(),
             AllocatedPercent = allocatedPercent.HasValue ? Math.Clamp(allocatedPercent.Value, 0, 100) : 82,
             RemainingCount = remainingCount.HasValue && remainingCount.Value > 0 ? remainingCount.Value : Math.Max(1, product.StockQuantity),
             EndTime = endTime ?? DateTime.UtcNow.AddDays(7),
@@ -983,14 +1013,30 @@ public class HomeControlController : Controller
         InvalidateStoreCache();
 
         var successTitle = secondProduct != null ? $"عرض العطرين ({product.Name} + {secondProduct.Name})" : $"العطر '{product.Name}'";
-        TempData["SuccessMessage"] = $"تمت إضافة {successTitle} بنجاح إلى قسم العروض بسعر {offerPrice:N0} ج.م!";
-        return RedirectToAction(nameof(Index));
+        TempData["SuccessMessage"] = $"تمت إضافة {successTitle} بنجاح إلى قسم العروض المميزة بسعر {offerPrice:N0} ج.م!";
+        return RedirectToAction(nameof(Index), new { tab = "#tab-offers" });
     }
 
     // POST: /HomeControl/UpdateHomeOffer
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateHomeOffer(int id, int productId, int? secondProductId, string? title, decimal offerPrice, string? badgeText, int allocatedPercent, int remainingCount, DateTime? endTime, int displayOrder)
+    public async Task<IActionResult> UpdateHomeOffer(
+        int id, 
+        int productId, 
+        int? secondProductId, 
+        string? title, 
+        decimal offerPrice, 
+        decimal? originalPriceOverride,
+        string? badgeText, 
+        IFormFile? offerImage,
+        string? customImageUrl,
+        string? customDescription,
+        string? buttonText,
+        string? featurePills,
+        int allocatedPercent, 
+        int remainingCount, 
+        DateTime? endTime, 
+        int displayOrder)
     {
         var offer = await _context.HomeOffers
             .Include(o => o.Product)
@@ -1018,9 +1064,27 @@ public class HomeControlController : Controller
         {
             offer.OfferPrice = offerPrice;
         }
+        offer.OriginalPriceOverride = (originalPriceOverride.HasValue && originalPriceOverride.Value > 0) ? originalPriceOverride.Value : null;
 
-        var defaultBadge = offer.SecondProductId.HasValue ? "DUO BUNDLE • عرض عطرين" : "OFFER • عرض خاص";
+        // Process image upload
+        if (offerImage != null && offerImage.Length > 0)
+        {
+            var uploadedUrl = await SaveBannerFileAsync(offerImage, "offer");
+            if (!string.IsNullOrWhiteSpace(uploadedUrl))
+            {
+                offer.CustomImageUrl = uploadedUrl;
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(customImageUrl))
+        {
+            offer.CustomImageUrl = customImageUrl.Trim();
+        }
+
+        var defaultBadge = offer.SecondProductId.HasValue ? "DUO BUNDLE • عرض عطرين" : "HOT DEAL • عرض مميز";
         offer.BadgeText = string.IsNullOrWhiteSpace(badgeText) ? defaultBadge : badgeText.Trim();
+        offer.CustomDescription = string.IsNullOrWhiteSpace(customDescription) ? null : customDescription.Trim();
+        offer.ButtonText = string.IsNullOrWhiteSpace(buttonText) ? (offer.SecondProductId.HasValue ? "SHOP THE BUNDLE" : "SHOP THE SET") : buttonText.Trim();
+        offer.FeaturePills = string.IsNullOrWhiteSpace(featurePills) ? null : featurePills.Trim();
         offer.AllocatedPercent = Math.Clamp(allocatedPercent, 0, 100);
         offer.RemainingCount = Math.Max(0, remainingCount);
         offer.EndTime = endTime;
@@ -1031,7 +1095,7 @@ public class HomeControlController : Controller
         InvalidateStoreCache();
 
         TempData["SuccessMessage"] = "تم تحديث بيانات العرض بنجاح!";
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Index), new { tab = "#tab-offers" });
     }
 
     // POST: /HomeControl/ToggleHomeOffer

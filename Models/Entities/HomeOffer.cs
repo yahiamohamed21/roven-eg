@@ -30,6 +30,21 @@ public class HomeOffer
     [Range(0, 100000, ErrorMessage = "سعر العرض يجب أن يكون بين 0 و 100,000 ج.م")]
     public decimal OfferPrice { get; set; }
 
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal? OriginalPriceOverride { get; set; }
+
+    [MaxLength(500)]
+    public string? CustomImageUrl { get; set; }
+
+    [MaxLength(1000)]
+    public string? CustomDescription { get; set; }
+
+    [MaxLength(100)]
+    public string? ButtonText { get; set; } = "SHOP THE SET";
+
+    [MaxLength(300)]
+    public string? FeaturePills { get; set; }
+
     public DateTime? EndTime { get; set; }
 
     [Range(0, 100)]

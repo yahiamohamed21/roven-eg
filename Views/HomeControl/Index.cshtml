@@ -869,7 +869,9 @@
                                             var prod = offer.Product;
                                             var prod2 = offer.SecondProduct;
                                             var isDuo = prod2 != null;
-                                            var origPrice = (prod?.Price ?? 0m) + (prod2?.Price ?? 0m);
+                                            var origPrice = offer.OriginalPriceOverride.HasValue && offer.OriginalPriceOverride.Value > 0
+                                                ? offer.OriginalPriceOverride.Value 
+                                                : ((prod?.Price ?? 0m) + (prod2?.Price ?? 0m));
                                             var discount = origPrice > offer.OfferPrice && origPrice > 0 
                                                 ? (int)Math.Round((origPrice - offer.OfferPrice) / origPrice * 100) 
                                                 : 0;
@@ -877,7 +879,30 @@
                                             <tr>
                                                 <td class="font-monospace text-muted small">@offer.DisplayOrder</td>
                                                 <td>
-                                                    @if (isDuo)
+                                                    @if (!string.IsNullOrWhiteSpace(offer.CustomImageUrl))
+                                                    {
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center position-relative" style="width: 50px; height: 50px; flex-shrink: 0;">
+                                                                <img src="@offer.CustomImageUrl" alt="@offer.Title" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
+                                                                <span class="badge position-absolute bottom-0 start-0 m-0.5" style="background: rgba(129, 1, 0, 0.85); font-size: 0.55rem; padding: 2px 4px;">Custom</span>
+                                                            </div>
+                                                            <div>
+                                                                <div class="fw-bold text-dark" style="font-size: 0.92rem;">@(string.IsNullOrWhiteSpace(offer.Title) ? prod?.Name : offer.Title)</div>
+                                                                <div class="text-muted small" style="font-size: 0.75rem;">
+                                                                    <span class="text-danger fw-semibold">@(prod?.Name ?? "العطر الأساسي")</span>
+                                                                    @if (isDuo)
+                                                                    {
+                                                                        <span> + @(prod2?.Name ?? "العطر الثاني")</span>
+                                                                    }
+                                                                </div>
+                                                                @if (!string.IsNullOrWhiteSpace(offer.FeaturePills))
+                                                                {
+                                                                    <div class="text-truncate small text-muted font-monospace" style="max-width: 200px; font-size: 0.7rem;">@offer.FeaturePills</div>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else if (isDuo)
                                                     {
                                                         <div class="d-flex flex-column gap-1">
                                                             @if (!string.IsNullOrWhiteSpace(offer.Title))
@@ -926,7 +951,7 @@
                                                                 }
                                                             </div>
                                                             <div>
-                                                                <div class="fw-bold text-dark" style="font-size: 0.92rem;">@(prod?.Name ?? "عطر غير معروف")</div>
+                                                                <div class="fw-bold text-dark" style="font-size: 0.92rem;">@(string.IsNullOrWhiteSpace(offer.Title) ? (prod?.Name ?? "عطر غير معروف") : offer.Title)</div>
                                                                 <div class="text-muted small font-monospace" style="font-size: 0.75rem;">SKU: @(prod?.Sku ?? "N/A")</div>
                                                             </div>
                                                         </div>
@@ -946,6 +971,10 @@
                                                 </td>
                                                 <td>
                                                     <span class="text-muted text-decoration-line-through font-monospace">@origPrice.ToString("N0") ج.م</span>
+                                                    @if (offer.OriginalPriceOverride.HasValue)
+                                                    {
+                                                        <span class="badge bg-light text-muted border ms-1" style="font-size: 0.65rem;">معدل</span>
+                                                    }
                                                 </td>
                                                 <td>
                                                     <span class="fw-bold font-monospace text-danger fs-6">@offer.OfferPrice.ToString("N0") ج.م</span>
@@ -983,7 +1012,23 @@
                                                         <button type="submit" form="toggleOfferForm_@offer.Id" class="btn btn-outline-secondary" title="@(offer.IsActive ? "إيقاف العرض" : "تفعيل العرض")">
                                                             <i class="fa-solid @(offer.IsActive ? "fa-pause text-warning" : "fa-play text-success")"></i>
                                                         </button>
-                                                        <button type="button" class="btn btn-outline-primary" title="تعديل العرض" onclick="openEditOfferModal(@offer.Id, @offer.ProductId, @(offer.SecondProductId?.ToString() ?? "null"), '@(offer.Title?.Replace("'", "\\'") ?? "")', @offer.OfferPrice, '@(offer.BadgeText?.Replace("'", "\\'") ?? "")', @offer.AllocatedPercent, @offer.RemainingCount, '@(offer.EndTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")', @offer.DisplayOrder)">
+                                                        <button type="button" class="btn btn-outline-primary" title="تعديل العرض"
+                                                                onclick="openEditOfferFromButton(this)"
+                                                                data-id="@offer.Id"
+                                                                data-product1="@offer.ProductId"
+                                                                data-product2="@(offer.SecondProductId?.ToString() ?? "")"
+                                                                data-title="@offer.Title"
+                                                                data-offerprice="@offer.OfferPrice"
+                                                                data-origoverride="@(offer.OriginalPriceOverride?.ToString() ?? "")"
+                                                                data-badge="@offer.BadgeText"
+                                                                data-customimg="@offer.CustomImageUrl"
+                                                                data-customdesc="@offer.CustomDescription"
+                                                                data-btntext="@offer.ButtonText"
+                                                                data-pills="@offer.FeaturePills"
+                                                                data-allocated="@offer.AllocatedPercent"
+                                                                data-remaining="@offer.RemainingCount"
+                                                                data-endtime="@(offer.EndTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")"
+                                                                data-order="@offer.DisplayOrder">
                                                             <i class="fa-solid fa-pen"></i>
                                                         </button>
                                                         <button type="button" class="btn btn-outline-danger" title="حذف العرض" onclick="confirmDeleteOffer(@offer.Id, '@(prod?.Name?.Replace("'", "\\'") ?? "العرض")@(isDuo ? " + " + prod2?.Name?.Replace("'", "\\'") : "")')">
@@ -1004,7 +1049,9 @@
                                     var prod = offer.Product;
                                     var prod2 = offer.SecondProduct;
                                     var isDuo = prod2 != null;
-                                    var origPrice = (prod?.Price ?? 0m) + (prod2?.Price ?? 0m);
+                                    var origPrice = offer.OriginalPriceOverride.HasValue && offer.OriginalPriceOverride.Value > 0
+                                        ? offer.OriginalPriceOverride.Value 
+                                        : ((prod?.Price ?? 0m) + (prod2?.Price ?? 0m));
                                     var discount = origPrice > offer.OfferPrice && origPrice > 0 
                                         ? (int)Math.Round((origPrice - offer.OfferPrice) / origPrice * 100) 
                                         : 0;
@@ -1014,6 +1061,12 @@
                                         <div class="d-flex justify-content-between align-items-center mb-2.5 pb-2 border-bottom">
                                             <div class="d-flex align-items-center gap-2">
                                                 <span class="badge rounded-pill bg-dark font-monospace px-2 py-1" style="font-size: 0.72rem;">#@offer.DisplayOrder</span>
+                                                @if (!string.IsNullOrWhiteSpace(offer.CustomImageUrl))
+                                                {
+                                                    <span class="badge rounded-pill" style="background-color: #810100; color: #fff; font-size: 0.7rem;">
+                                                        <i class="fa-solid fa-gem me-1"></i>صورة مخصصة
+                                                    </span>
+                                                }
                                                 @if (isDuo)
                                                 {
                                                     <span class="badge rounded-pill" style="background-color: #630000; color: #fdf4dc; font-size: 0.7rem;">
@@ -1043,7 +1096,22 @@
 
                                         <!-- Product details -->
                                         <div class="d-flex align-items-center gap-3 mb-3">
-                                            @if (isDuo)
+                                            @if (!string.IsNullOrWhiteSpace(offer.CustomImageUrl))
+                                            {
+                                                <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center flex-shrink-0 position-relative" style="width: 58px; height: 58px;">
+                                                    <img src="@offer.CustomImageUrl" alt="@offer.Title" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
+                                                    <span class="badge position-absolute bottom-0 start-0 m-0.5" style="background: rgba(129, 1, 0, 0.85); font-size: 0.55rem; padding: 2px 4px;">Custom</span>
+                                                </div>
+                                                <div class="flex-grow-1" style="min-width: 0;">
+                                                    <div class="fw-bold text-dark text-truncate" style="font-size: 0.95rem;">@(string.IsNullOrWhiteSpace(offer.Title) ? prod?.Name : offer.Title)</div>
+                                                    <div class="small text-danger text-truncate fw-semibold">1. @(prod?.Name ?? "العطر الأول")</div>
+                                                    @if (isDuo)
+                                                    {
+                                                        <div class="small text-danger text-truncate fw-semibold">2. @(prod2?.Name ?? "العطر الثاني")</div>
+                                                    }
+                                                </div>
+                                            }
+                                            else if (isDuo)
                                             {
                                                 <div class="position-relative" style="width: 58px; height: 58px; flex-shrink: 0;">
                                                     <img src="@prod?.ImageUrl" alt="@prod?.Name" class="rounded-3 border position-absolute top-0 start-0" style="width: 38px; height: 38px; object-fit: cover; z-index: 2;" onerror="this.src='/images/placeholder.svg'" />
@@ -1104,7 +1172,23 @@
                                                 <i class="fa-solid @(offer.IsActive ? "fa-pause text-warning" : "fa-play text-success")"></i>
                                                 <span>@(offer.IsActive ? "إيقاف" : "تفعيل")</span>
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-outline-primary flex-grow-1 rounded-pill d-flex align-items-center justify-content-center gap-1.5 py-2" style="font-size: 0.82rem;" onclick="openEditOfferModal(@offer.Id, @offer.ProductId, @(offer.SecondProductId?.ToString() ?? "null"), '@(offer.Title?.Replace("'", "\\'") ?? "")', @offer.OfferPrice, '@(offer.BadgeText?.Replace("'", "\\'") ?? "")', @offer.AllocatedPercent, @offer.RemainingCount, '@(offer.EndTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")', @offer.DisplayOrder)">
+                                            <button type="button" class="btn btn-sm btn-outline-primary flex-grow-1 rounded-pill d-flex align-items-center justify-content-center gap-1.5 py-2" style="font-size: 0.82rem;"
+                                                    onclick="openEditOfferFromButton(this)"
+                                                    data-id="@offer.Id"
+                                                    data-product1="@offer.ProductId"
+                                                    data-product2="@(offer.SecondProductId?.ToString() ?? "")"
+                                                    data-title="@offer.Title"
+                                                    data-offerprice="@offer.OfferPrice"
+                                                    data-origoverride="@(offer.OriginalPriceOverride?.ToString() ?? "")"
+                                                    data-badge="@offer.BadgeText"
+                                                    data-customimg="@offer.CustomImageUrl"
+                                                    data-customdesc="@offer.CustomDescription"
+                                                    data-btntext="@offer.ButtonText"
+                                                    data-pills="@offer.FeaturePills"
+                                                    data-allocated="@offer.AllocatedPercent"
+                                                    data-remaining="@offer.RemainingCount"
+                                                    data-endtime="@(offer.EndTime?.ToString("yyyy-MM-ddTHH:mm") ?? "")"
+                                                    data-order="@offer.DisplayOrder">
                                                 <i class="fa-solid fa-pen"></i>
                                                 <span>تعديل</span>
                                             </button>
@@ -2959,97 +3043,302 @@
     </div>
 </div>
 
-<!-- Modal: Add New Home Offer -->
+<!-- Modal: Add New Home Offer (Spotlight Card Layout) -->
 <div class="modal fade" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content rounded-4 border-0 shadow-lg">
-            <div class="modal-header border-0 pb-0 pt-4 px-4">
-                <h5 class="modal-title fw-bold" id="addOfferModalLabel" style="color: #1B1717;">
-                    <i class="fa-solid fa-bolt text-warning me-2"></i>إضافة عرض جديد (عطر فردي أو باقة عطرين معاً)
-                </h5>
+            <div class="modal-header border-0 pb-0 pt-4 px-4 bg-light rounded-top-4">
+                <div>
+                    <h5 class="modal-title fw-bold" id="addOfferModalLabel" style="color: #1B1717;">
+                        <i class="fa-solid fa-gem text-gold me-2"></i>إضافة وضبط عرض مميز جديد (Spotlight Offer)
+                    </h5>
+                    <p class="text-muted small mb-0 mt-1">
+                        صمم كارت العرض الترويجي ليطابق نفس تفاصيل وهوية الصفحة الرئيسية (صورة إعلانية مخصصة، شارة الخصم، عنوان، وصف تسويقي، ومميزات).
+                    </p>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form asp-controller="HomeControl" asp-action="AddHomeOffer" method="post">
+            <form asp-controller="HomeControl" asp-action="AddHomeOffer" method="post" enctype="multipart/form-data" id="addOfferForm">
                 @Html.AntiForgeryToken()
                 <div class="modal-body p-4">
-                    <div class="row g-3">
-                        <!-- Product 1 -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label small fw-bold text-dark">العطر الأول (الأساسي) <span class="text-danger">*</span></label>
-                            <select name="productId" id="addOfferProduct1Select" class="form-select rounded-3" required onchange="calculateAddOfferPricing()">
-                                <option value="" selected disabled>-- اختر العطر الأول من الكتالوج --</option>
-                                @foreach (var prod in products)
-                                {
-                                    <option value="@prod.Id" data-price="@prod.Price">@prod.Name (@prod.Price.ToString("N0") ج.م - مخزون: @prod.StockQuantity)</option>
-                                }
-                            </select>
-                        </div>
+                    <div class="row g-4">
+                        <!-- Left Column: Form Settings (7 cols) -->
+                        <div class="col-12 col-xl-7">
+                            <div class="d-flex flex-column gap-3">
 
-                        <!-- Product 2 (Optional) -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label small fw-bold text-dark">
-                                العطر الثاني <span class="badge bg-warning-subtle text-dark border border-warning-subtle ms-1 font-monospace">اختياري لباقة عطرين</span>
-                            </label>
-                            <select name="secondProductId" id="addOfferProduct2Select" class="form-select rounded-3" onchange="calculateAddOfferPricing()">
-                                <option value="">-- لا يوجد (عرض عطر واحد فقط) --</option>
-                                @foreach (var prod in products)
-                                {
-                                    <option value="@prod.Id" data-price="@prod.Price">@prod.Name (@prod.Price.ToString("N0") ج.م - مخزون: @prod.StockQuantity)</option>
-                                }
-                            </select>
-                        </div>
+                                <!-- Card 1: ربط العطور والتسعير -->
+                                <div class="p-3.5 rounded-4 border bg-white shadow-sm">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                                        <span class="fw-bold small text-dark d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-spray-can-sparkles text-danger"></i>
+                                            1. ربط العطور من الكتالوج والتسعير
+                                        </span>
+                                        <span class="badge bg-light text-muted border font-monospace small">Cart Integrated</span>
+                                    </div>
 
-                        <!-- Custom Title -->
-                        <div class="col-12">
-                            <label class="form-label small fw-bold text-dark">عنوان مخصص للعرض (اختياري)</label>
-                            <input type="text" name="title" id="addOfferTitleInput" class="form-control rounded-3" placeholder="مثال: باقة الروائح الملكية (روج فيلور + نوار إنتنس)" />
-                            <div class="form-text small">اتركه فارغاً للتسمية التلقائية بأسماء العطور.</div>
-                        </div>
+                                    <div class="row g-3">
+                                        <!-- Product 1 -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">العطر الأول (الأساسي) <span class="text-danger">*</span></label>
+                                            <select name="productId" id="addOfferProduct1Select" class="form-select rounded-3" required onchange="onAddOfferFormChange()">
+                                                <option value="" selected disabled>-- اختر العطر من الكتالوج --</option>
+                                                @foreach (var prod in products)
+                                                {
+                                                    <option value="@prod.Id" data-price="@prod.Price" data-img="@prod.ImageUrl" data-name="@prod.Name" data-desc="@prod.Description" data-cat="@(prod.Category?.Name ?? "ROVEN")">@prod.Name (@prod.Price.ToString("N0") ج.م - مخزون: @prod.StockQuantity)</option>
+                                                }
+                                            </select>
+                                        </div>
 
-                        <!-- Offer Price -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label small fw-bold text-dark">سعر العرض الترويجي الإجمالي (ج.م) <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <input type="number" step="0.01" min="1" name="offerPrice" id="addOfferPriceInput" class="form-control rounded-start-3 font-monospace fw-bold" placeholder="مثال: 3850" required oninput="calculateAddOfferPricing()" />
-                                <span class="input-group-text bg-light">EGP</span>
+                                        <!-- Product 2 (Optional) -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">
+                                                العطر الثاني <span class="badge bg-warning-subtle text-dark border border-warning-subtle ms-1 font-monospace">اختياري لباقة عطرين</span>
+                                            </label>
+                                            <select name="secondProductId" id="addOfferProduct2Select" class="form-select rounded-3" onchange="onAddOfferFormChange()">
+                                                <option value="">-- لا يوجد (عرض عطر واحد فقط) --</option>
+                                                @foreach (var prod in products)
+                                                {
+                                                    <option value="@prod.Id" data-price="@prod.Price" data-img="@prod.ImageUrl" data-name="@prod.Name">@prod.Name (@prod.Price.ToString("N0") ج.م - مخزون: @prod.StockQuantity)</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <!-- Offer Price -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">سعر العرض الترويجي (ج.م) <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <input type="number" step="0.01" min="1" name="offerPrice" id="addOfferPriceInput" class="form-control rounded-start-3 font-monospace fw-bold" placeholder="مثال: 468" required oninput="onAddOfferFormChange()" />
+                                                <span class="input-group-text bg-light font-monospace">EGP</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Original Price Override -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">
+                                                السعر الأصلي الإجمالي (اختياري)
+                                                <i class="fa-solid fa-circle-info text-muted ms-1" title="اتركه فارغاً ليُحسب تلقائياً من الكتالوج، أو حدد سعراً كـ 550 ج.م لإظهار الخصم والتوفير المطلوب"></i>
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="number" step="0.01" min="1" name="originalPriceOverride" id="addOfferOrigPriceInput" class="form-control rounded-start-3 font-monospace" placeholder="تلقائي من الكتالوج" oninput="onAddOfferFormChange()" />
+                                                <span class="input-group-text bg-light font-monospace">EGP</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Pricing Summary & Savings -->
+                                        <div class="col-12">
+                                            <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center justify-content-between" id="addOfferPricingSummary">
+                                                <span class="small text-muted"><i class="fa-solid fa-calculator me-1"></i>حدد العطور وسعر العرض لحساب نسبة الخصم والتوفير تلقائياً.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card 2: صورة العرض الترويجية المخصصة -->
+                                <div class="p-3.5 rounded-4 border bg-white shadow-sm">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                                        <span class="fw-bold small text-dark d-flex align-items-center gap-2">
+                                            <i class="fa-regular fa-image text-gold"></i>
+                                            2. صورة العرض الترويجية (Lifestyle Promotional Banner)
+                                        </span>
+                                        <span class="badge bg-light text-muted border small">مثل بوستر STAR الإعلاني</span>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">رفع صورة من جهازك</label>
+                                            <input type="file" name="offerImage" id="addOfferImageFileInput" accept="image/*" class="form-control rounded-3" onchange="previewAddOfferFile(this)" />
+                                            <div class="form-text small" style="font-size: 0.74rem;">المقاس المفضل: 600x600 px أو مربع (Aspect Ratio 1:1).</div>
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">أو مسار / رابط الصورة المباشر</label>
+                                            <input type="text" name="customImageUrl" id="addOfferCustomImageUrlInput" class="form-control rounded-3 font-monospace" placeholder="https://res.cloudinary.com/... أو /images/..." oninput="onAddOfferFormChange()" />
+                                            <div class="form-text small" style="font-size: 0.74rem;">إن تركتهما فارغين ستظهر صورة زجاجة العطر من الكتالوج.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card 3: نصوص العرض والمميزات -->
+                                <div class="p-3.5 rounded-4 border bg-white shadow-sm">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                                        <span class="fw-bold small text-dark d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-pen-nib text-primary"></i>
+                                            3. هوية ونصوص الكارت (كما تظهر في الهوم)
+                                        </span>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <!-- Badge Label -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">شارة العرض العلوية (Subtitle / Badge)</label>
+                                            <input type="text" name="badgeText" id="addOfferBadgeInput" class="form-control rounded-3" value="HOT DEAL • عرض مميز" oninput="onAddOfferFormChange()" />
+                                            <div class="d-flex flex-wrap gap-1 mt-1.5">
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setAddBadge('HOT DEAL • عرض مميز')">HOT DEAL</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setAddBadge('EXCLUSIVE • خصم خاص')">EXCLUSIVE</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setAddBadge('DUO BUNDLE • باقة عطرين')">DUO BUNDLE</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setAddBadge('BEST SELLER • الأكثر طلباً')">BEST SELLER</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Title -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">العنوان الرئيسي للعرض (Title)</label>
+                                            <input type="text" name="title" id="addOfferTitleInput" class="form-control rounded-3 fw-bold" placeholder="مثال: STAR أو باقة التميز" oninput="onAddOfferFormChange()" />
+                                            <div class="form-text small" style="font-size: 0.74rem;">اتركه فارغاً للتسمية بأسماء العطور تلقائياً.</div>
+                                        </div>
+
+                                        <!-- Custom Description -->
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold text-dark">وصف العرض التسويقي (Marketing Description)</label>
+                                            <textarea name="customDescription" id="addOfferCustomDescInput" rows="3" class="form-control rounded-3" placeholder="مثال: Perfume Star – Inspired by Bleu de Chanel Discover a captivating fragrance inspired by the elegance and sophistication of Bleu de Chanel. Perfume Star blends fresh citrus notes with aromatic accords..." oninput="onAddOfferFormChange()"></textarea>
+                                            <div class="form-text small" style="font-size: 0.74rem;">نص تسويقي جذاب يبرز المكونات، الطابع العطري، والإيحاء الفاخر.</div>
+                                        </div>
+
+                                        <!-- Feature Pills -->
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold text-dark d-flex align-items-center justify-content-between">
+                                                <span>مميزات وتاجات العرض (Feature Pills - مفصولة بفاصلة)</span>
+                                                <span class="text-muted small font-normal" style="font-size: 0.75rem;">انقر للإضافة السريعة</span>
+                                            </label>
+                                            <input type="text" name="featurePills" id="addOfferPillsInput" class="form-control rounded-3" value="Best Seller, Extrait de Parfum, 30% Pure Concentration, Cash on Delivery, Free Inspection on Delivery" oninput="onAddOfferFormChange()" />
+                                            <div class="d-flex flex-wrap gap-1 mt-1.5">
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendAddPill('Best Seller')">+ Best Seller</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendAddPill('Extrait de Parfum')">+ Extrait de Parfum</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendAddPill('30% Pure Concentration')">+ 30% Concentration</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendAddPill('Cash on Delivery')">+ الدفع عند الاستلام</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendAddPill('Free Inspection on Delivery')">+ معاينة عند الاستلام</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendAddPill('ثبات 24+ ساعة')">+ ثبات 24+ ساعة</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Button Text -->
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold text-dark">نص زر الشراء (Button Call To Action)</label>
+                                            <input type="text" name="buttonText" id="addOfferBtnTextInput" class="form-control rounded-3 font-monospace" value="SHOP THE SET" oninput="onAddOfferFormChange()" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card 4: إعدادات إضافية متقدمة (مطوية) -->
+                                <div class="accordion border rounded-4 overflow-hidden" id="addOfferAdvancedAccordion">
+                                    <div class="accordion-item border-0">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed py-2.5 px-3 bg-light text-dark fw-bold small" type="button" data-bs-toggle="collapse" data-bs-target="#addOfferAdvancedCollapse" aria-expanded="false">
+                                                <i class="fa-solid fa-sliders text-muted me-2"></i>
+                                                إعدادات متقدمة إضافية (الكمية، نسبة الحجز، وموعد الانتهاء)
+                                            </button>
+                                        </h2>
+                                        <div id="addOfferAdvancedCollapse" class="accordion-collapse collapse" data-bs-parent="#addOfferAdvancedAccordion">
+                                            <div class="accordion-body p-3 bg-white">
+                                                <div class="row g-3">
+                                                    <div class="col-12 col-md-4">
+                                                        <label class="form-label small fw-bold text-dark">نسبة الحجز الظاهرية (%)</label>
+                                                        <div class="input-group">
+                                                            <input type="number" min="1" max="100" name="allocatedPercent" class="form-control rounded-start-3 font-monospace" value="82" />
+                                                            <span class="input-group-text bg-light">%</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 col-md-4">
+                                                        <label class="form-label small fw-bold text-dark">الكمية المتبقية</label>
+                                                        <div class="input-group">
+                                                            <input type="number" min="1" name="remainingCount" class="form-control rounded-start-3 font-monospace" value="15" />
+                                                            <span class="input-group-text bg-light">باقة</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 col-md-4">
+                                                        <label class="form-label small fw-bold text-dark">موعد انتهاء العرض</label>
+                                                        <input type="datetime-local" name="endTime" class="form-control rounded-3" value="@DateTime.Now.AddDays(7).ToString("yyyy-MM-ddTHH:mm")" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
-                            <div class="form-text small" id="addOfferPricingSummary" style="color: #630000; font-weight: 600;">
-                                حدد العطور لحساب السعر الإجمالي الأصلي ونسبة الخصم المقترحة.
+                        </div>
+
+                        <!-- Right Column: Interactive Live Card Preview (5 cols) -->
+                        <div class="col-12 col-xl-5">
+                            <div class="sticky-top" style="top: 15px;">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="small fw-bold text-dark d-flex align-items-center gap-1.5">
+                                        <i class="fa-solid fa-eye text-gold"></i>
+                                        معاينة مباشرة كما تظهر للزوار في الهوم
+                                    </span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill font-monospace small">Live Preview</span>
+                                </div>
+
+                                <!-- The Luxury Card Container matching _SpotlightOffers.cshtml -->
+                                <div class="roven-modal-offer-preview-box p-3 rounded-4 border bg-white shadow-sm position-relative overflow-hidden" style="border: 1px solid rgba(223, 177, 91, 0.3) !important;">
+                                    
+                                    <!-- Image frame -->
+                                    <div class="position-relative rounded-3 overflow-hidden bg-light border mb-3 d-flex align-items-center justify-content-center" style="height: 220px; background: #faf9f7;">
+                                        <span id="previewAddOfferBadgeDisc" class="badge position-absolute top-0 start-0 m-2 fw-bold text-white shadow-sm" style="background: #810100; font-size: 0.75rem; border-radius: 6px; padding: 4px 8px;">
+                                            15% OFF
+                                        </span>
+                                        <img id="previewAddOfferImg" src="/images/placeholder.svg" alt="Offer Preview" style="max-height: 200px; max-width: 100%; object-fit: contain;" />
+                                    </div>
+
+                                    <!-- Content -->
+                                    <div class="px-1">
+                                        <!-- Subtitle -->
+                                        <div id="previewAddOfferSubtitle" class="font-monospace fw-bold text-uppercase mb-1" style="color: #810100; font-size: 0.72rem; letter-spacing: 1px;">
+                                            HOT DEAL • عرض مميز
+                                        </div>
+
+                                        <!-- Title -->
+                                        <h4 id="previewAddOfferTitle" class="fw-bold text-dark mb-2" style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.35rem; letter-spacing: 0.5px;">
+                                            STAR
+                                        </h4>
+
+                                        <!-- Description -->
+                                        <p id="previewAddOfferDesc" class="text-muted small mb-2" style="font-size: 0.8rem; line-height: 1.45; min-height: 40px;">
+                                            Perfume Star – Inspired by Bleu de Chanel Discover a captivating fragrance...
+                                        </p>
+
+                                        <!-- Pills -->
+                                        <div id="previewAddOfferPills" class="d-flex flex-wrap gap-1 mb-3">
+                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;"><i class="fa-solid fa-gem text-warning me-1"></i>Best Seller</span>
+                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;">Extrait de Parfum</span>
+                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;">30% Pure Concentration</span>
+                                        </div>
+
+                                        <!-- Price -->
+                                        <div class="d-flex align-items-baseline gap-2 mb-3">
+                                            <div class="fw-bold text-dark font-monospace fs-5" id="previewAddOfferPriceMain">
+                                                <span style="font-size: 0.8rem; color: #666;">LE</span> 468
+                                            </div>
+                                            <div class="text-muted text-decoration-line-through font-monospace small" id="previewAddOfferPriceOld">
+                                                <span style="font-size: 0.7rem;">LE</span> 550
+                                            </div>
+                                            <div class="badge bg-success-subtle text-success border border-success-subtle font-monospace px-2 py-0.5 small" id="previewAddOfferSavings">
+                                                You save LE 82
+                                            </div>
+                                        </div>
+
+                                        <!-- Action Button -->
+                                        <div class="d-flex align-items-center gap-2">
+                                            <button type="button" class="btn text-white rounded-pill px-3 py-2 fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-2" style="background: #810100; font-size: 0.82rem; pointer-events: none;">
+                                                <span id="previewAddOfferBtnText">SHOP THE SET</span>
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </button>
+                                            <span class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; pointer-events: none;">
+                                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Badge Label -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label small fw-bold text-dark">شارة العرض (Badge Label)</label>
-                            <input type="text" name="badgeText" id="addOfferBadgeInput" class="form-control rounded-3" placeholder="مثال: DUO BUNDLE • عرض عطرين" value="EXCLUSIVE • عرض خاص" />
-                        </div>
-
-                        <div class="col-12 col-md-4">
-                            <label class="form-label small fw-bold text-dark">نسبة الحجز المحجوزة ظاهرياً (%)</label>
-                            <div class="input-group">
-                                <input type="number" min="1" max="100" name="allocatedPercent" class="form-control rounded-start-3 font-monospace" value="82" />
-                                <span class="input-group-text bg-light">%</span>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-4">
-                            <label class="form-label small fw-bold text-dark">الكمية المتبقية المحجوزة</label>
-                            <div class="input-group">
-                                <input type="number" min="1" name="remainingCount" id="addOfferRemainingInput" class="form-control rounded-start-3 font-monospace" value="15" />
-                                <span class="input-group-text bg-light">باقة / حجز</span>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-4">
-                            <label class="form-label small fw-bold text-dark">موعد انتهاء العرض (Timer)</label>
-                            <input type="datetime-local" name="endTime" class="form-control rounded-3" value="@DateTime.Now.AddDays(7).ToString("yyyy-MM-ddTHH:mm")" />
-                        </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0 pb-4 px-4">
+
+                <div class="modal-footer border-0 pt-0 pb-4 px-4 bg-light rounded-bottom-4">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" style="background: #810100; border-color: #810100;">
-                        <i class="fa-solid fa-plus me-1"></i> حفظ وإضافة العرض
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm" style="background: #810100; border-color: #810100;">
+                        <i class="fa-solid fa-plus me-1"></i> حفظ ونشر العرض في الهوم
                     </button>
                 </div>
             </form>
@@ -3057,98 +3346,301 @@
     </div>
 </div>
 
-<!-- Modal: Edit Home Offer -->
+<!-- Modal: Edit Home Offer (Spotlight Card Layout) -->
 <div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content rounded-4 border-0 shadow-lg">
-            <div class="modal-header border-0 pb-0 pt-4 px-4">
-                <h5 class="modal-title fw-bold" id="editOfferModalLabel" style="color: #1B1717;">
-                    <i class="fa-solid fa-pen-to-square text-primary me-2"></i>تعديل بيانات العرض (عطر فردي أو باقة عطرين)
-                </h5>
+            <div class="modal-header border-0 pb-0 pt-4 px-4 bg-light rounded-top-4">
+                <div>
+                    <h5 class="modal-title fw-bold" id="editOfferModalLabel" style="color: #1B1717;">
+                        <i class="fa-solid fa-pen-to-square text-primary me-2"></i>تعديل بيانات العرض المميز (Spotlight Offer)
+                    </h5>
+                    <p class="text-muted small mb-0 mt-1">
+                        تعديل الصورة الترويجية، العناوين، الأوصاف التسويقية، والمميزات الترويجية للعرض.
+                    </p>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form asp-controller="HomeControl" asp-action="UpdateHomeOffer" method="post">
+            <form asp-controller="HomeControl" asp-action="UpdateHomeOffer" method="post" enctype="multipart/form-data" id="editOfferForm">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="id" id="editOfferId" />
                 <div class="modal-body p-4">
-                    <div class="row g-3">
-                        <!-- Product 1 -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label small fw-bold text-dark">العطر الأول (الأساسي) <span class="text-danger">*</span></label>
-                            <select name="productId" id="editOfferProduct1Select" class="form-select rounded-3" required onchange="calculateEditOfferPricing()">
-                                @foreach (var prod in products)
-                                {
-                                    <option value="@prod.Id" data-price="@prod.Price">@prod.Name (@prod.Price.ToString("N0") ج.م)</option>
-                                }
-                            </select>
-                        </div>
+                    <div class="row g-4">
+                        <!-- Left Column: Form Settings (7 cols) -->
+                        <div class="col-12 col-xl-7">
+                            <div class="d-flex flex-column gap-3">
 
-                        <!-- Product 2 (Optional) -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label small fw-bold text-dark">
-                                العطر الثاني <span class="badge bg-warning-subtle text-dark border border-warning-subtle ms-1 font-monospace">اختياري لباقة عطرين</span>
-                            </label>
-                            <select name="secondProductId" id="editOfferProduct2Select" class="form-select rounded-3" onchange="calculateEditOfferPricing()">
-                                <option value="">-- لا يوجد (عرض عطر واحد فقط) --</option>
-                                @foreach (var prod in products)
-                                {
-                                    <option value="@prod.Id" data-price="@prod.Price">@prod.Name (@prod.Price.ToString("N0") ج.م)</option>
-                                }
-                            </select>
-                        </div>
+                                <!-- Card 1: ربط العطور والتسعير -->
+                                <div class="p-3.5 rounded-4 border bg-white shadow-sm">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                                        <span class="fw-bold small text-dark d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-spray-can-sparkles text-danger"></i>
+                                            1. ربط العطور من الكتالوج والتسعير
+                                        </span>
+                                        <span class="badge bg-light text-muted border font-monospace small">Cart Integrated</span>
+                                    </div>
 
-                        <!-- Title -->
-                        <div class="col-12">
-                            <label class="form-label small fw-bold text-dark">عنوان مخصص للعرض (اختياري)</label>
-                            <input type="text" name="title" id="editOfferTitleInput" class="form-control rounded-3" placeholder="عنوان العرض..." />
-                        </div>
+                                    <div class="row g-3">
+                                        <!-- Product 1 -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">العطر الأول (الأساسي) <span class="text-danger">*</span></label>
+                                            <select name="productId" id="editOfferProduct1Select" class="form-select rounded-3" required onchange="onEditOfferFormChange()">
+                                                @foreach (var prod in products)
+                                                {
+                                                    <option value="@prod.Id" data-price="@prod.Price" data-img="@prod.ImageUrl" data-name="@prod.Name" data-desc="@prod.Description" data-cat="@(prod.Category?.Name ?? "ROVEN")">@prod.Name (@prod.Price.ToString("N0") ج.م)</option>
+                                                }
+                                            </select>
+                                        </div>
 
-                        <!-- Offer Price -->
-                        <div class="col-12 col-md-6">
-                            <label class="form-label small fw-bold text-dark">سعر العرض الإجمالي (ج.م) <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <input type="number" step="0.01" min="1" name="offerPrice" id="editOfferPriceInput" class="form-control rounded-start-3 font-monospace fw-bold" required oninput="calculateEditOfferPricing()" />
-                                <span class="input-group-text bg-light">EGP</span>
+                                        <!-- Product 2 (Optional) -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">
+                                                العطر الثاني <span class="badge bg-warning-subtle text-dark border border-warning-subtle ms-1 font-monospace">اختياري لباقة عطرين</span>
+                                            </label>
+                                            <select name="secondProductId" id="editOfferProduct2Select" class="form-select rounded-3" onchange="onEditOfferFormChange()">
+                                                <option value="">-- لا يوجد (عرض عطر واحد فقط) --</option>
+                                                @foreach (var prod in products)
+                                                {
+                                                    <option value="@prod.Id" data-price="@prod.Price" data-img="@prod.ImageUrl" data-name="@prod.Name">@prod.Name (@prod.Price.ToString("N0") ج.م)</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <!-- Offer Price -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">سعر العرض الترويجي (ج.م) <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <input type="number" step="0.01" min="1" name="offerPrice" id="editOfferPriceInput" class="form-control rounded-start-3 font-monospace fw-bold" required oninput="onEditOfferFormChange()" />
+                                                <span class="input-group-text bg-light font-monospace">EGP</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Original Price Override -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">
+                                                السعر الأصلي الإجمالي (اختياري)
+                                                <i class="fa-solid fa-circle-info text-muted ms-1" title="اتركه فارغاً ليُحسب تلقائياً من الكتالوج، أو حدد سعراً كـ 550 ج.م لإظهار الخصم والتوفير المطلوب"></i>
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="number" step="0.01" min="1" name="originalPriceOverride" id="editOfferOrigPriceInput" class="form-control rounded-start-3 font-monospace" placeholder="تلقائي من الكتالوج" oninput="onEditOfferFormChange()" />
+                                                <span class="input-group-text bg-light font-monospace">EGP</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Pricing Summary -->
+                                        <div class="col-12">
+                                            <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center justify-content-between" id="editOfferPricingSummary"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card 2: صورة العرض الترويجية المخصصة -->
+                                <div class="p-3.5 rounded-4 border bg-white shadow-sm">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                                        <span class="fw-bold small text-dark d-flex align-items-center gap-2">
+                                            <i class="fa-regular fa-image text-gold"></i>
+                                            2. صورة العرض الترويجية (Lifestyle Promotional Banner)
+                                        </span>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">تغيير الصورة (رفع من جهازك)</label>
+                                            <input type="file" name="offerImage" id="editOfferImageFileInput" accept="image/*" class="form-control rounded-3" onchange="previewEditOfferFile(this)" />
+                                            <div class="form-text small" style="font-size: 0.74rem;">المقاس المفضل: 600x600 px أو مربع.</div>
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">أو مسار / رابط الصورة المباشر</label>
+                                            <input type="text" name="customImageUrl" id="editOfferCustomImageUrlInput" class="form-control rounded-3 font-monospace" placeholder="https://res.cloudinary.com/... أو /images/..." oninput="onEditOfferFormChange()" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card 3: نصوص العرض والمميزات -->
+                                <div class="p-3.5 rounded-4 border bg-white shadow-sm">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                                        <span class="fw-bold small text-dark d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-pen-nib text-primary"></i>
+                                            3. هوية ونصوص الكارت (كما تظهر في الهوم)
+                                        </span>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <!-- Badge Label -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">شارة العرض العلوية (Subtitle / Badge)</label>
+                                            <input type="text" name="badgeText" id="editOfferBadgeInput" class="form-control rounded-3" oninput="onEditOfferFormChange()" />
+                                            <div class="d-flex flex-wrap gap-1 mt-1.5">
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setEditBadge('HOT DEAL • عرض مميز')">HOT DEAL</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setEditBadge('EXCLUSIVE • خصم خاص')">EXCLUSIVE</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setEditBadge('DUO BUNDLE • باقة عطرين')">DUO BUNDLE</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="setEditBadge('BEST SELLER • الأكثر طلباً')">BEST SELLER</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Title -->
+                                        <div class="col-12 col-md-6">
+                                            <label class="form-label small fw-bold text-dark">العنوان الرئيسي للعرض (Title)</label>
+                                            <input type="text" name="title" id="editOfferTitleInput" class="form-control rounded-3 fw-bold" placeholder="عنوان العرض..." oninput="onEditOfferFormChange()" />
+                                        </div>
+
+                                        <!-- Custom Description -->
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold text-dark">وصف العرض التسويقي (Marketing Description)</label>
+                                            <textarea name="customDescription" id="editOfferCustomDescInput" rows="3" class="form-control rounded-3" placeholder="الوصف التسويقي للعرض..." oninput="onEditOfferFormChange()"></textarea>
+                                        </div>
+
+                                        <!-- Feature Pills -->
+                                        <div class="col-12">
+                                            <label class="form-label small fw-bold text-dark d-flex align-items-center justify-content-between">
+                                                <span>مميزات وتاجات العرض (Feature Pills - مفصولة بفاصلة)</span>
+                                                <span class="text-muted small font-normal" style="font-size: 0.75rem;">انقر للإضافة السريعة</span>
+                                            </label>
+                                            <input type="text" name="featurePills" id="editOfferPillsInput" class="form-control rounded-3" oninput="onEditOfferFormChange()" />
+                                            <div class="d-flex flex-wrap gap-1 mt-1.5">
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendEditPill('Best Seller')">+ Best Seller</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendEditPill('Extrait de Parfum')">+ Extrait de Parfum</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendEditPill('30% Pure Concentration')">+ 30% Concentration</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendEditPill('Cash on Delivery')">+ الدفع عند الاستلام</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendEditPill('Free Inspection on Delivery')">+ معاينة عند الاستلام</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.7rem;" onclick="appendEditPill('ثبات 24+ ساعة')">+ ثبات 24+ ساعة</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Button Text -->
+                                        <div class="col-12 col-md-8">
+                                            <label class="form-label small fw-bold text-dark">نص زر الشراء (Button Call To Action)</label>
+                                            <input type="text" name="buttonText" id="editOfferBtnTextInput" class="form-control rounded-3 font-monospace" oninput="onEditOfferFormChange()" />
+                                        </div>
+
+                                        <!-- Display Order -->
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label small fw-bold text-dark">ترتيب العرض</label>
+                                            <input type="number" name="displayOrder" id="editOfferOrderInput" class="form-control rounded-3 font-monospace" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card 4: إعدادات إضافية متقدمة (مطوية) -->
+                                <div class="accordion border rounded-4 overflow-hidden" id="editOfferAdvancedAccordion">
+                                    <div class="accordion-item border-0">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed py-2.5 px-3 bg-light text-dark fw-bold small" type="button" data-bs-toggle="collapse" data-bs-target="#editOfferAdvancedCollapse" aria-expanded="false">
+                                                <i class="fa-solid fa-sliders text-muted me-2"></i>
+                                                إعدادات متقدمة إضافية (الكمية، نسبة الحجز، وموعد الانتهاء)
+                                            </button>
+                                        </h2>
+                                        <div id="editOfferAdvancedCollapse" class="accordion-collapse collapse" data-bs-parent="#editOfferAdvancedAccordion">
+                                            <div class="accordion-body p-3 bg-white">
+                                                <div class="row g-3">
+                                                    <div class="col-12 col-md-4">
+                                                        <label class="form-label small fw-bold text-dark">نسبة الحجز (%)</label>
+                                                        <div class="input-group">
+                                                            <input type="number" min="0" max="100" name="allocatedPercent" id="editOfferAllocatedInput" class="form-control rounded-start-3 font-monospace" />
+                                                            <span class="input-group-text bg-light">%</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 col-md-4">
+                                                        <label class="form-label small fw-bold text-dark">الكمية المتبقية</label>
+                                                        <div class="input-group">
+                                                            <input type="number" min="0" name="remainingCount" id="editOfferRemainingInput" class="form-control rounded-start-3 font-monospace" />
+                                                            <span class="input-group-text bg-light">باقة</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 col-md-4">
+                                                        <label class="form-label small fw-bold text-dark">موعد الانتهاء</label>
+                                                        <input type="datetime-local" name="endTime" id="editOfferEndTimeInput" class="form-control rounded-3" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
-                            <div class="form-text small" id="editOfferPricingSummary" style="color: #630000; font-weight: 600;"></div>
                         </div>
 
-                        <div class="col-12 col-md-6">
-                            <label class="form-label small fw-bold text-dark">شارة العرض (Badge Label)</label>
-                            <input type="text" name="badgeText" id="editOfferBadgeInput" class="form-control rounded-3" />
-                        </div>
+                        <!-- Right Column: Interactive Live Card Preview (5 cols) -->
+                        <div class="col-12 col-xl-5">
+                            <div class="sticky-top" style="top: 15px;">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="small fw-bold text-dark d-flex align-items-center gap-1.5">
+                                        <i class="fa-solid fa-eye text-gold"></i>
+                                        معاينة مباشرة كما تظهر للزوار في الهوم
+                                    </span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill font-monospace small">Live Preview</span>
+                                </div>
 
-                        <div class="col-12 col-md-3">
-                            <label class="form-label small fw-bold text-dark">نسبة الحجز (%)</label>
-                            <div class="input-group">
-                                <input type="number" min="0" max="100" name="allocatedPercent" id="editOfferAllocatedInput" class="form-control rounded-start-3 font-monospace" />
-                                <span class="input-group-text bg-light">%</span>
+                                <!-- The Luxury Card Container matching _SpotlightOffers.cshtml -->
+                                <div class="roven-modal-offer-preview-box p-3 rounded-4 border bg-white shadow-sm position-relative overflow-hidden" style="border: 1px solid rgba(223, 177, 91, 0.3) !important;">
+                                    
+                                    <!-- Image frame -->
+                                    <div class="position-relative rounded-3 overflow-hidden bg-light border mb-3 d-flex align-items-center justify-content-center" style="height: 220px; background: #faf9f7;">
+                                        <span id="previewEditOfferBadgeDisc" class="badge position-absolute top-0 start-0 m-2 fw-bold text-white shadow-sm" style="background: #810100; font-size: 0.75rem; border-radius: 6px; padding: 4px 8px;">
+                                            15% OFF
+                                        </span>
+                                        <img id="previewEditOfferImg" src="/images/placeholder.svg" alt="Offer Preview" style="max-height: 200px; max-width: 100%; object-fit: contain;" />
+                                    </div>
+
+                                    <!-- Content -->
+                                    <div class="px-1">
+                                        <!-- Subtitle -->
+                                        <div id="previewEditOfferSubtitle" class="font-monospace fw-bold text-uppercase mb-1" style="color: #810100; font-size: 0.72rem; letter-spacing: 1px;">
+                                            HOT DEAL • عرض مميز
+                                        </div>
+
+                                        <!-- Title -->
+                                        <h4 id="previewEditOfferTitle" class="fw-bold text-dark mb-2" style="font-family: 'Playfair Display', Georgia, serif; font-size: 1.35rem; letter-spacing: 0.5px;">
+                                            STAR
+                                        </h4>
+
+                                        <!-- Description -->
+                                        <p id="previewEditOfferDesc" class="text-muted small mb-2" style="font-size: 0.8rem; line-height: 1.45; min-height: 40px;">
+                                            Perfume Star – Inspired by Bleu de Chanel Discover a captivating fragrance...
+                                        </p>
+
+                                        <!-- Pills -->
+                                        <div id="previewEditOfferPills" class="d-flex flex-wrap gap-1 mb-3">
+                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;"><i class="fa-solid fa-gem text-warning me-1"></i>Best Seller</span>
+                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;">Extrait de Parfum</span>
+                                            <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;">30% Pure Concentration</span>
+                                        </div>
+
+                                        <!-- Price -->
+                                        <div class="d-flex align-items-baseline gap-2 mb-3">
+                                            <div class="fw-bold text-dark font-monospace fs-5" id="previewEditOfferPriceMain">
+                                                <span style="font-size: 0.8rem; color: #666;">LE</span> 468
+                                            </div>
+                                            <div class="text-muted text-decoration-line-through font-monospace small" id="previewEditOfferPriceOld">
+                                                <span style="font-size: 0.7rem;">LE</span> 550
+                                            </div>
+                                            <div class="badge bg-success-subtle text-success border border-success-subtle font-monospace px-2 py-0.5 small" id="previewEditOfferSavings">
+                                                You save LE 82
+                                            </div>
+                                        </div>
+
+                                        <!-- Action Button -->
+                                        <div class="d-flex align-items-center gap-2">
+                                            <button type="button" class="btn text-white rounded-pill px-3 py-2 fw-bold flex-grow-1 d-flex align-items-center justify-content-center gap-2" style="background: #810100; font-size: 0.82rem; pointer-events: none;">
+                                                <span id="previewEditOfferBtnText">SHOP THE SET</span>
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </button>
+                                            <span class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; pointer-events: none;">
+                                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-3">
-                            <label class="form-label small fw-bold text-dark">الكمية المتبقية</label>
-                            <div class="input-group">
-                                <input type="number" min="0" name="remainingCount" id="editOfferRemainingInput" class="form-control rounded-start-3 font-monospace" />
-                                <span class="input-group-text bg-light">باقة</span>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-3">
-                            <label class="form-label small fw-bold text-dark">الترتيب</label>
-                            <input type="number" name="displayOrder" id="editOfferOrderInput" class="form-control rounded-3 font-monospace" />
-                        </div>
-
-                        <div class="col-12 col-md-3">
-                            <label class="form-label small fw-bold text-dark">موعد الانتهاء</label>
-                            <input type="datetime-local" name="endTime" id="editOfferEndTimeInput" class="form-control rounded-3" />
-                        </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                <div class="modal-footer border-0 pt-0 pb-4 px-4 bg-light rounded-bottom-4">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" style="background: #810100; border-color: #810100;">
-                        <i class="fa-solid fa-check me-1"></i> حفظ التعديلات
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm" style="background: #810100; border-color: #810100;">
+                        <i class="fa-solid fa-check me-1"></i> حفظ وتحديث بيانات العرض
                     </button>
                 </div>
             </form>
@@ -3215,64 +3707,385 @@
         document.getElementById('deleteBannerFormGlobal').submit();
     }
 
-    function calculateAddOfferPricing() {
+    // Offer Management Scripts (Interactive Home Spotlight Layout)
+    let addOfferFilePreviewUrl = null;
+    let editOfferFilePreviewUrl = null;
+
+    function setAddBadge(val) {
+        const input = document.getElementById('addOfferBadgeInput');
+        if (input) {
+            input.value = val;
+            onAddOfferFormChange();
+        }
+    }
+
+    function setEditBadge(val) {
+        const input = document.getElementById('editOfferBadgeInput');
+        if (input) {
+            input.value = val;
+            onEditOfferFormChange();
+        }
+    }
+
+    function appendAddPill(pill) {
+        const input = document.getElementById('addOfferPillsInput');
+        if (!input) return;
+        const current = input.value.trim();
+        if (!current) {
+            input.value = pill;
+        } else {
+            const list = current.split(',').map(s => s.trim().toLowerCase());
+            if (!list.includes(pill.toLowerCase())) {
+                input.value = current + ', ' + pill;
+            }
+        }
+        onAddOfferFormChange();
+    }
+
+    function appendEditPill(pill) {
+        const input = document.getElementById('editOfferPillsInput');
+        if (!input) return;
+        const current = input.value.trim();
+        if (!current) {
+            input.value = pill;
+        } else {
+            const list = current.split(',').map(s => s.trim().toLowerCase());
+            if (!list.includes(pill.toLowerCase())) {
+                input.value = current + ', ' + pill;
+            }
+        }
+        onEditOfferFormChange();
+    }
+
+    function previewAddOfferFile(input) {
+        if (input.files && input.files[0]) {
+            if (addOfferFilePreviewUrl) URL.revokeObjectURL(addOfferFilePreviewUrl);
+            addOfferFilePreviewUrl = URL.createObjectURL(input.files[0]);
+            onAddOfferFormChange();
+        }
+    }
+
+    function previewEditOfferFile(input) {
+        if (input.files && input.files[0]) {
+            if (editOfferFilePreviewUrl) URL.revokeObjectURL(editOfferFilePreviewUrl);
+            editOfferFilePreviewUrl = URL.createObjectURL(input.files[0]);
+            onEditOfferFormChange();
+        }
+    }
+
+    function onAddOfferFormChange() {
         const s1 = document.getElementById('addOfferProduct1Select');
         const s2 = document.getElementById('addOfferProduct2Select');
         const priceInput = document.getElementById('addOfferPriceInput');
-        const summary = document.getElementById('addOfferPricingSummary');
+        const origPriceInput = document.getElementById('addOfferOrigPriceInput');
         const badgeInput = document.getElementById('addOfferBadgeInput');
+        const titleInput = document.getElementById('addOfferTitleInput');
+        const descInput = document.getElementById('addOfferCustomDescInput');
+        const pillsInput = document.getElementById('addOfferPillsInput');
+        const btnTextInput = document.getElementById('addOfferBtnTextInput');
+        const customUrlInput = document.getElementById('addOfferCustomImageUrlInput');
+        const summary = document.getElementById('addOfferPricingSummary');
 
-        const opt1 = s1.options[s1.selectedIndex];
-        const opt2 = s2.options[s2.selectedIndex];
+        const opt1 = s1 ? s1.options[s1.selectedIndex] : null;
+        const opt2 = s2 ? s2.options[s2.selectedIndex] : null;
 
         const p1 = (opt1 && opt1.value) ? parseFloat(opt1.getAttribute('data-price') || '0') : 0;
         const p2 = (opt2 && opt2.value) ? parseFloat(opt2.getAttribute('data-price') || '0') : 0;
-        const totalOrig = p1 + p2;
+        const isDuo = (opt2 && opt2.value);
+        const catalogTotal = p1 + p2;
 
-        if (p2 > 0) {
-            if (badgeInput.value === 'EXCLUSIVE • عرض خاص' || !badgeInput.value) {
-                badgeInput.value = 'DUO BUNDLE • عرض عطرين';
-            }
+        let effectiveOrig = catalogTotal;
+        const origOverride = parseFloat(origPriceInput?.value || '0');
+        if (origOverride > 0) {
+            effectiveOrig = origOverride;
         }
 
-        if (totalOrig > 0 && (!priceInput.value || parseFloat(priceInput.value) <= 0 || priceInput.dataset.autoFilled === 'true')) {
-            const suggested = Math.round(totalOrig * 0.82); // 18% discount
+        if (isDuo && (!badgeInput.value || badgeInput.value === 'HOT DEAL • عرض مميز')) {
+            badgeInput.value = 'DUO BUNDLE • باقة عطرين';
+        }
+
+        if (effectiveOrig > 0 && (!priceInput.value || parseFloat(priceInput.value) <= 0 || priceInput.dataset.autoFilled === 'true')) {
+            const suggested = Math.round(effectiveOrig * 0.82);
             priceInput.value = suggested;
             priceInput.dataset.autoFilled = 'true';
         }
 
         const currentOfferPrice = parseFloat(priceInput.value || '0');
-        if (totalOrig > 0 && currentOfferPrice > 0) {
-            const saving = Math.max(0, totalOrig - currentOfferPrice);
-            const discPercent = Math.round((saving / totalOrig) * 100);
-            summary.innerHTML = `السعر الأصلي الإجمالي: <strong>${totalOrig.toLocaleString()} ج.م</strong> &bull; قيمة التوفير: <strong>${saving.toLocaleString()} ج.م (${discPercent}%)</strong>`;
+        const saving = Math.max(0, effectiveOrig - currentOfferPrice);
+        const discPercent = effectiveOrig > 0 ? Math.round((saving / effectiveOrig) * 100) : 0;
+
+        if (summary) {
+            if (effectiveOrig > 0 && currentOfferPrice > 0) {
+                summary.innerHTML = `<span class="small fw-semibold text-dark"><i class="fa-solid fa-calculator text-danger me-1"></i>السعر الأصلي: <strong>${effectiveOrig.toLocaleString()} ج.م</strong> &bull; سعر العرض: <strong class="text-danger">${currentOfferPrice.toLocaleString()} ج.م</strong></span>
+                                     <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill font-monospace">توفير: ${saving.toLocaleString()} ج.م (${discPercent}% خصم)</span>`;
+            } else {
+                summary.innerHTML = `<span class="small text-muted"><i class="fa-solid fa-calculator me-1"></i>حدد العطور وسعر العرض لحساب نسبة الخصم والتوفير تلقائياً.</span>`;
+            }
+        }
+
+        // Live Preview elements
+        const previewImg = document.getElementById('previewAddOfferImg');
+        const previewBadgeDisc = document.getElementById('previewAddOfferBadgeDisc');
+        const previewSubtitle = document.getElementById('previewAddOfferSubtitle');
+        const previewTitle = document.getElementById('previewAddOfferTitle');
+        const previewDesc = document.getElementById('previewAddOfferDesc');
+        const previewPills = document.getElementById('previewAddOfferPills');
+        const previewPriceMain = document.getElementById('previewAddOfferPriceMain');
+        const previewPriceOld = document.getElementById('previewAddOfferPriceOld');
+        const previewSavings = document.getElementById('previewAddOfferSavings');
+        const previewBtnText = document.getElementById('previewAddOfferBtnText');
+
+        if (previewBadgeDisc) {
+            if (discPercent > 0) {
+                previewBadgeDisc.innerText = `${discPercent}% OFF`;
+                previewBadgeDisc.style.display = 'inline-block';
+            } else {
+                previewBadgeDisc.style.display = 'none';
+            }
+        }
+
+        if (previewImg) {
+            if (customUrlInput && customUrlInput.value.trim() !== '') {
+                previewImg.src = customUrlInput.value.trim();
+            } else if (addOfferFilePreviewUrl) {
+                previewImg.src = addOfferFilePreviewUrl;
+            } else if (opt1 && opt1.getAttribute('data-img')) {
+                previewImg.src = opt1.getAttribute('data-img');
+            } else {
+                previewImg.src = '/images/placeholder.svg';
+            }
+        }
+
+        if (previewSubtitle) {
+            previewSubtitle.innerText = badgeInput.value.trim() || (isDuo ? 'DUO BUNDLE • باقة عطرين' : 'HOT DEAL • عرض مميز');
+        }
+
+        if (previewTitle) {
+            if (titleInput.value.trim() !== '') {
+                previewTitle.innerText = titleInput.value.trim();
+            } else if (isDuo) {
+                previewTitle.innerText = `${opt1?.getAttribute('data-name') || 'عطر 1'} + ${opt2?.getAttribute('data-name') || 'عطر 2'}`;
+            } else {
+                previewTitle.innerText = opt1?.getAttribute('data-name') || 'STAR';
+            }
+        }
+
+        if (previewDesc) {
+            if (descInput.value.trim() !== '') {
+                previewDesc.innerText = descInput.value.trim();
+            } else if (opt1 && opt1.getAttribute('data-desc')) {
+                previewDesc.innerText = opt1.getAttribute('data-desc');
+            } else {
+                previewDesc.innerText = 'Experience the pinnacle of haute perfumerie. Handcrafted with rare Grasse botanicals, pure oriental oils, and eternal sillage.';
+            }
+        }
+
+        if (previewPills) {
+            const rawPills = (pillsInput.value || '').split(',').map(s => s.trim()).filter(s => s.length > 0);
+            if (rawPills.length > 0) {
+                previewPills.innerHTML = rawPills.map(p => `<span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;"><i class="fa-solid fa-gem text-warning me-1"></i>${p}</span>`).join(' ');
+            } else {
+                previewPills.innerHTML = `<span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;">Extrait de Parfum</span>`;
+            }
+        }
+
+        if (previewPriceMain) {
+            previewPriceMain.innerHTML = `<span style="font-size: 0.8rem; color: #666;">LE</span> ${currentOfferPrice > 0 ? currentOfferPrice.toLocaleString() : '0'}`;
+        }
+
+        if (previewPriceOld) {
+            if (effectiveOrig > currentOfferPrice) {
+                previewPriceOld.innerHTML = `<span style="font-size: 0.7rem;">LE</span> ${effectiveOrig.toLocaleString()}`;
+                previewPriceOld.style.display = 'inline-block';
+            } else {
+                previewPriceOld.style.display = 'none';
+            }
+        }
+
+        if (previewSavings) {
+            if (saving > 0) {
+                previewSavings.innerText = `You save LE ${saving.toLocaleString()}`;
+                previewSavings.style.display = 'inline-block';
+            } else {
+                previewSavings.style.display = 'none';
+            }
+        }
+
+        if (previewBtnText) {
+            previewBtnText.innerText = btnTextInput.value.trim() || (isDuo ? 'SHOP THE BUNDLE' : 'SHOP THE SET');
         }
     }
 
-    function calculateEditOfferPricing() {
+    function onEditOfferFormChange() {
         const s1 = document.getElementById('editOfferProduct1Select');
         const s2 = document.getElementById('editOfferProduct2Select');
         const priceInput = document.getElementById('editOfferPriceInput');
+        const origPriceInput = document.getElementById('editOfferOrigPriceInput');
+        const badgeInput = document.getElementById('editOfferBadgeInput');
+        const titleInput = document.getElementById('editOfferTitleInput');
+        const descInput = document.getElementById('editOfferCustomDescInput');
+        const pillsInput = document.getElementById('editOfferPillsInput');
+        const btnTextInput = document.getElementById('editOfferBtnTextInput');
+        const customUrlInput = document.getElementById('editOfferCustomImageUrlInput');
         const summary = document.getElementById('editOfferPricingSummary');
 
-        const opt1 = s1.options[s1.selectedIndex];
-        const opt2 = s2.options[s2.selectedIndex];
+        const opt1 = s1 ? s1.options[s1.selectedIndex] : null;
+        const opt2 = s2 ? s2.options[s2.selectedIndex] : null;
 
         const p1 = (opt1 && opt1.value) ? parseFloat(opt1.getAttribute('data-price') || '0') : 0;
         const p2 = (opt2 && opt2.value) ? parseFloat(opt2.getAttribute('data-price') || '0') : 0;
-        const totalOrig = p1 + p2;
+        const isDuo = (opt2 && opt2.value);
+        const catalogTotal = p1 + p2;
+
+        let effectiveOrig = catalogTotal;
+        const origOverride = parseFloat(origPriceInput?.value || '0');
+        if (origOverride > 0) {
+            effectiveOrig = origOverride;
+        }
 
         const currentOfferPrice = parseFloat(priceInput.value || '0');
-        if (totalOrig > 0 && currentOfferPrice > 0) {
-            const saving = Math.max(0, totalOrig - currentOfferPrice);
-            const discPercent = Math.round((saving / totalOrig) * 100);
-            summary.innerHTML = `السعر الأصلي: <strong>${totalOrig.toLocaleString()} ج.م</strong> &bull; التوفير: <strong>${saving.toLocaleString()} ج.م (${discPercent}%)</strong>`;
+        const saving = Math.max(0, effectiveOrig - currentOfferPrice);
+        const discPercent = effectiveOrig > 0 ? Math.round((saving / effectiveOrig) * 100) : 0;
+
+        if (summary) {
+            if (effectiveOrig > 0 && currentOfferPrice > 0) {
+                summary.innerHTML = `<span class="small fw-semibold text-dark"><i class="fa-solid fa-calculator text-danger me-1"></i>السعر الأصلي: <strong>${effectiveOrig.toLocaleString()} ج.م</strong> &bull; سعر العرض: <strong class="text-danger">${currentOfferPrice.toLocaleString()} ج.م</strong></span>
+                                     <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill font-monospace">توفير: ${saving.toLocaleString()} ج.م (${discPercent}% خصم)</span>`;
+            } else {
+                summary.innerHTML = '';
+            }
+        }
+
+        // Live Preview elements
+        const previewImg = document.getElementById('previewEditOfferImg');
+        const previewBadgeDisc = document.getElementById('previewEditOfferBadgeDisc');
+        const previewSubtitle = document.getElementById('previewEditOfferSubtitle');
+        const previewTitle = document.getElementById('previewEditOfferTitle');
+        const previewDesc = document.getElementById('previewEditOfferDesc');
+        const previewPills = document.getElementById('previewEditOfferPills');
+        const previewPriceMain = document.getElementById('previewEditOfferPriceMain');
+        const previewPriceOld = document.getElementById('previewEditOfferPriceOld');
+        const previewSavings = document.getElementById('previewEditOfferSavings');
+        const previewBtnText = document.getElementById('previewEditOfferBtnText');
+
+        if (previewBadgeDisc) {
+            if (discPercent > 0) {
+                previewBadgeDisc.innerText = `${discPercent}% OFF`;
+                previewBadgeDisc.style.display = 'inline-block';
+            } else {
+                previewBadgeDisc.style.display = 'none';
+            }
+        }
+
+        if (previewImg) {
+            if (customUrlInput && customUrlInput.value.trim() !== '') {
+                previewImg.src = customUrlInput.value.trim();
+            } else if (editOfferFilePreviewUrl) {
+                previewImg.src = editOfferFilePreviewUrl;
+            } else if (opt1 && opt1.getAttribute('data-img')) {
+                previewImg.src = opt1.getAttribute('data-img');
+            } else {
+                previewImg.src = '/images/placeholder.svg';
+            }
+        }
+
+        if (previewSubtitle) {
+            previewSubtitle.innerText = badgeInput.value.trim() || (isDuo ? 'DUO BUNDLE • باقة عطرين' : 'HOT DEAL • عرض مميز');
+        }
+
+        if (previewTitle) {
+            if (titleInput.value.trim() !== '') {
+                previewTitle.innerText = titleInput.value.trim();
+            } else if (isDuo) {
+                previewTitle.innerText = `${opt1?.getAttribute('data-name') || 'عطر 1'} + ${opt2?.getAttribute('data-name') || 'عطر 2'}`;
+            } else {
+                previewTitle.innerText = opt1?.getAttribute('data-name') || 'STAR';
+            }
+        }
+
+        if (previewDesc) {
+            if (descInput.value.trim() !== '') {
+                previewDesc.innerText = descInput.value.trim();
+            } else if (opt1 && opt1.getAttribute('data-desc')) {
+                previewDesc.innerText = opt1.getAttribute('data-desc');
+            } else {
+                previewDesc.innerText = 'Experience the pinnacle of haute perfumerie. Handcrafted with rare Grasse botanicals, pure oriental oils, and eternal sillage.';
+            }
+        }
+
+        if (previewPills) {
+            const rawPills = (pillsInput.value || '').split(',').map(s => s.trim()).filter(s => s.length > 0);
+            if (rawPills.length > 0) {
+                previewPills.innerHTML = rawPills.map(p => `<span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;"><i class="fa-solid fa-gem text-warning me-1"></i>${p}</span>`).join(' ');
+            } else {
+                previewPills.innerHTML = `<span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.68rem;">Extrait de Parfum</span>`;
+            }
+        }
+
+        if (previewPriceMain) {
+            previewPriceMain.innerHTML = `<span style="font-size: 0.8rem; color: #666;">LE</span> ${currentOfferPrice > 0 ? currentOfferPrice.toLocaleString() : '0'}`;
+        }
+
+        if (previewPriceOld) {
+            if (effectiveOrig > currentOfferPrice) {
+                previewPriceOld.innerHTML = `<span style="font-size: 0.7rem;">LE</span> ${effectiveOrig.toLocaleString()}`;
+                previewPriceOld.style.display = 'inline-block';
+            } else {
+                previewPriceOld.style.display = 'none';
+            }
+        }
+
+        if (previewSavings) {
+            if (saving > 0) {
+                previewSavings.innerText = `You save LE ${saving.toLocaleString()}`;
+                previewSavings.style.display = 'inline-block';
+            } else {
+                previewSavings.style.display = 'none';
+            }
+        }
+
+        if (previewBtnText) {
+            previewBtnText.innerText = btnTextInput.value.trim() || (isDuo ? 'SHOP THE BUNDLE' : 'SHOP THE SET');
         }
     }
 
-    function openEditOfferModal(id, prodId, secondProdId, title, offerPrice, badgeText, allocated, remaining, endTime, order) {
+    function openEditOfferFromButton(btn) {
+        if (!btn) return;
+        const d = btn.dataset;
+        document.getElementById('editOfferId').value = d.id || '';
+
+        const s1 = document.getElementById('editOfferProduct1Select');
+        if (s1 && d.product1) s1.value = d.product1;
+
+        const s2 = document.getElementById('editOfferProduct2Select');
+        if (s2) s2.value = d.product2 || '';
+
+        document.getElementById('editOfferTitleInput').value = d.title || '';
+        document.getElementById('editOfferPriceInput').value = d.offerprice || '';
+        document.getElementById('editOfferOrigPriceInput').value = d.origoverride || '';
+        document.getElementById('editOfferBadgeInput').value = d.badge || 'HOT DEAL • عرض مميز';
+        document.getElementById('editOfferCustomImageUrlInput').value = d.customimg || '';
+        document.getElementById('editOfferCustomDescInput').value = d.customdesc || '';
+        document.getElementById('editOfferBtnTextInput').value = d.btntext || 'SHOP THE SET';
+        document.getElementById('editOfferPillsInput').value = d.pills || '';
+        document.getElementById('editOfferAllocatedInput').value = d.allocated || '82';
+        document.getElementById('editOfferRemainingInput').value = d.remaining || '15';
+        document.getElementById('editOfferEndTimeInput').value = d.endtime || '';
+        document.getElementById('editOfferOrderInput').value = d.order || '1';
+
+        editOfferFilePreviewUrl = null;
+        const fileInput = document.getElementById('editOfferImageFileInput');
+        if (fileInput) fileInput.value = '';
+
+        onEditOfferFormChange();
+
+        const modal = new bootstrap.Modal(document.getElementById('editOfferModal'));
+        modal.show();
+    }
+
+    function openEditOfferModal(id, prodId, secondProdId, title, offerPrice, badgeText, allocated, remaining, endTime, order, customImg, customDesc, btnText, pills, origOverride) {
         document.getElementById('editOfferId').value = id;
-        
+
         const s1 = document.getElementById('editOfferProduct1Select');
         if (s1) s1.value = prodId;
 
@@ -3281,13 +4094,19 @@
 
         document.getElementById('editOfferTitleInput').value = title || '';
         document.getElementById('editOfferPriceInput').value = offerPrice;
+        document.getElementById('editOfferOrigPriceInput').value = origOverride || '';
         document.getElementById('editOfferBadgeInput').value = badgeText || '';
+        document.getElementById('editOfferCustomImageUrlInput').value = customImg || '';
+        document.getElementById('editOfferCustomDescInput').value = customDesc || '';
+        document.getElementById('editOfferBtnTextInput').value = btnText || 'SHOP THE SET';
+        document.getElementById('editOfferPillsInput').value = pills || '';
         document.getElementById('editOfferAllocatedInput').value = allocated;
         document.getElementById('editOfferRemainingInput').value = remaining;
         document.getElementById('editOfferEndTimeInput').value = endTime || '';
         document.getElementById('editOfferOrderInput').value = order;
 
-        calculateEditOfferPricing();
+        editOfferFilePreviewUrl = null;
+        onEditOfferFormChange();
 
         const modal = new bootstrap.Modal(document.getElementById('editOfferModal'));
         modal.show();

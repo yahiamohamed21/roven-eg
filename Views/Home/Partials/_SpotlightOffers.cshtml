@@ -95,7 +95,13 @@
                                                     </span>
                                                 }
 
-                                                @if (isDuo)
+                                                @if (!string.IsNullOrWhiteSpace(offer.CustomImageUrl))
+                                                {
+                                                    <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none" title="@offer.DisplayTitle">
+                                                        <img src="@offer.CustomImageUrl" alt="@offer.DisplayTitle" class="img-fluid rounded-3" style="max-height: 330px; width: 100%; object-fit: contain;" />
+                                                    </a>
+                                                }
+                                                else if (isDuo)
                                                 {
                                                     <div class="d-flex align-items-center justify-content-center gap-2 w-100 h-100">
                                                         <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-block text-center w-50" title="@offer.ProductName">
@@ -155,24 +161,34 @@
 
                                                 <!-- Description -->
                                                 <p class="roven-offer-desc">
-                                                    @(string.IsNullOrWhiteSpace(offer.Description) ? "Experience the pinnacle of haute perfumerie. Handcrafted with rare Grasse botanicals, pure oriental oils, and eternal sillage." : offer.Description)
+                                                    @(string.IsNullOrWhiteSpace(offer.EffectiveDescription) ? "Experience the pinnacle of haute perfumerie. Handcrafted with rare Grasse botanicals, pure oriental oils, and eternal sillage." : offer.EffectiveDescription)
                                                 </p>
 
                                                 <!-- Fragrance / Feature Pills -->
                                                 <div class="d-flex flex-wrap gap-2 mb-4">
-                                                    @if (isDuo)
+                                                    @if (offer.FeaturePillsList.Any())
                                                     {
-                                                        <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.ProductName</span>
-                                                        <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.SecondProductName</span>
+                                                        @foreach (var pill in offer.FeaturePillsList)
+                                                        {
+                                                            <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @pill</span>
+                                                        }
                                                     }
                                                     else
                                                     {
-                                                        <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.CategoryName</span>
+                                                        @if (isDuo)
+                                                        {
+                                                            <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.ProductName</span>
+                                                            <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.SecondProductName</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.CategoryName</span>
+                                                        }
+                                                        <span class="roven-offer-pill">Extrait de Parfum</span>
+                                                        <span class="roven-offer-pill">30% Pure Concentration</span>
+                                                        <span class="roven-offer-pill">Cash on Delivery</span>
+                                                        <span class="roven-offer-pill">Free Inspection on Delivery</span>
                                                     }
-                                                    <span class="roven-offer-pill">Extrait de Parfum</span>
-                                                    <span class="roven-offer-pill">30% Pure Concentration</span>
-                                                    <span class="roven-offer-pill">Cash on Delivery</span>
-                                                    <span class="roven-offer-pill">Free Inspection on Delivery</span>
                                                 </div>
 
                                                 <!-- Price and Savings Row -->
@@ -196,14 +212,14 @@
                                                     @if (offer.Id > 0)
                                                     {
                                                         <button type="button" class="roven-offer-shop-btn" onclick="window.addOfferToCart(@offer.Id, this)">
-                                                            <span>@(isDuo ? "SHOP THE BUNDLE" : "SHOP THE SET")</span>
+                                                            <span>@offer.EffectiveButtonText</span>
                                                             <i class="fa-solid fa-arrow-right"></i>
                                                         </button>
                                                     }
                                                     else
                                                     {
                                                         <button type="button" class="roven-offer-shop-btn" onclick="window.addStoreItemToCart(@offer.ProductId, 1, this)">
-                                                            <span>SHOP THE SET</span>
+                                                            <span>@offer.EffectiveButtonText</span>
                                                             <i class="fa-solid fa-arrow-right"></i>
                                                         </button>
                                                     }

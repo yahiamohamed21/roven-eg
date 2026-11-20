@@ -42,10 +42,34 @@ public class HomeOfferItemViewModel
     public decimal? SecondProductPrice { get; set; }
 
     public string? Title { get; set; }
+    public string? CustomImageUrl { get; set; }
+    public string? CustomDescription { get; set; }
+    public string? ButtonText { get; set; }
+    public string? FeaturePills { get; set; }
+    public decimal? OriginalPriceOverride { get; set; }
+
     public bool IsDuoOffer => SecondProductId.HasValue && SecondProductId.Value > 0 && !string.IsNullOrWhiteSpace(SecondProductName);
     public string DisplayTitle => !string.IsNullOrWhiteSpace(Title) ? Title : (IsDuoOffer ? $"{ProductName} + {SecondProductName}" : ProductName);
+    public string EffectiveImageUrl => !string.IsNullOrWhiteSpace(CustomImageUrl) ? CustomImageUrl : (ImageUrl ?? string.Empty);
+    public string EffectiveDescription => !string.IsNullOrWhiteSpace(CustomDescription) ? CustomDescription : (Description ?? string.Empty);
+    public string EffectiveButtonText => !string.IsNullOrWhiteSpace(ButtonText) ? ButtonText : (IsDuoOffer ? "SHOP THE BUNDLE" : "SHOP THE SET");
 
-    public decimal OriginalPrice => FirstProductPrice + (SecondProductPrice ?? 0m);
+    public List<string> FeaturePillsList
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(FeaturePills))
+            {
+                return FeaturePills.Split(new[] { ',', '،' }, StringSplitOptions.RemoveEmptyEntries)
+                                   .Select(p => p.Trim())
+                                   .Where(p => !string.IsNullOrWhiteSpace(p))
+                                   .ToList();
+            }
+            return new List<string>();
+        }
+    }
+
+    public decimal OriginalPrice => OriginalPriceOverride.HasValue && OriginalPriceOverride.Value > 0 ? OriginalPriceOverride.Value : (FirstProductPrice + (SecondProductPrice ?? 0m));
     public decimal OfferPrice { get; set; }
     public int DiscountPercent => (OriginalPrice > 0 && OfferPrice < OriginalPrice) ? (int)Math.Round(((OriginalPrice - OfferPrice) / OriginalPrice) * 100m) : 0;
     public string? BadgeText { get; set; }

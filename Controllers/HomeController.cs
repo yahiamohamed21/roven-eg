@@ -288,6 +288,11 @@ public class HomeController : Controller
                 SecondProductPrice = o.SecondProduct != null ? o.SecondProduct.Price : null,
 
                 Title = o.Title,
+                CustomImageUrl = o.CustomImageUrl,
+                CustomDescription = o.CustomDescription,
+                ButtonText = o.ButtonText,
+                FeaturePills = o.FeaturePills,
+                OriginalPriceOverride = o.OriginalPriceOverride,
                 OfferPrice = o.OfferPrice > 0 ? o.OfferPrice : o.Product.Price,
                 BadgeText = o.BadgeText,
                 EndTime = o.EndTime,
