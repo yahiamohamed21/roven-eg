@@ -27,7 +27,7 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/home-index.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/home-index.css?v=@DateTime.UtcNow.Ticks" asp-append-version="true" />
     <!-- High-Priority Responsive Preload for Above-the-Fold Main Brand Hero -->
     @if (settings?.ShowBrandHero ?? true)
     {

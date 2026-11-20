@@ -1049,16 +1049,9 @@
         transform: scale(1.05);
     }
 
-    /* Scrim Gradient for Image Card - Clean & subtle, eliminates dark black overlay */
+    /* Scrim Gradient for Image Card - Completely removed for 100% clear vibrant imagery */
     .roven-cat-scrim {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(180deg, 
-            transparent 0%, 
-            transparent 75%, 
-            rgba(0, 0, 0, 0.32) 100%);
-        pointer-events: none;
-        z-index: 2;
+        display: none !important;
     }
 
     /* Placeholder Luxury Velvet Medallion Canvas */
@@ -1234,13 +1227,13 @@
         width: 100%;
     }
 
-    /* Translucent Glass & Gold Shop Now Pill Button (No black block overlay) */
+    /* Pure Outline & Gold Shop Now Pill Button (100% Transparent, No dark/black background) */
     .roven-cat-shop-pill {
-        background: rgba(30, 0, 2, 0.45);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        color: #FAF9F5;
-        border: 1.2px solid #dfb15b;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        color: #FAF9F5 !important;
+        border: 1.5px solid #dfb15b !important;
         border-radius: 50px;
         padding: 0.42rem 1.4rem;
         font-size: 0.82rem;
@@ -1251,25 +1244,28 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+        box-shadow: none !important;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
         transition: all 0.25s ease;
     }
 
     .roven-cat-shop-pill i {
         font-size: 0.72rem;
-        color: #dfb15b;
+        color: #dfb15b !important;
         transition: transform 0.25s ease;
     }
 
     .roven-cat-card:hover .roven-cat-shop-pill:hover {
-        background: #dfb15b;
-        color: #1B1717;
-        box-shadow: 0 6px 20px rgba(223, 177, 91, 0.55);
+        background: #dfb15b !important;
+        color: #1B1717 !important;
+        border-color: #dfb15b !important;
+        box-shadow: 0 6px 20px rgba(223, 177, 91, 0.55) !important;
         transform: scale(1.04);
+        text-shadow: none;
     }
 
     .roven-cat-card:hover .roven-cat-shop-pill:hover i {
-        color: #1B1717;
+        color: #1B1717 !important;
         transform: translateX(3px);
     }
 
