@@ -784,11 +784,15 @@
        Category Showcase Haute Parfumerie Visual Gallery (Mockup-Identical)
        ===================================================================== */
     .roven-categories-showcase-section {
-        background: #F7EFE4 url('/images/category-showcase-bg.jpg') no-repeat center center;
+        background-color: #F7EFE4;
+        background-image: url('/images/category-showcase-bg.jpg?v=2');
+        background-repeat: no-repeat;
+        background-position: center center;
         background-size: cover;
         position: relative;
         padding-top: 3.5rem;
         padding-bottom: 4rem;
+        image-rendering: -webkit-optimize-contrast;
     }
 
     .roven-cat-ambient-glow {
