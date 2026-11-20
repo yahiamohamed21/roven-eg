@@ -12,6 +12,22 @@
     .roven-cat-card:hover {
         box-shadow: 0 0 26px rgba(223, 177, 91, 0.45) !important;
     }
+    .roven-cat-card:hover .roven-cat-hover-reveal {
+        opacity: 1 !important;
+        max-height: 120px !important;
+        overflow: visible !important;
+        transform: translateY(0) !important;
+        margin-top: 8px !important;
+        padding-bottom: 6px !important;
+        pointer-events: auto !important;
+    }
+    .roven-cat-action {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
+        padding: 4px 6px 8px !important;
+        overflow: visible !important;
+    }
     .roven-cat-shop-pill,
     .roven-cat-card:hover .roven-cat-shop-pill {
         background: transparent !important;
@@ -21,6 +37,8 @@
         box-shadow: none !important;
         border: 1.5px solid #dfb15b !important;
         color: #FAF9F5 !important;
+        box-sizing: border-box !important;
+        margin-bottom: 2px !important;
     }
     .roven-cat-card:hover .roven-cat-shop-pill:hover {
         background: #dfb15b !important;

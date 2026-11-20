@@ -1204,9 +1204,11 @@
 
     .roven-cat-card:hover .roven-cat-hover-reveal {
         opacity: 1;
-        max-height: 85px;
+        max-height: 120px;
+        overflow: visible;
         transform: translateY(0);
         margin-top: 8px;
+        padding-bottom: 6px;
         pointer-events: auto;
     }
 
@@ -1224,9 +1226,11 @@
         display: flex;
         justify-content: center;
         width: 100%;
+        padding: 4px 6px 8px;
+        overflow: visible;
     }
 
-    /* Pure Outline & Gold Shop Now Pill Button (100% Transparent, No dark/black background) */
+    /* Pure Outline & Gold Shop Now Pill Button (100% Transparent, No dark/black background, No Clipping) */
     .roven-cat-shop-pill {
         background: transparent !important;
         backdrop-filter: none !important;
@@ -1245,6 +1249,8 @@
         gap: 8px;
         box-shadow: none !important;
         text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+        box-sizing: border-box;
+        margin-bottom: 2px;
         transition: all 0.25s ease;
     }
 
