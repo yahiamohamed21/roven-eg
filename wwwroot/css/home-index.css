@@ -1582,7 +1582,8 @@
     }
 
     .roven-spotlight-hero-card {
-        background: linear-gradient(145deg, #620005 0%, #460003 40%, #280002 80%, #170001 100%);
+        background: linear-gradient(145deg, #810100 0%, #680001 50%, #4a0002 100%);
+        isolation: isolate;
         border: 1.5px solid rgba(223, 177, 91, 0.4);
         border-radius: 24px;
         padding: 2.75rem 3rem;
@@ -1637,6 +1638,11 @@
         max-height: 380px;
         max-width: 100%;
         object-fit: contain;
+        mix-blend-mode: lighten;
+        mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 98%);
+        -webkit-mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 98%);
+        border: none !important;
+        box-shadow: none !important;
     }
 
     .roven-spotlight-hero-card:hover .roven-offer-img-frame {
@@ -1932,6 +1938,11 @@
         }
         .roven-offer-img-frame img {
             max-height: 270px;
+            mix-blend-mode: lighten;
+            mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 98%);
+            -webkit-mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 98%);
+            border: none !important;
+            box-shadow: none !important;
         }
         .roven-offer-title {
             font-size: 1.75rem;

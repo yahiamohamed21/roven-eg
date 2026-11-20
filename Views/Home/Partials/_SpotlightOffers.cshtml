@@ -28,10 +28,18 @@
     {
         <style>
             .roven-spotlight-hero-card {
-                background: linear-gradient(145deg, #620005 0%, #460003 40%, #280002 80%, #170001 100%) !important;
+                background: linear-gradient(145deg, #810100 0%, #680001 50%, #4a0002 100%) !important;
+                isolation: isolate;
             }
             .roven-offer-img-frame {
                 background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            .roven-offer-img-frame img {
+                mix-blend-mode: lighten !important;
+                mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 98%) !important;
+                -webkit-mask-image: radial-gradient(circle at 50% 50%, black 70%, transparent 98%) !important;
                 border: none !important;
                 box-shadow: none !important;
             }
@@ -128,7 +136,7 @@
                                                     <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none" title="@offer.ProductName">
                                                         @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
                                                         {
-                                                            <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid" style="max-height: 340px; object-fit: contain;" onerror="this.onerror=null; this.src='/roven/products/653512e607aa40008b9c03356653409f.jpg';" />
+                                                            <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid" style="max-height: 380px; width: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='/roven/products/653512e607aa40008b9c03356653409f.jpg';" />
                                                         }
                                                         else
                                                         {
