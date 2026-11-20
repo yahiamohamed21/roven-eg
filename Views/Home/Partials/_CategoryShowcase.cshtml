@@ -1,21 +1,25 @@
 @model Stockify.ViewModels.Store.StoreHomeViewModel
 @if (Model.Settings?.ShowCategoriesShowcase != false)
 {
-<section class="py-5 w-100 position-relative overflow-hidden" style="background-color: #FAF9F5;">
-    <div class="container position-relative">
-        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-4">
+<section class="roven-categories-showcase-section py-5 w-100 position-relative overflow-hidden" style="background-color: #FAF9F5;">
+    <!-- Subtle Ambient Gold Glow -->
+    <div class="roven-cat-ambient-glow" aria-hidden="true"></div>
+
+    <div class="container position-relative" style="z-index: 2;">
+        <!-- Header -->
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-4 pb-1">
             <div>
                 <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-semibold mb-2 d-inline-flex align-items-center gap-2">
-                    <i class="fa-solid fa-spray-can-sparkles" style="color: #630000;"></i>
-                    <span>ROVEN Haute Parfumerie</span>
+                    <i class="fa-solid fa-gem" style="color: #810100;"></i>
+                    <span>ROVEN Haute Parfumerie • Curated Archives</span>
                 </span>
-                <h3 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.4rem, 2.8vw, 1.95rem);">
+                <h3 class="fw-extrabold mb-1 roven-cat-section-heading" style="color: #1B1717; font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.45rem, 2.8vw, 2.1rem); letter-spacing: 0.5px;">
                     Explore Olfactory Departments
                 </h3>
                 <p class="mb-0 small" style="color: #6c6358;">From concentrated Extraits to majestic Oud and discovery coffrets</p>
             </div>
             <div class="d-flex align-items-center gap-2 align-self-start align-self-sm-auto">
-                <a asp-controller="Store" asp-action="Index" class="btn btn-sm fw-semibold px-3 py-2 rounded-pill d-inline-flex align-items-center gap-2" style="border: 1px solid #630000; color: #630000; background: transparent;">
+                <a asp-controller="Store" asp-action="Index" class="roven-view-all-btn btn btn-sm fw-semibold px-3.5 py-2 rounded-pill d-inline-flex align-items-center gap-2">
                     <span>View All Fragrances</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </a>
@@ -25,15 +29,15 @@
         <!-- Category Showcase Track / Carousel Container -->
         <div class="roven-cat-carousel-container position-relative">
             <!-- Navigation Controls -->
-            <button type="button" class="roven-cat-nav-btn roven-cat-nav-prev d-none d-md-flex" onclick="rovenScrollTrack('rovenCatTrack', -1)" aria-label="Previous departments">
+            <button type="button" class="roven-cat-nav-btn roven-cat-nav-prev d-none d-md-flex" onclick="rovenScrollCategories(-1)" aria-label="Previous departments">
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
-            <button type="button" class="roven-cat-nav-btn roven-cat-nav-next d-none d-md-flex" onclick="rovenScrollTrack('rovenCatTrack', 1)" aria-label="Next departments">
+            <button type="button" class="roven-cat-nav-btn roven-cat-nav-next d-none d-md-flex" onclick="rovenScrollCategories(1)" aria-label="Next departments">
                 <i class="fa-solid fa-chevron-right"></i>
             </button>
 
             <!-- Scrollable Track -->
-            <div id="rovenCatTrack" class="roven-cat-track d-flex gap-3 gap-lg-4 overflow-auto pb-2">
+            <div id="rovenCatTrack" class="roven-cat-track d-flex gap-3 gap-lg-4 overflow-auto pb-3">
                 @foreach (var cat in Model.Categories)
                 {
                     var faIcon = cat.Name.ToLower() switch
@@ -48,7 +52,7 @@
 
                     <div class="roven-cat-item">
                         <a asp-controller="Store" asp-action="Index" asp-route-categoryId="@cat.Id" class="roven-cat-card">
-                            <!-- Visual Poster / Media Frame -->
+                            <!-- Visual Poster / Media Frame (Full-Bleed Canvas) -->
                             <div class="roven-cat-img-box">
                                 @if (!string.IsNullOrEmpty(cat.ImageUrl))
                                 {
@@ -72,20 +76,29 @@
                                     </div>
                                 }
 
-                                <!-- Parfums count badge floating at top right -->
-                                <span class="roven-cat-badge">
-                                    <i class="fa-solid fa-spray-can-sparkles me-1" style="color: #dfb15b;"></i>@(cat.ProductsCount == 1 ? "1 Parfum" : $"{cat.ProductsCount} Parfums")
-                                </span>
-                            </div>
+                                <!-- Atmospheric Scrim Gradient for Legibility and Seamless Blend -->
+                                <div class="roven-cat-scrim" aria-hidden="true"></div>
 
-                            <!-- Bottom Bar with smooth hover 'Shop now' reveal -->
-                            <div class="roven-cat-bar">
-                                <h4 class="roven-cat-title">@cat.Name</h4>
-                                <div class="roven-cat-action">
-                                    <span class="roven-cat-shop-pill">
-                                        <span>Shop now</span>
-                                        <i class="fa-solid fa-arrow-right"></i>
+                                <!-- Floating Badges at Top -->
+                                <div class="roven-cat-top-bar d-flex justify-content-between align-items-center w-100">
+                                    <span class="roven-cat-dept-tag">
+                                        <i class="fa-solid fa-crown me-1" style="font-size: 0.65rem;"></i>ROVEN
                                     </span>
+                                    <span class="roven-cat-badge">
+                                        <i class="fa-solid fa-spray-can-sparkles me-1" style="color: #dfb15b;"></i>@(cat.ProductsCount == 1 ? "1 Parfum" : $"{cat.ProductsCount} Parfums")
+                                    </span>
+                                </div>
+
+                                <!-- Integrated Editorial Bottom Content Plaque -->
+                                <div class="roven-cat-bottom-content">
+                                    <span class="roven-cat-subtext">Olfactory Department</span>
+                                    <h4 class="roven-cat-title">@cat.Name</h4>
+                                    <div class="roven-cat-action mt-2">
+                                        <span class="roven-cat-shop-pill">
+                                            <span>Shop now</span>
+                                            <i class="fa-solid fa-arrow-right"></i>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </a>

@@ -6,12 +6,16 @@ PUBLISH_DIR="$PROJECT_ROOT/published"
 STAGING_DIR="$PROJECT_ROOT/published_staging"
 LOGS_DIR="$PROJECT_ROOT/logs/deploy"
 UPLOADS_DIR="$PROJECT_ROOT/uploads"
+ROVEN_MEDIA_DIR="$PROJECT_ROOT/roven_media"
 
 mkdir -p "$LOGS_DIR"
 mkdir -p "$PUBLISH_DIR"
 mkdir -p "$UPLOADS_DIR/banners"
 mkdir -p "$UPLOADS_DIR/products"
 mkdir -p "$UPLOADS_DIR/categories"
+mkdir -p "$ROVEN_MEDIA_DIR/banners"
+mkdir -p "$ROVEN_MEDIA_DIR/products"
+mkdir -p "$ROVEN_MEDIA_DIR/categories"
 
 LOG_FILE="$LOGS_DIR/deploy_$(date +%Y%m%d_%H%M%S).log"
 
@@ -82,6 +86,11 @@ rm -rf "$PUBLISH_DIR/wwwroot/uploads"
 # Remove old files except wwwroot
 find "$PUBLISH_DIR" -mindepth 1 -maxdepth 1 ! -name 'wwwroot' -exec rm -rf {} + >> "$LOG_FILE" 2>&1 || true
 
+# Save any dynamic media uploaded to wwwroot/roven into persistent ROVEN_MEDIA_DIR
+if [ -d "$PUBLISH_DIR/wwwroot/roven" ]; then
+    sudo cp -rn "$PUBLISH_DIR/wwwroot/roven/"* "$ROVEN_MEDIA_DIR/" 2>/dev/null || true
+fi
+
 # In wwwroot, remove old static assets
 if [ -d "$PUBLISH_DIR/wwwroot" ]; then
     find "$PUBLISH_DIR/wwwroot" -mindepth 1 -maxdepth 1 -exec rm -rf {} + >> "$LOG_FILE" 2>&1 || true
@@ -91,8 +100,8 @@ fi
 cp -a "$STAGING_DIR/." "$PUBLISH_DIR/"
 rm -rf "$STAGING_DIR"
 
-# Step 5: Preserve persistent uploads
-log "Configuring persistent uploads directory..."
+# Step 5: Preserve persistent uploads and roven media
+log "Configuring persistent uploads and roven media directories..."
 # Copy initial uploads if persistent folder is empty
 if [ ! "$(ls -A $UPLOADS_DIR/banners 2>/dev/null)" ] && [ -d "$PROJECT_ROOT/wwwroot/uploads/banners" ]; then
     sudo cp -rn "$PROJECT_ROOT/wwwroot/uploads/banners/"* "$UPLOADS_DIR/banners/" 2>/dev/null || true
@@ -104,15 +113,26 @@ if [ ! "$(ls -A $UPLOADS_DIR/categories 2>/dev/null)" ] && [ -d "$PROJECT_ROOT/w
     sudo cp -rn "$PROJECT_ROOT/wwwroot/uploads/categories/"* "$UPLOADS_DIR/categories/" 2>/dev/null || true
 fi
 
+# Sync repo roven assets into ROVEN_MEDIA_DIR without overwriting existing uploaded media
+if [ -d "$PROJECT_ROOT/wwwroot/roven" ]; then
+    sudo cp -rn "$PROJECT_ROOT/wwwroot/roven/"* "$ROVEN_MEDIA_DIR/" 2>/dev/null || true
+fi
+
 # Symlink uploads directory to published wwwroot/uploads
 mkdir -p "$PUBLISH_DIR/wwwroot"
 sudo rm -rf "$PUBLISH_DIR/wwwroot/uploads"
 sudo ln -sfn "$UPLOADS_DIR" "$PUBLISH_DIR/wwwroot/uploads"
 
+# Restore all persistent roven media (categories, products, banners) into published wwwroot/roven
+mkdir -p "$PUBLISH_DIR/wwwroot/roven"
+sudo cp -rn "$ROVEN_MEDIA_DIR/"* "$PUBLISH_DIR/wwwroot/roven/" 2>/dev/null || true
+
 # Ensure proper permissions for www-data
 sudo chown -R www-data:www-data "$PUBLISH_DIR"
 sudo chown -R www-data:www-data "$UPLOADS_DIR"
+sudo chown -R www-data:www-data "$ROVEN_MEDIA_DIR"
 sudo chmod -R 775 "$UPLOADS_DIR"
+sudo chmod -R 775 "$ROVEN_MEDIA_DIR"
 
 # Step 6: Restart Systemd service
 log "Restarting roven-web systemd service..."
