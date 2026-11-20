@@ -2518,3 +2518,117 @@
             margin: 0 0.25rem;
         }
     }
+
+    /* =====================================================================
+       Customer Testimonials Horizontal Scroll Carousel (X-Axis Track)
+       ===================================================================== */
+    .roven-testimonials-carousel-wrap {
+        position: relative;
+        width: 100%;
+    }
+
+    .roven-testimonials-track {
+        display: flex;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        scroll-snap-type: x mandatory;
+        padding: 0.5rem 0.25rem 1.25rem;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        gap: 1.25rem;
+    }
+
+    .roven-testimonials-track::-webkit-scrollbar {
+        display: none;
+    }
+
+    .roven-testimonial-track-item {
+        scroll-snap-align: start;
+        flex: 0 0 calc(33.333% - 0.85rem);
+        min-width: 320px;
+        display: flex;
+    }
+
+    @media (max-width: 1199.98px) {
+        .roven-testimonial-track-item {
+            flex: 0 0 calc(45% - 0.75rem);
+            min-width: 290px;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .roven-testimonials-track {
+            padding: 0.5rem 0.25rem 1rem;
+            gap: 1rem;
+        }
+        .roven-testimonial-track-item {
+            flex: 0 0 85%;
+            min-width: 260px;
+            max-width: 340px;
+            scroll-snap-align: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .roven-testimonial-track-item {
+            flex: 0 0 88%;
+            min-width: 250px;
+        }
+    }
+
+    /* Testimonial Card Luxury Polish */
+    .testimonial-card {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        border-radius: 20px !important;
+        background: #FFFFFF !important;
+        border: 1.5px solid rgba(181, 141, 74, 0.3) !important;
+        box-shadow: 0 8px 24px rgba(27, 23, 23, 0.06) !important;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+                    border-color 0.3s ease, 
+                    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .testimonial-card:hover {
+        transform: translateY(-4px) !important;
+        border-color: #dfb15b !important;
+        box-shadow: 0 16px 36px rgba(129, 1, 0, 0.12) !important;
+    }
+
+    /* Carousel Nav Arrows */
+    .roven-testimonials-nav-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #810100;
+        color: #FAF9F5;
+        border: 1.5px solid #dfb15b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 5;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 6px 18px rgba(129, 1, 0, 0.25);
+    }
+
+    .roven-testimonials-nav-prev {
+        left: -14px;
+    }
+
+    .roven-testimonials-nav-next {
+        right: -14px;
+    }
+
+    .roven-testimonials-nav-btn:hover {
+        background: #dfb15b;
+        color: #1B1717;
+        transform: translateY(-50%) scale(1.08);
+        box-shadow: 0 8px 24px rgba(223, 177, 91, 0.35);
+        border-color: #dfb15b;
+    }
