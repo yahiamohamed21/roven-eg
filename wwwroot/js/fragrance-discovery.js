@@ -99,6 +99,34 @@
 
         // Preload catalog data in background
         fetchCatalogData();
+
+        // Auto-collapse floating CTA to search icon after 5 seconds
+        initFloatingBtnAutoCollapse();
+    }
+
+    function initFloatingBtnAutoCollapse() {
+        if (!elements.floatingBtn) return;
+
+        let isHovered = false;
+        let shouldCollapse = false;
+
+        elements.floatingBtn.addEventListener('mouseenter', function () {
+            isHovered = true;
+        });
+
+        elements.floatingBtn.addEventListener('mouseleave', function () {
+            isHovered = false;
+            if (shouldCollapse) {
+                elements.floatingBtn.classList.add('collapsed');
+            }
+        });
+
+        setTimeout(function () {
+            shouldCollapse = true;
+            if (!isHovered) {
+                elements.floatingBtn.classList.add('collapsed');
+            }
+        }, 5000);
     }
 
     // ==========================================================================

@@ -4,8 +4,17 @@
  */
 
 /* ==========================================================================
-   1. FLOATING CTA BUTTON
+   1. FLOATING CTA BUTTON & ROTATING BORDER BEAM
    ========================================================================== */
+@keyframes rovenBorderSpin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 .roven-find-scent-btn {
     position: fixed;
     right: 24px;
@@ -13,31 +22,78 @@
     z-index: 1040;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
-    padding: 12px 22px;
-    background: linear-gradient(135deg, #420B0B 0%, #630000 60%, #420B0B 100%);
-    color: #EDEBDD !important;
-    border: 1.5px solid rgba(181, 141, 74, 0.45);
+    height: 48px;
+    width: 205px;
+    padding: 0 18px;
     border-radius: 50px;
+    border: none;
+    outline: none;
+    color: #EDEBDD !important;
     font-family: inherit;
     font-size: 0.92rem;
     font-weight: 700;
     letter-spacing: 0.4px;
     text-decoration: none !important;
-    box-shadow: 0 8px 24px rgba(66, 11, 11, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 24px rgba(66, 11, 11, 0.35), 0 0 16px rgba(212, 175, 55, 0.25);
     cursor: pointer;
-    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    box-sizing: border-box;
+    transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                padding 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                gap 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.28s ease;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
 
+/* Rotating glowing border beam */
+.roven-find-scent-btn::before {
+    content: '';
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    left: calc(50% - 140px);
+    top: calc(50% - 140px);
+    background: conic-gradient(
+        from 0deg,
+        rgba(212, 175, 55, 0.15) 0deg,
+        rgba(212, 175, 55, 0.15) 220deg,
+        #B58D4A 270deg,
+        #D4AF37 310deg,
+        #FFFFFF 335deg,
+        #F9E79F 350deg,
+        rgba(212, 175, 55, 0.15) 360deg
+    );
+    animation: rovenBorderSpin 2.5s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Inner card burgundy background */
+.roven-find-scent-btn::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #420B0B 0%, #630000 60%, #420B0B 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Ensure contents sit above background */
+.roven-find-scent-btn > * {
+    position: relative;
+    z-index: 2;
+}
+
 .roven-find-scent-btn:hover,
 .roven-find-scent-btn:focus-visible {
-    background: linear-gradient(135deg, #520E0E 0%, #750000 60%, #520E0E 100%);
     color: #FFFFFF !important;
-    transform: translateY(-2.5px) scale(1.02);
-    border-color: rgba(212, 175, 55, 0.75);
-    box-shadow: 0 12px 30px rgba(66, 11, 11, 0.45), 0 0 18px rgba(181, 141, 74, 0.35);
+    transform: translateY(-2.5px);
+    box-shadow: 0 12px 30px rgba(66, 11, 11, 0.45), 0 0 22px rgba(212, 175, 55, 0.45);
 }
 
 .roven-find-scent-btn:active {
@@ -48,13 +104,15 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
     border-radius: 50%;
-    background: rgba(181, 141, 74, 0.2);
-    color: #EDEBDD;
-    font-size: 0.85rem;
-    transition: transform 0.3s ease;
+    background: rgba(181, 141, 74, 0.22);
+    color: #D4AF37;
+    font-size: 0.88rem;
+    transition: transform 0.3s ease, background 0.3s ease;
+    flex-shrink: 0;
 }
 
 .roven-find-scent-btn:hover .btn-icon-wrapper {
@@ -66,8 +124,49 @@
 .roven-find-scent-btn .btn-search-icon,
 .roven-find-scent-btn .btn-compass {
     color: #D4AF37;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     transition: transform 0.3s ease;
+}
+
+.roven-find-scent-btn .roven-btn-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity 0.3s ease, transform 0.3s ease, max-width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 155px;
+    opacity: 1;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   COLLAPSED STATE: After 5 seconds, shrink to search icon only
+   ========================================================================== */
+.roven-find-scent-btn.collapsed {
+    width: 48px;
+    padding: 0;
+    gap: 0;
+}
+
+.roven-find-scent-btn.collapsed .roven-btn-text {
+    max-width: 0;
+    opacity: 0;
+    transform: scale(0.8);
+    margin: 0;
+    pointer-events: none;
+}
+
+/* On hover when collapsed, expand back smoothly */
+.roven-find-scent-btn.collapsed:hover {
+    width: 205px;
+    padding: 0 18px;
+    gap: 10px;
+}
+
+.roven-find-scent-btn.collapsed:hover .roven-btn-text {
+    max-width: 155px;
+    opacity: 1;
+    transform: scale(1);
 }
 
 @keyframes rovenSparklePulse {
@@ -79,14 +178,33 @@
     .roven-find-scent-btn {
         right: 16px;
         bottom: 20px;
-        padding: 10px 18px;
+        height: 44px;
+        width: 185px;
+        padding: 0 14px;
         font-size: 0.84rem;
         gap: 8px;
     }
     .roven-find-scent-btn .btn-icon-wrapper {
-        width: 24px;
-        height: 24px;
-        font-size: 0.78rem;
+        width: 26px;
+        height: 26px;
+        min-width: 26px;
+        font-size: 0.82rem;
+    }
+    .roven-find-scent-btn .roven-btn-text {
+        max-width: 140px;
+    }
+    .roven-find-scent-btn.collapsed {
+        width: 44px;
+        padding: 0;
+        gap: 0;
+    }
+    .roven-find-scent-btn.collapsed:hover {
+        width: 185px;
+        padding: 0 14px;
+        gap: 8px;
+    }
+    .roven-find-scent-btn.collapsed:hover .roven-btn-text {
+        max-width: 140px;
     }
 }
 
@@ -816,9 +934,17 @@ body.roven-quiz-open {
     color: #1B1717;
 }
 
+.roven-quiz-modal .d-none,
+.roven-quiz-footer .d-none,
+.roven-btn-primary.d-none,
+.roven-btn-secondary.d-none,
+.roven-btn-skip.d-none {
+    display: none !important;
+}
+
 .roven-btn-primary,
-.roven-quiz-modal .roven-btn-primary,
-#rovenQuizNextBtn {
+.roven-quiz-modal .roven-btn-primary:not(.d-none),
+#rovenQuizNextBtn:not(.d-none) {
     display: inline-flex !important;
     align-items: center !important;
     gap: 8px !important;
