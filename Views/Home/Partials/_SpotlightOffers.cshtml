@@ -26,36 +26,18 @@
 
     if (offers.Any())
     {
-        <style>
-            .roven-spotlight-hero-card,
-            .roven-spotlight-hero-card:hover,
-            .roven-offer-slide-item,
-            .roven-offer-slide-item:hover,
-            .roven-offer-img-frame,
-            .roven-offer-img-frame:hover {
-                box-shadow: none !important;
-                -webkit-box-shadow: none !important;
-                transform: none !important;
-            }
-            .roven-spotlight-hero-card::before,
-            .roven-spotlight-hero-card::after {
-                display: none !important;
-                content: none !important;
-            }
-        </style>
-
-        <section id="homeSpotlightSection" class="py-5 w-100 position-relative overflow-hidden" style="background-color: #FFFFFF;">
+        <section id="homeSpotlightSection" class="roven-spotlight-section py-5 w-100 position-relative overflow-hidden">
             <div class="container position-relative">
                 <!-- Section Header -->
                 <div class="text-center mb-4 mb-md-5">
-                    <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-bold mb-2 d-inline-flex align-items-center gap-2">
-                        <i class="fa-solid fa-fire text-danger"></i>
+                    <span class="badge roven-spotlight-badge px-3 py-1.5 rounded-pill fw-bold mb-2 d-inline-flex align-items-center gap-2">
+                        <i class="fa-solid fa-fire text-gold"></i>
                         <span>@(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightBadgeText) ? "EXCLUSIVE ATELIER OFFERS & DEALS" : Model.Settings.SpotlightBadgeText)</span>
                     </span>
-                    <h2 class="fw-extrabold mb-2" style="font-family: 'Playfair Display', serif; color: #1B1717;">
+                    <h2 class="fw-extrabold mb-2 roven-spotlight-heading" style="font-family: 'Playfair Display', serif;">
                         @(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightTitle) ? "ROVEN OFFERS 🔥" : Model.Settings.SpotlightTitle)
                     </h2>
-                    <p class="text-muted small mx-auto mb-0" style="max-width: 620px;">
+                    <p class="roven-spotlight-sub small mx-auto mb-0" style="max-width: 620px;">
                         @(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightSubtitle) ? "Discover the world of ROVEN through our new online store, where luxury meets elegance in every detail." : Model.Settings.SpotlightSubtitle)
                     </p>
                 </div>
@@ -137,8 +119,8 @@
                                                         else
                                                         {
                                                             <div class="text-center py-5">
-                                                                <i class="fa-solid fa-spray-can-sparkles display-2" style="color: #630000; opacity: 0.7;"></i>
-                                                                <div class="text-muted small mt-2 fw-semibold">ROVEN Haute Parfumerie</div>
+                                                                <i class="fa-solid fa-spray-can-sparkles display-2" style="color: #dfb15b; opacity: 0.8;"></i>
+                                                                <div class="small mt-2 fw-semibold" style="color: #dfb15b;">ROVEN Haute Parfumerie</div>
                                                             </div>
                                                         }
                                                     </a>
