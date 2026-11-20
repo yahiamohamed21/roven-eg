@@ -1519,29 +1519,29 @@
     }
 
     /* =====================================================================
-       Maison ROVEN — Spotlight Grand Offer Banner (Dark Velvet Crimson Mode)
+       Maison ROVEN — Spotlight Grand Offer Banner (White Section Background)
        ===================================================================== */
     .roven-spotlight-section {
-        background: radial-gradient(ellipse at 50% 30%, #3e0004 0%, #240002 65%, #140001 100%);
+        background-color: #FFFFFF !important;
         position: relative;
-        border-top: 1px solid rgba(223, 177, 91, 0.25);
-        border-bottom: 1px solid rgba(223, 177, 91, 0.25);
+        border-top: none;
+        border-bottom: none;
     }
 
     .roven-spotlight-badge {
-        background: rgba(223, 177, 91, 0.12) !important;
-        color: #dfb15b !important;
-        border: 1px solid rgba(223, 177, 91, 0.45) !important;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+        background: #FAF8F3 !important;
+        color: #810100 !important;
+        border: 1px solid rgba(181, 141, 74, 0.4) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     .roven-spotlight-heading {
-        color: #FAF9F5 !important;
-        text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+        color: #1B1717 !important;
+        text-shadow: none !important;
     }
 
     .roven-spotlight-sub {
-        color: rgba(250, 249, 245, 0.8) !important;
+        color: #6c6358 !important;
     }
 
     .roven-offers-carousel-wrap {
@@ -1893,8 +1893,8 @@
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background: rgba(223, 177, 91, 0.25);
-        border: 1px solid rgba(223, 177, 91, 0.5);
+        background: rgba(129, 1, 0, 0.2);
+        border: 1px solid rgba(129, 1, 0, 0.4);
         padding: 0;
         cursor: pointer;
         transition: all 0.25s ease;
@@ -1903,9 +1903,9 @@
     .roven-offers-dot.active {
         width: 28px;
         border-radius: 50px;
-        background: #dfb15b;
+        background: #810100;
         border-color: #dfb15b;
-        box-shadow: 0 0 10px rgba(223, 177, 91, 0.6);
+        box-shadow: 0 2px 8px rgba(129, 1, 0, 0.35);
     }
 
     @media (max-width: 991.98px) {

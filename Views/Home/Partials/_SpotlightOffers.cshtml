@@ -26,18 +26,18 @@
 
     if (offers.Any())
     {
-        <section id="homeSpotlightSection" class="roven-spotlight-section py-5 w-100 position-relative overflow-hidden">
+        <section id="homeSpotlightSection" class="roven-spotlight-section py-5 w-100 position-relative overflow-hidden" style="background-color: #FFFFFF;">
             <div class="container position-relative">
                 <!-- Section Header -->
                 <div class="text-center mb-4 mb-md-5">
                     <span class="badge roven-spotlight-badge px-3 py-1.5 rounded-pill fw-bold mb-2 d-inline-flex align-items-center gap-2">
-                        <i class="fa-solid fa-fire text-gold"></i>
+                        <i class="fa-solid fa-fire text-danger"></i>
                         <span>@(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightBadgeText) ? "EXCLUSIVE ATELIER OFFERS & DEALS" : Model.Settings.SpotlightBadgeText)</span>
                     </span>
-                    <h2 class="fw-extrabold mb-2 roven-spotlight-heading" style="font-family: 'Playfair Display', serif;">
+                    <h2 class="fw-extrabold mb-2 roven-spotlight-heading" style="font-family: 'Playfair Display', serif; color: #1B1717;">
                         @(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightTitle) ? "ROVEN OFFERS 🔥" : Model.Settings.SpotlightTitle)
                     </h2>
-                    <p class="roven-spotlight-sub small mx-auto mb-0" style="max-width: 620px;">
+                    <p class="roven-spotlight-sub small mx-auto mb-0" style="max-width: 620px; color: #6c6358;">
                         @(string.IsNullOrWhiteSpace(Model.Settings?.SpotlightSubtitle) ? "Discover the world of ROVEN through our new online store, where luxury meets elegance in every detail." : Model.Settings.SpotlightSubtitle)
                     </p>
                 </div>
