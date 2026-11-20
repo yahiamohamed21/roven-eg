@@ -58,32 +58,34 @@
             <div class="col-12 col-lg-5 text-center text-lg-start">
                 <div class="roven-compare-editorial pe-lg-2">
                     
-                    <!-- Royal Luxury Badge -->
-                    <div class="roven-compare-badge mb-3">
-                        <i class="fa-solid fa-crown roven-badge-crown"></i>
-                        <span>@badgeText</span>
-                        <span class="roven-badge-sparkle">✦</span>
-                    </div>
-
-                    <!-- Editorial Haute Headline -->
-                    <h2 class="roven-compare-title mb-2">
-                        @title
+                    <!-- Editorial Haute Headline: US VS THEM -->
+                    <h2 class="roven-compare-title mb-3">
+                        @if (title.Trim().Equals("US VS THEM", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <span class="roven-title-us">US</span>
+                            <span class="roven-title-vs-pill">VS</span>
+                            <span class="roven-title-them">THEM</span>
+                        }
+                        else
+                        {
+                            <span>@title</span>
+                        }
                     </h2>
 
                     <!-- Decorative Gold Flourish Divider -->
-                    <div class="roven-editorial-flourish mb-3 d-flex align-items-center justify-content-center justify-content-lg-start gap-2">
+                    <div class="roven-editorial-flourish mb-4 d-flex align-items-center justify-content-center justify-content-lg-start gap-2">
                         <span class="flourish-line"></span>
                         <span class="flourish-gem">◈</span>
                         <span class="flourish-line-long"></span>
                     </div>
 
                     <!-- Narrative Subtitle -->
-                    <p class="roven-compare-subtitle mb-4">
+                    <p class="roven-compare-subtitle mb-4 pb-2">
                         @subtitle
                     </p>
 
                     <!-- Atelier Quality Signatures (3 Refined Luxury Plaque Cards) -->
-                    <div class="roven-compare-features d-flex flex-column gap-3 mb-4 text-start">
+                    <div class="roven-compare-features d-flex flex-column gap-3 mb-4 pb-2 text-start">
                         
                         <!-- Signature 1: Concentration -->
                         <div class="roven-feature-card d-flex align-items-center gap-3">
@@ -94,9 +96,9 @@
                                 <div class="roven-feature-name">Extrait de Parfum (30% Concentration)</div>
                                 <div class="roven-feature-desc">أعلى تركيز زيوت عطرية نقية معتمدة لثبات وفوحان فائق</div>
                             </div>
-                            <div class="roven-feature-metric flex-shrink-0 d-none d-sm-flex flex-column text-end">
+                            <div class="roven-feature-metric flex-shrink-0 d-flex flex-column text-end">
                                 <span class="metric-val">30%</span>
-                                <span class="metric-lbl">Pure Essence</span>
+                                <span class="metric-lbl">Pure</span>
                             </div>
                         </div>
 
@@ -109,9 +111,9 @@
                                 <div class="roven-feature-name">24+ Hours Royal Longevity &amp; Sillage</div>
                                 <div class="roven-feature-desc">ثبات وفوحان ملكي يدوم أكثر من 24 ساعة على الملابس</div>
                             </div>
-                            <div class="roven-feature-metric flex-shrink-0 d-none d-sm-flex flex-column text-end">
+                            <div class="roven-feature-metric flex-shrink-0 d-flex flex-column text-end">
                                 <span class="metric-val">24h+</span>
-                                <span class="metric-lbl">Long Lasting</span>
+                                <span class="metric-lbl">Long</span>
                             </div>
                         </div>
 
@@ -124,15 +126,15 @@
                                 <div class="roven-feature-name">100% Risk-Free Inspection on Delivery</div>
                                 <div class="roven-feature-desc">حق المعاينة والتجربة الكاملة قبل استلام الطرد والدفع</div>
                             </div>
-                            <div class="roven-feature-metric flex-shrink-0 d-none d-sm-flex flex-column text-end">
+                            <div class="roven-feature-metric flex-shrink-0 d-flex flex-column text-end">
                                 <span class="metric-val">100%</span>
-                                <span class="metric-lbl">Risk-Free COD</span>
+                                <span class="metric-lbl">COD</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Master Haute Parfumerie CTA Button ("Shop Now") -->
-                    <div class="pt-2">
+                    <div class="mt-4 pt-2">
                         <a href="@buttonLink" class="roven-master-cta-btn">
                             <span class="roven-btn-sparkle-left">✦</span>
                             <span class="roven-master-btn-text">@buttonText</span>
@@ -253,40 +255,55 @@
         z-index: 1;
     }
 
-    /* Left Column Typography */
-    .roven-compare-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 6px 18px;
-        border-radius: 50px;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(247, 243, 235, 0.95) 100%);
-        border: 1px solid rgba(223, 177, 91, 0.6);
-        color: #810100;
-        font-size: 0.78rem;
-        font-weight: 800;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        box-shadow: 0 4px 15px rgba(223, 177, 91, 0.15);
-    }
-
-    .roven-badge-crown {
-        color: #dfb15b;
-        font-size: 0.82rem;
-    }
-
-    .roven-badge-sparkle {
-        color: #dfb15b;
-        font-size: 0.85rem;
-    }
-
+    /* Left Column Typography: US VS THEM */
     .roven-compare-title {
         font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
-        font-size: clamp(2.4rem, 4.2vw, 3.6rem);
-        font-weight: 800;
+        font-size: clamp(3rem, 5.5vw, 4.4rem);
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        line-height: 1.05;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    @@media (min-width: 992px) {
+        .roven-compare-title {
+            justify-content: flex-start;
+        }
+    }
+
+    .roven-title-us {
+        color: #810100;
+        font-weight: 900;
+        text-shadow: 0 4px 18px rgba(129, 1, 0, 0.18);
+    }
+
+    .roven-title-vs-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #dfb15b 0%, #b58d4a 100%);
         color: #1B1717;
-        letter-spacing: -0.5px;
-        line-height: 1.1;
+        font-family: 'Montserrat', sans-serif;
+        font-size: clamp(0.75rem, 1.8vw, 0.95rem);
+        font-weight: 900;
+        letter-spacing: 2px;
+        padding: 5px 16px;
+        border-radius: 50px;
+        border: 2px solid #FFFFFF;
+        box-shadow: 0 4px 16px rgba(223, 177, 91, 0.5);
+        vertical-align: middle;
+        margin: 0 6px;
+        transform: translateY(-2px);
+    }
+
+    .roven-title-them {
+        color: #1B1717;
+        font-weight: 900;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     .roven-editorial-flourish {
@@ -612,21 +629,47 @@
 
 
 
-    /* Responsive Adjustments */
+    /* Responsive Adjustments for Tablets and Mobile Screens */
     @@media (max-width: 991.98px) {
         .roven-compare-section {
             padding: 3.5rem 0;
         }
         .roven-compare-title {
-            font-size: 2.2rem;
+            font-size: clamp(2.5rem, 8.8vw, 3.4rem) !important;
+            margin-bottom: 1.25rem !important;
+        }
+        .roven-title-vs-pill {
+            padding: 4px 13px !important;
+            font-size: 0.8rem !important;
         }
         .roven-compare-subtitle {
+            font-size: 0.98rem;
             margin-left: auto;
             margin-right: auto;
+            margin-bottom: 1.8rem !important;
+            line-height: 1.7;
+        }
+        .roven-compare-features {
+            gap: 1.15rem !important;
+            margin-bottom: 1.8rem !important;
+        }
+        .roven-feature-card {
+            padding: 14px 16px !important;
+            border-radius: 16px !important;
+        }
+        .roven-feature-name {
+            font-size: 0.92rem !important;
+        }
+        .roven-feature-desc {
+            font-size: 0.8rem !important;
+            line-height: 1.5;
         }
         .roven-master-cta-btn {
-            padding: 0.9rem 2.2rem;
-            font-size: 0.92rem;
+            width: 100%;
+            max-width: 320px;
+            padding: 1rem 2rem !important;
+            font-size: 0.95rem !important;
+            margin: 0 auto;
         }
         .roven-jewelry-handle {
             width: 46px;
@@ -638,14 +681,12 @@
         .roven-handle-chevron {
             font-size: 0.65rem;
         }
-        .roven-feature-card {
-            padding: 11px 14px;
-        }
         .roven-feature-icon-box {
-            width: 40px;
-            height: 40px;
-            font-size: 1rem;
+            width: 42px;
+            height: 42px;
+            font-size: 1.05rem;
         }
+    }
     }
 </style>
 
