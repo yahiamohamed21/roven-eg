@@ -9,9 +9,6 @@
         visibility: hidden !important;
         pointer-events: none !important;
     }
-    .roven-cat-card:hover {
-        box-shadow: 0 0 26px rgba(223, 177, 91, 0.45) !important;
-    }
     .roven-cat-card:hover .roven-cat-hover-reveal {
         opacity: 1 !important;
         max-height: 120px !important;
@@ -45,7 +42,6 @@
         background-color: #dfb15b !important;
         color: #1B1717 !important;
         border-color: #dfb15b !important;
-        box-shadow: 0 4px 18px rgba(223, 177, 91, 0.55) !important;
     }
     .roven-cat-bottom-content,
     .roven-cat-hover-reveal,
@@ -194,11 +190,8 @@
                 }
             </div>
 
-            <!-- Carousel Pagination Dots (Below cards matching mockup) -->
-            <div class="roven-cat-dots-wrap d-flex justify-content-center align-items-center gap-2 mt-4" id="rovenCatDots">
-                <button type="button" class="roven-cat-dot active" onclick="rovenGoToCategorySlide(0)" aria-label="Slide 1"></button>
-                <button type="button" class="roven-cat-dot" onclick="rovenGoToCategorySlide(1)" aria-label="Slide 2"></button>
-                <button type="button" class="roven-cat-dot" onclick="rovenGoToCategorySlide(2)" aria-label="Slide 3"></button>
+            <!-- Carousel Pagination Dots (Dynamically generated based on categories and scroll responsiveness) -->
+            <div class="roven-cat-dots-wrap d-flex justify-content-center align-items-center gap-2 mt-4" id="rovenCatDots" style="display: none !important;">
             </div>
         </div>
     </div>
@@ -212,35 +205,117 @@
         track.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
     }
 
-    function rovenGoToCategorySlide(index) {
-        var track = document.getElementById('rovenCatTrack');
-        if (!track) return;
-        var scrollAmount = track.clientWidth * 0.85 * index;
-        track.scrollTo({ left: scrollAmount, behavior: 'smooth' });
-        updateRovenCatDots(index);
-    }
-
-    function updateRovenCatDots(activeIndex) {
-        var dots = document.querySelectorAll('#rovenCatDots .roven-cat-dot');
-        dots.forEach(function(dot, idx) {
-            if (idx === activeIndex) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
-        });
-    }
-
     (function() {
         var track = document.getElementById('rovenCatTrack');
-        if (!track) return;
-        track.addEventListener('scroll', function() {
+        var dotsContainer = document.getElementById('rovenCatDots');
+        var prevBtn = document.querySelector('.roven-cat-nav-prev');
+        var nextBtn = document.querySelector('.roven-cat-nav-next');
+        if (!track || !dotsContainer) return;
+
+        function updateCategoryPagination() {
+            var scrollWidth = track.scrollWidth;
+            var clientWidth = track.clientWidth;
+            var maxScroll = Math.max(0, scrollWidth - clientWidth);
+
+            // If all categories fit without scrolling (e.g. 4 or fewer categories on desktop)
+            if (maxScroll <= 10) {
+                dotsContainer.style.setProperty('display', 'none', 'important');
+                if (prevBtn) prevBtn.style.setProperty('display', 'none', 'important');
+                if (nextBtn) nextBtn.style.setProperty('display', 'none', 'important');
+                return;
+            }
+
+            // If scrolling is needed (overflow exists):
+            // Show navigation arrows on desktop/tablet (>= 768px)
+            if (window.innerWidth >= 768) {
+                if (prevBtn) prevBtn.style.removeProperty('display');
+                if (nextBtn) nextBtn.style.removeProperty('display');
+            } else {
+                if (prevBtn) prevBtn.style.setProperty('display', 'none', 'important');
+                if (nextBtn) nextBtn.style.setProperty('display', 'none', 'important');
+            }
+
+            var items = track.querySelectorAll('.roven-cat-item');
+            if (items.length <= 1) {
+                dotsContainer.style.setProperty('display', 'none', 'important');
+                return;
+            }
+
+            // Calculate visible cards count in current viewport
+            var firstItemWidth = items[0].getBoundingClientRect().width;
+            var visibleCount = Math.max(1, Math.floor(clientWidth / (firstItemWidth || 250)));
+            
+            // Total slides/pages needed
+            var totalPages = Math.max(2, Math.ceil(items.length / visibleCount));
+            totalPages = Math.min(items.length, totalPages);
+
+            dotsContainer.style.removeProperty('display');
+            dotsContainer.style.display = 'flex';
+
+            // Check if we need to regenerate the dots
+            var existingDots = dotsContainer.querySelectorAll('.roven-cat-dot');
+            if (existingDots.length !== totalPages) {
+                dotsContainer.innerHTML = '';
+                for (var i = 0; i < totalPages; i++) {
+                    (function(pageIdx) {
+                        var dot = document.createElement('button');
+                        dot.type = 'button';
+                        dot.className = 'roven-cat-dot' + (pageIdx === 0 ? ' active' : '');
+                        dot.setAttribute('aria-label', 'Go to category slide ' + (pageIdx + 1));
+                        dot.addEventListener('click', function() {
+                            var targetScroll;
+                            if (pageIdx === 0) {
+                                targetScroll = 0;
+                            } else if (pageIdx === totalPages - 1) {
+                                targetScroll = maxScroll;
+                            } else {
+                                targetScroll = (maxScroll / (totalPages - 1)) * pageIdx;
+                            }
+                            track.scrollTo({ left: targetScroll, behavior: 'smooth' });
+                            setActiveDot(pageIdx);
+                        });
+                        dotsContainer.appendChild(dot);
+                    })(i);
+                }
+            }
+
+            updateActiveDot();
+        }
+
+        function setActiveDot(activeIndex) {
+            var dots = dotsContainer.querySelectorAll('.roven-cat-dot');
+            dots.forEach(function(dot, idx) {
+                if (idx === activeIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        function updateActiveDot() {
             var maxScroll = track.scrollWidth - track.clientWidth;
             if (maxScroll <= 0) return;
-            var ratio = track.scrollLeft / maxScroll;
-            var dotIndex = Math.min(2, Math.floor(ratio * 3));
-            updateRovenCatDots(dotIndex);
-        }, { passive: true });
+            var dots = dotsContainer.querySelectorAll('.roven-cat-dot');
+            if (dots.length === 0) return;
+
+            var scrollLeft = Math.max(0, track.scrollLeft);
+            var ratio = Math.min(1, Math.max(0, scrollLeft / maxScroll));
+            var activeIdx = Math.min(dots.length - 1, Math.round(ratio * (dots.length - 1)));
+            setActiveDot(activeIdx);
+        }
+
+        track.addEventListener('scroll', updateActiveDot, { passive: true });
+        window.addEventListener('resize', updateCategoryPagination, { passive: true });
+
+        // Initial run
+        if (document.readyState === 'complete') {
+            updateCategoryPagination();
+        } else {
+            window.addEventListener('load', updateCategoryPagination);
+        }
+        setTimeout(updateCategoryPagination, 100);
+        setTimeout(updateCategoryPagination, 500);
     })();
 </script>
 }
