@@ -1589,8 +1589,9 @@
         padding: 2.5rem 3rem;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 20px 48px rgba(35, 4, 4, 0.5), 0 8px 24px rgba(0, 0, 0, 0.3) !important;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: none !important;
+        filter: none !important;
+        transition: border-color 0.3s ease;
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -1607,6 +1608,8 @@
     .roven-spotlight-hero-card:hover {
         transform: none !important;
         border-color: rgba(223, 177, 91, 0.5) !important;
+        box-shadow: none !important;
+        filter: none !important;
     }
 
     .roven-spotlight-hero-card::before,
@@ -1932,6 +1935,8 @@
             padding: 1.75rem 1.25rem;
             border-radius: 20px;
             min-height: auto;
+            box-shadow: none !important;
+            filter: none !important;
         }
         .roven-offer-img-frame {
             height: 290px;
