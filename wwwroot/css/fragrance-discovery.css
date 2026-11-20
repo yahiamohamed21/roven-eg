@@ -25,8 +25,8 @@
     justify-content: center;
     gap: 10px;
     height: 48px;
-    width: 205px;
-    padding: 0 18px;
+    width: 190px;
+    padding: 0 16px;
     border-radius: 50px;
     border: none;
     outline: none;
@@ -158,13 +158,13 @@
 
 /* On hover when collapsed, expand back smoothly */
 .roven-find-scent-btn.collapsed:hover {
-    width: 205px;
-    padding: 0 18px;
+    width: 190px;
+    padding: 0 16px;
     gap: 10px;
 }
 
 .roven-find-scent-btn.collapsed:hover .roven-btn-text {
-    max-width: 155px;
+    max-width: 145px;
     opacity: 1;
     transform: scale(1);
 }
@@ -179,8 +179,8 @@
         right: 16px;
         bottom: 20px;
         height: 44px;
-        width: 185px;
-        padding: 0 14px;
+        width: 172px;
+        padding: 0 12px;
         font-size: 0.84rem;
         gap: 8px;
     }
@@ -191,7 +191,7 @@
         font-size: 0.82rem;
     }
     .roven-find-scent-btn .roven-btn-text {
-        max-width: 140px;
+        max-width: 130px;
     }
     .roven-find-scent-btn.collapsed {
         width: 44px;
@@ -199,12 +199,12 @@
         gap: 0;
     }
     .roven-find-scent-btn.collapsed:hover {
-        width: 185px;
-        padding: 0 14px;
+        width: 172px;
+        padding: 0 12px;
         gap: 8px;
     }
     .roven-find-scent-btn.collapsed:hover .roven-btn-text {
-        max-width: 140px;
+        max-width: 130px;
     }
 }
 
