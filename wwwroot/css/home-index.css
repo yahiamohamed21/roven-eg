@@ -780,12 +780,35 @@
         flex-shrink: 0;
     }
 
-        /* =====================================================================
-       Category Showcase Poster Carousel (Haute Parfumerie Visual Gallery)
+    /* =====================================================================
+       Category Showcase Haute Parfumerie Visual Gallery (Mockup-Identical)
        ===================================================================== */
     .roven-categories-showcase-section {
-        background-color: #FAF9F5;
+        background: radial-gradient(ellipse at 50% 50%, #FAF6EE 0%, #F5ECDF 60%, #EEDDC9 100%);
         position: relative;
+        padding-top: 3.5rem;
+        padding-bottom: 4rem;
+    }
+
+    /* Luxury Crimson Silk Fabric Drapes in Corners */
+    .roven-cat-silk-tl {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: clamp(180px, 26vw, 360px);
+        pointer-events: none;
+        z-index: 1;
+        user-select: none;
+    }
+
+    .roven-cat-silk-br {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: clamp(160px, 23vw, 320px);
+        pointer-events: none;
+        z-index: 1;
+        user-select: none;
     }
 
     .roven-cat-ambient-glow {
@@ -796,11 +819,108 @@
         width: 100%;
         max-width: 1200px;
         height: 100%;
-        background: radial-gradient(circle at 50% 25%, rgba(223, 177, 91, 0.08) 0%, transparent 70%);
+        background: radial-gradient(circle at 50% 25%, rgba(223, 177, 91, 0.12) 0%, transparent 70%);
         pointer-events: none;
-        z-index: 1;
+        z-index: 2;
     }
 
+    /* Header Elements */
+    .roven-cat-header-wrap {
+        position: relative;
+        width: 100%;
+    }
+
+    .roven-cat-crown-wrap {
+        margin-bottom: 0.5rem;
+    }
+
+    .roven-cat-crown-icon {
+        color: #dfb15b;
+        font-size: 1.45rem;
+        filter: drop-shadow(0 2px 8px rgba(223, 177, 91, 0.35));
+    }
+
+    .roven-cat-crown-line {
+        display: inline-block;
+        width: 45px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(181, 141, 74, 0.65), transparent);
+    }
+
+    .roven-cat-section-heading {
+        color: #1B1717;
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: clamp(1.85rem, 3.2vw, 2.7rem);
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        line-height: 1.25;
+    }
+
+    .roven-cat-heading-accent {
+        color: #810100;
+    }
+
+    .roven-cat-section-sub {
+        color: #6c6358;
+        font-size: clamp(0.88rem, 1.4vw, 1.02rem);
+        max-width: 650px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .roven-cat-diamond-wrap {
+        margin-top: 0.25rem;
+    }
+
+    .roven-cat-diamond-icon {
+        color: #dfb15b;
+        font-size: 0.55rem;
+        opacity: 0.85;
+    }
+
+    .roven-cat-diamond-line {
+        display: inline-block;
+        width: 32px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(181, 141, 74, 0.55), transparent);
+    }
+
+    .roven-cat-view-all-wrapper {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+    }
+
+    @media (max-width: 991.98px) {
+        .roven-cat-view-all-wrapper {
+            position: static;
+            transform: none;
+            margin-top: 1rem;
+            text-align: center;
+        }
+    }
+
+    .roven-cat-view-all-btn {
+        border: 1.5px solid #810100;
+        color: #810100;
+        background: transparent;
+        border-radius: 50px;
+        padding: 0.5rem 1.4rem;
+        font-size: 0.84rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .roven-cat-view-all-btn:hover {
+        background: #810100;
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(129, 1, 0, 0.25);
+        transform: translateX(3px);
+    }
+
+    /* Carousel Track & Container */
     .roven-cat-carousel-container {
         position: relative;
         width: 100%;
@@ -811,7 +931,7 @@
         overflow-x: auto;
         scroll-behavior: smooth;
         scroll-snap-type: x mandatory;
-        padding: 0.5rem 0.25rem 1.25rem;
+        padding: 0.75rem 0.35rem 1rem;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
         -ms-overflow-style: none;
@@ -824,8 +944,8 @@
     .roven-cat-item {
         scroll-snap-align: start;
         flex: 0 0 calc(25% - 1.15rem);
-        min-width: 255px;
-        max-width: 320px;
+        min-width: 250px;
+        max-width: 310px;
     }
 
     @media (max-width: 1199.98px) {
@@ -835,32 +955,32 @@
         }
     }
 
-    @media (max-width: 767.98px) {
+    @media (max-width: 860px) {
         .roven-cat-item {
-            flex: 0 0 70%;
+            flex: 0 0 calc(50% - 0.75rem);
+            min-width: 230px;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .roven-cat-item {
+            flex: 0 0 78%;
             min-width: 220px;
         }
     }
 
-    @media (max-width: 480px) {
-        .roven-cat-item {
-            flex: 0 0 80%;
-            min-width: 210px;
-        }
-    }
-
-    /* Category Card - Full Bleed Canvas, Jewelry Bezel, Fixed Stature */
+    /* Category Card Structure */
     .roven-cat-card {
         display: block;
         width: 100%;
-        height: 440px; /* Fixed height on Desktop - ZERO stretch or layout shift */
-        border-radius: 22px;
+        height: 450px;
+        border-radius: 24px;
         overflow: hidden;
-        background: #500000;
+        background: linear-gradient(180deg, #620005 0%, #460003 40%, #280002 80%, #170001 100%);
         text-decoration: none;
         position: relative;
-        border: 1.5px solid rgba(223, 177, 91, 0.45);
-        box-shadow: 0 12px 32px rgba(27, 23, 23, 0.1);
+        border: 1.5px solid rgba(223, 177, 91, 0.35);
+        box-shadow: 0 14px 34px rgba(27, 23, 23, 0.08);
         transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
                     border-color 0.35s ease, 
                     box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -869,26 +989,48 @@
     }
 
     .roven-cat-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-6px);
         border-color: #dfb15b;
-        box-shadow: 0 20px 48px rgba(129, 1, 0, 0.26);
+        box-shadow: 0 0 24px rgba(223, 177, 91, 0.42), 0 20px 44px rgba(27, 23, 23, 0.28);
     }
 
     @media (max-width: 767.98px) {
         .roven-cat-card {
-            height: 330px; /* Fixed height on Mobile */
-            border-radius: 18px;
+            height: 380px;
+            border-radius: 20px;
         }
     }
 
-    /* Fixed Image / Media Frame - Fills the Full Card */
+    /* Top Right Floating Badge (Pill) */
+    .roven-cat-top-bar {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        z-index: 4;
+        pointer-events: none;
+    }
+
+    .roven-cat-badge {
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: #1B1717;
+        background: #FFFDF9;
+        border: 1px solid rgba(223, 177, 91, 0.55);
+        padding: 0.28rem 0.8rem;
+        border-radius: 50px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+        display: inline-flex;
+        align-items: center;
+    }
+
+    /* Visual Media / Image Box */
     .roven-cat-img-box {
         position: absolute;
         inset: 0;
         width: 100%;
         height: 100%;
         overflow: hidden;
-        background: #500000;
+        background: #460003;
     }
 
     .roven-cat-img {
@@ -901,106 +1043,135 @@
     }
 
     .roven-cat-card:hover .roven-cat-img {
-        transform: scale(1.06);
+        transform: scale(1.05);
     }
 
-    /* Seamless Multi-Stop Luxury Scrim Gradient (Ensures perfect text legibility & zero white overlay) */
+    /* Scrim Gradient for Image Card */
     .roven-cat-scrim {
         position: absolute;
         inset: 0;
         background: linear-gradient(180deg, 
-            rgba(27, 23, 23, 0.22) 0%, 
-            rgba(27, 23, 23, 0) 25%, 
-            rgba(27, 23, 23, 0.25) 50%, 
-            rgba(99, 0, 0, 0.88) 78%, 
-            #630000 100%);
+            rgba(20, 0, 1, 0.15) 0%, 
+            rgba(20, 0, 1, 0.05) 35%, 
+            rgba(25, 0, 2, 0.55) 65%, 
+            rgba(25, 0, 2, 0.92) 85%, 
+            #150001 100%);
         pointer-events: none;
-        z-index: 1;
-        transition: background 0.4s ease;
+        z-index: 2;
     }
 
-    .roven-cat-card:hover .roven-cat-scrim {
-        background: linear-gradient(180deg, 
-            rgba(27, 23, 23, 0.18) 0%, 
-            rgba(27, 23, 23, 0) 25%, 
-            rgba(27, 23, 23, 0.2) 50%, 
-            rgba(129, 1, 0, 0.92) 78%, 
-            #720100 100%);
-    }
-
-    /* Floating Badges at Top */
-    .roven-cat-top-bar {
+    /* Placeholder Luxury Velvet Medallion Canvas */
+    .roven-cat-placeholder {
         position: absolute;
-        top: 14px;
-        left: 14px;
-        right: 14px;
-        z-index: 3;
-        pointer-events: none;
-    }
-
-    .roven-cat-dept-tag {
-        font-size: 0.65rem;
-        font-weight: 800;
-        letter-spacing: 2px;
-        color: #FAF9F5;
-        background: rgba(27, 23, 23, 0.65);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(223, 177, 91, 0.45);
-        padding: 0.28rem 0.65rem;
-        border-radius: 50px;
-        text-transform: uppercase;
-        display: inline-flex;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
         align-items: center;
+        justify-content: center;
+        background: linear-gradient(180deg, #620005 0%, #460003 40%, #280002 80%, #170001 100%);
+        padding: 2rem 1.25rem 5rem;
+        position: relative;
+        text-align: center;
+        overflow: hidden;
     }
 
-    .roven-cat-badge {
-        font-size: 0.72rem;
+    .roven-cat-center-emblem {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+        margin-top: -20px;
+    }
+
+    .roven-cat-ring-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(223, 177, 91, 0.65);
+        background: radial-gradient(circle, rgba(223, 177, 91, 0.16) 0%, transparent 70%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 16px rgba(223, 177, 91, 0.25);
+        margin-bottom: 14px;
+        transition: transform 0.4s ease, border-color 0.3s ease;
+    }
+
+    .roven-cat-card:hover .roven-cat-ring-icon {
+        transform: scale(1.08);
+        border-color: #dfb15b;
+        box-shadow: 0 0 22px rgba(223, 177, 91, 0.45);
+    }
+
+    .roven-cat-ring-icon i {
+        font-size: 1.85rem;
+        color: #dfb15b;
+        filter: drop-shadow(0 2px 8px rgba(223, 177, 91, 0.4));
+    }
+
+    .roven-cat-brand-text {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 0.92rem;
         font-weight: 700;
-        color: #810100;
-        background: rgba(255, 255, 255, 0.94);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(223, 177, 91, 0.55);
-        padding: 0.28rem 0.75rem;
-        border-radius: 50px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-        display: inline-flex;
-        align-items: center;
+        letter-spacing: 2.5px;
+        color: #dfb15b;
+        text-transform: uppercase;
+        margin-bottom: 3px;
     }
 
-    /* Integrated Editorial Bottom Content Plaque */
+    .roven-cat-sub-text {
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 3.2px;
+        color: rgba(223, 177, 91, 0.78);
+        text-transform: uppercase;
+    }
+
+    /* Bottom Content Plaque */
     .roven-cat-bottom-content {
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        padding: 1.4rem 1.25rem 1.35rem;
+        padding: 1.25rem 1.15rem 1.35rem;
         z-index: 3;
         text-align: center;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-end;
-        transition: transform 0.35s ease;
     }
 
-    .roven-cat-subtext {
-        font-size: 0.68rem;
-        letter-spacing: 2.5px;
-        text-transform: uppercase;
-        color: #dfb15b;
-        font-weight: 600;
-        margin-bottom: 5px;
-        opacity: 0.95;
+    /* Sinuous Glowing Golden Wave Accent */
+    .roven-cat-wave-wrap {
+        width: 100%;
+        max-width: 250px;
+        margin-bottom: 8px;
+        opacity: 0.9;
+        transition: opacity 0.3s ease, filter 0.3s ease;
+    }
+
+    .roven-cat-wave-svg {
+        width: 100%;
+        height: 18px;
+        display: block;
+    }
+
+    .roven-cat-card:hover .roven-cat-wave-wrap {
+        opacity: 1;
+        filter: drop-shadow(0 0 6px rgba(223, 177, 91, 0.8));
     }
 
     .roven-cat-title {
-        color: #ffffff;
+        color: #FAF9F5;
         font-family: 'Playfair Display', Georgia, serif;
         font-weight: 700;
-        font-size: 1.15rem;
-        letter-spacing: 1.6px;
+        font-size: 1.18rem;
+        letter-spacing: 1.8px;
         text-transform: uppercase;
         margin: 0;
         white-space: nowrap;
@@ -1008,140 +1179,96 @@
         text-overflow: ellipsis;
         max-width: 95%;
         text-align: center;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+        transition: transform 0.35s ease;
+    }
+
+    /* Hover Reveal Subtitle & Shop Now Button */
+    .roven-cat-hover-reveal {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(14px);
+        overflow: hidden;
+        pointer-events: none;
+        transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+                    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+                    max-height 0.35s ease, 
+                    margin 0.35s ease;
+        margin-top: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .roven-cat-card:hover .roven-cat-hover-reveal {
+        opacity: 1;
+        max-height: 85px;
+        transform: translateY(0);
+        margin-top: 8px;
+        pointer-events: auto;
+    }
+
+    .roven-cat-collection-divider {
+        font-size: 0.68rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #dfb15b;
+        font-weight: 600;
+        margin-bottom: 7px;
     }
 
     .roven-cat-action {
-        margin-top: 10px;
         display: flex;
         justify-content: center;
+        width: 100%;
     }
 
-    /* Luxury Champagne Gold Shop Pill Button */
+    /* Burgundy & Gold Shop Now Pill Button */
     .roven-cat-shop-pill {
-        background: linear-gradient(135deg, #dfb15b 0%, #c49a45 100%);
-        color: #1B1717;
-        border: 1px solid rgba(255, 255, 255, 0.45);
+        background: rgba(35, 2, 4, 0.88);
+        color: #FAF9F5;
+        border: 1.2px solid #dfb15b;
         border-radius: 50px;
-        padding: 0.42rem 1.35rem;
-        font-size: 0.76rem;
-        font-weight: 800;
-        letter-spacing: 1.2px;
+        padding: 0.42rem 1.4rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.8px;
         text-transform: uppercase;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        transition: all 0.25s ease;
     }
 
     .roven-cat-shop-pill i {
         font-size: 0.72rem;
-        color: #1B1717;
+        color: #dfb15b;
         transition: transform 0.25s ease;
     }
 
-    .roven-cat-card:hover .roven-cat-shop-pill {
-        background: #ffffff;
-        color: #810100;
-        border-color: #dfb15b;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(223, 177, 91, 0.5);
+    .roven-cat-card:hover .roven-cat-shop-pill:hover {
+        background: #dfb15b;
+        color: #1B1717;
+        box-shadow: 0 6px 20px rgba(223, 177, 91, 0.55);
+        transform: scale(1.04);
     }
 
-    .roven-cat-card:hover .roven-cat-shop-pill i {
-        color: #810100;
+    .roven-cat-card:hover .roven-cat-shop-pill:hover i {
+        color: #1B1717;
         transform: translateX(3px);
     }
 
-    /* Fallback Luxury Medallion Placeholder when image is not set */
-    .roven-cat-placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: radial-gradient(circle at 50% 36%, #8a0e16 0%, #5e0208 60%, #350004 100%);
-        color: #dfb15b;
-        padding: 2rem 1rem;
-        position: relative;
-        text-align: center;
-        overflow: hidden;
-    }
-
-    .roven-cat-placeholder::before {
-        content: '';
-        position: absolute;
-        top: -30%;
-        left: -30%;
-        width: 160%;
-        height: 160%;
-        background: radial-gradient(circle at 50% 50%, rgba(223, 177, 91, 0.12) 0%, transparent 65%);
-        pointer-events: none;
-    }
-
-    .roven-cat-medallion {
-        width: 86px;
-        height: 86px;
-        border-radius: 50%;
-        border: 2px solid #dfb15b;
-        outline: 1px solid rgba(223, 177, 91, 0.45);
-        outline-offset: 4px;
-        background: radial-gradient(circle at 50% 50%, rgba(223, 177, 91, 0.22) 0%, rgba(223, 177, 91, 0.05) 75%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-        transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
-        position: relative;
-        z-index: 1;
-    }
-
-    .roven-cat-card:hover .roven-cat-medallion {
-        transform: scale(1.08);
-        border-color: #ffffff;
-        box-shadow: 0 10px 28px rgba(223, 177, 91, 0.4);
-    }
-
-    .roven-cat-medallion i {
-        font-size: 2.2rem;
-        color: #dfb15b;
-        filter: drop-shadow(0 3px 10px rgba(223, 177, 91, 0.4));
-    }
-
-    .roven-cat-placeholder-brand {
-        font-family: 'Playfair Display', Georgia, serif;
-        font-size: 0.95rem;
-        font-weight: 700;
-        letter-spacing: 2px;
-        color: #dfb15b;
-        text-transform: uppercase;
-        margin-top: 16px;
-        position: relative;
-        z-index: 1;
-    }
-
-    .roven-cat-placeholder-sub {
-        font-size: 0.68rem;
-        letter-spacing: 3px;
-        color: rgba(223, 177, 91, 0.75);
-        text-transform: uppercase;
-        margin-top: 4px;
-        font-weight: 600;
-        position: relative;
-        z-index: 1;
-    }
-
-    /* Carousel Nav Arrows */
+    /* Carousel Nav Circular Buttons */
     .roven-cat-nav-btn {
-        width: 48px;
-        height: 48px;
+        width: 44px;
+        height: 44px;
         border-radius: 50%;
-        background: #810100;
-        color: #FAF9F5;
-        border: 1.5px solid #dfb15b;
+        background: #FFFFFF;
+        color: #810100;
+        border: 1.5px solid rgba(223, 177, 91, 0.4);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1150,59 +1277,68 @@
         transform: translateY(-50%);
         z-index: 5;
         cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 6px 20px rgba(129, 1, 0, 0.3);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     }
 
     .roven-cat-nav-prev {
-        left: -12px;
+        left: -14px;
     }
 
     .roven-cat-nav-next {
-        right: -12px;
+        right: -14px;
     }
 
     .roven-cat-nav-btn:hover {
-        background: #dfb15b;
-        color: #1B1717;
+        background: #810100;
+        color: #FFFFFF;
+        border-color: #810100;
         transform: translateY(-50%) scale(1.08);
-        box-shadow: 0 8px 26px rgba(223, 177, 91, 0.4);
-        border-color: #dfb15b;
+        box-shadow: 0 8px 24px rgba(129, 1, 0, 0.25);
     }
 
-    /* Header View All Fragrances Button */
-    .roven-view-all-btn {
-        border: 1.5px solid #810100;
-        color: #810100;
-        background: transparent;
+    /* Pagination Dots matching mockup */
+    .roven-cat-dots-wrap {
+        margin-top: 1.5rem;
+    }
+
+    .roven-cat-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #D5C7B5;
+        border: none;
+        padding: 0;
+        cursor: pointer;
         transition: all 0.3s ease;
     }
 
-    .roven-view-all-btn:hover {
+    .roven-cat-dot.active {
+        width: 24px;
+        border-radius: 10px;
         background: #810100;
-        color: #ffffff;
-        border-color: #810100;
-        transform: translateX(2px);
     }
 
     @media (max-width: 767.98px) {
+        .roven-cat-nav-btn {
+            display: none !important;
+        }
         .roven-cat-bottom-content {
-            padding: 1.1rem 0.95rem 1rem;
+            padding: 1.1rem 0.95rem 1.15rem;
         }
         .roven-cat-title {
-            font-size: 0.95rem;
-            letter-spacing: 1.2px;
+            font-size: 1rem;
+            letter-spacing: 1.4px;
         }
-        .roven-cat-subtext {
-            font-size: 0.62rem;
-            letter-spacing: 2px;
+        .roven-cat-ring-icon {
+            width: 62px;
+            height: 62px;
+            margin-bottom: 10px;
         }
-        .roven-cat-shop-pill {
-            padding: 0.32rem 1.1rem;
-            font-size: 0.7rem;
+        .roven-cat-ring-icon i {
+            font-size: 1.5rem;
         }
     }
-
 
     /* =====================================================================
        Homepage Products Horizontal Scroll Carousel (4 Products Per Row + X-Scroll)

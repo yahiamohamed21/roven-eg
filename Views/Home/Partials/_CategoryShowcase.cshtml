@@ -1,25 +1,44 @@
 @model Stockify.ViewModels.Store.StoreHomeViewModel
 @if (Model.Settings?.ShowCategoriesShowcase != false)
 {
-<section class="roven-categories-showcase-section py-5 w-100 position-relative overflow-hidden" style="background-color: #FAF9F5;">
-    <!-- Subtle Ambient Gold Glow -->
+<section class="roven-categories-showcase-section py-5 w-100 position-relative overflow-hidden">
+    <!-- Corner Silk Drapery Assets (Extracted directly from Haute Parfumerie visual identity) -->
+    <img src="/images/silk-top-left-trans.png" class="roven-cat-silk-tl" alt="" aria-hidden="true" />
+    <img src="/images/silk-bottom-right-trans.png" class="roven-cat-silk-br" alt="" aria-hidden="true" />
+
+    <!-- Ambient Luxury Gold Glow -->
     <div class="roven-cat-ambient-glow" aria-hidden="true"></div>
 
-    <div class="container position-relative" style="z-index: 2;">
-        <!-- Header -->
-        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3 mb-4 pb-1">
-            <div>
-                <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-semibold mb-2 d-inline-flex align-items-center gap-2">
-                    <i class="fa-solid fa-gem" style="color: #810100;"></i>
-                    <span>ROVEN Haute Parfumerie • Curated Archives</span>
-                </span>
-                <h3 class="fw-extrabold mb-1 roven-cat-section-heading" style="color: #1B1717; font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.45rem, 2.8vw, 2.1rem); letter-spacing: 0.5px;">
-                    Explore Olfactory Departments
-                </h3>
-                <p class="mb-0 small" style="color: #6c6358;">From concentrated Extraits to majestic Oud and discovery coffrets</p>
+    <div class="container position-relative" style="z-index: 3;">
+        <!-- Header Section -->
+        <div class="roven-cat-header-wrap position-relative mb-4 pb-2">
+            <!-- Crown Emblem with Horizontal Lines -->
+            <div class="roven-cat-crown-wrap d-flex align-items-center justify-content-center gap-3 mb-2">
+                <span class="roven-cat-crown-line"></span>
+                <i class="fa-solid fa-crown roven-cat-crown-icon"></i>
+                <span class="roven-cat-crown-line"></span>
             </div>
-            <div class="d-flex align-items-center gap-2 align-self-start align-self-sm-auto">
-                <a asp-controller="Store" asp-action="Index" class="roven-view-all-btn btn btn-sm fw-semibold px-3.5 py-2 rounded-pill d-inline-flex align-items-center gap-2">
+
+            <!-- Main Heading with "Departments" in Royal Crimson -->
+            <h2 class="roven-cat-section-heading text-center mb-2">
+                Explore Olfactory <span class="roven-cat-heading-accent">Departments</span>
+            </h2>
+
+            <!-- Subtitle -->
+            <p class="roven-cat-section-sub text-center mb-3">
+                Discover our premium collection, crafted for every mood and occasion.
+            </p>
+
+            <!-- Small Gold Diamond Divider -->
+            <div class="roven-cat-diamond-wrap d-flex align-items-center justify-content-center gap-2 mb-2">
+                <span class="roven-cat-diamond-line"></span>
+                <i class="fa-solid fa-diamond roven-cat-diamond-icon"></i>
+                <span class="roven-cat-diamond-line"></span>
+            </div>
+
+            <!-- "View All Fragrances ->" Button (Absolute top-right on desktop, centered on mobile) -->
+            <div class="roven-cat-view-all-wrapper">
+                <a asp-controller="Store" asp-action="Index" class="roven-cat-view-all-btn d-inline-flex align-items-center gap-2">
                     <span>View All Fragrances</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </a>
@@ -29,73 +48,93 @@
         <!-- Category Showcase Track / Carousel Container -->
         <div class="roven-cat-carousel-container position-relative">
             <!-- Navigation Controls -->
-            <button type="button" class="roven-cat-nav-btn roven-cat-nav-prev d-none d-md-flex" onclick="rovenScrollCategories(-1)" aria-label="Previous departments">
+            <button type="button" class="roven-cat-nav-btn roven-cat-nav-prev" onclick="rovenScrollCategories(-1)" aria-label="Previous departments">
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
-            <button type="button" class="roven-cat-nav-btn roven-cat-nav-next d-none d-md-flex" onclick="rovenScrollCategories(1)" aria-label="Next departments">
+            <button type="button" class="roven-cat-nav-btn roven-cat-nav-next" onclick="rovenScrollCategories(1)" aria-label="Next departments">
                 <i class="fa-solid fa-chevron-right"></i>
             </button>
 
             <!-- Scrollable Track -->
-            <div id="rovenCatTrack" class="roven-cat-track d-flex gap-3 gap-lg-4 overflow-auto pb-3">
+            <div id="rovenCatTrack" class="roven-cat-track d-flex gap-3 gap-lg-4 overflow-auto pb-2">
                 @foreach (var cat in Model.Categories)
                 {
-                    var faIcon = cat.Name.ToLower() switch
-                    {
-                        var n when n.Contains("winter") => "fa-solid fa-snowflake",
-                        var n when n.Contains("extrait") => "fa-solid fa-droplet",
-                        var n when n.Contains("oud") || n.Contains("orient") => "fa-solid fa-fire-flame-simple",
-                        var n when n.Contains("eau") => "fa-solid fa-spray-can-sparkles",
-                        var n when n.Contains("gift") || n.Contains("discov") => "fa-solid fa-gift",
-                        _ => "fa-solid fa-gem"
-                    };
+                    var isGiftOrSet = cat.Name.ToLower().Contains("gift") || cat.Name.ToLower().Contains("discov");
+                    var faIcon = isGiftOrSet ? "fa-solid fa-gift" : "fa-solid fa-gem";
+                    var hasValidImage = !string.IsNullOrWhiteSpace(cat.ImageUrl);
 
                     <div class="roven-cat-item">
                         <a asp-controller="Store" asp-action="Index" asp-route-categoryId="@cat.Id" class="roven-cat-card">
-                            <!-- Visual Poster / Media Frame (Full-Bleed Canvas) -->
-                            <div class="roven-cat-img-box">
-                                @if (!string.IsNullOrEmpty(cat.ImageUrl))
-                                {
-                                    <img src="@cat.ImageUrl" alt="@cat.Name" class="roven-cat-img" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                                    <div class="roven-cat-placeholder" style="display: none;">
-                                        <div class="roven-cat-medallion">
+                            <!-- Top Right Floating Badge -->
+                            <div class="roven-cat-top-bar">
+                                <span class="roven-cat-badge">
+                                    <i class="@(isGiftOrSet ? "fa-solid fa-gift" : "fa-solid fa-spray-can-sparkles") me-1.5" style="color: #810100;"></i>
+                                    @(cat.ProductsCount == 1 ? "1 Parfum" : $"{cat.ProductsCount} Parfums")
+                                </span>
+                            </div>
+
+                            @if (hasValidImage)
+                            {
+                                <!-- Image Card Canvas -->
+                                <div class="roven-cat-img-box">
+                                    <img src="@cat.ImageUrl" alt="@cat.Name" class="roven-cat-img" loading="lazy" onerror="this.parentElement.style.display='none'; this.parentElement.nextElementSibling.style.display='flex';" />
+                                    <!-- Gradient Vignette Scrim for perfect text contrast -->
+                                    <div class="roven-cat-scrim" aria-hidden="true"></div>
+                                </div>
+                                <!-- Fallback Velvet Canvas if image fails to load -->
+                                <div class="roven-cat-placeholder" style="display: none;">
+                                    <div class="roven-cat-center-emblem">
+                                        <div class="roven-cat-ring-icon">
                                             <i class="@faIcon"></i>
                                         </div>
-                                        <span class="roven-cat-placeholder-brand">Maison ROVEN</span>
-                                        <span class="roven-cat-placeholder-sub">Haute Parfumerie</span>
+                                        <span class="roven-cat-brand-text">MAISON ROVEN</span>
+                                        <span class="roven-cat-sub-text">HAUTE PARFUMERIE</span>
                                     </div>
-                                }
-                                else
-                                {
-                                    <div class="roven-cat-placeholder">
-                                        <div class="roven-cat-medallion">
+                                </div>
+                            }
+                            else
+                            {
+                                <!-- Luxury Velvet Medallion Canvas -->
+                                <div class="roven-cat-placeholder">
+                                    <div class="roven-cat-center-emblem">
+                                        <div class="roven-cat-ring-icon">
                                             <i class="@faIcon"></i>
                                         </div>
-                                        <span class="roven-cat-placeholder-brand">Maison ROVEN</span>
-                                        <span class="roven-cat-placeholder-sub">Haute Parfumerie</span>
+                                        <span class="roven-cat-brand-text">MAISON ROVEN</span>
+                                        <span class="roven-cat-sub-text">HAUTE PARFUMERIE</span>
                                     </div>
-                                }
+                                </div>
+                            }
 
-                                <!-- Atmospheric Scrim Gradient for Legibility and Seamless Blend -->
-                                <div class="roven-cat-scrim" aria-hidden="true"></div>
-
-                                <!-- Floating Badges at Top -->
-                                <div class="roven-cat-top-bar d-flex justify-content-between align-items-center w-100">
-                                    <span class="roven-cat-dept-tag">
-                                        <i class="fa-solid fa-crown me-1" style="font-size: 0.65rem;"></i>ROVEN
-                                    </span>
-                                    <span class="roven-cat-badge">
-                                        <i class="fa-solid fa-spray-can-sparkles me-1" style="color: #dfb15b;"></i>@(cat.ProductsCount == 1 ? "1 Parfum" : $"{cat.ProductsCount} Parfums")
-                                    </span>
+                            <!-- Bottom Content Plaque -->
+                            <div class="roven-cat-bottom-content">
+                                <!-- Glowing Golden Wave Accent -->
+                                <div class="roven-cat-wave-wrap" aria-hidden="true">
+                                    <svg class="roven-cat-wave-svg" viewBox="0 0 280 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 10 C 65 18, 135 2, 205 13 C 240 18, 265 6, 280 10" stroke="url(#catGoldWave-@cat.Id)" stroke-width="1.3" stroke-linecap="round" />
+                                        <defs>
+                                            <linearGradient id="catGoldWave-@cat.Id" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" stop-color="rgba(223, 177, 91, 0)" />
+                                                <stop offset="25%" stop-color="rgba(223, 177, 91, 0.7)" />
+                                                <stop offset="50%" stop-color="#dfb15b" />
+                                                <stop offset="75%" stop-color="rgba(223, 177, 91, 0.7)" />
+                                                <stop offset="100%" stop-color="rgba(223, 177, 91, 0)" />
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
                                 </div>
 
-                                <!-- Integrated Editorial Bottom Content Plaque -->
-                                <div class="roven-cat-bottom-content">
-                                    <span class="roven-cat-subtext">Olfactory Department</span>
-                                    <h4 class="roven-cat-title">@cat.Name</h4>
-                                    <div class="roven-cat-action mt-2">
+                                <!-- Category Title -->
+                                <h4 class="roven-cat-title">@cat.Name</h4>
+
+                                <!-- Hover Reveal Action: Subtitle & Shop Now Pill Button -->
+                                <div class="roven-cat-hover-reveal">
+                                    <div class="roven-cat-collection-divider">
+                                        <span>— COLLECTION —</span>
+                                    </div>
+                                    <div class="roven-cat-action">
                                         <span class="roven-cat-shop-pill">
-                                            <span>Shop now</span>
+                                            <span>Shop Now</span>
                                             <i class="fa-solid fa-arrow-right"></i>
                                         </span>
                                     </div>
@@ -104,6 +143,13 @@
                         </a>
                     </div>
                 }
+            </div>
+
+            <!-- Carousel Pagination Dots (Below cards matching mockup) -->
+            <div class="roven-cat-dots-wrap d-flex justify-content-center align-items-center gap-2 mt-4" id="rovenCatDots">
+                <button type="button" class="roven-cat-dot active" onclick="rovenGoToCategorySlide(0)" aria-label="Slide 1"></button>
+                <button type="button" class="roven-cat-dot" onclick="rovenGoToCategorySlide(1)" aria-label="Slide 2"></button>
+                <button type="button" class="roven-cat-dot" onclick="rovenGoToCategorySlide(2)" aria-label="Slide 3"></button>
             </div>
         </div>
     </div>
@@ -116,5 +162,36 @@
         var scrollAmount = Math.max(280, track.clientWidth * 0.75);
         track.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
     }
+
+    function rovenGoToCategorySlide(index) {
+        var track = document.getElementById('rovenCatTrack');
+        if (!track) return;
+        var scrollAmount = track.clientWidth * 0.85 * index;
+        track.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+        updateRovenCatDots(index);
+    }
+
+    function updateRovenCatDots(activeIndex) {
+        var dots = document.querySelectorAll('#rovenCatDots .roven-cat-dot');
+        dots.forEach(function(dot, idx) {
+            if (idx === activeIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    (function() {
+        var track = document.getElementById('rovenCatTrack');
+        if (!track) return;
+        track.addEventListener('scroll', function() {
+            var maxScroll = track.scrollWidth - track.clientWidth;
+            if (maxScroll <= 0) return;
+            var ratio = track.scrollLeft / maxScroll;
+            var dotIndex = Math.min(2, Math.floor(ratio * 3));
+            updateRovenCatDots(dotIndex);
+        }, { passive: true });
+    })();
 </script>
 }

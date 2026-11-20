@@ -113,9 +113,9 @@ if [ ! "$(ls -A $UPLOADS_DIR/categories 2>/dev/null)" ] && [ -d "$PROJECT_ROOT/w
     sudo cp -rn "$PROJECT_ROOT/wwwroot/uploads/categories/"* "$UPLOADS_DIR/categories/" 2>/dev/null || true
 fi
 
-# Sync repo roven assets into ROVEN_MEDIA_DIR without overwriting existing uploaded media
+# Sync repo roven assets into ROVEN_MEDIA_DIR
 if [ -d "$PROJECT_ROOT/wwwroot/roven" ]; then
-    sudo cp -rn "$PROJECT_ROOT/wwwroot/roven/"* "$ROVEN_MEDIA_DIR/" 2>/dev/null || true
+    sudo cp -rf "$PROJECT_ROOT/wwwroot/roven/"* "$ROVEN_MEDIA_DIR/" 2>/dev/null || true
 fi
 
 # Symlink uploads directory to published wwwroot/uploads
@@ -125,7 +125,7 @@ sudo ln -sfn "$UPLOADS_DIR" "$PUBLISH_DIR/wwwroot/uploads"
 
 # Restore all persistent roven media (categories, products, banners) into published wwwroot/roven
 mkdir -p "$PUBLISH_DIR/wwwroot/roven"
-sudo cp -rn "$ROVEN_MEDIA_DIR/"* "$PUBLISH_DIR/wwwroot/roven/" 2>/dev/null || true
+sudo cp -rf "$ROVEN_MEDIA_DIR/"* "$PUBLISH_DIR/wwwroot/roven/" 2>/dev/null || true
 
 # Ensure proper permissions for www-data
 sudo chown -R www-data:www-data "$PUBLISH_DIR"
