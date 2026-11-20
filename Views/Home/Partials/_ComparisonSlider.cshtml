@@ -209,14 +209,7 @@
                     </div>
                 </div>
 
-                <!-- Sleek Frosted Glass Interaction Hint Pill -->
-                <div class="roven-compare-hint-wrap text-center mt-3">
-                    <div class="roven-compare-hint-pill d-inline-flex align-items-center justify-content-center gap-2">
-                        <i class="fa-solid fa-arrow-left-long roven-cue-arrow left"></i>
-                        <span>اسحب المقبض يميناً ويساراً لاكتشاف الفرق • Drag slider to compare</span>
-                        <i class="fa-solid fa-arrow-right-long roven-cue-arrow right"></i>
-                    </div>
-                </div>
+
             </div>
 
         </div>
@@ -617,38 +610,7 @@
         appearance: none;
     }
 
-    /* Interaction Hint Pill */
-    .roven-compare-hint-pill {
-        background: rgba(255, 255, 255, 0.88);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(223, 177, 91, 0.45);
-        padding: 7px 20px;
-        border-radius: 50px;
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: #554e46;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-    }
 
-    .roven-cue-arrow {
-        color: #b58d4a;
-        font-size: 0.75rem;
-        animation: rovenArrowBounce 1.8s infinite ease-in-out;
-    }
-
-    .roven-cue-arrow.left {
-        animation-delay: 0s;
-    }
-
-    .roven-cue-arrow.right {
-        animation-delay: 0.9s;
-    }
-
-    @@keyframes rovenArrowBounce {
-        0%, 100% { transform: translateX(0); }
-        50% { transform: translateX(3px); }
-    }
 
     /* Responsive Adjustments */
     @@media (max-width: 991.98px) {
