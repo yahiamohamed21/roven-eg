@@ -2,10 +2,6 @@
 @if (Model.Settings?.ShowCategoriesShowcase != false)
 {
 <section class="roven-categories-showcase-section py-5 w-100 position-relative overflow-hidden">
-    <!-- Corner Silk Drapery Assets (Extracted directly from Haute Parfumerie visual identity) -->
-    <img src="/images/silk-top-left-trans.png" class="roven-cat-silk-tl" alt="" aria-hidden="true" />
-    <img src="/images/silk-bottom-right-trans.png" class="roven-cat-silk-br" alt="" aria-hidden="true" />
-
     <!-- Ambient Luxury Gold Glow -->
     <div class="roven-cat-ambient-glow" aria-hidden="true"></div>
 
@@ -61,7 +57,9 @@
                 {
                     var isGiftOrSet = cat.Name.ToLower().Contains("gift") || cat.Name.ToLower().Contains("discov");
                     var faIcon = isGiftOrSet ? "fa-solid fa-gift" : "fa-solid fa-gem";
-                    var hasValidImage = !string.IsNullOrWhiteSpace(cat.ImageUrl);
+                    var isWinter = cat.Name.Equals("Winter", StringComparison.OrdinalIgnoreCase);
+                    var hasDedicatedImage = isWinter || (!string.IsNullOrWhiteSpace(cat.ImageUrl) && cat.ImageUrl.Contains("/categories/"));
+                    var catImage = isWinter ? "/roven/categories/winter_collection.jpg" : cat.ImageUrl;
 
                     <div class="roven-cat-item">
                         <a asp-controller="Store" asp-action="Index" asp-route-categoryId="@cat.Id" class="roven-cat-card">
@@ -73,11 +71,11 @@
                                 </span>
                             </div>
 
-                            @if (hasValidImage)
+                            @if (hasDedicatedImage)
                             {
                                 <!-- Image Card Canvas -->
                                 <div class="roven-cat-img-box">
-                                    <img src="@cat.ImageUrl" alt="@cat.Name" class="roven-cat-img" loading="lazy" onerror="this.parentElement.style.display='none'; this.parentElement.nextElementSibling.style.display='flex';" />
+                                    <img src="@catImage" alt="@cat.Name" class="roven-cat-img" loading="lazy" onerror="this.parentElement.style.display='none'; this.parentElement.nextElementSibling.style.display='flex';" />
                                     <!-- Gradient Vignette Scrim for perfect text contrast -->
                                     <div class="roven-cat-scrim" aria-hidden="true"></div>
                                 </div>
@@ -124,7 +122,7 @@
                                     </svg>
                                 </div>
 
-                                <!-- Category Title -->
+                                <!-- Category Title (Formatted to wrap cleanly on 2 lines with zero truncation) -->
                                 <h4 class="roven-cat-title">@cat.Name</h4>
 
                                 <!-- Hover Reveal Action: Subtitle & Shop Now Pill Button -->
