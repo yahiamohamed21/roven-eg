@@ -49,6 +49,8 @@ public class ProductsController : Controller
     {
         var query = _context.Products
             .Include(p => p.Category)
+            .Include(p => p.ProductCategories)
+                .ThenInclude(pc => pc.Category)
             .AsNoTracking();
 
         // Summary Statistics (calculated across all active products in 1 single combined query)
@@ -77,7 +79,7 @@ public class ProductsController : Controller
         // Apply filters
         if (categoryId.HasValue && categoryId.Value > 0)
         {
-            query = query.Where(p => p.CategoryId == categoryId.Value);
+            query = query.Where(p => p.CategoryId == categoryId.Value || p.ProductCategories.Any(pc => pc.CategoryId == categoryId.Value));
         }
 
         if (!string.IsNullOrWhiteSpace(status))
@@ -113,6 +115,7 @@ public class ProductsController : Controller
                 IsActive = p.IsActive,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category != null ? p.Category.Name : "General",
+                CategoryNames = p.ProductCategories.Any() ? p.ProductCategories.Select(pc => pc.Category.Name).ToList() : new List<string> { p.Category != null ? p.Category.Name : "General" },
                 CreatedAt = p.CreatedAt
             })
             .ToListAsync();
@@ -144,6 +147,21 @@ public class ProductsController : Controller
             model.SelectedAudiences ??= new();
             model.SelectedSeasons ??= new();
             model.SelectedFragranceNoteIds ??= new();
+            model.SelectedCategoryIds ??= new();
+
+            if (model.CategoryId > 0 && !model.SelectedCategoryIds.Contains(model.CategoryId))
+            {
+                model.SelectedCategoryIds.Add(model.CategoryId);
+            }
+            else if (model.SelectedCategoryIds.Count > 0 && model.CategoryId <= 0)
+            {
+                model.CategoryId = model.SelectedCategoryIds.First();
+            }
+
+            if (model.SelectedCategoryIds.Count == 0 && model.CategoryId <= 0)
+            {
+                ModelState.AddModelError("SelectedCategoryIds", "يرجى تحديد قسم واحد على الأقل للمنتج (Please select at least one category).");
+            }
 
             // Validate unique SKU
             var normalizedSku = (model.Sku ?? string.Empty).Trim().ToUpperInvariant();
@@ -241,6 +259,16 @@ public class ProductsController : Controller
                 });
             }
 
+            // Add Product Categories
+            foreach (var catId in model.SelectedCategoryIds.Distinct())
+            {
+                product.ProductCategories.Add(new ProductCategory
+                {
+                    Product = product,
+                    CategoryId = catId
+                });
+            }
+
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
@@ -281,11 +309,18 @@ public class ProductsController : Controller
             .Include(p => p.TargetAudiences)
             .Include(p => p.Seasons)
             .Include(p => p.ProductFragranceNotes)
+            .Include(p => p.ProductCategories)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
         {
             return NotFound();
+        }
+
+        var selectedCatIds = product.ProductCategories.Select(pc => pc.CategoryId).ToList();
+        if (selectedCatIds.Count == 0 && product.CategoryId > 0)
+        {
+            selectedCatIds.Add(product.CategoryId);
         }
 
         var model = new ProductEditViewModel
@@ -299,6 +334,7 @@ public class ProductsController : Controller
             StockQuantity = product.StockQuantity,
             ReorderLevel = product.ReorderLevel,
             CategoryId = product.CategoryId,
+            SelectedCategoryIds = selectedCatIds,
             IsActive = product.IsActive,
             IsFeatured = product.IsFeatured,
             IsBestSeller = product.IsBestSeller,
@@ -334,6 +370,7 @@ public class ProductsController : Controller
             .Include(p => p.TargetAudiences)
             .Include(p => p.Seasons)
             .Include(p => p.ProductFragranceNotes)
+            .Include(p => p.ProductCategories)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
@@ -345,6 +382,21 @@ public class ProductsController : Controller
         model.SelectedAudiences ??= new();
         model.SelectedSeasons ??= new();
         model.SelectedFragranceNoteIds ??= new();
+        model.SelectedCategoryIds ??= new();
+
+        if (model.CategoryId > 0 && !model.SelectedCategoryIds.Contains(model.CategoryId))
+        {
+            model.SelectedCategoryIds.Add(model.CategoryId);
+        }
+        else if (model.SelectedCategoryIds.Count > 0 && model.CategoryId <= 0)
+        {
+            model.CategoryId = model.SelectedCategoryIds.First();
+        }
+
+        if (model.SelectedCategoryIds.Count == 0 && model.CategoryId <= 0)
+        {
+            ModelState.AddModelError("SelectedCategoryIds", "يرجى تحديد قسم واحد على الأقل للمنتج (Please select at least one category).");
+        }
 
         var normalizedSku = (model.Sku ?? string.Empty).Trim().ToUpperInvariant();
         if (string.IsNullOrWhiteSpace(normalizedSku))
@@ -507,6 +559,18 @@ public class ProductsController : Controller
                     FragranceNoteId = noteId,
                     AddedAt = DateTime.UtcNow
                 });
+            }
+        }
+
+        // Synchronize Product Categories
+        var distinctSelectedCatIds = model.SelectedCategoryIds.Distinct().ToHashSet();
+        var catsToRemove = product.ProductCategories.Where(pc => !distinctSelectedCatIds.Contains(pc.CategoryId)).ToList();
+        foreach (var item in catsToRemove) product.ProductCategories.Remove(item);
+        foreach (var catId in distinctSelectedCatIds)
+        {
+            if (!product.ProductCategories.Any(pc => pc.CategoryId == catId))
+            {
+                product.ProductCategories.Add(new ProductCategory { ProductId = product.Id, CategoryId = catId });
             }
         }
 

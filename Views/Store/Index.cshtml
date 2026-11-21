@@ -888,7 +888,7 @@
                 int initialMatchingCount = 0;
                 foreach (var p in catalogList)
                 {
-                    var match = (!Model.SelectedCategoryId.HasValue || p.CategoryId == Model.SelectedCategoryId.Value)
+                    var match = (!Model.SelectedCategoryId.HasValue || p.CategoryId == Model.SelectedCategoryId.Value || (p.CategoryIds != null && p.CategoryIds.Contains(Model.SelectedCategoryId.Value)))
                              && (!Model.InStockOnly || !p.IsOutOfStock)
                              && (string.IsNullOrWhiteSpace(Model.SearchTerm) || p.Name.Contains(Model.SearchTerm, StringComparison.OrdinalIgnoreCase));
                     if (match) initialMatchingCount++;
@@ -1010,7 +1010,7 @@
             <div class="row g-4" id="rovenProductGridRow">
                 @foreach (var product in catalogList)
                 {
-                    var isFilterMatch = (!Model.SelectedCategoryId.HasValue || product.CategoryId == Model.SelectedCategoryId.Value)
+                    var isFilterMatch = (!Model.SelectedCategoryId.HasValue || product.CategoryId == Model.SelectedCategoryId.Value || (product.CategoryIds != null && product.CategoryIds.Contains(Model.SelectedCategoryId.Value)))
                                           && (!Model.InStockOnly || !product.IsOutOfStock)
                                           && (string.IsNullOrWhiteSpace(Model.SearchTerm) || product.Name.Contains(Model.SearchTerm, StringComparison.OrdinalIgnoreCase));
                     var isInitiallyVisible = false;
@@ -1032,6 +1032,7 @@
                     <div class="col-12 col-sm-6 col-xl-4 roven-catalog-card-col"
                          data-product-id="@product.Id"
                          data-category-id="@product.CategoryId"
+                         data-category-ids="@string.Join(",", (product.CategoryIds != null && product.CategoryIds.Any()) ? product.CategoryIds : new List<int> { product.CategoryId })"
                          data-in-stock="@(!product.IsOutOfStock ? "true" : "false")"
                          data-price="@product.Price"
                          data-name="@product.Name.ToLowerInvariant()"
@@ -1228,10 +1229,11 @@
 
         cards.forEach(card => {
             const cardCat = card.dataset.categoryId;
+            const cardCatIds = (card.dataset.categoryIds || cardCat || '').split(',').map(s => s.trim());
             const cardInStock = card.dataset.inStock === 'true';
             const cardName = card.dataset.name || '';
 
-            const catMatch = !selectedCatId || (cardCat === selectedCatId);
+            const catMatch = !selectedCatId || cardCatIds.includes(selectedCatId.toString());
             const stockMatch = !inStockOnly || cardInStock;
             const searchMatch = !searchTerm || cardName.includes(searchTerm.toLowerCase());
 

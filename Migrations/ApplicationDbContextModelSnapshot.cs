@@ -1389,6 +1389,21 @@ namespace Stockify.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("Stockify.Models.Entities.ProductCategory", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("ProductCategories");
+                });
+
             modelBuilder.Entity("Stockify.Models.Entities.ProductFragranceNote", b =>
                 {
                     b.Property<int>("ProductId")
@@ -1901,6 +1916,25 @@ namespace Stockify.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Stockify.Models.Entities.ProductCategory", b =>
+                {
+                    b.HasOne("Stockify.Models.Entities.Category", "Category")
+                        .WithMany("ProductCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Stockify.Models.Entities.Product", "Product")
+                        .WithMany("ProductCategories")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Stockify.Models.Entities.ProductFragranceNote", b =>
                 {
                     b.HasOne("Stockify.Models.Entities.FragranceNote", "FragranceNote")
@@ -1955,6 +1989,8 @@ namespace Stockify.Migrations
 
             modelBuilder.Entity("Stockify.Models.Entities.Category", b =>
                 {
+                    b.Navigation("ProductCategories");
+
                     b.Navigation("Products");
                 });
 
@@ -1987,6 +2023,8 @@ namespace Stockify.Migrations
                     b.Navigation("InventoryTransactions");
 
                     b.Navigation("OrderItems");
+
+                    b.Navigation("ProductCategories");
 
                     b.Navigation("ProductFragranceNotes");
 

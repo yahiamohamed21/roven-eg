@@ -74,8 +74,10 @@ public class StoreController : Controller
         {
             entry.SlidingExpiration = TimeSpan.FromMinutes(5);
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
-            return await _context.Products
+            var list = await _context.Products
                 .Include(p => p.Category)
+                .Include(p => p.ProductCategories)
+                    .ThenInclude(pc => pc.Category)
                 .Where(p => p.IsActive && p.IsPublished)
                 .OrderByDescending(p => p.CreatedAt)
                 .Select(p => new StoreProductCardViewModel
@@ -90,9 +92,20 @@ public class StoreController : Controller
                     ImageUrl = p.ImageUrl,
                     CategoryId = p.CategoryId,
                     CategoryName = p.Category != null ? p.Category.Name : "General",
+                    CategoryIds = p.ProductCategories.Select(pc => pc.CategoryId).ToList(),
+                    CategoryNames = p.ProductCategories.Select(pc => pc.Category.Name).ToList(),
                     IsFeatured = p.IsFeatured
                 })
                 .ToListAsync();
+
+            foreach (var item in list)
+            {
+                if (item.CategoryId > 0 && !item.CategoryIds.Contains(item.CategoryId))
+                {
+                    item.CategoryIds.Add(item.CategoryId);
+                }
+            }
+            return list;
         }) ?? new List<StoreProductCardViewModel>();
 
         // 2. Fetch cached categories with product counts
@@ -107,7 +120,7 @@ public class StoreController : Controller
                     Name = c.Name,
                     Description = c.Description,
                     ImageUrl = c.ImageUrl,
-                    ProductsCount = c.Products.Count(p => p.IsActive && p.IsPublished)
+                    ProductsCount = _context.Products.Count(p => p.IsActive && p.IsPublished && (p.CategoryId == c.Id || p.ProductCategories.Any(pc => pc.CategoryId == c.Id)))
                 })
                 .OrderBy(c => c.Name)
                 .ToListAsync();
@@ -128,7 +141,7 @@ public class StoreController : Controller
         // Filter by Category
         if (categoryId.HasValue && categoryId.Value > 0)
         {
-            query = query.Where(p => p.CategoryId == categoryId.Value);
+            query = query.Where(p => p.CategoryId == categoryId.Value || (p.CategoryIds != null && p.CategoryIds.Contains(categoryId.Value)));
         }
 
         string? searchCorrectionNotice = null;
@@ -192,7 +205,7 @@ public class StoreController : Controller
                 .ToList();
 
             var fuzzyCandidates = allProducts
-                .Where(p => !categoryId.HasValue || p.CategoryId == categoryId.Value)
+                .Where(p => !categoryId.HasValue || p.CategoryId == categoryId.Value || (p.CategoryIds != null && p.CategoryIds.Contains(categoryId.Value)))
                 .Where(p => !inStockOnly || !p.IsOutOfStock)
                 .ToList();
 

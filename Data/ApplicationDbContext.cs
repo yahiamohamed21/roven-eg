@@ -37,6 +37,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ProductTargetAudience> ProductTargetAudiences => Set<ProductTargetAudience>();
     public DbSet<ProductSeason> ProductSeasons => Set<ProductSeason>();
     public DbSet<ProductFragranceNote> ProductFragranceNotes => Set<ProductFragranceNote>();
+    public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
 
     // Bidirectional Catalog Synchronization (Phase 7)
     public DbSet<SyncOutboxEvent> SyncOutboxEvents => Set<SyncOutboxEvent>();
@@ -156,6 +157,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
              .WithMany(fn => fn.ProductFragranceNotes)
              .HasForeignKey(pfn => pfn.FragranceNoteId)
              .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<ProductCategory>(b =>
+        {
+            b.HasKey(pc => new { pc.ProductId, pc.CategoryId });
+            b.HasOne(pc => pc.Product)
+             .WithMany(p => p.ProductCategories)
+             .HasForeignKey(pc => pc.ProductId)
+             .OnDelete(DeleteBehavior.Cascade);
+            b.HasOne(pc => pc.Category)
+             .WithMany(c => c.ProductCategories)
+             .HasForeignKey(pc => pc.CategoryId)
+             .OnDelete(DeleteBehavior.Cascade);
+            b.HasIndex(pc => pc.CategoryId);
         });
 
         builder.Entity<Product>(b =>

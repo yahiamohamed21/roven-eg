@@ -164,6 +164,40 @@ using (var scope = app.Services.CreateScope())
             logger.LogInformation("Database migrations applied successfully.");
         }
 
+        // Ensure ProductCategories table exists and is populated from existing Product.CategoryId
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ProductCategories')
+                BEGIN
+                    CREATE TABLE [ProductCategories] (
+                        [ProductId] int NOT NULL,
+                        [CategoryId] int NOT NULL,
+                        CONSTRAINT [PK_ProductCategories] PRIMARY KEY ([ProductId], [CategoryId]),
+                        CONSTRAINT [FK_ProductCategories_Products_ProductId] FOREIGN KEY ([ProductId]) REFERENCES [Products] ([Id]) ON DELETE CASCADE,
+                        CONSTRAINT [FK_ProductCategories_Categories_CategoryId] FOREIGN KEY ([CategoryId]) REFERENCES [Categories] ([Id]) ON DELETE CASCADE
+                    );
+                    CREATE INDEX [IX_ProductCategories_CategoryId] ON [ProductCategories] ([CategoryId]);
+                END;
+
+                IF EXISTS (SELECT * FROM sys.tables WHERE name = 'ProductCategories') AND EXISTS (SELECT * FROM sys.tables WHERE name = 'Products')
+                BEGIN
+                    INSERT INTO [ProductCategories] ([ProductId], [CategoryId])
+                    SELECT p.[Id], p.[CategoryId]
+                    FROM [Products] p
+                    WHERE p.[CategoryId] > 0
+                      AND NOT EXISTS (
+                          SELECT 1 FROM [ProductCategories] pc 
+                          WHERE pc.[ProductId] = p.[Id] AND pc.[CategoryId] = p.[CategoryId]
+                      );
+                END;
+            ");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "ProductCategories table verification check: {Message}", ex.Message);
+        }
+
         // Ensure Comparison Section settings are initialized with active status
         var homeSetting = await context.HomeSettings.FirstOrDefaultAsync();
         if (homeSetting != null)

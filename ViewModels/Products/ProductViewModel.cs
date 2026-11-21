@@ -14,6 +14,7 @@ public class ProductViewModel
     public DateTime CreatedAt { get; set; }
     public int CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
+    public List<string> CategoryNames { get; set; } = new();
 
     public string StockStatus => StockQuantity switch
     {

@@ -35,6 +35,7 @@ public class Product
 
     public int CategoryId { get; set; }
     public Category? Category { get; set; }
+    public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     public ICollection<InventoryTransaction> InventoryTransactions { get; set; } = new List<InventoryTransaction>();

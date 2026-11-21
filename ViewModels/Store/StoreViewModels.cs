@@ -100,6 +100,8 @@ public class StoreProductCardViewModel
     public string? ImageUrl { get; set; }
     public int CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
+    public List<int> CategoryIds { get; set; } = new();
+    public List<string> CategoryNames { get; set; } = new();
     public string? FragranceTagline { get; set; }
     public bool IsFeatured { get; set; }
     public bool IsOutOfStock => StockQuantity <= 0;

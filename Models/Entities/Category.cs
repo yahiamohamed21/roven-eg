@@ -9,5 +9,6 @@ public class Category
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<Product> Products { get; set; } = new List<Product>();
+    public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 }
 

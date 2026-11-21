@@ -166,7 +166,21 @@
                                 </div>
                             </td>
                             <td><code>@p.Sku</code></td>
-                            <td><span class="badge bg-light text-dark border">@p.CategoryName</span></td>
+                            <td>
+                                @if (p.CategoryNames != null && p.CategoryNames.Any())
+                                {
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var cName in p.CategoryNames)
+                                        {
+                                            <span class="badge bg-light text-dark border">@cName</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark border">@p.CategoryName</span>
+                                }
+                            </td>
                             <td class="fw-bold">@p.Price.ToString("N2") EGP</td>
                             <td>
                                 <span class="badge @p.StockBadgeClass">

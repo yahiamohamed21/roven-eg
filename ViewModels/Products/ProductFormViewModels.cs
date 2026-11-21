@@ -70,9 +70,11 @@ public class ProductCreateViewModel : IFragranceProfileFormModel
     [Display(Name = "Reorder Threshold")]
     public int ReorderLevel { get; set; } = 10;
 
-    [Required(ErrorMessage = "Please select a category.")]
     [Display(Name = "Category")]
     public int CategoryId { get; set; }
+
+    [Display(Name = "Categories (الأقسام والتصنيفات)")]
+    public List<int> SelectedCategoryIds { get; set; } = new();
 
     [Display(Name = "Product Image")]
     public IFormFile? ImageFile { get; set; }
@@ -148,9 +150,11 @@ public class ProductEditViewModel : IFragranceProfileFormModel
     [Display(Name = "Reorder Threshold")]
     public int ReorderLevel { get; set; } = 10;
 
-    [Required(ErrorMessage = "Please select a category.")]
     [Display(Name = "Category")]
     public int CategoryId { get; set; }
+
+    [Display(Name = "Categories (الأقسام والتصنيفات)")]
+    public List<int> SelectedCategoryIds { get; set; } = new();
 
     [Display(Name = "Product Status")]
     public bool IsActive { get; set; } = true;

@@ -286,7 +286,8 @@ public class CategoriesController : Controller
         }
 
         // Business Rule 5.2: Prevent deletion if products are linked
-        var hasProducts = await _context.Products.AnyAsync(p => p.CategoryId == id);
+        var hasProducts = await _context.Products.AnyAsync(p => p.CategoryId == id) ||
+                          await _context.ProductCategories.AnyAsync(pc => pc.CategoryId == id);
         if (hasProducts)
         {
             TempData["ErrorMessage"] = $"Cannot delete category '{category.Name}' because it has active products assigned to it. Reassign or delete those products first.";
