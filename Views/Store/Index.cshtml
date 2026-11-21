@@ -1035,7 +1035,7 @@
                          data-in-stock="@(!product.IsOutOfStock ? "true" : "false")"
                          data-price="@product.Price"
                          data-name="@product.Name.ToLowerInvariant()"
-                         @(isPagedHidden ? "data-paged-hidden=\"true\"" : "")
+                         data-paged-hidden="@(isPagedHidden ? "true" : null)"
                          style="@(isInitiallyVisible ? "" : "display: none;")">
                         <div class="product-card roven-store-flacon-card" data-details-url="@Url.Action("Details", "Store", new { id = product.Id })">
                             <a asp-action="Details" asp-route-id="@product.Id" class="product-image-container d-block text-decoration-none position-relative" title="عرض تفاصيل عطر @product.Name">
@@ -1375,7 +1375,7 @@
 
     function loadMoreCatalogProducts() {
         const PAGE_SIZE = 10;
-        const hiddenCards = Array.from(document.querySelectorAll('.roven-catalog-card-col[data-paged-hidden="true"]'));
+        const hiddenCards = Array.from(document.querySelectorAll('.roven-catalog-card-col')).filter(c => c.getAttribute('data-paged-hidden') === 'true' || c.hasAttribute('data-paged-hidden'));
         if (hiddenCards.length === 0) return;
 
         const toShow = hiddenCards.slice(0, PAGE_SIZE);
@@ -1386,7 +1386,7 @@
         });
 
         // Recalculate remaining hidden cards
-        const remainingHidden = document.querySelectorAll('.roven-catalog-card-col[data-paged-hidden="true"]').length;
+        const remainingHidden = Array.from(document.querySelectorAll('.roven-catalog-card-col')).filter(c => c.getAttribute('data-paged-hidden') === 'true' || c.hasAttribute('data-paged-hidden')).length;
         const allVisibleCards = Array.from(document.querySelectorAll('.roven-catalog-card-col')).filter(c => c.style.display !== 'none');
         const currentlyShown = allVisibleCards.length;
         const totalMatching = currentlyShown + remainingHidden;
