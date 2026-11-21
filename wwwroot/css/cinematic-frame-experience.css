@@ -316,6 +316,15 @@
    Frames the luxury bottle without cropping or extreme zoom
    ========================================================================== */
 @media (max-width: 768px) {
+    .roven-cinematic-sticky {
+        background: radial-gradient(circle at 50% 50%, rgba(181, 141, 74, 0.14) 0%, rgba(99, 60, 20, 0.05) 45%, #080500 85%);
+    }
+
+    .roven-cinematic-vignette {
+        background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(8, 5, 0, 0.35) 80%, rgba(8, 5, 0, 0.95) 100%),
+                    linear-gradient(to bottom, rgba(8, 5, 0, 0.85) 0%, transparent 15%, transparent 85%, rgba(8, 5, 0, 0.95) 100%);
+    }
+
     .roven-cinematic-track {
         height: 200vh;
     }
