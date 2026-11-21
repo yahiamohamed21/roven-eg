@@ -19,7 +19,7 @@
 
     const TOTAL_FRAMES = 70;
     const FRAME_DIR = '/frames/';
-    const FRAME_VERSION = 'v2_hd70';
+    const FRAME_VERSION = 'v3_hq1600';
     const MAX_CONCURRENCY = 6;
 
     function getFrameUrl(index) {
