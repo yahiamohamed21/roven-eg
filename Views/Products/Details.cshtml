@@ -14,7 +14,18 @@
         </h3>
         <p class="text-muted mb-0 small">
             SKU: <code>@Model.Sku</code> &bull; 
-            Category: <span class="badge bg-light text-dark border">@(Model.Category != null ? Model.Category.Name : "General")</span>
+            Category: 
+            @if (Model.ProductCategories != null && Model.ProductCategories.Any())
+            {
+                @foreach (var pc in Model.ProductCategories)
+                {
+                    <span class="badge bg-light text-dark border me-1">@pc.Category.Name</span>
+                }
+            }
+            else
+            {
+                <span class="badge bg-light text-dark border">@(Model.Category != null ? Model.Category.Name : "General")</span>
+            }
             @if (!Model.IsActive)
             {
                 <span class="badge bg-secondary ms-1">Archived</span>

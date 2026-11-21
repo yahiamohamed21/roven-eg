@@ -614,6 +614,8 @@ public class ProductsController : Controller
     {
         var product = await _context.Products
             .Include(p => p.Category)
+            .Include(p => p.ProductCategories)
+                .ThenInclude(pc => pc.Category)
             .Include(p => p.InventoryTransactions.OrderByDescending(t => t.TransactionDate).Take(10))
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id);
