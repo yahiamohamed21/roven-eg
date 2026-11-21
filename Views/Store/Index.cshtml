@@ -657,6 +657,89 @@
     display: inline-flex;
     align-items: center;
 }
+
+/* ==========================================================================
+   MAISON ROVEN — LOAD MORE LUXURY PAGINATION & ANIMATIONS
+   ========================================================================== */
+.roven-load-more-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.roven-load-more-status {
+    font-size: 0.84rem;
+    letter-spacing: 0.4px;
+    color: #7A7269;
+}
+
+.roven-load-more-status strong {
+    color: #1B1717;
+    font-weight: 700;
+}
+
+.roven-btn-load-more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: #FFFFFF;
+    color: #1B1717;
+    border: 1.5px solid rgba(181, 141, 74, 0.45);
+    padding: 13px 34px;
+    border-radius: 999px;
+    font-size: 0.94rem;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 16px rgba(181, 141, 74, 0.12);
+    cursor: pointer;
+    user-select: none;
+    text-decoration: none;
+}
+
+.roven-btn-load-more:hover {
+    background: #810100;
+    color: #FFFFFF;
+    border-color: #810100;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(129, 1, 0, 0.22);
+}
+
+.roven-btn-load-more:active {
+    transform: translateY(0);
+}
+
+.roven-btn-load-more .roven-load-more-badge {
+    background: rgba(181, 141, 74, 0.18);
+    color: #8a6519;
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 3px 9px;
+    border-radius: 999px;
+    transition: all 0.3s ease;
+}
+
+.roven-btn-load-more:hover .roven-load-more-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+}
+
+@@keyframes rovenFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 </style>
 
 <div class="container roven-catalog-container">
@@ -799,6 +882,21 @@
 
         <!-- Product Grid Area -->
         <div class="col-12 col-lg-9" id="rovenProductGridCol">
+            @{
+                var catalogList = (Model.AllProducts != null && Model.AllProducts.Any()) ? Model.AllProducts : Model.Products;
+                const int InitialPageSize = 10;
+                int initialMatchingCount = 0;
+                foreach (var p in catalogList)
+                {
+                    var match = (!Model.SelectedCategoryId.HasValue || p.CategoryId == Model.SelectedCategoryId.Value)
+                             && (!Model.InStockOnly || !p.IsOutOfStock)
+                             && (string.IsNullOrWhiteSpace(Model.SearchTerm) || p.Name.Contains(Model.SearchTerm, StringComparison.OrdinalIgnoreCase));
+                    if (match) initialMatchingCount++;
+                }
+                var hasVisibleProducts = initialMatchingCount > 0;
+                int renderedCount = 0;
+            }
+
             @if (!string.IsNullOrWhiteSpace(Model.SearchCorrectionNotice))
             {
                 <div class="alert border-0 shadow-xs rounded-4 mb-3 d-flex align-items-center gap-3 p-3" style="background: linear-gradient(135deg, rgba(99, 0, 0, 0.08) 0%, rgba(129, 1, 0, 0.04) 100%); border-right: 4px solid #630000 !important;">
@@ -819,11 +917,18 @@
                         <h4 class="fw-bold mb-1 text-dark">
                             @(string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "All Products" : Model.SelectedCategoryName)
                         </h4>
-                        <div class="small text-muted">
-                            Showing <strong>@Model.TotalCount</strong> product@(Model.TotalCount == 1 ? "" : "s")
+                        <div class="small text-muted" id="rovenCatalogCountText">
+                            @if (initialMatchingCount > InitialPageSize)
+                            {
+                                <span>Showing <strong>@InitialPageSize</strong> of <strong>@initialMatchingCount</strong> products</span>
+                            }
+                            else
+                            {
+                                <span>Showing <strong>@initialMatchingCount</strong> product@(initialMatchingCount == 1 ? "" : "s")</span>
+                            }
                             @if (!string.IsNullOrWhiteSpace(Model.SearchTerm))
                             {
-                                <span>matching "<strong>@Model.SearchTerm</strong>"</span>
+                                <span> matching "<strong>@Model.SearchTerm</strong>"</span>
                             }
                         </div>
                     </div>
@@ -902,22 +1007,35 @@
             </div>
 
             <!-- Products Grid -->
-            @{
-                var catalogList = (Model.AllProducts != null && Model.AllProducts.Any()) ? Model.AllProducts : Model.Products;
-                var hasVisibleProducts = Model.Products != null && Model.Products.Any();
-            }
             <div class="row g-4" id="rovenProductGridRow">
                 @foreach (var product in catalogList)
                 {
-                    var isInitiallyVisible = (!Model.SelectedCategoryId.HasValue || product.CategoryId == Model.SelectedCategoryId.Value)
+                    var isFilterMatch = (!Model.SelectedCategoryId.HasValue || product.CategoryId == Model.SelectedCategoryId.Value)
                                           && (!Model.InStockOnly || !product.IsOutOfStock)
                                           && (string.IsNullOrWhiteSpace(Model.SearchTerm) || product.Name.Contains(Model.SearchTerm, StringComparison.OrdinalIgnoreCase));
+                    var isInitiallyVisible = false;
+                    var isPagedHidden = false;
+
+                    if (isFilterMatch)
+                    {
+                        renderedCount++;
+                        if (renderedCount <= InitialPageSize)
+                        {
+                            isInitiallyVisible = true;
+                        }
+                        else
+                        {
+                            isPagedHidden = true;
+                        }
+                    }
+
                     <div class="col-12 col-sm-6 col-xl-4 roven-catalog-card-col"
                          data-product-id="@product.Id"
                          data-category-id="@product.CategoryId"
                          data-in-stock="@(!product.IsOutOfStock ? "true" : "false")"
                          data-price="@product.Price"
                          data-name="@product.Name.ToLowerInvariant()"
+                         @(isPagedHidden ? "data-paged-hidden=\"true\"" : "")
                          style="@(isInitiallyVisible ? "" : "display: none;")">
                         <div class="product-card roven-store-flacon-card" data-details-url="@Url.Action("Details", "Store", new { id = product.Id })">
                             <a asp-action="Details" asp-route-id="@product.Id" class="product-image-container d-block text-decoration-none position-relative" title="عرض تفاصيل عطر @product.Name">
@@ -1001,6 +1119,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Luxury Load More Button -->
+            <div class="roven-load-more-wrap" id="rovenLoadMoreContainer" style="@(initialMatchingCount > InitialPageSize ? "" : "display: none;")">
+                <div class="roven-load-more-status" id="rovenLoadMoreStatus">
+                    Showing <strong id="rovenCurrentShownCount">@(Math.Min(initialMatchingCount, InitialPageSize))</strong> of <strong id="rovenTotalMatchCount">@initialMatchingCount</strong> products
+                </div>
+                <button type="button" id="rovenLoadMoreBtn" class="roven-btn-load-more" onclick="loadMoreCatalogProducts()" aria-label="عرض المزيد من العطور">
+                    <i class="fa-solid fa-sparkles text-gold"></i>
+                    <span>More Products (عرض المزيد)</span>
+                    <span class="badge roven-load-more-badge" id="rovenRemainingCountBadge">
+                        +@(Math.Max(0, initialMatchingCount - InitialPageSize))
+                    </span>
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -1066,29 +1198,12 @@
         }
 
         // ======================================================================
-        // 1. INSTANT CLIENT-SIDE FILTERING (0 MILLISECONDS LATENCY)
+        // 1. INSTANT CLIENT-SIDE FILTERING & 10-PRODUCT PAGINATION
         // ======================================================================
+        const PAGE_SIZE = 10;
         const cards = Array.from(document.querySelectorAll('.roven-catalog-card-col'));
-        let visibleCount = 0;
 
-        cards.forEach(card => {
-            const cardCat = card.dataset.categoryId;
-            const cardInStock = card.dataset.inStock === 'true';
-            const cardName = card.dataset.name || '';
-
-            const catMatch = !selectedCatId || (cardCat === selectedCatId);
-            const stockMatch = !inStockOnly || cardInStock;
-            const searchMatch = !searchTerm || cardName.includes(searchTerm.toLowerCase());
-
-            if (catMatch && stockMatch && searchMatch) {
-                card.style.display = '';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        // Instant sorting in DOM if needed
+        // Instant sorting in DOM if needed (performed first to preserve sort order)
         const gridRow = document.getElementById('rovenProductGridRow');
         if (gridRow && cards.length > 0) {
             cards.sort((a, b) => {
@@ -1108,10 +1223,58 @@
             cards.forEach(c => gridRow.appendChild(c));
         }
 
+        let totalMatching = 0;
+        let shownCount = 0;
+
+        cards.forEach(card => {
+            const cardCat = card.dataset.categoryId;
+            const cardInStock = card.dataset.inStock === 'true';
+            const cardName = card.dataset.name || '';
+
+            const catMatch = !selectedCatId || (cardCat === selectedCatId);
+            const stockMatch = !inStockOnly || cardInStock;
+            const searchMatch = !searchTerm || cardName.includes(searchTerm.toLowerCase());
+
+            if (catMatch && stockMatch && searchMatch) {
+                totalMatching++;
+                if (totalMatching <= PAGE_SIZE) {
+                    card.style.display = '';
+                    card.removeAttribute('data-paged-hidden');
+                    shownCount++;
+                } else {
+                    card.style.display = 'none';
+                    card.setAttribute('data-paged-hidden', 'true');
+                }
+            } else {
+                card.style.display = 'none';
+                card.removeAttribute('data-paged-hidden');
+            }
+        });
+
         // Update counter & title instantly
         const countText = document.querySelector('#rovenProductGridCol .small.text-muted');
         if (countText) {
-            countText.innerHTML = `Showing <strong>${visibleCount}</strong> product${visibleCount === 1 ? '' : 's'}${searchTerm ? ` matching "<strong>${searchTerm}</strong>"` : ''}`;
+            if (totalMatching > PAGE_SIZE) {
+                countText.innerHTML = `Showing <strong>${shownCount}</strong> of <strong>${totalMatching}</strong> products${searchTerm ? ` matching "<strong>${searchTerm}</strong>"` : ''}`;
+            } else {
+                countText.innerHTML = `Showing <strong>${totalMatching}</strong> product${totalMatching === 1 ? '' : 's'}${searchTerm ? ` matching "<strong>${searchTerm}</strong>"` : ''}`;
+            }
+        }
+
+        // Update Load More container
+        const loadMoreContainer = document.getElementById('rovenLoadMoreContainer');
+        const remainingBadge = document.getElementById('rovenRemainingCountBadge');
+        const shownCountEl = document.getElementById('rovenCurrentShownCount');
+        const totalCountEl = document.getElementById('rovenTotalMatchCount');
+        const remainingCount = totalMatching - shownCount;
+
+        if (totalMatching > PAGE_SIZE) {
+            if (loadMoreContainer) loadMoreContainer.style.display = '';
+            if (remainingBadge) remainingBadge.textContent = '+' + remainingCount;
+            if (shownCountEl) shownCountEl.textContent = shownCount;
+            if (totalCountEl) totalCountEl.textContent = totalMatching;
+        } else {
+            if (loadMoreContainer) loadMoreContainer.style.display = 'none';
         }
 
         const headerTitle = document.querySelector('#rovenProductGridCol h4');
@@ -1131,7 +1294,7 @@
         // Toggle empty state instantly
         const emptyState = document.querySelector('.roven-empty-state');
         if (emptyState) {
-            emptyState.style.display = (visibleCount === 0) ? '' : 'none';
+            emptyState.style.display = (totalMatching === 0) ? '' : 'none';
         }
 
         // Update Clear All link in filter header
@@ -1208,6 +1371,47 @@
         .catch(err => {
             console.warn('Background filter sync note:', err);
         });
+    }
+
+    function loadMoreCatalogProducts() {
+        const PAGE_SIZE = 10;
+        const hiddenCards = Array.from(document.querySelectorAll('.roven-catalog-card-col[data-paged-hidden="true"]'));
+        if (hiddenCards.length === 0) return;
+
+        const toShow = hiddenCards.slice(0, PAGE_SIZE);
+        toShow.forEach((card, idx) => {
+            card.removeAttribute('data-paged-hidden');
+            card.style.display = '';
+            card.style.animation = `rovenFadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards ${idx * 0.04}s`;
+        });
+
+        // Recalculate remaining hidden cards
+        const remainingHidden = document.querySelectorAll('.roven-catalog-card-col[data-paged-hidden="true"]').length;
+        const allVisibleCards = Array.from(document.querySelectorAll('.roven-catalog-card-col')).filter(c => c.style.display !== 'none');
+        const currentlyShown = allVisibleCards.length;
+        const totalMatching = currentlyShown + remainingHidden;
+
+        const loadMoreContainer = document.getElementById('rovenLoadMoreContainer');
+        const remainingBadge = document.getElementById('rovenRemainingCountBadge');
+        const shownCountEl = document.getElementById('rovenCurrentShownCount');
+        const totalCountEl = document.getElementById('rovenTotalMatchCount');
+        const countText = document.querySelector('#rovenProductGridCol .small.text-muted');
+
+        if (shownCountEl) shownCountEl.textContent = currentlyShown;
+        if (totalCountEl) totalCountEl.textContent = totalMatching;
+        if (remainingBadge) remainingBadge.textContent = '+' + remainingHidden;
+
+        if (countText) {
+            if (remainingHidden > 0) {
+                countText.innerHTML = `Showing <strong>${currentlyShown}</strong> of <strong>${totalMatching}</strong> products`;
+            } else {
+                countText.innerHTML = `Showing <strong>${totalMatching}</strong> product${totalMatching === 1 ? '' : 's'}`;
+            }
+        }
+
+        if (remainingHidden <= 0) {
+            if (loadMoreContainer) loadMoreContainer.style.display = 'none';
+        }
     }
 
     window.addEventListener('popstate', function() {
