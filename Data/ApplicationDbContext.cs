@@ -198,19 +198,51 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         ProcessSyncOutbox();
-        return base.SaveChanges(acceptAllChangesOnSuccess);
+        try
+        {
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+        catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Message.Contains("SyncOutboxEvents", StringComparison.OrdinalIgnoreCase))
+        {
+            DetachSyncOutboxEntries();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         ProcessSyncOutbox();
-        return await base.SaveChangesAsync(cancellationToken);
+        try
+        {
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+        catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Message.Contains("SyncOutboxEvents", StringComparison.OrdinalIgnoreCase))
+        {
+            DetachSyncOutboxEntries();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
     }
 
     public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
         ProcessSyncOutbox();
-        return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        try
+        {
+            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+        catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Message.Contains("SyncOutboxEvents", StringComparison.OrdinalIgnoreCase))
+        {
+            DetachSyncOutboxEntries();
+            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+    }
+
+    private void DetachSyncOutboxEntries()
+    {
+        foreach (var entry in ChangeTracker.Entries<Stockify.Models.Entities.Sync.SyncOutboxEvent>().ToList())
+        {
+            entry.State = EntityState.Detached;
+        }
     }
 
     private void ProcessSyncOutbox()

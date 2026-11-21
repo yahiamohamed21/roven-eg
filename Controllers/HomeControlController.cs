@@ -23,19 +23,22 @@ public class HomeControlController : Controller
     private readonly Stockify.Services.Interfaces.IImageStorageService _imageStorageService;
     private readonly IStoreCacheService _storeCacheService;
     private readonly IMediaDeletionQueue _mediaDeletionQueue;
+    private readonly ILogger<HomeControlController> _logger;
 
     public HomeControlController(
         ApplicationDbContext context, 
         IWebHostEnvironment environment,
         Stockify.Services.Interfaces.IImageStorageService imageStorageService,
         IStoreCacheService storeCacheService,
-        IMediaDeletionQueue mediaDeletionQueue)
+        IMediaDeletionQueue mediaDeletionQueue,
+        ILogger<HomeControlController> logger)
     {
         _context = context;
         _environment = environment;
         _imageStorageService = imageStorageService;
         _storeCacheService = storeCacheService;
         _mediaDeletionQueue = mediaDeletionQueue;
+        _logger = logger;
     }
 
     private void InvalidateStoreCache()
@@ -469,9 +472,18 @@ public class HomeControlController : Controller
             return null;
         }
 
-        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-        var customFileName = $"{prefix}_{Guid.NewGuid():N}{ext}";
-        return await _imageStorageService.UploadImageAsync(file, "roven/banners", customFileName);
+        try
+        {
+            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+            var customFileName = $"{prefix}_{Guid.NewGuid():N}{ext}";
+            return await _imageStorageService.UploadImageAsync(file, "roven/banners", customFileName);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to upload banner file {FileName}", file.FileName);
+            TempData["ErrorMessage"] = "حدث خطأ أثناء حفظ ملف البانر: " + ex.Message;
+            return null;
+        }
     }
 
     // POST: /HomeControl/AddHeroBanner

@@ -117,13 +117,20 @@ public class CategoriesController : Controller
             CreatedAt = DateTime.UtcNow
         };
 
-        _context.Categories.Add(category);
-        await _context.SaveChangesAsync();
-
-        InvalidateStoreCache();
-
-        TempData["SuccessMessage"] = $"Category '{category.Name}' created successfully!";
-        return RedirectToAction(nameof(Index));
+        try
+        {
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+            InvalidateStoreCache();
+            TempData["SuccessMessage"] = $"Category '{category.Name}' created successfully!";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to save category {Name}", category.Name);
+            ModelState.AddModelError(string.Empty, "حدث خطأ أثناء حفظ القسم في قاعدة البيانات: " + ex.Message);
+            return View(model);
+        }
     }
 
     // GET: Categories/Edit/5
@@ -222,21 +229,31 @@ public class CategoriesController : Controller
         category.Name = normalizedName;
         category.Description = model.Description?.Trim();
 
-        _context.Categories.Update(category);
-        await _context.SaveChangesAsync();
-
-        InvalidateStoreCache();
-
-        if (!string.IsNullOrWhiteSpace(newlyUploadedUrl) &&
-            !string.IsNullOrWhiteSpace(oldImageUrl) &&
-            !string.Equals(oldImageUrl, newlyUploadedUrl, StringComparison.OrdinalIgnoreCase) &&
-            oldImageUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+        try
         {
-            await _mediaDeletionQueue.EnqueueAsync(oldImageUrl);
-        }
+            _context.Categories.Update(category);
+            await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = $"Category '{category.Name}' updated successfully!";
-        return RedirectToAction(nameof(Index));
+            InvalidateStoreCache();
+
+            if (!string.IsNullOrWhiteSpace(newlyUploadedUrl) &&
+                !string.IsNullOrWhiteSpace(oldImageUrl) &&
+                !string.Equals(oldImageUrl, newlyUploadedUrl, StringComparison.OrdinalIgnoreCase) &&
+                oldImageUrl.Contains("cloudinary.com", StringComparison.OrdinalIgnoreCase))
+            {
+                await _mediaDeletionQueue.EnqueueAsync(oldImageUrl);
+            }
+
+            TempData["SuccessMessage"] = $"Category '{category.Name}' updated successfully!";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to update category {Id}", id);
+            ModelState.AddModelError(string.Empty, "حدث خطأ أثناء حفظ تعديلات القسم: " + ex.Message);
+            model.ImageUrl = category.ImageUrl;
+            return View(model);
+        }
     }
 
     // GET: Categories/Details/5

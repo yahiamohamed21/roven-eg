@@ -138,114 +138,139 @@ public class ProductsController : Controller
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Create(ProductCreateViewModel model)
     {
-        // Validate unique SKU
-        var normalizedSku = model.Sku.Trim().ToUpperInvariant();
-        if (await _context.Products.AnyAsync(p => p.Sku.ToUpper() == normalizedSku))
+        try
         {
-            ModelState.AddModelError("Sku", "SKU must be unique. Another product already uses this code.");
-        }
+            // Null safety guards
+            model.SelectedAudiences ??= new();
+            model.SelectedSeasons ??= new();
+            model.SelectedFragranceNoteIds ??= new();
 
-        // Validate image file if uploaded
-        if (model.ImageFile != null && !ValidateUploadedImage(model.ImageFile, out var imageError))
-        {
-            ModelState.AddModelError("ImageFile", imageError!);
-        }
-
-        // Validate approval requirements if admin checked approval
-        if (model.IsFragranceProfileApproved)
-        {
-            ValidateFragranceProfileCompleteness(model.SelectedAudiences, model.SelectedSeasons, model.Projection, model.SelectedFragranceNoteIds);
-        }
-
-        if (!ModelState.IsValid)
-        {
-            model.CategoriesList = await GetCategoriesSelectListAsync();
-            model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
-            return View(model);
-        }
-
-        string? imageUrl = null;
-        if (model.ImageFile != null)
-        {
-            try
+            // Validate unique SKU
+            var normalizedSku = (model.Sku ?? string.Empty).Trim().ToUpperInvariant();
+            if (string.IsNullOrWhiteSpace(normalizedSku))
             {
-                imageUrl = await SaveUploadedImageAsync(model.ImageFile);
+                ModelState.AddModelError("Sku", "SKU code is required.");
             }
-            catch (Exception ex)
+            else if (await _context.Products.AnyAsync(p => p.Sku.ToUpper() == normalizedSku))
             {
-                _logger?.LogError(ex, "Failed to upload image for new product: {Name}", model.Name);
-                ModelState.AddModelError("ImageFile", "فشل حفظ أو رفع صورة المنتج. يرجى التأكد من صلاحية الملف والمحاولة مرة أخرى.");
+                ModelState.AddModelError("Sku", "SKU must be unique. Another product already uses this code.");
+            }
+
+            if (string.IsNullOrWhiteSpace(model.Name))
+            {
+                ModelState.AddModelError("Name", "Product name is required.");
+            }
+
+            // Validate image file if uploaded
+            if (model.ImageFile != null && !ValidateUploadedImage(model.ImageFile, out var imageError))
+            {
+                ModelState.AddModelError("ImageFile", imageError!);
+            }
+
+            // Validate approval requirements if admin checked approval
+            if (model.IsFragranceProfileApproved)
+            {
+                ValidateFragranceProfileCompleteness(model.SelectedAudiences, model.SelectedSeasons, model.Projection, model.SelectedFragranceNoteIds);
+            }
+
+            if (!ModelState.IsValid)
+            {
                 model.CategoriesList = await GetCategoriesSelectListAsync();
                 model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
                 return View(model);
             }
-        }
 
-        var product = new Product
-        {
-            Name = model.Name.Trim(),
-            Sku = normalizedSku,
-            Description = model.Description?.Trim(),
-            FragranceTagline = string.IsNullOrWhiteSpace(model.FragranceTagline) ? null : model.FragranceTagline.Trim(),
-            Price = model.Price,
-            StockQuantity = model.StockQuantity,
-            ReorderLevel = model.ReorderLevel,
-            CategoryId = model.CategoryId,
-            ImageUrl = imageUrl,
-            IsActive = true,
-            IsFeatured = model.IsFeatured,
-            IsBestSeller = model.IsBestSeller,
-            Projection = model.Projection,
-            InspiredBy = string.IsNullOrWhiteSpace(model.InspiredBy) ? null : model.InspiredBy.Trim(),
-            IsFragranceProfileApproved = model.IsFragranceProfileApproved,
-            FragranceProfileReviewedAt = model.IsFragranceProfileApproved ? DateTime.UtcNow : null,
-            CreatedAt = DateTime.UtcNow
-        };
-
-        // Add Target Audiences
-        foreach (var aud in model.SelectedAudiences.Distinct())
-        {
-            product.TargetAudiences.Add(new ProductTargetAudience { Product = product, Audience = aud });
-        }
-
-        // Add Seasons
-        foreach (var season in model.SelectedSeasons.Distinct())
-        {
-            product.Seasons.Add(new ProductSeason { Product = product, Season = season });
-        }
-
-        // Add Fragrance Notes
-        foreach (var noteId in model.SelectedFragranceNoteIds.Distinct())
-        {
-            product.ProductFragranceNotes.Add(new ProductFragranceNote
+            string? imageUrl = null;
+            if (model.ImageFile != null)
             {
-                Product = product,
-                FragranceNoteId = noteId,
-                AddedAt = DateTime.UtcNow
-            });
-        }
+                try
+                {
+                    imageUrl = await SaveUploadedImageAsync(model.ImageFile);
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogError(ex, "Failed to upload image for new product: {Name}", model.Name);
+                    ModelState.AddModelError("ImageFile", "فشل حفظ أو رفع صورة المنتج. يرجى التأكد من صلاحية الملف والمحاولة مرة أخرى.");
+                    model.CategoriesList = await GetCategoriesSelectListAsync();
+                    model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
+                    return View(model);
+                }
+            }
 
-        _context.Products.Add(product);
-        await _context.SaveChangesAsync();
-
-        // If initial stock was provided, log an initial inventory transaction
-        if (product.StockQuantity > 0)
-        {
-            _context.InventoryTransactions.Add(new InventoryTransaction
+            var product = new Product
             {
-                ProductId = product.Id,
-                Quantity = product.StockQuantity,
-                TransactionType = TransactionType.StockIn,
-                TransactionDate = DateTime.UtcNow,
-                Notes = "Initial inventory stock entered at product creation"
-            });
+                Name = (model.Name ?? string.Empty).Trim(),
+                Sku = normalizedSku,
+                Description = model.Description?.Trim(),
+                FragranceTagline = string.IsNullOrWhiteSpace(model.FragranceTagline) ? null : model.FragranceTagline.Trim(),
+                Price = model.Price,
+                StockQuantity = model.StockQuantity,
+                ReorderLevel = model.ReorderLevel,
+                CategoryId = model.CategoryId,
+                ImageUrl = imageUrl,
+                IsActive = true,
+                IsFeatured = model.IsFeatured,
+                IsBestSeller = model.IsBestSeller,
+                Projection = model.Projection,
+                InspiredBy = string.IsNullOrWhiteSpace(model.InspiredBy) ? null : model.InspiredBy.Trim(),
+                IsFragranceProfileApproved = model.IsFragranceProfileApproved,
+                FragranceProfileReviewedAt = model.IsFragranceProfileApproved ? DateTime.UtcNow : null,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // Add Target Audiences
+            foreach (var aud in model.SelectedAudiences.Distinct())
+            {
+                product.TargetAudiences.Add(new ProductTargetAudience { Product = product, Audience = aud });
+            }
+
+            // Add Seasons
+            foreach (var season in model.SelectedSeasons.Distinct())
+            {
+                product.Seasons.Add(new ProductSeason { Product = product, Season = season });
+            }
+
+            // Add Fragrance Notes
+            foreach (var noteId in model.SelectedFragranceNoteIds.Distinct())
+            {
+                product.ProductFragranceNotes.Add(new ProductFragranceNote
+                {
+                    Product = product,
+                    FragranceNoteId = noteId,
+                    AddedAt = DateTime.UtcNow
+                });
+            }
+
+            _context.Products.Add(product);
             await _context.SaveChangesAsync();
+
+            // If initial stock was provided, log an initial inventory transaction
+            if (product.StockQuantity > 0)
+            {
+                _context.InventoryTransactions.Add(new InventoryTransaction
+                {
+                    ProductId = product.Id,
+                    Quantity = product.StockQuantity,
+                    TransactionType = TransactionType.StockIn,
+                    TransactionDate = DateTime.UtcNow,
+                    Notes = "Initial inventory stock entered at product creation"
+                });
+                await _context.SaveChangesAsync();
+            }
+
+            InvalidateStoreCache();
+
+            TempData["SuccessMessage"] = $"Product '{product.Name}' added successfully!";
+            return RedirectToAction(nameof(Index));
         }
-
-        InvalidateStoreCache();
-
-        TempData["SuccessMessage"] = $"Product '{product.Name}' added successfully!";
-        return RedirectToAction(nameof(Index));
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Unexpected error creating product {Name}", model?.Name);
+            ModelState.AddModelError(string.Empty, "حدث خطأ أثناء حفظ المنتج في قاعدة البيانات: " + ex.Message);
+            model.CategoriesList = await GetCategoriesSelectListAsync();
+            model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
+            return View(model);
+        }
     }
 
     // GET: Products/Edit/5
@@ -316,10 +341,24 @@ public class ProductsController : Controller
             return NotFound();
         }
 
-        var normalizedSku = model.Sku.Trim().ToUpperInvariant();
-        if (await _context.Products.AnyAsync(p => p.Id != id && p.Sku.ToUpper() == normalizedSku))
+        // Null safety guards
+        model.SelectedAudiences ??= new();
+        model.SelectedSeasons ??= new();
+        model.SelectedFragranceNoteIds ??= new();
+
+        var normalizedSku = (model.Sku ?? string.Empty).Trim().ToUpperInvariant();
+        if (string.IsNullOrWhiteSpace(normalizedSku))
+        {
+            ModelState.AddModelError("Sku", "رمز SKU مطلوب.");
+        }
+        else if (await _context.Products.AnyAsync(p => p.Id != id && p.Sku.ToUpper() == normalizedSku))
         {
             ModelState.AddModelError("Sku", "Another product already uses this SKU code.");
+        }
+
+        if (string.IsNullOrWhiteSpace(model.Name))
+        {
+            ModelState.AddModelError("Name", "اسم المنتج مطلوب.");
         }
 
         if (model.ImageFile != null && !ValidateUploadedImage(model.ImageFile, out var imageError))
@@ -720,16 +759,16 @@ public class ProductsController : Controller
     }
 
     private void ValidateFragranceProfileCompleteness(
-        List<AudienceTarget> audiences,
-        List<FragranceSeason> seasons,
+        List<AudienceTarget>? audiences,
+        List<FragranceSeason>? seasons,
         FragranceProjection? projection,
-        List<int> noteIds)
+        List<int>? noteIds)
     {
-        if (!audiences.Any())
+        if (audiences == null || !audiences.Any())
         {
             ModelState.AddModelError("SelectedAudiences", "To approve this product for fragrance recommendations, at least one Target Audience must be selected.");
         }
-        if (!seasons.Any())
+        if (seasons == null || !seasons.Any())
         {
             ModelState.AddModelError("SelectedSeasons", "To approve this product for fragrance recommendations, at least one Season must be selected.");
         }
@@ -737,7 +776,7 @@ public class ProductsController : Controller
         {
             ModelState.AddModelError("Projection", "To approve this product for fragrance recommendations, a Projection intensity must be selected.");
         }
-        if (!noteIds.Any())
+        if (noteIds == null || !noteIds.Any())
         {
             ModelState.AddModelError("SelectedFragranceNoteIds", "To approve this product for fragrance recommendations, at least one Fragrance Note must be selected.");
         }

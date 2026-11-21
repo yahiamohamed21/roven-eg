@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -654,6 +655,26 @@ Sitemap: {baseUrl}/sitemap.xml
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var exceptionHandlerPathFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+        var ex = exceptionHandlerPathFeature?.Error;
+        var path = exceptionHandlerPathFeature?.Path;
+
+        if (ex != null)
+        {
+            _logger.LogError(ex, "Unhandled exception occurred at path '{Path}': {Message}", path, ex.Message);
+        }
+
+        var isAdmin = User?.IsInRole("Admin") == true;
+
+        var model = new ErrorViewModel
+        {
+            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+            OriginalPath = path,
+            ErrorMessage = isAdmin ? ex?.Message : null,
+            ExceptionType = isAdmin ? ex?.GetType().FullName : null,
+            StackTrace = isAdmin ? ex?.StackTrace : null
+        };
+
+        return View(model);
     }
 }

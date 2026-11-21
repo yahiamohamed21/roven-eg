@@ -1,33 +1,96 @@
 @model ErrorViewModel
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = "عفواً، حدث خطأ غير متوقع - ROVEN";
+    var isAdmin = User?.IsInRole("Admin") == true;
 }
 
-<div class="row justify-content-center py-5">
-    <div class="col-12 col-md-8 col-lg-6 text-center">
-        <div class="card shadow-sm border-0 p-5">
-            <div class="mb-3">
-                <div class="stat-icon warning mx-auto" style="width: 72px; height: 72px; font-size: 2.25rem;">
-                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6 text-center">
+            <div class="card shadow-sm border-0 p-4 p-md-5" style="border-radius: 16px; background: #fff;">
+                <div class="mb-3">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" 
+                         style="width: 76px; height: 76px; background: rgba(220, 53, 69, 0.08); font-size: 2.5rem; color: #dc3545;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
                 </div>
-            </div>
-            <h2 class="fw-bold text-dark mb-2">Something went wrong</h2>
-            <p class="text-muted mb-4">
-                An unexpected error occurred while processing your request. Our system administrators have been notified.
-            </p>
 
-            @if (Model?.ShowRequestId == true)
-            {
-                <div class="bg-light p-3 rounded mb-4 text-start small">
-                    <strong>Request ID:</strong> <code class="text-danger">@Model.RequestId</code>
+                <h2 class="fw-bold text-dark mb-2" style="font-family: inherit;">عفواً، حدث خطأ أثناء معالجة الطلب</h2>
+                <p class="text-muted mb-4" style="font-size: 0.95rem; line-height: 1.6;">
+                    نعتذر بشدة عن هذا الإزعاج المؤقت. لقد تم تسجيل هذا الخطأ لدى فريق الدعم الفني، وجاري العمل على معالجته فوراً.
+                </p>
+
+                @if (Model?.ShowRequestId == true)
+                {
+                    <div class="bg-light p-3 rounded-3 mb-4 text-start small border border-light">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                            <span class="text-muted fw-semibold">معرّف الطلب (Request ID):</span>
+                            <code class="text-danger fw-bold" style="word-break: break-all;">@Model.RequestId</code>
+                        </div>
+                    </div>
+                }
+
+                @if (isAdmin && !string.IsNullOrEmpty(Model?.ErrorMessage))
+                {
+                    <div class="accordion mb-4 text-start" id="adminDiagnosticAccordion">
+                        <div class="accordion-item border-warning rounded-3 overflow-hidden shadow-xs">
+                            <h2 class="accordion-header" id="headingDiag">
+                                <button class="accordion-button collapsed bg-warning bg-opacity-10 text-dark fw-bold py-2 px-3 small" 
+                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseDiag">
+                                    <i class="bi bi-tools text-warning me-2"></i>
+                                    تفاصيل التشخيص الفني (خاص بمدير النظام فقط)
+                                </button>
+                            </h2>
+                            <div id="collapseDiag" class="accordion-collapse collapse" data-bs-parent="#adminDiagnosticAccordion">
+                                <div class="accordion-body bg-light p-3 small">
+                                    @if (!string.IsNullOrEmpty(Model.OriginalPath))
+                                    {
+                                        <div class="mb-2">
+                                            <strong>المسار المطلوب (Path):</strong>
+                                            <code class="text-dark">@Model.OriginalPath</code>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.ExceptionType))
+                                    {
+                                        <div class="mb-2">
+                                            <strong>نوع الاستثناء (Exception):</strong>
+                                            <code class="text-danger">@Model.ExceptionType</code>
+                                        </div>
+                                    }
+                                    <div class="mb-2">
+                                        <strong>رسالة الخطأ (Message):</strong>
+                                        <div class="alert alert-danger py-2 px-3 mb-0 mt-1 small">@Model.ErrorMessage</div>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(Model.StackTrace))
+                                    {
+                                        <div class="mt-2">
+                                            <strong>تتبع الكود (Stack Trace):</strong>
+                                            <pre class="bg-dark text-light p-2 rounded mt-1 overflow-auto small" style="max-height: 220px; font-size: 0.75rem;">@Model.StackTrace</pre>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-center align-items-center flex-wrap gap-2">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-dark px-4 py-2 d-inline-flex align-items-center gap-2 rounded-pill">
+                        <i class="bi bi-house"></i>
+                        <span>الصفحة الرئيسية</span>
+                    </a>
+                    <a asp-controller="Store" asp-action="Index" class="btn btn-dark px-4 py-2 d-inline-flex align-items-center gap-2 rounded-pill" style="background: #1a1a1a;">
+                        <i class="bi bi-bag"></i>
+                        <span>تصفح العطور</span>
+                    </a>
+                    @if (isAdmin)
+                    {
+                        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary px-4 py-2 d-inline-flex align-items-center gap-2 rounded-pill">
+                            <i class="bi bi-speedometer2"></i>
+                            <span>لوحة التحكم</span>
+                        </a>
+                    }
                 </div>
-            }
-
-            <div class="d-flex justify-content-center gap-2">
-                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary d-inline-flex align-items-center gap-2">
-                    <i class="bi bi-house-door"></i>
-                    <span>Return to Dashboard</span>
-                </a>
             </div>
         </div>
     </div>

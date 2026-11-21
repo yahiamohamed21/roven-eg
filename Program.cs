@@ -155,11 +155,13 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        // Auto-apply migrations only if explicitly configured (disabled by default for strict safety)
+        // Automatically apply pending database migrations to ensure database schema matches code
         var configuration = services.GetRequiredService<IConfiguration>();
-        if (configuration.GetValue<bool>("AutoMigrateDatabase", false))
+        if (configuration.GetValue<bool>("AutoMigrateDatabase", true))
         {
+            logger.LogInformation("Verifying and applying any pending database migrations...");
             await context.Database.MigrateAsync();
+            logger.LogInformation("Database migrations applied successfully.");
         }
 
         // Ensure Comparison Section settings are initialized with active status

@@ -24,6 +24,7 @@ ConnectionStrings__DefaultConnection=Server=127.0.0.1,1433;Database=RovenEG;User
 # --- ASP.NET Core Settings ---
 ASPNETCORE_ENVIRONMENT=Production
 ASPNETCORE_URLS=http://127.0.0.1:5050
+AutoMigrateDatabase=true
 
 # --- Cloudinary WebP Image Storage (Injected from Environment / Secrets Manager) ---
 Cloudinary__CloudName=\${CLOUDINARY_CLOUD_NAME:-\"YOUR_CLOUDINARY_CLOUD_NAME\"}
