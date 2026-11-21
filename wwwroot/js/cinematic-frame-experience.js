@@ -80,6 +80,8 @@
             canvas.width = targetW;
             canvas.height = targetH;
             ctx.scale(dpr, dpr);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
         }
 
         // Native frame aspect ratio is 960x540 (16:9 = 1.7778)
@@ -102,6 +104,9 @@
     // High-speed draw (pure GPU blit with zero DOM access)
     function drawFrame(img) {
         if (!ctx || !canvas || !img || !img.complete || img.naturalWidth === 0) return;
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
 
         ctx.fillStyle = '#080500';
         ctx.fillRect(0, 0, canvasWidth, canvasHeight);
