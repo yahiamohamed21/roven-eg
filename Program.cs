@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Stockify.Common.Extensions;
 using Stockify.Data;
@@ -17,6 +18,30 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, relo
 // 1. Add MVC Controllers and Views
 builder.Services.AddControllersWithViews();
 
+// Performance: Response Compression (Brotli + Gzip) to minimize server bandwidth & accelerate delivery
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+    {
+        "image/svg+xml",
+        "application/javascript",
+        "text/css",
+        "text/html",
+        "application/json"
+    });
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
+});
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
+});
+
 // Configure Anti-Forgery to support header-based validation for AJAX / Fetch requests
 builder.Services.AddAntiforgery(options =>
 {
@@ -29,7 +54,12 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromDays(7);
+    options.Cookie.Name = ".Roven.Atelier.Session";
     options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
     options.Cookie.IsEssential = true;
 });
 
@@ -56,6 +86,11 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     // User settings
     options.User.RequireUniqueEmail = true;
     options.SignIn.RequireConfirmedAccount = false;
+
+    // SEC-03: Account Lockout Settings against brute-force attacks
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders()
@@ -67,7 +102,9 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.Name = ".Roven.Atelier.Auth";
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
     options.Cookie.IsEssential = true;
     options.ExpireTimeSpan = TimeSpan.FromDays(30);
     options.LoginPath = "/Account/Login";
@@ -169,7 +206,56 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
     app.UseHttpsRedirection();
 }
-app.UseStaticFiles();
+
+// SEC-06: Security Headers Middleware (Clickjacking, MIME Sniffing, Permissions, CSP-Report-Only)
+app.Use(async (context, next) =>
+{
+    var headers = context.Response.Headers;
+    headers["X-Content-Type-Options"] = "nosniff";
+    headers["X-Frame-Options"] = "SAMEORIGIN";
+    headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    headers["Content-Security-Policy-Report-Only"] = 
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net data:; " +
+        "img-src 'self' data: https://res.cloudinary.com https://*.cloudinary.com; " +
+        "connect-src 'self' https://res.cloudinary.com; " +
+        "frame-ancestors 'self';";
+
+    await next();
+});
+
+app.UseResponseCompression();
+
+// High-Performance Static Files with aggressive HTTP Cache-Control headers
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        var path = ctx.Context.Request.Path.Value ?? string.Empty;
+
+        // 1. WebP Cinematic Frames: Immutable assets - cache for 1 year in browser
+        if (path.StartsWith("/frames/", StringComparison.OrdinalIgnoreCase))
+        {
+            ctx.Context.Response.Headers.CacheControl = "public, max-age=31536000, immutable";
+        }
+        // 2. Production Static CSS, JS, Images, Libs: Cache for 30 days
+        else if (path.StartsWith("/css/", StringComparison.OrdinalIgnoreCase) ||
+                 path.StartsWith("/js/", StringComparison.OrdinalIgnoreCase) ||
+                 path.StartsWith("/images/", StringComparison.OrdinalIgnoreCase) ||
+                 path.StartsWith("/lib/", StringComparison.OrdinalIgnoreCase) ||
+                 path.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase))
+        {
+            ctx.Context.Response.Headers.CacheControl = "public, max-age=2592000";
+        }
+        else
+        {
+            ctx.Context.Response.Headers.CacheControl = "public, max-age=86400";
+        }
+    }
+});
 
 app.UseRouting();
 

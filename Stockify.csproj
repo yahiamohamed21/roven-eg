@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -8,12 +8,16 @@
     <!-- Prevents generating unsigned .exe on Desktop, allowing dotnet to run Stockify.dll directly -->
     <UseAppHost>false</UseAppHost>
     <Deterministic>false</Deterministic>
+    <UserSecretsId>6847edc3-ab6e-4d26-a434-e360c08645db</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="scratch\**" />
     <Content Remove="scratch\**" />
     <None Remove="scratch\**" />
+    <Compile Remove="deployment_packages\**" />
+    <Content Remove="deployment_packages\**" />
+    <None Remove="deployment_packages\**" />
   </ItemGroup>
 
   <ItemGroup>

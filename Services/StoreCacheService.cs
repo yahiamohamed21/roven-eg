@@ -12,6 +12,7 @@ public class StoreCacheService : IStoreCacheService
     public const string AllProductsCacheKey = "Roven_Store_AllProducts";
     public const string CategoriesCacheKey = "Roven_Store_Categories";
     public const string HomeSettingsCacheKey = "Roven_Store_HomeSettings";
+    public const string HomePageViewModelCacheKey = "Roven_Store_HomePageViewModel";
 
     private readonly IMemoryCache _cache;
     private readonly ILogger<StoreCacheService> _logger;
@@ -40,13 +41,20 @@ public class StoreCacheService : IStoreCacheService
         _logger.LogInformation("Store home settings cache invalidated: key '{Key}' removed.", HomeSettingsCacheKey);
     }
 
+    public void InvalidateHomePageCache()
+    {
+        _cache.Remove(HomePageViewModelCacheKey);
+        _logger.LogInformation("Store home page view model cache invalidated: key '{Key}' removed.", HomePageViewModelCacheKey);
+    }
+
     public void InvalidateAll()
     {
         _cache.Remove(AllProductsCacheKey);
         _cache.Remove(CategoriesCacheKey);
         _cache.Remove(HomeSettingsCacheKey);
-        _logger.LogInformation("All store caches invalidated: '{Key1}', '{Key2}', '{Key3}' removed.",
-            AllProductsCacheKey, CategoriesCacheKey, HomeSettingsCacheKey);
+        _cache.Remove(HomePageViewModelCacheKey);
+        _logger.LogInformation("All store caches invalidated: '{Key1}', '{Key2}', '{Key3}', '{Key4}' removed.",
+            AllProductsCacheKey, CategoriesCacheKey, HomeSettingsCacheKey, HomePageViewModelCacheKey);
     }
 
     public void InvalidateStoreCache()

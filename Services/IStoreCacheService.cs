@@ -25,6 +25,12 @@ public interface IStoreCacheService
     void InvalidateHomeSettingsCache();
 
     /// <summary>
+    /// Invalidates the cached storefront home page view model ("Roven_Store_HomePageViewModel").
+    /// Must be invoked whenever featured products, deals, banners, or homepage settings change.
+    /// </summary>
+    void InvalidateHomePageCache();
+
+    /// <summary>
     /// Atomically clears all store catalog, category, and settings caches.
     /// Replaces duplicate InvalidateStoreCache() private methods across controllers.
     /// </summary>

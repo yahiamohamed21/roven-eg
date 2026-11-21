@@ -57,7 +57,13 @@ env/
 ## Scratch and test scripts
 scratch/
 scratch_test_*.ps1
-0
+deployment_packages/
+test_phase6_qa_results.json
+homepage_data_snapshot.json
+homepage_image_manifest.json
+homepage_recovery.sql
+homepage_recovery_mapping_report.md
+CompleteSchema_LocalDev.sql
 
 ## OS generated files
 .DS_Store

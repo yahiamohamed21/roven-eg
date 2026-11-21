@@ -20,6 +20,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IMediaDeletionQueue, MediaDeletionQueue>();
         services.AddHostedService<MediaDeletionBackgroundService>();
 
+        // Phase 7: Permanent Bidirectional Catalog Synchronization
+        services.AddHttpClient();
+        services.AddScoped<ICatalogSyncService, CatalogSyncService>();
+        services.AddHostedService<CatalogSyncBackgroundService>();
+
         return services;
     }
 }

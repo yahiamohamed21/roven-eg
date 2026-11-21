@@ -70,8 +70,8 @@ public class MediaDeletionBackgroundService : BackgroundService
 
             try
             {
-                // Poll Outbox every 5 seconds
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                // Poll Outbox periodically (60s idle interval; immediate triggers are dispatched via memory channel)
+                await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
             }
             catch (OperationCanceledException)
             {

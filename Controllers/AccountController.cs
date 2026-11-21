@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Stockify.Models.Entities;
 using Stockify.ViewModels.Account;
 
@@ -10,11 +11,16 @@ public class AccountController : Controller
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ILogger<AccountController>? _logger;
 
-    public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+    public AccountController(
+        SignInManager<ApplicationUser> signInManager,
+        UserManager<ApplicationUser> userManager,
+        ILogger<AccountController>? logger = null)
     {
         _signInManager = signInManager;
         _userManager = userManager;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -68,7 +74,7 @@ public class AccountController : Controller
             return View(model);
         }
 
-        var result = await _signInManager.PasswordSignInAsync(user.UserName!, model.Password, model.RememberMe, lockoutOnFailure: false);
+        var result = await _signInManager.PasswordSignInAsync(user.UserName!, model.Password, model.RememberMe, lockoutOnFailure: true);
 
         if (result.Succeeded)
         {
@@ -93,6 +99,19 @@ public class AccountController : Controller
                 return Redirect(returnUrl);
             }
             return RedirectToAction("Index", "Dashboard");
+        }
+
+        if (result.IsLockedOut)
+        {
+            _logger?.LogWarning("Account {Email} is temporarily locked out due to multiple failed login attempts.", emailInput);
+            ModelState.AddModelError(string.Empty, "This account has been temporarily locked out due to multiple failed login attempts. Please try again in 15 minutes.");
+            return View(model);
+        }
+
+        if (result.IsNotAllowed)
+        {
+            ModelState.AddModelError(string.Empty, "Your account is not permitted to sign in at this time.");
+            return View(model);
         }
 
         ModelState.AddModelError(string.Empty, "Invalid login credentials.");

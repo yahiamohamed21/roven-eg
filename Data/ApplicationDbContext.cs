@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Stockify.Models.Entities;
+using Stockify.Models.Entities.Sync;
+using Stockify.Services.Sync;
 
 namespace Stockify.Data;
 
@@ -35,6 +37,19 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ProductTargetAudience> ProductTargetAudiences => Set<ProductTargetAudience>();
     public DbSet<ProductSeason> ProductSeasons => Set<ProductSeason>();
     public DbSet<ProductFragranceNote> ProductFragranceNotes => Set<ProductFragranceNote>();
+
+    // Bidirectional Catalog Synchronization (Phase 7)
+    public DbSet<SyncOutboxEvent> SyncOutboxEvents => Set<SyncOutboxEvent>();
+    public DbSet<SyncConflict> SyncConflicts => Set<SyncConflict>();
+    public DbSet<SyncStateRecord> SyncStateRecords => Set<SyncStateRecord>();
+    public DbSet<SyncHistoryLog> SyncHistoryLogs => Set<SyncHistoryLog>();
+    public DbSet<SyncChangeFeedEvent> SyncChangeFeedEvents => Set<SyncChangeFeedEvent>();
+
+    /// <summary>
+    /// When true, changes saved in this context instance will not generate SyncOutboxEvents.
+    /// Useful when pulling changes from remote to prevent echo loops.
+    /// </summary>
+    public bool SuppressSyncOutbox { get; set; } = false;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -148,7 +163,74 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             b.HasIndex(p => p.IsFragranceProfileApproved);
         });
 
+        // Catalog Sync Configurations
+        builder.Entity<SyncOutboxEvent>(b =>
+        {
+            b.HasIndex(e => e.State);
+            b.HasIndex(e => new { e.EntityType, e.EntitySyncKey });
+            b.HasIndex(e => e.CreatedAtUtc);
+        });
+
+        builder.Entity<SyncConflict>(b =>
+        {
+            b.HasIndex(c => c.Status);
+            b.HasIndex(c => new { c.EntityType, c.EntitySyncKey });
+            b.HasIndex(c => c.DetectedAtUtc);
+        });
+
+        builder.Entity<SyncChangeFeedEvent>(b =>
+        {
+            b.HasIndex(e => e.Cursor);
+            b.HasIndex(e => e.TimestampUtc);
+            b.HasIndex(e => new { e.EntityType, e.EntitySyncKey });
+        });
+
         // Discovers and applies all IEntityTypeConfiguration classes
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+    }
+
+    public override int SaveChanges()
+    {
+        ProcessSyncOutbox();
+        return base.SaveChanges();
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        ProcessSyncOutbox();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        ProcessSyncOutbox();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        ProcessSyncOutbox();
+        return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void ProcessSyncOutbox()
+    {
+        if (SuppressSyncOutbox || SyncOutboxHelper.SuppressOutboxScope.Value)
+        {
+            return;
+        }
+
+        try
+        {
+            var events = SyncOutboxHelper.GenerateOutboxEvents(ChangeTracker, this);
+            if (events.Count > 0)
+            {
+                SyncOutboxEvents.AddRange(events);
+            }
+        }
+        catch
+        {
+            // Fail open to avoid blocking core business operations
+        }
     }
 }
