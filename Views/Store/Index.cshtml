@@ -362,51 +362,71 @@
     margin-bottom: 1.25rem;
 }
 
+.roven-filter-collapse-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: #FFFFFF;
+    border: 1px solid rgba(181, 141, 74, 0.28);
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #1B1717;
+    box-shadow: 0 4px 16px rgba(27, 23, 23, 0.04);
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.roven-filter-collapse-btn:hover,
+.roven-filter-collapse-btn:focus {
+    border-color: var(--rv-gold, #b58d4a);
+    color: #810100;
+}
+
+.roven-filter-collapse-btn .roven-filter-chevron {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #8C827A;
+}
+
+.roven-filter-collapse-btn:not(.collapsed) .roven-filter-chevron,
+.roven-filter-collapse-btn[aria-expanded="true"] .roven-filter-chevron {
+    transform: rotate(180deg);
+    color: #810100;
+}
+
+.roven-filter-collapse-btn:not(.collapsed),
+.roven-filter-collapse-btn[aria-expanded="true"] {
+    border-color: rgba(181, 141, 74, 0.5);
+    background: #FFFCF7;
+}
+
+.roven-filter-collapse-wrap.collapsing {
+    transition: height 0.32s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
 @@media (max-width: 991.98px) {
     .roven-mobile-filter-bar {
         display: block;
+        margin-bottom: 1rem;
     }
     .roven-filter-sidebar-col {
         margin-bottom: 0.5rem;
     }
     .roven-filter-card {
         padding: 1.25rem 1.1rem;
+        margin-bottom: 1rem;
     }
-    .roven-filter-collapse-btn {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 18px;
-        background: #FFFFFF;
-        border: 1px solid rgba(181, 141, 74, 0.28);
-        border-radius: 16px;
-        font-weight: 600;
-        font-size: 0.92rem;
-        color: #1B1717;
-        box-shadow: 0 4px 16px rgba(27, 23, 23, 0.04);
-        transition: all 0.25s ease;
-    }
-    .roven-filter-collapse-btn:hover,
-    .roven-filter-collapse-btn:focus {
-        border-color: var(--rv-gold, #b58d4a);
-        color: #810100;
-    }
-    .roven-filter-card.collapse:not(.show) {
-        display: none !important;
-    }
-    .roven-filter-card.collapse.show {
-        display: block !important;
-        animation: rvFadeIn 0.3s ease;
-    }
-}
-
-@@keyframes rvFadeIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
 }
 
 @@media (min-width: 992px) {
+    .roven-filter-collapse-wrap {
+        display: block !important;
+        height: auto !important;
+        overflow: visible !important;
+        visibility: visible !important;
+    }
     .roven-filter-sidebar-col {
         position: relative;
     }
@@ -663,7 +683,7 @@
 
     <!-- Mobile Filter Toggle Bar -->
     <div class="roven-mobile-filter-bar d-lg-none">
-        <button class="roven-filter-collapse-btn" type="button" data-bs-toggle="collapse" data-bs-target="#rovenFilterCard" aria-expanded="@(activeFiltersCount > 0 ? "true" : "false")" aria-controls="rovenFilterCard">
+        <button class="roven-filter-collapse-btn @(activeFiltersCount > 0 ? "" : "collapsed")" type="button" data-bs-toggle="collapse" data-bs-target="#rovenFilterCard" aria-expanded="@(activeFiltersCount > 0 ? "true" : "false")" aria-controls="rovenFilterCard">
             <span class="d-flex align-items-center gap-2">
                 <i class="fa-solid fa-sliders" style="color: #810100;"></i>
                 <span>Filter</span>
@@ -672,14 +692,15 @@
                     <span class="roven-filter-active-count">@activeFiltersCount</span>
                 }
             </span>
-            <i class="fa-solid fa-chevron-down text-muted"></i>
+            <i class="fa-solid fa-chevron-down roven-filter-chevron"></i>
         </button>
     </div>
 
     <div class="row g-4">
         <!-- Filter Sidebar -->
         <div class="col-12 col-lg-3 roven-filter-sidebar-col">
-            <div class="roven-filter-card collapse d-lg-block @(activeFiltersCount > 0 ? "show" : "")" id="rovenFilterCard">
+            <div class="roven-filter-collapse-wrap collapse d-lg-block @(activeFiltersCount > 0 ? "show" : "")" id="rovenFilterCard">
+                <div class="roven-filter-card">
                 <div class="roven-filter-header">
                     <div class="roven-filter-title-wrap">
                         <div class="roven-filter-icon-badge" aria-hidden="true">
@@ -772,6 +793,7 @@
                         </label>
                     </div>
                 </form>
+            </div>
             </div>
         </div>
 
