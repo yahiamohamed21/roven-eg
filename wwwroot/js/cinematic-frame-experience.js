@@ -8,9 +8,9 @@
  *   - Cloudflare cache-busted URLs (?v=v2_hd70) to prevent stale cache lock
  *   - Priority-driven dynamic preloader (scrub position jumps to front of queue)
  *   - Zero duplicate network requests via in-flight bitmask tracking
- *   - Zero layout thrashing (canvas geometry cached on resize, 0 reflows in scroll)
+ *   - Dynamic aspect-ratio cover scaling via calcCover(img)
  *   - High-quality image smoothing on all renders
- *   - Full-bleed immersive cover (0% black bars)
+ *   - Debounced responsive canvas resizing with DPR pixel ratio scaling
  * ============================================================================
  */
 
@@ -37,14 +37,11 @@
     let currentFrameIndex = 1;
     let isTicking = false;
 
-    // Cached Canvas Metrics (Avoids forced layout reflow during scroll)
+    // Metrics & State
     let canvasWidth = 0;
     let canvasHeight = 0;
-    let drawWidth = 0;
-    let drawHeight = 0;
-    let drawX = 0;
-    let drawY = 0;
-    let dpr = 1;
+    let drawX = 0, drawY = 0, drawWidth = 0, drawHeight = 0;
+    let currentImg = null;
 
     // DOM Elements
     let section, track, canvas, ctx;
@@ -67,48 +64,39 @@
         return true;
     }
 
-    // Recalculate canvas and draw metrics only on resize/init (0 DOM reads in scroll handler)
-    function updateCanvasMetrics() {
-        if (!canvas) return;
-
-        dpr = Math.min(window.devicePixelRatio || 1, 2);
-        const rect = canvas.getBoundingClientRect();
-        canvasWidth = rect.width;
-        canvasHeight = rect.height;
-
-        if (canvasWidth === 0 || canvasHeight === 0) return;
-
-        const targetW = Math.floor(canvasWidth * dpr);
-        const targetH = Math.floor(canvasHeight * dpr);
-
-        if (canvas.width !== targetW || canvas.height !== targetH) {
-            canvas.width = targetW;
-            canvas.height = targetH;
-            ctx.scale(dpr, dpr);
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-        }
-
-        // Native frame aspect ratio is 960x540 (16:9 = 1.7778)
-        const imgAspect = 16 / 9;
-        const screenAspect = canvasWidth / canvasHeight;
-
-        let scale;
-        if (screenAspect > imgAspect) {
-            scale = canvasWidth / 960;
-        } else {
-            scale = canvasHeight / 540;
-        }
-
-        drawWidth = 960 * scale;
-        drawHeight = 540 * scale;
+    function calcCover(img) {
+        const scale = Math.max(
+            canvasWidth / img.naturalWidth,
+            canvasHeight / img.naturalHeight
+        );
+        drawWidth = img.naturalWidth * scale;
+        drawHeight = img.naturalHeight * scale;
         drawX = (canvasWidth - drawWidth) / 2;
         drawY = (canvasHeight - drawHeight) / 2;
     }
 
-    // High-speed draw (pure GPU blit with zero DOM access)
+    function resizeCanvas() {
+        if (!canvas || !ctx) return;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        canvasWidth = window.innerWidth;   // وحدات CSS
+        canvasHeight = window.innerHeight;
+
+        canvas.width = Math.round(canvasWidth * dpr);    // الحجم الداخلي الحقيقي
+        canvas.height = Math.round(canvasHeight * dpr);
+        canvas.style.width = canvasWidth + 'px';         // الحجم المعروض
+        canvas.style.height = canvasHeight + 'px';
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        if (currentImg) drawFrame(currentImg);
+    }
+
     function drawFrame(img) {
         if (!ctx || !canvas || !img || !img.complete || img.naturalWidth === 0) return;
+
+        currentImg = img;
+        calcCover(img);
 
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
@@ -274,12 +262,6 @@
         }
     }
 
-    // Resize Handler
-    function onResize() {
-        updateCanvasMetrics();
-        renderFrame(currentFrameIndex);
-    }
-
     // Interactive discovery click handler
     function bindInteractions() {
         if (scrollHint) {
@@ -296,7 +278,15 @@
     function init() {
         if (!initElements()) return;
 
-        updateCanvasMetrics();
+        // استدعاء أول مرة
+        resizeCanvas();
+
+        // عند تغيير حجم الشاشة (مع debounce)
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(resizeCanvas, 120);
+        }, { passive: true });
 
         // 1. Immediately prioritize Frame 1
         enqueueFrame(1, true);
@@ -315,7 +305,6 @@
         bindInteractions();
 
         window.addEventListener('scroll', requestScrollTick, { passive: true });
-        window.addEventListener('resize', onResize, { passive: true });
 
         // Draw initial frame immediately
         renderFrame(1);
