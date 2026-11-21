@@ -1126,9 +1126,9 @@
                 <div class="roven-load-more-status" id="rovenLoadMoreStatus">
                     Showing <strong id="rovenCurrentShownCount">@(Math.Min(initialMatchingCount, InitialPageSize))</strong> of <strong id="rovenTotalMatchCount">@initialMatchingCount</strong> products
                 </div>
-                <button type="button" id="rovenLoadMoreBtn" class="roven-btn-load-more" onclick="loadMoreCatalogProducts()" aria-label="عرض المزيد من العطور">
+                <button type="button" id="rovenLoadMoreBtn" class="roven-btn-load-more" onclick="loadMoreCatalogProducts()" aria-label="More Products">
                     <i class="fa-solid fa-sparkles text-gold"></i>
-                    <span>More Products (عرض المزيد)</span>
+                    <span>More Products</span>
                     <span class="badge roven-load-more-badge" id="rovenRemainingCountBadge">
                         +@(Math.Max(0, initialMatchingCount - InitialPageSize))
                     </span>
