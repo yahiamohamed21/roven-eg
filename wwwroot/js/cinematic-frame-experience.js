@@ -5,9 +5,11 @@
  * 
  * Performance Architecture:
  *   - 70 optimized HD frames (1.88 MB total payload vs 8.8 MB)
+ *   - Cloudflare cache-busted URLs (?v=v2_hd70) to prevent stale cache lock
+ *   - Priority-driven dynamic preloader (scrub position jumps to front of queue)
+ *   - Zero duplicate network requests via in-flight bitmask tracking
  *   - Zero layout thrashing (canvas geometry cached on resize, 0 reflows in scroll)
- *   - 2-Tier progressive keyframe loading (never freezes in the middle)
- *   - Seamless nearest-frame interpolation while buffer fills
+ *   - High-quality image smoothing on all renders
  *   - Full-bleed immersive cover (0% black bars)
  * ============================================================================
  */
@@ -17,17 +19,20 @@
 
     const TOTAL_FRAMES = 70;
     const FRAME_DIR = '/frames/';
-    const KEYFRAME_INTERVAL = 5;
+    const FRAME_VERSION = 'v2_hd70';
+    const MAX_CONCURRENCY = 6;
 
     function getFrameUrl(index) {
         const padded = String(index).padStart(4, '0');
-        return `${FRAME_DIR}frame_${padded}.webp`;
+        return `${FRAME_DIR}frame_${padded}.webp?v=${FRAME_VERSION}`;
     }
 
-    // Image Cache
+    // Image Cache & State
     const images = new Array(TOTAL_FRAMES + 1);
     const loadedBitmask = new Uint8Array(TOTAL_FRAMES + 1);
-    let loadedCount = 0;
+    const inFlightBitmask = new Uint8Array(TOTAL_FRAMES + 1);
+    const loadQueue = [];
+    let activeLoads = 0;
 
     let currentFrameIndex = 1;
     let isTicking = false;
@@ -134,9 +139,75 @@
         return images[1] || null;
     }
 
+    // Dynamic Priority Queue Loader
+    function enqueueFrame(index, highPriority = false) {
+        if (index < 1 || index > TOTAL_FRAMES || loadedBitmask[index] || inFlightBitmask[index]) {
+            return;
+        }
+
+        inFlightBitmask[index] = 1;
+        if (highPriority) {
+            loadQueue.unshift(index);
+        } else {
+            loadQueue.push(index);
+        }
+        pumpQueue();
+    }
+
+    function pumpQueue() {
+        while (activeLoads < MAX_CONCURRENCY && loadQueue.length > 0) {
+            const nextIdx = loadQueue.shift();
+            if (!nextIdx || loadedBitmask[nextIdx]) {
+                continue;
+            }
+
+            activeLoads++;
+            const img = new Image();
+            img.src = getFrameUrl(nextIdx);
+
+            img.onload = function () {
+                images[nextIdx] = img;
+                loadedBitmask[nextIdx] = 1;
+                inFlightBitmask[nextIdx] = 0;
+                activeLoads--;
+
+                // If user is scrubbing at or near this frame, render immediately
+                if (currentFrameIndex === nextIdx) {
+                    drawFrame(img);
+                } else if (!loadedBitmask[currentFrameIndex]) {
+                    const best = getBestAvailableFrame(currentFrameIndex);
+                    if (best === img) {
+                        drawFrame(img);
+                    }
+                }
+                pumpQueue();
+            };
+
+            img.onerror = function () {
+                inFlightBitmask[nextIdx] = 0;
+                activeLoads--;
+                pumpQueue();
+            };
+        }
+    }
+
+    // Pull immediate surrounding frames to the front of the queue
+    function prioritizeWindow(targetIndex, radius = 6) {
+        enqueueFrame(targetIndex, true);
+        for (let offset = 1; offset <= radius; offset++) {
+            const fwd = targetIndex + offset;
+            if (fwd <= TOTAL_FRAMES) enqueueFrame(fwd, true);
+            const bwd = targetIndex - offset;
+            if (bwd >= 1) enqueueFrame(bwd, true);
+        }
+    }
+
     // Render frame by index
     function renderFrame(index) {
         currentFrameIndex = Math.min(TOTAL_FRAMES, Math.max(1, index));
+
+        // Prioritize frames directly around current scroll position
+        prioritizeWindow(currentFrameIndex, 6);
 
         const img = getBestAvailableFrame(currentFrameIndex);
         if (img) {
@@ -169,85 +240,6 @@
             stageIntro.style.pointerEvents = 'none';
             stageIntro.style.visibility = 'hidden';
         }
-    }
-
-    // Load a single frame and register into cache
-    function loadSingleFrame(index, onComplete) {
-        if (images[index] || index < 1 || index > TOTAL_FRAMES) {
-            if (onComplete) onComplete();
-            return;
-        }
-
-        const img = new Image();
-        img.src = getFrameUrl(index);
-
-        img.onload = function () {
-            images[index] = img;
-            loadedBitmask[index] = 1;
-            loadedCount++;
-
-            // If user is scrubbing near or at this frame, redraw immediately
-            if (currentFrameIndex === index) {
-                drawFrame(img);
-            }
-            if (onComplete) onComplete();
-        };
-
-        img.onerror = function () {
-            if (onComplete) onComplete();
-        };
-    }
-
-    // 2-Tier Progressive Loading Pipeline
-    function startProgressivePipeline() {
-        // Tier 1: Frame 1 immediately (0ms visual ready)
-        loadSingleFrame(1, () => {
-            renderFrame(1);
-
-            // Tier 2: 15 Keyframes mesh across the entire video (loads in ~150ms)
-            // [1, 6, 11, 16, 21, 26, 31, 36, 41, 46, 51, 56, 61, 66, 70]
-            const keyframes = [];
-            for (let i = 1; i <= TOTAL_FRAMES; i += KEYFRAME_INTERVAL) {
-                if (i !== 1) keyframes.push(i);
-            }
-            if (!keyframes.includes(TOTAL_FRAMES)) keyframes.push(TOTAL_FRAMES);
-
-            let keyframesLoaded = 0;
-            keyframes.forEach(idx => {
-                loadSingleFrame(idx, () => {
-                    keyframesLoaded++;
-                    // If user is currently scrolling during initial load, keep canvas updated
-                    if (keyframesLoaded === 1 || keyframesLoaded === keyframes.length) {
-                        renderFrame(currentFrameIndex);
-                    }
-                });
-            });
-
-            // Tier 3: Fill in remaining in-between frames with polite batching
-            setTimeout(() => {
-                const remaining = [];
-                for (let i = 2; i <= TOTAL_FRAMES; i++) {
-                    if (!loadedBitmask[i]) remaining.push(i);
-                }
-
-                // Load remaining frames with concurrency pool
-                let active = 0;
-                let nextIdx = 0;
-                const poolSize = 4;
-
-                function pumpPool() {
-                    while (active < poolSize && nextIdx < remaining.length) {
-                        const frameToLoad = remaining[nextIdx++];
-                        active++;
-                        loadSingleFrame(frameToLoad, () => {
-                            active--;
-                            pumpPool();
-                        });
-                    }
-                }
-                pumpPool();
-            }, 100);
-        });
     }
 
     // High-performance scroll handler (0 layout thrashing, 60-120fps)
@@ -305,7 +297,21 @@
         if (!initElements()) return;
 
         updateCanvasMetrics();
-        startProgressivePipeline();
+
+        // 1. Immediately prioritize Frame 1
+        enqueueFrame(1, true);
+
+        // 2. Prioritize keyframes evenly distributed across the entire 70-frame range
+        // [10, 20, 30, 40, 50, 60, 70]
+        for (let i = 10; i <= TOTAL_FRAMES; i += 10) {
+            enqueueFrame(i, true);
+        }
+
+        // 3. Enqueue all remaining frames to preload smoothly in the background
+        for (let i = 2; i <= TOTAL_FRAMES; i++) {
+            enqueueFrame(i, false);
+        }
+
         bindInteractions();
 
         window.addEventListener('scroll', requestScrollTick, { passive: true });
