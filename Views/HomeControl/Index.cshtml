@@ -911,53 +911,38 @@
                                                     }
                                                     else if (isMulti)
                                                     {
-                                                        <div class="d-flex flex-column gap-1">
-                                                            @if (!string.IsNullOrWhiteSpace(offer.Title))
-                                                            {
-                                                                <div class="fw-bold text-dark" style="font-size: 0.94rem;">@offer.Title</div>
-                                                            }
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; flex-shrink: 0;" title="@prod?.Name">
-                                                                    @if (!string.IsNullOrWhiteSpace(prod?.ImageUrl))
-                                                                    {
-                                                                        <img src="@prod.ImageUrl" alt="@prod.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <i class="fa-solid fa-spray-can-sparkles text-muted small"></i>
-                                                                    }
+                                                        <div class="d-flex align-items-center gap-2.5">
+                                                            <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                                                                <div class="rounded-2 overflow-hidden border bg-light position-relative" style="width: 42px; height: 42px;" title="@prod?.Name">
+                                                                    <img src="@(string.IsNullOrWhiteSpace(prod?.ImageUrl) ? "/images/placeholder.svg" : prod.ImageUrl)" alt="@prod?.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
                                                                 </div>
-                                                                <span class="small fw-semibold text-dark">1. @(prod?.Name ?? "العطر الأول")</span>
-                                                            </div>
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; flex-shrink: 0;" title="@prod2?.Name">
-                                                                    @if (!string.IsNullOrWhiteSpace(prod2?.ImageUrl))
-                                                                    {
-                                                                        <img src="@prod2.ImageUrl" alt="@prod2.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <i class="fa-solid fa-spray-can-sparkles text-muted small"></i>
-                                                                    }
+                                                                <span class="text-muted fw-bold" style="font-size: 0.82rem;">+</span>
+                                                                <div class="rounded-2 overflow-hidden border bg-light position-relative" style="width: 42px; height: 42px;" title="@prod2?.Name">
+                                                                    <img src="@(string.IsNullOrWhiteSpace(prod2?.ImageUrl) ? "/images/placeholder.svg" : prod2.ImageUrl)" alt="@prod2?.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
                                                                 </div>
-                                                                <span class="small fw-semibold text-dark">2. @(prod2?.Name ?? "العطر الثاني")</span>
-                                                            </div>
-                                                            @if (isTrio)
-                                                            {
-                                                                <div class="d-flex align-items-center gap-2">
-                                                                    <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; flex-shrink: 0;" title="@prod3?.Name">
-                                                                        @if (!string.IsNullOrWhiteSpace(prod3?.ImageUrl))
-                                                                        {
-                                                                            <img src="@prod3.ImageUrl" alt="@prod3.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            <i class="fa-solid fa-spray-can-sparkles text-muted small"></i>
-                                                                        }
+                                                                @if (isTrio)
+                                                                {
+                                                                    <span class="text-muted fw-bold" style="font-size: 0.82rem;">+</span>
+                                                                    <div class="rounded-2 overflow-hidden border bg-light position-relative" style="width: 42px; height: 42px;" title="@prod3?.Name">
+                                                                        <img src="@(string.IsNullOrWhiteSpace(prod3?.ImageUrl) ? "/images/placeholder.svg" : prod3.ImageUrl)" alt="@prod3?.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
                                                                     </div>
-                                                                    <span class="small fw-semibold text-dark">3. @(prod3?.Name ?? "العطر الثالث")</span>
+                                                                }
+                                                            </div>
+                                                            <div>
+                                                                <div class="fw-bold text-dark" style="font-size: 0.92rem;">@(string.IsNullOrWhiteSpace(offer.Title) ? $"{prod?.Name} + {prod2?.Name}{(isTrio ? " + " + prod3?.Name : "")}" : offer.Title)</div>
+                                                                <div class="text-muted small" style="font-size: 0.75rem;">
+                                                                    <span class="text-danger fw-semibold">1. @(prod?.Name ?? "العطر الأول")</span> + 
+                                                                    <span class="text-danger fw-semibold">2. @(prod2?.Name ?? "العطر الثاني")</span>
+                                                                    @if (isTrio)
+                                                                    {
+                                                                        <span> + </span><span class="text-danger fw-semibold">3. @(prod3?.Name ?? "العطر الثالث")</span>
+                                                                    }
                                                                 </div>
-                                                            }
+                                                                @if (!string.IsNullOrWhiteSpace(offer.FeaturePills))
+                                                                {
+                                                                    <div class="text-truncate small text-muted font-monospace" style="max-width: 220px; font-size: 0.7rem;">@offer.FeaturePills</div>
+                                                                }
+                                                            </div>
                                                         </div>
                                                     }
                                                     else

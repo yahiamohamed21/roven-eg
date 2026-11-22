@@ -208,6 +208,14 @@ using (var scope = app.Services.CreateScope())
                     ALTER TABLE [HomeOffers] ADD CONSTRAINT [FK_HomeOffers_Products_ThirdProductId] FOREIGN KEY ([ThirdProductId]) REFERENCES [Products] ([Id]) ON DELETE NO ACTION;
                     CREATE INDEX [IX_HomeOffers_ThirdProductId] ON [HomeOffers] ([ThirdProductId]);
                 END;
+
+                -- Clear any artificial/dummy CustomImageUrl values so the real product perfume images are used
+                UPDATE [HomeOffers] 
+                SET [CustomImageUrl] = NULL 
+                WHERE [CustomImageUrl] IS NOT NULL 
+                  AND ([CustomImageUrl] LIKE '/roven/products/%' 
+                    OR [CustomImageUrl] LIKE '%star_master_offer%' 
+                    OR [CustomImageUrl] LIKE '%placeholder%');
             ");
         }
         catch (Exception ex)
