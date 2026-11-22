@@ -706,6 +706,9 @@ namespace Stockify.Migrations
                     b.Property<int?>("SecondProductId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ThirdProductId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -719,6 +722,8 @@ namespace Stockify.Migrations
                     b.HasIndex("ProductId");
 
                     b.HasIndex("SecondProductId");
+
+                    b.HasIndex("ThirdProductId");
 
                     b.ToTable("HomeOffers");
                 });
@@ -1839,9 +1844,16 @@ namespace Stockify.Migrations
                         .HasForeignKey("SecondProductId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Stockify.Models.Entities.Product", "ThirdProduct")
+                        .WithMany()
+                        .HasForeignKey("ThirdProductId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Product");
 
                     b.Navigation("SecondProduct");
+
+                    b.Navigation("ThirdProduct");
                 });
 
             modelBuilder.Entity("Stockify.Models.Entities.InventoryTransaction", b =>

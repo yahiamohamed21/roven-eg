@@ -254,6 +254,108 @@
                 right: -21px !important;
             }
 
+            /* Multi-Bottle Stage for Duo & Trio Offers */
+            .roven-offer-multi-stage {
+                display: flex !important;
+                align-items: stretch !important;
+                justify-content: center !important;
+                width: 100% !important;
+                height: 100% !important;
+                padding: 10px !important;
+                gap: 8px !important;
+                position: relative !important;
+                background: radial-gradient(circle at center, rgba(223, 177, 91, 0.12) 0%, rgba(20, 3, 3, 0.45) 100%) !important;
+                border-radius: 18px !important;
+            }
+            .roven-multi-bottle-tile {
+                flex: 1 1 0 !important;
+                height: 100% !important;
+                min-width: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                position: relative !important;
+                border-radius: 14px !important;
+                overflow: hidden !important;
+                background: rgba(255, 255, 255, 0.04) !important;
+                border: 1px solid rgba(223, 177, 91, 0.28) !important;
+                padding: 5px !important;
+                transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                text-decoration: none !important;
+            }
+            .roven-multi-bottle-tile:hover {
+                border-color: rgba(223, 177, 91, 0.85) !important;
+                transform: translateY(-2px) scale(1.02) !important;
+                background: rgba(223, 177, 91, 0.08) !important;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45) !important;
+            }
+            .roven-multi-bottle-tile img {
+                width: 100% !important;
+                height: 100% !important;
+                max-height: 100% !important;
+                object-fit: cover !important;
+                border-radius: 10px !important;
+                box-shadow: none !important;
+                transition: transform 0.3s ease !important;
+            }
+            .roven-multi-bottle-tile:hover img {
+                transform: scale(1.04) !important;
+            }
+            .roven-duo-bottle-label {
+                position: absolute !important;
+                bottom: 7px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                background: rgba(27, 23, 23, 0.92) !important;
+                color: #dfb15b !important;
+                font-size: 0.66rem !important;
+                font-weight: 700 !important;
+                padding: 2.5px 8px !important;
+                border-radius: 20px !important;
+                border: 1px solid rgba(223, 177, 91, 0.45) !important;
+                white-space: nowrap !important;
+                max-width: 92% !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                letter-spacing: 0.6px !important;
+                text-transform: uppercase !important;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6) !important;
+                z-index: 2 !important;
+            }
+            .roven-duo-connector-badge {
+                width: 28px !important;
+                height: 28px !important;
+                border-radius: 50% !important;
+                background: #1B1717 !important;
+                color: #dfb15b !important;
+                border: 1.5px solid rgba(223, 177, 91, 0.8) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 0.8rem !important;
+                font-weight: 800 !important;
+                align-self: center !important;
+                flex-shrink: 0 !important;
+                z-index: 3 !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 12px rgba(223, 177, 91, 0.35) !important;
+            }
+            .roven-offer-duo-badge {
+                position: absolute !important;
+                top: 14px !important;
+                right: 14px !important;
+                background: rgba(27, 23, 23, 0.92) !important;
+                color: #dfb15b !important;
+                border: 1px solid rgba(223, 177, 91, 0.75) !important;
+                font-size: 0.75rem !important;
+                font-weight: 800 !important;
+                padding: 3px 10px !important;
+                border-radius: 8px !important;
+                letter-spacing: 0.8px !important;
+                z-index: 5 !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45) !important;
+            }
+
             @@media (max-width: 991.98px) {
                 .roven-spotlight-hero-card {
                     padding: 1.75rem 1.5rem !important;
@@ -417,6 +519,34 @@
                 .roven-offers-nav-btn {
                     display: none !important;
                 }
+                .roven-offer-multi-stage {
+                    padding: 5px !important;
+                    gap: 4px !important;
+                    border-radius: 14px !important;
+                }
+                .roven-multi-bottle-tile {
+                    border-radius: 10px !important;
+                    padding: 3px !important;
+                }
+                .roven-multi-bottle-tile img {
+                    border-radius: 8px !important;
+                }
+                .roven-duo-bottle-label {
+                    font-size: 0.58rem !important;
+                    padding: 1.5px 6px !important;
+                    bottom: 4px !important;
+                }
+                .roven-duo-connector-badge {
+                    width: 22px !important;
+                    height: 22px !important;
+                    font-size: 0.68rem !important;
+                }
+                .roven-offer-duo-badge {
+                    top: 8px !important;
+                    right: 8px !important;
+                    font-size: 0.65rem !important;
+                    padding: 2px 7px !important;
+                }
             }
 
             @@media (max-width: 380px) {
@@ -470,7 +600,9 @@
                         @for (int i = 0; i < offers.Count; i++)
                         {
                             var offer = offers[i];
+                            var isTrio = offer.IsTrioOffer;
                             var isDuo = offer.IsDuoOffer;
+                            var isMulti = offer.IsMultiOffer;
                             var discount = offer.DiscountPercent > 0 ? offer.DiscountPercent : (offer.OriginalPrice > offer.OfferPrice ? (int)Math.Round(((offer.OriginalPrice - offer.OfferPrice) / offer.OriginalPrice) * 100m) : 0);
                             var savings = Math.Max(0, offer.OriginalPrice - offer.OfferPrice);
                             var isStarProduct = (offer.DisplayTitle?.Contains("STAR", StringComparison.OrdinalIgnoreCase) == true ||
@@ -489,39 +621,69 @@
                                             <div class="roven-offer-img-frame">
                                                 @if (discount > 0)
                                                 {
-                                                    <span class="roven-offer-discount-badge position-absolute top-0 start-0 m-3">
+                                                    <span class="roven-offer-discount-badge position-absolute top-0 start-0 m-2 m-md-3">
                                                         @discount% OFF
                                                     </span>
                                                 }
 
-                                                @if (isDuo)
+                                                @if (isTrio)
                                                 {
-                                                    <div class="d-flex align-items-center justify-content-center gap-2 w-100 h-100 p-2">
-                                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-block text-center w-50 h-100" title="@offer.ProductName">
-                                                            @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
-                                                            {
-                                                                <img src="@offer.ImageUrl" alt="@offer.ProductName" class="img-fluid h-100" style="width: 100%; object-fit: cover; border-radius: 12px;" onerror="this.onerror=null; this.src='/roven/products/star_master_offer.webp';" />
-                                                            }
-                                                            else
-                                                            {
-                                                                <i class="fa-solid fa-spray-can-sparkles display-4 text-muted"></i>
-                                                            }
+                                                    <span class="roven-offer-duo-badge position-absolute top-0 end-0 m-2 m-md-3">
+                                                        3x FLACONS
+                                                    </span>
+                                                }
+                                                else if (isDuo)
+                                                {
+                                                    <span class="roven-offer-duo-badge position-absolute top-0 end-0 m-2 m-md-3">
+                                                        2x FLACONS
+                                                    </span>
+                                                }
+
+                                                @if (!string.IsNullOrWhiteSpace(offer.CustomImageUrl))
+                                                {
+                                                    <!-- Custom Combined Photo / Graphic -->
+                                                    <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none" title="@offer.DisplayTitle">
+                                                        <img src="@offer.CustomImageUrl" alt="@offer.DisplayTitle" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='/roven/products/star_master_offer.webp';" />
+                                                    </a>
+                                                }
+                                                else if (isTrio)
+                                                {
+                                                    <!-- 3-Perfume Luxury Trio Stage -->
+                                                    <div class="roven-offer-multi-stage trio-stage">
+                                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="roven-multi-bottle-tile" title="@offer.ProductName">
+                                                            <img src="@(string.IsNullOrWhiteSpace(offer.ImageUrl) ? "/roven/products/star_master_offer.webp" : offer.ImageUrl)" alt="@offer.ProductName" onerror="this.onerror=null; this.src='/roven/products/star_master_offer.webp';" />
+                                                            <span class="roven-duo-bottle-label">@offer.ProductName</span>
                                                         </a>
-                                                        <span class="badge rounded-circle shadow-sm" style="background: #1B1717; color: #dfb15b; border: 1px solid rgba(223, 177, 91, 0.4); width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">+</span>
-                                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.SecondProductId" class="d-block text-center w-50 h-100" title="@offer.SecondProductName">
-                                                            @if (!string.IsNullOrWhiteSpace(offer.SecondProductImageUrl))
-                                                            {
-                                                                <img src="@offer.SecondProductImageUrl" alt="@offer.SecondProductName" class="img-fluid h-100" style="width: 100%; object-fit: cover; border-radius: 12px;" onerror="this.onerror=null; this.src='/roven/products/star_master_offer.webp';" />
-                                                            }
-                                                            else
-                                                            {
-                                                                <i class="fa-solid fa-spray-can-sparkles display-4 text-muted"></i>
-                                                            }
+                                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.SecondProductId" class="roven-multi-bottle-tile" title="@offer.SecondProductName">
+                                                            <img src="@(string.IsNullOrWhiteSpace(offer.SecondProductImageUrl) ? "/roven/products/star_master_offer.webp" : offer.SecondProductImageUrl)" alt="@offer.SecondProductName" onerror="this.onerror=null; this.src='/roven/products/star_master_offer.webp';" />
+                                                            <span class="roven-duo-bottle-label">@offer.SecondProductName</span>
+                                                        </a>
+                                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ThirdProductId" class="roven-multi-bottle-tile" title="@offer.ThirdProductName">
+                                                            <img src="@(string.IsNullOrWhiteSpace(offer.ThirdProductImageUrl) ? "/roven/products/star_master_offer.webp" : offer.ThirdProductImageUrl)" alt="@offer.ThirdProductName" onerror="this.onerror=null; this.src='/roven/products/star_master_offer.webp';" />
+                                                            <span class="roven-duo-bottle-label">@offer.ThirdProductName</span>
+                                                        </a>
+                                                    </div>
+                                                }
+                                                else if (isDuo)
+                                                {
+                                                    <!-- 2-Perfume Luxury Duo Stage -->
+                                                    <div class="roven-offer-multi-stage duo-stage">
+                                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="roven-multi-bottle-tile" title="@offer.ProductName">
+                                                            <img src="@(string.IsNullOrWhiteSpace(offer.ImageUrl) ? "/roven/products/star_master_offer.webp" : offer.ImageUrl)" alt="@offer.ProductName" onerror="this.onerror=null; this.src='/roven/products/star_master_offer.webp';" />
+                                                            <span class="roven-duo-bottle-label">@offer.ProductName</span>
+                                                        </a>
+                                                        <div class="roven-duo-connector-badge">
+                                                            <i class="fa-solid fa-plus"></i>
+                                                        </div>
+                                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.SecondProductId" class="roven-multi-bottle-tile" title="@offer.SecondProductName">
+                                                            <img src="@(string.IsNullOrWhiteSpace(offer.SecondProductImageUrl) ? "/roven/products/star_master_offer.webp" : offer.SecondProductImageUrl)" alt="@offer.SecondProductName" onerror="this.onerror=null; this.src='/roven/products/star_master_offer.webp';" />
+                                                            <span class="roven-duo-bottle-label">@offer.SecondProductName</span>
                                                         </a>
                                                     </div>
                                                 }
                                                 else
                                                 {
+                                                    <!-- Single Product Showcase -->
                                                     <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none" title="@offer.DisplayTitle">
                                                         @if (!string.IsNullOrWhiteSpace(effectiveImg))
                                                         {
@@ -544,7 +706,7 @@
                                             <div class="ps-lg-3">
                                                 <!-- Subtitle -->
                                                 <div class="roven-offer-subtitle">
-                                                    @(string.IsNullOrWhiteSpace(offer.BadgeText) ? (isDuo ? "DUO BUNDLE • 2x FLACONS" : $"{offer.CategoryName} • EXCLUSIVE OFFER") : offer.BadgeText)
+                                                    @(string.IsNullOrWhiteSpace(offer.BadgeText) ? (isTrio ? "TRIO BUNDLE • باقة 3 عطور" : (isDuo ? "DUO BUNDLE • باقة عطرين" : $"{offer.CategoryName} • EXCLUSIVE OFFER")) : offer.BadgeText)
                                                 </div>
 
                                                 <!-- Big Title -->
@@ -554,7 +716,7 @@
 
                                                 <!-- Description -->
                                                 <p class="roven-offer-desc">
-                                                    @(string.IsNullOrWhiteSpace(offer.EffectiveDescription) ? "Experience the pinnacle of haute perfumerie. Handcrafted with rare Grasse botanicals, pure oriental oils, and eternal sillage." : offer.EffectiveDescription)
+                                                    @(string.IsNullOrWhiteSpace(offer.EffectiveDescription) ? (isMulti ? "Exclusive luxury fragrance bundle handcrafted with rare Grasse botanicals, pure oriental oils, and eternal sillage." : "Experience the pinnacle of haute perfumerie. Handcrafted with rare Grasse botanicals, pure oriental oils, and eternal sillage.") : offer.EffectiveDescription)
                                                 </p>
 
                                                 <!-- Fragrance / Feature Pills -->
@@ -568,10 +730,18 @@
                                                     }
                                                     else
                                                     {
-                                                        @if (isDuo)
+                                                        @if (isTrio)
                                                         {
                                                             <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.ProductName</span>
                                                             <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.SecondProductName</span>
+                                                            <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.ThirdProductName</span>
+                                                            <span class="roven-offer-pill"><i class="fa-solid fa-layer-group me-1 text-gold"></i> 3x Flacons Set</span>
+                                                        }
+                                                        else if (isDuo)
+                                                        {
+                                                            <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.ProductName</span>
+                                                            <span class="roven-offer-pill"><i class="fa-solid fa-gem me-1 text-gold"></i> @offer.SecondProductName</span>
+                                                            <span class="roven-offer-pill"><i class="fa-solid fa-layer-group me-1 text-gold"></i> 2x Flacons Bundle</span>
                                                         }
                                                         else
                                                         {

@@ -283,6 +283,8 @@ public class HomeController : Controller
                     .ThenInclude(p => p!.Category)
                 .Include(o => o.SecondProduct)
                     .ThenInclude(p => p!.Category)
+                .Include(o => o.ThirdProduct)
+                    .ThenInclude(p => p!.Category)
                 .Where(o => o.IsActive && o.Product != null && o.Product.IsActive && o.Product.IsPublished)
                 .OrderBy(o => o.DisplayOrder)
                 .ThenByDescending(o => o.CreatedAt)
@@ -305,6 +307,14 @@ public class HomeController : Controller
                     SecondProductImageUrl = o.SecondProduct != null ? o.SecondProduct.ImageUrl : null,
                     SecondProductPrice = o.SecondProduct != null ? o.SecondProduct.Price : null,
 
+                    // Third Product Details for 3-Perfume Offers
+                    ThirdProductId = o.ThirdProductId,
+                    ThirdProductName = o.ThirdProduct != null ? o.ThirdProduct.Name : null,
+                    ThirdProductSku = o.ThirdProduct != null ? o.ThirdProduct.Sku : null,
+                    ThirdProductCategoryName = o.ThirdProduct != null && o.ThirdProduct.Category != null ? o.ThirdProduct.Category.Name : null,
+                    ThirdProductImageUrl = o.ThirdProduct != null ? o.ThirdProduct.ImageUrl : null,
+                    ThirdProductPrice = o.ThirdProduct != null ? o.ThirdProduct.Price : null,
+
                     Title = o.Title,
                     CustomImageUrl = o.CustomImageUrl,
                     CustomDescription = o.CustomDescription,
@@ -317,7 +327,7 @@ public class HomeController : Controller
                     AllocatedPercent = o.AllocatedPercent,
                     RemainingCount = o.RemainingCount > 0 ? o.RemainingCount : o.Product.StockQuantity,
                     IsActive = o.IsActive,
-                    IsOutOfStock = o.Product.StockQuantity <= 0 || (o.SecondProduct != null && o.SecondProduct.StockQuantity <= 0)
+                    IsOutOfStock = o.Product.StockQuantity <= 0 || (o.SecondProduct != null && o.SecondProduct.StockQuantity <= 0) || (o.ThirdProduct != null && o.ThirdProduct.StockQuantity <= 0)
                 })
                 .ToListAsync();
 

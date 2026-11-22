@@ -87,6 +87,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
              .HasForeignKey(o => o.SecondProductId)
              .OnDelete(DeleteBehavior.Restrict);
 
+            b.HasOne(o => o.ThirdProduct)
+             .WithMany()
+             .HasForeignKey(o => o.ThirdProductId)
+             .OnDelete(DeleteBehavior.Restrict);
+
             b.HasIndex(o => o.IsActive);
             b.HasIndex(o => o.DisplayOrder);
         });

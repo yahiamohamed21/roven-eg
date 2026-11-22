@@ -209,6 +209,7 @@ public class HomeControlController : Controller
         ViewBag.HomeOffers = await _context.HomeOffers
             .Include(o => o.Product)
             .Include(o => o.SecondProduct)
+            .Include(o => o.ThirdProduct)
             .OrderBy(o => o.DisplayOrder)
             .ThenByDescending(o => o.CreatedAt)
             .ToListAsync();
@@ -953,6 +954,7 @@ public class HomeControlController : Controller
     public async Task<IActionResult> AddHomeOffer(
         int productId, 
         int? secondProductId, 
+        int? thirdProductId, 
         string? title, 
         decimal offerPrice, 
         decimal? originalPriceOverride,
@@ -979,7 +981,13 @@ public class HomeControlController : Controller
             secondProduct = await _context.Products.FindAsync(secondProductId.Value);
         }
 
-        var totalOriginalPrice = product.Price + (secondProduct?.Price ?? 0m);
+        Product? thirdProduct = null;
+        if (thirdProductId.HasValue && thirdProductId.Value > 0 && thirdProductId.Value != productId && thirdProductId.Value != secondProductId)
+        {
+            thirdProduct = await _context.Products.FindAsync(thirdProductId.Value);
+        }
+
+        var totalOriginalPrice = product.Price + (secondProduct?.Price ?? 0m) + (thirdProduct?.Price ?? 0m);
         if (offerPrice <= 0)
         {
             offerPrice = totalOriginalPrice;
@@ -997,19 +1005,21 @@ public class HomeControlController : Controller
         }
 
         var existingCount = await _context.HomeOffers.CountAsync();
-        var defaultBadge = secondProduct != null ? "DUO BUNDLE • عرض عطرين" : "HOT DEAL • عرض مميز";
+        var defaultBadge = thirdProduct != null ? "TRIO BUNDLE • باقة 3 عطور" : (secondProduct != null ? "DUO BUNDLE • باقة عطرين" : "HOT DEAL • عرض مميز");
+        var defaultBtn = (secondProduct != null || thirdProduct != null) ? "SHOP THE BUNDLE" : "SHOP THE SET";
 
         var newOffer = new HomeOffer
         {
             ProductId = productId,
             SecondProductId = secondProduct?.Id,
+            ThirdProductId = thirdProduct?.Id,
             Title = string.IsNullOrWhiteSpace(title) ? null : title.Trim(),
             OfferPrice = offerPrice,
             OriginalPriceOverride = (originalPriceOverride.HasValue && originalPriceOverride.Value > 0) ? originalPriceOverride.Value : null,
             BadgeText = string.IsNullOrWhiteSpace(badgeText) ? defaultBadge : badgeText.Trim(),
             CustomImageUrl = finalImageUrl,
             CustomDescription = string.IsNullOrWhiteSpace(customDescription) ? null : customDescription.Trim(),
-            ButtonText = string.IsNullOrWhiteSpace(buttonText) ? (secondProduct != null ? "SHOP THE BUNDLE" : "SHOP THE SET") : buttonText.Trim(),
+            ButtonText = string.IsNullOrWhiteSpace(buttonText) ? defaultBtn : buttonText.Trim(),
             FeaturePills = string.IsNullOrWhiteSpace(featurePills) ? null : featurePills.Trim(),
             AllocatedPercent = allocatedPercent.HasValue ? Math.Clamp(allocatedPercent.Value, 0, 100) : 82,
             RemainingCount = remainingCount.HasValue && remainingCount.Value > 0 ? remainingCount.Value : Math.Max(1, product.StockQuantity),
@@ -1024,7 +1034,7 @@ public class HomeControlController : Controller
 
         InvalidateStoreCache();
 
-        var successTitle = secondProduct != null ? $"عرض العطرين ({product.Name} + {secondProduct.Name})" : $"العطر '{product.Name}'";
+        var successTitle = thirdProduct != null ? $"باقة 3 عطور ({product.Name} + {secondProduct?.Name} + {thirdProduct.Name})" : (secondProduct != null ? $"عرض العطرين ({product.Name} + {secondProduct.Name})" : $"العطر '{product.Name}'");
         TempData["SuccessMessage"] = $"تمت إضافة {successTitle} بنجاح إلى قسم العروض المميزة بسعر {offerPrice:N0} ج.م!";
         return RedirectToAction(nameof(Index), new { tab = "#tab-offers" });
     }
@@ -1036,6 +1046,7 @@ public class HomeControlController : Controller
         int id, 
         int productId, 
         int? secondProductId, 
+        int? thirdProductId, 
         string? title, 
         decimal offerPrice, 
         decimal? originalPriceOverride,
@@ -1053,6 +1064,7 @@ public class HomeControlController : Controller
         var offer = await _context.HomeOffers
             .Include(o => o.Product)
             .Include(o => o.SecondProduct)
+            .Include(o => o.ThirdProduct)
             .FirstOrDefaultAsync(o => o.Id == id);
 
         if (offer == null)
@@ -1069,6 +1081,15 @@ public class HomeControlController : Controller
         else
         {
             offer.SecondProductId = null;
+        }
+
+        if (thirdProductId.HasValue && thirdProductId.Value > 0 && thirdProductId.Value != productId && thirdProductId.Value != secondProductId)
+        {
+            offer.ThirdProductId = thirdProductId.Value;
+        }
+        else
+        {
+            offer.ThirdProductId = null;
         }
 
         offer.Title = string.IsNullOrWhiteSpace(title) ? null : title.Trim();
@@ -1092,10 +1113,10 @@ public class HomeControlController : Controller
             offer.CustomImageUrl = customImageUrl.Trim();
         }
 
-        var defaultBadge = offer.SecondProductId.HasValue ? "DUO BUNDLE • عرض عطرين" : "HOT DEAL • عرض مميز";
+        var defaultBadge = offer.ThirdProductId.HasValue ? "TRIO BUNDLE • باقة 3 عطور" : (offer.SecondProductId.HasValue ? "DUO BUNDLE • باقة عطرين" : "HOT DEAL • عرض مميز");
         offer.BadgeText = string.IsNullOrWhiteSpace(badgeText) ? defaultBadge : badgeText.Trim();
         offer.CustomDescription = string.IsNullOrWhiteSpace(customDescription) ? null : customDescription.Trim();
-        offer.ButtonText = string.IsNullOrWhiteSpace(buttonText) ? (offer.SecondProductId.HasValue ? "SHOP THE BUNDLE" : "SHOP THE SET") : buttonText.Trim();
+        offer.ButtonText = string.IsNullOrWhiteSpace(buttonText) ? ((offer.SecondProductId.HasValue || offer.ThirdProductId.HasValue) ? "SHOP THE BUNDLE" : "SHOP THE SET") : buttonText.Trim();
         offer.FeaturePills = string.IsNullOrWhiteSpace(featurePills) ? null : featurePills.Trim();
         offer.AllocatedPercent = Math.Clamp(allocatedPercent, 0, 100);
         offer.RemainingCount = Math.Max(0, remainingCount);

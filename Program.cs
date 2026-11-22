@@ -198,6 +198,23 @@ using (var scope = app.Services.CreateScope())
             logger.LogWarning(ex, "ProductCategories table verification check: {Message}", ex.Message);
         }
 
+        // Ensure HomeOffers table has ThirdProductId column for 3-perfume bundle offers
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('HomeOffers') AND name = 'ThirdProductId')
+                BEGIN
+                    ALTER TABLE [HomeOffers] ADD [ThirdProductId] int NULL;
+                    ALTER TABLE [HomeOffers] ADD CONSTRAINT [FK_HomeOffers_Products_ThirdProductId] FOREIGN KEY ([ThirdProductId]) REFERENCES [Products] ([Id]) ON DELETE NO ACTION;
+                    CREATE INDEX [IX_HomeOffers_ThirdProductId] ON [HomeOffers] ([ThirdProductId]);
+                END;
+            ");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "HomeOffers.ThirdProductId column check: {Message}", ex.Message);
+        }
+
         // Ensure Comparison Section settings are initialized with active status
         var homeSetting = await context.HomeSettings.FirstOrDefaultAsync();
         if (homeSetting != null)

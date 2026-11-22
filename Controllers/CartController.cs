@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Stockify.Data;
+using Stockify.Models.Entities;
 using Stockify.Models.Enums;
 using Stockify.ViewModels.Store;
 
@@ -114,6 +115,7 @@ public class CartController : Controller
         var offer = await _context.HomeOffers
             .Include(o => o.Product)
             .Include(o => o.SecondProduct)
+            .Include(o => o.ThirdProduct)
             .FirstOrDefaultAsync(o => o.Id == offerId && o.IsActive);
 
         if (offer == null || offer.Product == null || !offer.Product.IsActive || !offer.Product.IsPublished)
@@ -133,68 +135,65 @@ public class CartController : Controller
             return Json(new { success = false, message = $"عفواً، نفد مخزون العطر '{prod2.Name}'." });
         }
 
+        var prod3 = (offer.ThirdProductId.HasValue && offer.ThirdProductId.Value > 0) ? offer.ThirdProduct : null;
+        if (prod3 != null && prod3.StockQuantity <= 0)
+        {
+            return Json(new { success = false, message = $"عفواً، نفد مخزون العطر '{prod3.Name}'." });
+        }
+
         var cart = GetCartFromSession();
 
         if (prod2 != null)
         {
-            // Duo Offer: Split offer price proportionally between both perfumes
-            var totalOrig = prod1.Price + prod2.Price;
-            decimal price1;
-            decimal price2;
-            if (totalOrig > 0)
-            {
-                var ratio1 = prod1.Price / totalOrig;
-                price1 = Math.Round(offer.OfferPrice * ratio1, 2);
-                price2 = offer.OfferPrice - price1;
-            }
-            else
-            {
-                price1 = Math.Round(offer.OfferPrice / 2, 2);
-                price2 = offer.OfferPrice - price1;
-            }
+            // Multi-Product Offer (Duo or Trio): Split offer price proportionally between all perfumes in the offer
+            var prods = new List<Product> { prod1, prod2 };
+            if (prod3 != null) prods.Add(prod3);
 
-            // Add Product 1
-            var item1 = cart.Items.FirstOrDefault(i => i.ProductId == prod1.Id);
-            if (item1 != null)
+            var totalOrig = prods.Sum(p => p.Price);
+            decimal allocatedSum = 0m;
+            for (int pIdx = 0; pIdx < prods.Count; pIdx++)
             {
-                item1.Quantity += 1;
-                item1.UnitPrice = price1;
-                item1.StockAvailable = prod1.StockQuantity;
-            }
-            else
-            {
-                cart.Items.Add(new CartItemViewModel
+                var curProd = prods[pIdx];
+                decimal curPrice;
+                if (pIdx == prods.Count - 1)
                 {
-                    ProductId = prod1.Id,
-                    ProductName = prod1.Name,
-                    Sku = prod1.Sku ?? "",
-                    UnitPrice = price1,
-                    Quantity = 1,
-                    StockAvailable = prod1.StockQuantity,
-                    ImageUrl = prod1.ImageUrl
-                });
-            }
+                    // Last item takes remainder to guarantee exact total sum matches offer.OfferPrice
+                    curPrice = offer.OfferPrice - allocatedSum;
+                }
+                else
+                {
+                    if (totalOrig > 0)
+                    {
+                        var ratio = curProd.Price / totalOrig;
+                        curPrice = Math.Round(offer.OfferPrice * ratio, 2);
+                    }
+                    else
+                    {
+                        curPrice = Math.Round(offer.OfferPrice / prods.Count, 2);
+                    }
+                    allocatedSum += curPrice;
+                }
 
-            // Add Product 2
-            var item2 = cart.Items.FirstOrDefault(i => i.ProductId == prod2.Id);
-            if (item2 != null)
-            {
-                item2.Quantity += 1;
-                item2.UnitPrice = price2;
-                item2.StockAvailable = prod2.StockQuantity;
-            }
-            else
-            {
-                cart.Items.Add(new CartItemViewModel
+                var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == curProd.Id);
+                if (existingItem != null)
                 {
-                    ProductId = prod2.Id,
-                    ProductName = prod2.Name,
-                    Sku = prod2.Sku ?? "",
-                    UnitPrice = price2,
-                    Quantity = 1,
-                    StockAvailable = prod2.StockQuantity,
-                    ImageUrl = prod2.ImageUrl
-                });
+                    existingItem.Quantity += 1;
+                    existingItem.UnitPrice = curPrice;
+                    existingItem.StockAvailable = curProd.StockQuantity;
+                }
+                else
+                {
+                    cart.Items.Add(new CartItemViewModel
+                    {
+                        ProductId = curProd.Id,
+                        ProductName = curProd.Name,
+                        Sku = curProd.Sku ?? "",
+                        UnitPrice = curPrice,
+                        Quantity = 1,
+                        StockAvailable = curProd.StockQuantity,
+                        ImageUrl = curProd.ImageUrl
+                    });
+                }
             }
 
             SaveCartToSession(cart);

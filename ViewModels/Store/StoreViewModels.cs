@@ -41,6 +41,14 @@ public class HomeOfferItemViewModel
     public string? SecondProductImageUrl { get; set; }
     public decimal? SecondProductPrice { get; set; }
 
+    // Third Product Support for Trio / 3 Perfumes Bundle Offers
+    public int? ThirdProductId { get; set; }
+    public string? ThirdProductName { get; set; }
+    public string? ThirdProductSku { get; set; }
+    public string? ThirdProductCategoryName { get; set; }
+    public string? ThirdProductImageUrl { get; set; }
+    public decimal? ThirdProductPrice { get; set; }
+
     public string? Title { get; set; }
     public string? CustomImageUrl { get; set; }
     public string? CustomDescription { get; set; }
@@ -48,11 +56,13 @@ public class HomeOfferItemViewModel
     public string? FeaturePills { get; set; }
     public decimal? OriginalPriceOverride { get; set; }
 
-    public bool IsDuoOffer => SecondProductId.HasValue && SecondProductId.Value > 0 && !string.IsNullOrWhiteSpace(SecondProductName);
-    public string DisplayTitle => !string.IsNullOrWhiteSpace(Title) ? Title : (IsDuoOffer ? $"{ProductName} + {SecondProductName}" : ProductName);
+    public bool IsTrioOffer => SecondProductId.HasValue && SecondProductId.Value > 0 && ThirdProductId.HasValue && ThirdProductId.Value > 0 && !string.IsNullOrWhiteSpace(ThirdProductName);
+    public bool IsDuoOffer => SecondProductId.HasValue && SecondProductId.Value > 0 && !string.IsNullOrWhiteSpace(SecondProductName) && (!ThirdProductId.HasValue || ThirdProductId.Value <= 0);
+    public bool IsMultiOffer => IsDuoOffer || IsTrioOffer;
+    public string DisplayTitle => !string.IsNullOrWhiteSpace(Title) ? Title : (IsTrioOffer ? $"{ProductName} + {SecondProductName} + {ThirdProductName}" : (IsDuoOffer ? $"{ProductName} + {SecondProductName}" : ProductName));
     public string EffectiveImageUrl => !string.IsNullOrWhiteSpace(CustomImageUrl) ? CustomImageUrl : (ImageUrl ?? string.Empty);
     public string EffectiveDescription => !string.IsNullOrWhiteSpace(CustomDescription) ? CustomDescription : (Description ?? string.Empty);
-    public string EffectiveButtonText => !string.IsNullOrWhiteSpace(ButtonText) ? ButtonText : (IsDuoOffer ? "SHOP THE BUNDLE" : "SHOP THE SET");
+    public string EffectiveButtonText => !string.IsNullOrWhiteSpace(ButtonText) ? ButtonText : (IsMultiOffer ? "SHOP THE BUNDLE" : "SHOP THE SET");
 
     public List<string> FeaturePillsList
     {
@@ -69,7 +79,7 @@ public class HomeOfferItemViewModel
         }
     }
 
-    public decimal OriginalPrice => OriginalPriceOverride.HasValue && OriginalPriceOverride.Value > 0 ? OriginalPriceOverride.Value : (FirstProductPrice + (SecondProductPrice ?? 0m));
+    public decimal OriginalPrice => OriginalPriceOverride.HasValue && OriginalPriceOverride.Value > 0 ? OriginalPriceOverride.Value : (FirstProductPrice + (SecondProductPrice ?? 0m) + (ThirdProductPrice ?? 0m));
     public decimal OfferPrice { get; set; }
     public int DiscountPercent => (OriginalPrice > 0 && OfferPrice < OriginalPrice) ? (int)Math.Round(((OriginalPrice - OfferPrice) / OriginalPrice) * 100m) : 0;
     public string? BadgeText { get; set; }

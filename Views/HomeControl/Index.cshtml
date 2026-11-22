@@ -868,10 +868,13 @@
                                         {
                                             var prod = offer.Product;
                                             var prod2 = offer.SecondProduct;
-                                            var isDuo = prod2 != null;
+                                            var prod3 = offer.ThirdProduct;
+                                            var isTrio = prod2 != null && prod3 != null;
+                                            var isDuo = prod2 != null && prod3 == null;
+                                            var isMulti = isDuo || isTrio;
                                             var origPrice = offer.OriginalPriceOverride.HasValue && offer.OriginalPriceOverride.Value > 0
                                                 ? offer.OriginalPriceOverride.Value 
-                                                : ((prod?.Price ?? 0m) + (prod2?.Price ?? 0m));
+                                                : ((prod?.Price ?? 0m) + (prod2?.Price ?? 0m) + (prod3?.Price ?? 0m));
                                             var discount = origPrice > offer.OfferPrice && origPrice > 0 
                                                 ? (int)Math.Round((origPrice - offer.OfferPrice) / origPrice * 100) 
                                                 : 0;
@@ -890,9 +893,13 @@
                                                                 <div class="fw-bold text-dark" style="font-size: 0.92rem;">@(string.IsNullOrWhiteSpace(offer.Title) ? prod?.Name : offer.Title)</div>
                                                                 <div class="text-muted small" style="font-size: 0.75rem;">
                                                                     <span class="text-danger fw-semibold">@(prod?.Name ?? "العطر الأساسي")</span>
-                                                                    @if (isDuo)
+                                                                    @if (isDuo || isTrio)
                                                                     {
                                                                         <span> + @(prod2?.Name ?? "العطر الثاني")</span>
+                                                                    }
+                                                                    @if (isTrio)
+                                                                    {
+                                                                        <span> + @(prod3?.Name ?? "العطر الثالث")</span>
                                                                     }
                                                                 </div>
                                                                 @if (!string.IsNullOrWhiteSpace(offer.FeaturePills))
@@ -902,7 +909,7 @@
                                                             </div>
                                                         </div>
                                                     }
-                                                    else if (isDuo)
+                                                    else if (isMulti)
                                                     {
                                                         <div class="d-flex flex-column gap-1">
                                                             @if (!string.IsNullOrWhiteSpace(offer.Title))
@@ -935,6 +942,22 @@
                                                                 </div>
                                                                 <span class="small fw-semibold text-dark">2. @(prod2?.Name ?? "العطر الثاني")</span>
                                                             </div>
+                                                            @if (isTrio)
+                                                            {
+                                                                <div class="d-flex align-items-center gap-2">
+                                                                    <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; flex-shrink: 0;" title="@prod3?.Name">
+                                                                        @if (!string.IsNullOrWhiteSpace(prod3?.ImageUrl))
+                                                                        {
+                                                                            <img src="@prod3.ImageUrl" alt="@prod3.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <i class="fa-solid fa-spray-can-sparkles text-muted small"></i>
+                                                                        }
+                                                                    </div>
+                                                                    <span class="small fw-semibold text-dark">3. @(prod3?.Name ?? "العطر الثالث")</span>
+                                                                </div>
+                                                            }
                                                         </div>
                                                     }
                                                     else
@@ -958,7 +981,13 @@
                                                     }
                                                 </td>
                                                 <td>
-                                                    @if (isDuo)
+                                                    @if (isTrio)
+                                                    {
+                                                        <span class="badge rounded-pill" style="background-color: #4a004a; color: #fdf4dc;">
+                                                            <i class="fa-solid fa-layer-group me-1"></i>باقة 3 عطور
+                                                        </span>
+                                                    }
+                                                    else if (isDuo)
                                                     {
                                                         <span class="badge rounded-pill" style="background-color: #630000; color: #fdf4dc;">
                                                             <i class="fa-solid fa-layer-group me-1"></i>باقة عطرين
@@ -1017,6 +1046,7 @@
                                                                 data-id="@offer.Id"
                                                                 data-product1="@offer.ProductId"
                                                                 data-product2="@(offer.SecondProductId?.ToString() ?? "")"
+                                                                data-product3="@(offer.ThirdProductId?.ToString() ?? "")"
                                                                 data-title="@offer.Title"
                                                                 data-offerprice="@offer.OfferPrice"
                                                                 data-origoverride="@(offer.OriginalPriceOverride?.ToString() ?? "")"
@@ -1048,10 +1078,13 @@
                                 {
                                     var prod = offer.Product;
                                     var prod2 = offer.SecondProduct;
-                                    var isDuo = prod2 != null;
+                                    var prod3 = offer.ThirdProduct;
+                                    var isTrio = prod2 != null && prod3 != null;
+                                    var isDuo = prod2 != null && prod3 == null;
+                                    var isMulti = isDuo || isTrio;
                                     var origPrice = offer.OriginalPriceOverride.HasValue && offer.OriginalPriceOverride.Value > 0
                                         ? offer.OriginalPriceOverride.Value 
-                                        : ((prod?.Price ?? 0m) + (prod2?.Price ?? 0m));
+                                        : ((prod?.Price ?? 0m) + (prod2?.Price ?? 0m) + (prod3?.Price ?? 0m));
                                     var discount = origPrice > offer.OfferPrice && origPrice > 0 
                                         ? (int)Math.Round((origPrice - offer.OfferPrice) / origPrice * 100) 
                                         : 0;
@@ -1067,7 +1100,13 @@
                                                         <i class="fa-solid fa-gem me-1"></i>صورة مخصصة
                                                     </span>
                                                 }
-                                                @if (isDuo)
+                                                @if (isTrio)
+                                                {
+                                                    <span class="badge rounded-pill" style="background-color: #630000; color: #fdf4dc; font-size: 0.7rem;">
+                                                        <i class="fa-solid fa-cubes me-1"></i>باقة 3 عطور
+                                                    </span>
+                                                }
+                                                else if (isDuo)
                                                 {
                                                     <span class="badge rounded-pill" style="background-color: #630000; color: #fdf4dc; font-size: 0.7rem;">
                                                         <i class="fa-solid fa-layer-group me-1"></i>باقة عطرين
@@ -1105,17 +1144,33 @@
                                                 <div class="flex-grow-1" style="min-width: 0;">
                                                     <div class="fw-bold text-dark text-truncate" style="font-size: 0.95rem;">@(string.IsNullOrWhiteSpace(offer.Title) ? prod?.Name : offer.Title)</div>
                                                     <div class="small text-danger text-truncate fw-semibold">1. @(prod?.Name ?? "العطر الأول")</div>
-                                                    @if (isDuo)
+                                                    @if (isDuo || isTrio)
                                                     {
                                                         <div class="small text-danger text-truncate fw-semibold">2. @(prod2?.Name ?? "العطر الثاني")</div>
                                                     }
+                                                    @if (isTrio)
+                                                    {
+                                                        <div class="small text-danger text-truncate fw-semibold">3. @(prod3?.Name ?? "العطر الثالث")</div>
+                                                    }
                                                 </div>
                                             }
-                                            else if (isDuo)
+                                            else if (isMulti)
                                             {
-                                                <div class="position-relative" style="width: 58px; height: 58px; flex-shrink: 0;">
-                                                    <img src="@(string.IsNullOrWhiteSpace(prod?.ImageUrl) ? "/images/placeholder.svg" : prod.ImageUrl)" alt="@prod?.Name" class="rounded-3 border position-absolute top-0 start-0" style="width: 38px; height: 38px; object-fit: cover; z-index: 2;" onerror="this.src='/images/placeholder.svg'" />
-                                                    <img src="@(string.IsNullOrWhiteSpace(prod2?.ImageUrl) ? "/images/placeholder.svg" : prod2.ImageUrl)" alt="@prod2?.Name" class="rounded-3 border position-absolute bottom-0 end-0" style="width: 38px; height: 38px; object-fit: cover; z-index: 1;" onerror="this.src='/images/placeholder.svg'" />
+                                                <div class="d-flex align-items-center gap-1.5 flex-shrink-0">
+                                                    <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" title="@prod?.Name">
+                                                        <img src="@(string.IsNullOrWhiteSpace(prod?.ImageUrl) ? "/images/placeholder.svg" : prod.ImageUrl)" alt="@prod?.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
+                                                    </div>
+                                                    <span class="text-muted fw-bold" style="font-size: 0.8rem;">+</span>
+                                                    <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" title="@prod2?.Name">
+                                                        <img src="@(string.IsNullOrWhiteSpace(prod2?.ImageUrl) ? "/images/placeholder.svg" : prod2.ImageUrl)" alt="@prod2?.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
+                                                    </div>
+                                                    @if (isTrio)
+                                                    {
+                                                        <span class="text-muted fw-bold" style="font-size: 0.8rem;">+</span>
+                                                        <div class="rounded-3 overflow-hidden border bg-light d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" title="@prod3?.Name">
+                                                            <img src="@(string.IsNullOrWhiteSpace(prod3?.ImageUrl) ? "/images/placeholder.svg" : prod3.ImageUrl)" alt="@prod3?.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/images/placeholder.svg'" />
+                                                        </div>
+                                                    }
                                                 </div>
                                                 <div class="flex-grow-1" style="min-width: 0;">
                                                     @if (!string.IsNullOrWhiteSpace(offer.Title))
@@ -1124,6 +1179,10 @@
                                                     }
                                                     <div class="small text-muted text-truncate">1. @(prod?.Name ?? "العطر الأول")</div>
                                                     <div class="small text-muted text-truncate">2. @(prod2?.Name ?? "العطر الثاني")</div>
+                                                    @if (isTrio)
+                                                    {
+                                                        <div class="small text-muted text-truncate">3. @(prod3?.Name ?? "العطر الثالث")</div>
+                                                    }
                                                 </div>
                                             }
                                             else
@@ -1177,6 +1236,7 @@
                                                     data-id="@offer.Id"
                                                     data-product1="@offer.ProductId"
                                                     data-product2="@(offer.SecondProductId?.ToString() ?? "")"
+                                                    data-product3="@(offer.ThirdProductId?.ToString() ?? "")"
                                                     data-title="@offer.Title"
                                                     data-offerprice="@offer.OfferPrice"
                                                     data-origoverride="@(offer.OriginalPriceOverride?.ToString() ?? "")"
@@ -1192,7 +1252,7 @@
                                                 <i class="fa-solid fa-pen"></i>
                                                 <span>تعديل</span>
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-outline-danger flex-grow-1 rounded-pill d-flex align-items-center justify-content-center gap-1.5 py-2" style="font-size: 0.82rem;" onclick="confirmDeleteOffer(@offer.Id, '@(prod?.Name?.Replace("'", "\\'") ?? "العرض")@(isDuo ? " + " + prod2?.Name?.Replace("'", "\\'") : "")')">
+                                            <button type="button" class="btn btn-sm btn-outline-danger flex-grow-1 rounded-pill d-flex align-items-center justify-content-center gap-1.5 py-2" style="font-size: 0.82rem;" onclick="confirmDeleteOffer(@offer.Id, '@(prod?.Name?.Replace("'", "\\'") ?? "العرض")@(isDuo ? " + " + prod2?.Name?.Replace("'", "\\'") : "")@(isTrio ? " + " + prod2?.Name?.Replace("'", "\\'") + " + " + prod3?.Name?.Replace("'", "\\'") : "")')">
                                                 <i class="fa-solid fa-trash"></i>
                                                 <span>حذف</span>
                                             </button>
@@ -3176,7 +3236,7 @@
 
                                     <div class="row g-3">
                                         <!-- Product 1 -->
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-md-4">
                                             <label class="form-label small fw-bold text-dark">العطر الأول (الأساسي) <span class="text-danger">*</span></label>
                                             <select name="productId" id="addOfferProduct1Select" class="form-select roven-studio-input" required onchange="onAddOfferFormChange()">
                                                 <option value="" selected disabled>-- اختر العطر من الكتالوج --</option>
@@ -3188,12 +3248,26 @@
                                         </div>
 
                                         <!-- Product 2 (Optional) -->
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-md-4">
                                             <label class="form-label small fw-bold text-dark">
                                                 العطر الثاني <span class="badge bg-warning-subtle text-dark border border-warning-subtle ms-1 font-monospace">اختياري لباقة عطرين</span>
                                             </label>
                                             <select name="secondProductId" id="addOfferProduct2Select" class="form-select roven-studio-input" onchange="onAddOfferFormChange()">
                                                 <option value="">-- لا يوجد (عرض عطر واحد فقط) --</option>
+                                                @foreach (var prod in products)
+                                                {
+                                                    <option value="@prod.Id" data-price="@prod.Price" data-img="@prod.ImageUrl" data-name="@prod.Name">@prod.Name (@prod.Price.ToString("N0") ج.م - مخزون: @prod.StockQuantity)</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <!-- Product 3 (Optional) -->
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label small fw-bold text-dark">
+                                                العطر الثالث <span class="badge bg-info-subtle text-dark border border-info-subtle ms-1 font-monospace">اختياري لباقة 3 عطور</span>
+                                            </label>
+                                            <select name="thirdProductId" id="addOfferProduct3Select" class="form-select roven-studio-input" onchange="onAddOfferFormChange()">
+                                                <option value="">-- لا يوجد --</option>
                                                 @foreach (var prod in products)
                                                 {
                                                     <option value="@prod.Id" data-price="@prod.Price" data-img="@prod.ImageUrl" data-name="@prod.Name">@prod.Name (@prod.Price.ToString("N0") ج.م - مخزون: @prod.StockQuantity)</option>
@@ -3508,7 +3582,7 @@
 
                                     <div class="row g-3">
                                         <!-- Product 1 -->
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-md-4">
                                             <label class="form-label small fw-bold text-dark">العطر الأول (الأساسي) <span class="text-danger">*</span></label>
                                             <select name="productId" id="editOfferProduct1Select" class="form-select roven-studio-input" required onchange="onEditOfferFormChange()">
                                                 @foreach (var prod in products)
@@ -3519,12 +3593,26 @@
                                         </div>
 
                                         <!-- Product 2 (Optional) -->
-                                        <div class="col-12 col-md-6">
+                                        <div class="col-12 col-md-4">
                                             <label class="form-label small fw-bold text-dark">
                                                 العطر الثاني <span class="badge bg-warning-subtle text-dark border border-warning-subtle ms-1 font-monospace">اختياري لباقة عطرين</span>
                                             </label>
                                             <select name="secondProductId" id="editOfferProduct2Select" class="form-select roven-studio-input" onchange="onEditOfferFormChange()">
                                                 <option value="">-- لا يوجد (عرض عطر واحد فقط) --</option>
+                                                @foreach (var prod in products)
+                                                {
+                                                    <option value="@prod.Id" data-price="@prod.Price" data-img="@prod.ImageUrl" data-name="@prod.Name">@prod.Name (@prod.Price.ToString("N0") ج.م)</option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <!-- Product 3 (Optional) -->
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label small fw-bold text-dark">
+                                                العطر الثالث <span class="badge bg-info-subtle text-dark border border-info-subtle ms-1 font-monospace">اختياري لباقة 3 عطور</span>
+                                            </label>
+                                            <select name="thirdProductId" id="editOfferProduct3Select" class="form-select roven-studio-input" onchange="onEditOfferFormChange()">
+                                                <option value="">-- لا يوجد --</option>
                                                 @foreach (var prod in products)
                                                 {
                                                     <option value="@prod.Id" data-price="@prod.Price" data-img="@prod.ImageUrl" data-name="@prod.Name">@prod.Name (@prod.Price.ToString("N0") ج.م)</option>
@@ -3991,6 +4079,7 @@
     function onAddOfferFormChange() {
         const s1 = document.getElementById('addOfferProduct1Select');
         const s2 = document.getElementById('addOfferProduct2Select');
+        const s3 = document.getElementById('addOfferProduct3Select');
         const priceInput = document.getElementById('addOfferPriceInput');
         const origPriceInput = document.getElementById('addOfferOrigPriceInput');
         const badgeInput = document.getElementById('addOfferBadgeInput');
@@ -4003,11 +4092,15 @@
 
         const opt1 = s1 ? s1.options[s1.selectedIndex] : null;
         const opt2 = s2 ? s2.options[s2.selectedIndex] : null;
+        const opt3 = s3 ? s3.options[s3.selectedIndex] : null;
 
         const p1 = (opt1 && opt1.value) ? parseFloat(opt1.getAttribute('data-price') || '0') : 0;
         const p2 = (opt2 && opt2.value) ? parseFloat(opt2.getAttribute('data-price') || '0') : 0;
-        const isDuo = (opt2 && opt2.value);
-        const catalogTotal = p1 + p2;
+        const p3 = (opt3 && opt3.value) ? parseFloat(opt3.getAttribute('data-price') || '0') : 0;
+        const isTrio = (opt2 && opt2.value && opt3 && opt3.value);
+        const isDuo = (opt2 && opt2.value && (!opt3 || !opt3.value));
+        const isMulti = isDuo || isTrio;
+        const catalogTotal = p1 + p2 + p3;
 
         let effectiveOrig = catalogTotal;
         const origOverride = parseFloat(origPriceInput?.value || '0');
@@ -4015,7 +4108,9 @@
             effectiveOrig = origOverride;
         }
 
-        if (isDuo && (!badgeInput.value || badgeInput.value === 'HOT DEAL • عرض مميز')) {
+        if (isTrio && (!badgeInput.value || badgeInput.value === 'HOT DEAL • عرض مميز' || badgeInput.value === 'DUO BUNDLE • باقة عطرين')) {
+            badgeInput.value = 'TRIO BUNDLE • باقة 3 عطور';
+        } else if (isDuo && (!badgeInput.value || badgeInput.value === 'HOT DEAL • عرض مميز' || badgeInput.value === 'TRIO BUNDLE • باقة 3 عطور')) {
             badgeInput.value = 'DUO BUNDLE • باقة عطرين';
         }
 
@@ -4146,6 +4241,7 @@
     function onEditOfferFormChange() {
         const s1 = document.getElementById('editOfferProduct1Select');
         const s2 = document.getElementById('editOfferProduct2Select');
+        const s3 = document.getElementById('editOfferProduct3Select');
         const priceInput = document.getElementById('editOfferPriceInput');
         const origPriceInput = document.getElementById('editOfferOrigPriceInput');
         const badgeInput = document.getElementById('editOfferBadgeInput');
@@ -4158,11 +4254,15 @@
 
         const opt1 = s1 ? s1.options[s1.selectedIndex] : null;
         const opt2 = s2 ? s2.options[s2.selectedIndex] : null;
+        const opt3 = s3 ? s3.options[s3.selectedIndex] : null;
 
         const p1 = (opt1 && opt1.value) ? parseFloat(opt1.getAttribute('data-price') || '0') : 0;
         const p2 = (opt2 && opt2.value) ? parseFloat(opt2.getAttribute('data-price') || '0') : 0;
-        const isDuo = (opt2 && opt2.value);
-        const catalogTotal = p1 + p2;
+        const p3 = (opt3 && opt3.value) ? parseFloat(opt3.getAttribute('data-price') || '0') : 0;
+        const isTrio = (opt2 && opt2.value && opt3 && opt3.value);
+        const isDuo = (opt2 && opt2.value && (!opt3 || !opt3.value));
+        const isMulti = isDuo || isTrio;
+        const catalogTotal = p1 + p2 + p3;
 
         let effectiveOrig = catalogTotal;
         const origOverride = parseFloat(origPriceInput?.value || '0');
@@ -4298,6 +4398,9 @@
         const s2 = document.getElementById('editOfferProduct2Select');
         if (s2) s2.value = d.product2 || '';
 
+        const s3 = document.getElementById('editOfferProduct3Select');
+        if (s3) s3.value = d.product3 || '';
+
         document.getElementById('editOfferTitleInput').value = d.title || '';
         document.getElementById('editOfferPriceInput').value = d.offerprice || '';
         document.getElementById('editOfferOrigPriceInput').value = d.origoverride || '';
@@ -4321,7 +4424,7 @@
         modal.show();
     }
 
-    function openEditOfferModal(id, prodId, secondProdId, title, offerPrice, badgeText, allocated, remaining, endTime, order, customImg, customDesc, btnText, pills, origOverride) {
+    function openEditOfferModal(id, prodId, secondProdId, title, offerPrice, badgeText, allocated, remaining, endTime, order, customImg, customDesc, btnText, pills, origOverride, thirdProdId) {
         document.getElementById('editOfferId').value = id;
 
         const s1 = document.getElementById('editOfferProduct1Select');
@@ -4329,6 +4432,9 @@
 
         const s2 = document.getElementById('editOfferProduct2Select');
         if (s2) s2.value = secondProdId || '';
+
+        const s3 = document.getElementById('editOfferProduct3Select');
+        if (s3) s3.value = thirdProdId || '';
 
         document.getElementById('editOfferTitleInput').value = title || '';
         document.getElementById('editOfferPriceInput').value = offerPrice;

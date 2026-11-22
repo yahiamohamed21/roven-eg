@@ -20,6 +20,13 @@ public class HomeOffer
 
     public Product? SecondProduct { get; set; }
 
+    /// <summary>
+    /// اختياري: عطر ثالث في حال كان العرض باقة ثلاثية تحتوي على 3 عطور
+    /// </summary>
+    public int? ThirdProductId { get; set; }
+
+    public Product? ThirdProduct { get; set; }
+
     [MaxLength(200)]
     public string? Title { get; set; }
 
