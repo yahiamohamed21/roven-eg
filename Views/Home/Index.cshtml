@@ -28,8 +28,6 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/home-index.css?v=@DateTime.UtcNow.Ticks" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/cinematic-frame-experience.css?v=@DateTime.UtcNow.Ticks" asp-append-version="true" />
-    <link rel="preload" as="image" href="/frames/frame_0001.webp" fetchpriority="high">
     <!-- High-Priority Responsive Preload for Above-the-Fold Main Brand Hero -->
     @if (settings?.ShowBrandHero ?? true)
     {
@@ -52,9 +50,6 @@
     switch (section.Key)
     {
         case "BrandHero":
-            <!-- 0. CINEMATIC SCROLL FRAME EXPERIENCE (Pre-Hero Luxury Sequence) -->
-            <partial name="Partials/_CinematicFrameExperience" model="Model" />
-
             <!-- 1. MAIN BRAND HERO (Dedicated Full-Bleed Luxury Visual Section) -->
             <partial name="Partials/_BrandHero" model="Model" />
             break;
@@ -107,7 +102,6 @@
 
 @section Scripts {
     <partial name="Partials/_HomeScripts" />
-    <script src="~/js/cinematic-frame-experience.js" asp-append-version="true"></script>
 }
 
 @section SeoStructuredData {
