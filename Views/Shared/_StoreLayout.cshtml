@@ -16,7 +16,8 @@
     var hasFilterParams = Context.Request.Query.ContainsKey("categoryId")
                        || Context.Request.Query.ContainsKey("inStockOnly")
                        || Context.Request.Query.ContainsKey("sort")
-                       || Context.Request.Query.ContainsKey("search");
+                       || Context.Request.Query.ContainsKey("search")
+                       || Context.Request.Query.ContainsKey("orderNumber");
     var isAjaxRequest = Context.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
     var shouldSkipPreloader = hasFilterParams || isAjaxRequest || (ViewData["SkipPreloader"] as bool? == true);
 }

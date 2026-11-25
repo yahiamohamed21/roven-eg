@@ -33,6 +33,7 @@ public class OrderTrackingController : Controller
         var cleanNumber = orderNumber.Trim();
 
         var query = _context.Orders
+            .AsNoTracking()
             .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
             .Include(o => o.Customer)
@@ -40,11 +41,16 @@ public class OrderTrackingController : Controller
 
         if (!string.IsNullOrWhiteSpace(phone))
         {
-            var cleanPhone = phone.Trim();
+            var cleanPhone = phone.Trim().Replace(" ", "").Replace("-", "");
             query = query.Where(o => o.CustomerPhone == cleanPhone || (o.Customer != null && o.Customer.PhoneNumber == cleanPhone));
         }
 
         model.Order = await query.FirstOrDefaultAsync();
+
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        {
+            return PartialView("_TrackingResultPartial", model);
+        }
 
         return View(model);
     }
