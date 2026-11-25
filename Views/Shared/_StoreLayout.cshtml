@@ -2394,13 +2394,9 @@
     <!-- Maison ROVEN Luxury Mobile Navigation Drawer -->
     <div class="offcanvas offcanvas-start roven-mobile-drawer" tabindex="-1" id="rovenMobileDrawer" aria-labelledby="rovenMobileDrawerLabel">
         <div class="offcanvas-header">
-            <div class="d-flex align-items-center gap-2" id="rovenMobileDrawerLabel">
-                <div class="drawer-monogram-shield">R</div>
-                <div>
-                    <h5 class="drawer-brand-name mb-0">ROVEN</h5>
-                    <span class="drawer-brand-subtitle">HAUTE PARFUMERIE</span>
-                </div>
-            </div>
+            <a asp-controller="Home" asp-action="Index" class="d-inline-flex align-items-center text-decoration-none px-3 py-1.5 rounded-pill" id="rovenMobileDrawerLabel" style="background-color: #FAF9F5; border: 1px solid rgba(223, 177, 91, 0.35);" title="ROVEN Haute Parfumerie">
+                <img src="~/images/roven-logo.png?v=roven_tp" alt="ROVEN" class="roven-nav-logo" style="height: 28px; width: auto;" />
+            </a>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
 
