@@ -223,6 +223,38 @@ using (var scope = app.Services.CreateScope())
             logger.LogWarning(ex, "HomeOffers.ThirdProductId column check: {Message}", ex.Message);
         }
 
+        // Deduplicate any historical duplicate unrecovered AbandonedCheckouts rows
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                ;WITH DupPhone AS (
+                    SELECT [Id],
+                           ROW_NUMBER() OVER (
+                               PARTITION BY REPLACE(REPLACE(REPLACE(REPLACE(LTRIM(RTRIM([CustomerPhone])), ' ', ''), '-', ''), '(', ''), ')', '')
+                               ORDER BY [LastUpdatedAt] DESC, [Id] DESC
+                           ) AS rn
+                    FROM [AbandonedCheckouts]
+                    WHERE [IsRecovered] = 0 AND [CustomerPhone] IS NOT NULL AND LTRIM(RTRIM([CustomerPhone])) <> N''
+                )
+                DELETE FROM DupPhone WHERE rn > 1;
+
+                ;WITH DupSession AS (
+                    SELECT [Id],
+                           ROW_NUMBER() OVER (
+                               PARTITION BY [SessionId]
+                               ORDER BY [LastUpdatedAt] DESC, [Id] DESC
+                           ) AS rn
+                    FROM [AbandonedCheckouts]
+                    WHERE [IsRecovered] = 0 AND [SessionId] IS NOT NULL AND LTRIM(RTRIM([SessionId])) <> N''
+                )
+                DELETE FROM DupSession WHERE rn > 1;
+            ");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "AbandonedCheckouts deduplication cleanup: {Message}", ex.Message);
+        }
+
         // Ensure Comparison Section settings are initialized with active status
         var homeSetting = await context.HomeSettings.FirstOrDefaultAsync();
         if (homeSetting != null)

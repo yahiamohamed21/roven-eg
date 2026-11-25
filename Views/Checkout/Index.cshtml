@@ -541,17 +541,24 @@
 
         (function() {
             let isOrderSubmitted = false;
+            let saveTimeout = null;
+            let isSavingDraft = false;
+            let pendingSaveAfterFlight = false;
+            let lastSentPayloadJson = '';
 
             document.getElementById('checkout-form').addEventListener('submit', function () {
                 const btn = document.getElementById('btn-submit-order');
                 if (btn && this.checkValidity()) {
                     isOrderSubmitted = true;
+                    clearTimeout(saveTimeout);
+                    saveTimeout = null;
+                    pendingSaveAfterFlight = false;
                     btn.disabled = true;
                     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Processing Order...';
                 }
             });
 
-            // Real-time Abandoned Checkout Draft Capture
+            // Real-time Abandoned Checkout Draft Capture (single-flight + deduplicated)
             const nameInput = document.getElementById('CustomerName');
             const phoneInput = document.getElementById('CustomerPhone');
             const emailInput = document.getElementById('CustomerEmail');
@@ -559,14 +566,11 @@
             const cityInput = document.getElementById('cityGovernorateSelect') || document.getElementById('City');
             const notesInput = document.getElementById('OrderNotes');
 
-            let saveTimeout = null;
+            function buildDraftPayload() {
+                const phone = phoneInput ? phoneInput.value.trim().replace(/[\s\-()]/g, '') : '';
+                if (!phone || phone.length < 7) return null;
 
-            function triggerDraftSave() {
-                if (isOrderSubmitted) return;
-                const phone = phoneInput ? phoneInput.value.trim().replace(/\s+/g, '') : '';
-                if (!phone || phone.length < 7) return;
-
-                const payload = {
+                return {
                     customerName: nameInput ? nameInput.value.trim() : '',
                     customerPhone: phone,
                     customerEmail: emailInput ? emailInput.value.trim() : '',
@@ -574,8 +578,47 @@
                     city: cityInput ? cityInput.value.trim() : '',
                     orderNotes: notesInput ? notesInput.value.trim() : ''
                 };
+            }
+
+            function triggerDraftSave(useKeepalive = false) {
+                if (isOrderSubmitted) return;
+
+                clearTimeout(saveTimeout);
+                saveTimeout = null;
+
+                const payload = buildDraftPayload();
+                if (!payload) return;
+
+                const payloadJson = JSON.stringify(payload);
+                if (payloadJson === lastSentPayloadJson) return;
+
+                // Queue one trailing save instead of firing concurrent duplicate requests
+                if (isSavingDraft && !useKeepalive) {
+                    pendingSaveAfterFlight = true;
+                    return;
+                }
 
                 const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                if (useKeepalive) {
+                    lastSentPayloadJson = payloadJson;
+                    fetch('/Checkout/CaptureAbandonedCheckout', {
+                        method: 'POST',
+                        keepalive: true,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': csrfToken || ''
+                        },
+                        body: payloadJson
+                    }).catch(() => {});
+                    return;
+                }
+
+                isSavingDraft = true;
+                pendingSaveAfterFlight = false;
+
+                const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                const abortTimer = controller ? setTimeout(() => controller.abort(), 8000) : null;
 
                 fetch('/Checkout/CaptureAbandonedCheckout', {
                     method: 'POST',
@@ -583,26 +626,43 @@
                         'Content-Type': 'application/json',
                         'RequestVerificationToken': csrfToken || ''
                     },
-                    body: JSON.stringify(payload)
-                }).catch(() => {});
+                    body: payloadJson,
+                    signal: controller ? controller.signal : undefined
+                })
+                .then(res => {
+                    if (res && res.ok) {
+                        lastSentPayloadJson = payloadJson;
+                    }
+                })
+                .catch(() => {})
+                .finally(() => {
+                    if (abortTimer) clearTimeout(abortTimer);
+                    isSavingDraft = false;
+                    if (pendingSaveAfterFlight && !isOrderSubmitted) {
+                        pendingSaveAfterFlight = false;
+                        triggerDraftSave(false);
+                    }
+                });
             }
 
-            function debouncedDraftSave() {
+            function scheduleDraftSave(delayMs) {
+                if (isOrderSubmitted) return;
                 clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(triggerDraftSave, 1200);
+                saveTimeout = setTimeout(() => triggerDraftSave(false), delayMs);
             }
 
             const trackFields = [nameInput, phoneInput, emailInput, addressInput, cityInput, notesInput];
             trackFields.forEach(field => {
                 if (!field) return;
-                field.addEventListener('input', debouncedDraftSave);
-                field.addEventListener('blur', triggerDraftSave);
-                field.addEventListener('change', triggerDraftSave);
+                field.addEventListener('input', () => scheduleDraftSave(1200));
+                // Coalesce blur + change firing back-to-back into a single capture
+                field.addEventListener('blur', () => scheduleDraftSave(150));
+                field.addEventListener('change', () => scheduleDraftSave(150));
             });
 
-            window.addEventListener('beforeunload', function() {
+            window.addEventListener('pagehide', function() {
                 if (!isOrderSubmitted) {
-                    triggerDraftSave();
+                    triggerDraftSave(true);
                 }
             });
         })();

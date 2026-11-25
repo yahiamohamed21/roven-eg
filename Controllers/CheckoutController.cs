@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +13,65 @@ namespace Stockify.Controllers;
 public class CheckoutController : Controller
 {
     private const string CartSessionKey = "Stockify_Cart";
+    private static readonly SemaphoreSlim[] CaptureLocks = Enumerable.Range(0, 64)
+        .Select(_ => new SemaphoreSlim(1, 1))
+        .ToArray();
+
     private readonly ApplicationDbContext _context;
     private readonly IOrderService _orderService;
     private readonly ILogger<CheckoutController> _logger;
+
+    private static string NormalizePhone(string? phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone)) return string.Empty;
+        return phone.Trim()
+            .Replace(" ", "")
+            .Replace("-", "")
+            .Replace("(", "")
+            .Replace(")", "");
+    }
+
+    private static int GetLockIndex(string key)
+    {
+        unchecked
+        {
+            return (StringComparer.Ordinal.GetHashCode(key) & 0x7FFFFFFF) % CaptureLocks.Length;
+        }
+    }
+
+    private static async Task ExecuteWithDraftLockAsync(string? sessionId, string? cleanPhone, Func<Task> action)
+    {
+        var idxSession = !string.IsNullOrEmpty(sessionId) ? GetLockIndex("s:" + sessionId) : -1;
+        var idxPhone = !string.IsNullOrEmpty(cleanPhone) ? GetLockIndex("p:" + cleanPhone) : -1;
+
+        int firstIdx;
+        int secondIdx = -1;
+
+        if (idxSession >= 0 && idxPhone >= 0)
+        {
+            firstIdx = Math.Min(idxSession, idxPhone);
+            if (idxSession != idxPhone)
+            {
+                secondIdx = Math.Max(idxSession, idxPhone);
+            }
+        }
+        else
+        {
+            firstIdx = Math.Max(idxSession, idxPhone);
+        }
+
+        if (firstIdx >= 0) await CaptureLocks[firstIdx].WaitAsync();
+        if (secondIdx >= 0) await CaptureLocks[secondIdx].WaitAsync();
+        try
+        {
+            await action();
+        }
+        finally
+        {
+            if (secondIdx >= 0) CaptureLocks[secondIdx].Release();
+            if (firstIdx >= 0) CaptureLocks[firstIdx].Release();
+        }
+    }
 
     public CheckoutController(
         ApplicationDbContext context,
@@ -125,23 +182,32 @@ public class CheckoutController : Controller
                 return View("Index", model);
             }
 
-            // Mark any matching abandoned checkout draft as recovered!
+            // Mark any matching abandoned checkout drafts as recovered!
             try
             {
-                var cleanPhone = model.CustomerPhone?.Trim().Replace(" ", "").Replace("-", "");
+                var cleanPhone = NormalizePhone(model.CustomerPhone);
                 var sessionId = HttpContext.Session.Id;
-                var abandonedRecord = await _context.AbandonedCheckouts
-                    .Where(a => !a.IsRecovered && ((!string.IsNullOrEmpty(cleanPhone) && a.CustomerPhone == cleanPhone) || (!string.IsNullOrEmpty(sessionId) && a.SessionId == sessionId)))
-                    .OrderByDescending(a => a.LastUpdatedAt)
-                    .FirstOrDefaultAsync();
 
-                if (abandonedRecord != null)
+                await ExecuteWithDraftLockAsync(sessionId, cleanPhone, async () =>
                 {
-                    abandonedRecord.IsRecovered = true;
-                    abandonedRecord.RecoveredOrderId = result.Order?.Id;
-                    abandonedRecord.LastUpdatedAt = DateTime.UtcNow;
-                    await _context.SaveChangesAsync();
-                }
+                    var abandonedRecords = await _context.AbandonedCheckouts
+                        .Where(a => !a.IsRecovered && ((!string.IsNullOrEmpty(cleanPhone) && a.CustomerPhone == cleanPhone) || (!string.IsNullOrEmpty(sessionId) && a.SessionId == sessionId)))
+                        .OrderByDescending(a => a.LastUpdatedAt)
+                        .ThenByDescending(a => a.Id)
+                        .ToListAsync();
+
+                    if (abandonedRecords.Count > 0)
+                    {
+                        var now = DateTime.UtcNow;
+                        foreach (var record in abandonedRecords)
+                        {
+                            record.IsRecovered = true;
+                            record.RecoveredOrderId = result.Order?.Id;
+                            record.LastUpdatedAt = now;
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -173,7 +239,7 @@ public class CheckoutController : Controller
             return Json(new { success = false, message = "Phone number is required." });
         }
 
-        var cleanPhone = draft.CustomerPhone.Trim().Replace(" ", "").Replace("-", "");
+        var cleanPhone = NormalizePhone(draft.CustomerPhone);
         if (cleanPhone.Length < 7)
         {
             return Json(new { success = false, message = "Phone number is incomplete." });
@@ -188,13 +254,7 @@ public class CheckoutController : Controller
         var sessionId = HttpContext.Session.Id;
         var now = DateTime.UtcNow;
 
-        // Check if an active unrecovered abandoned record exists for this session or phone
-        var existingDraft = await _context.AbandonedCheckouts
-            .Where(a => !a.IsRecovered && ((!string.IsNullOrEmpty(sessionId) && a.SessionId == sessionId) || a.CustomerPhone == cleanPhone))
-            .OrderByDescending(a => a.LastUpdatedAt)
-            .FirstOrDefaultAsync();
-
-        // Serialize cart items into JSON
+        // Serialize cart items into JSON once outside the DB lock
         var itemsSummary = cart.Items.Select(i => new
         {
             ProductId = i.ProductId,
@@ -207,41 +267,59 @@ public class CheckoutController : Controller
 
         var cartItemsJson = JsonSerializer.Serialize(itemsSummary);
 
-        if (existingDraft != null)
+        await ExecuteWithDraftLockAsync(sessionId, cleanPhone, async () =>
         {
-            if (!string.IsNullOrWhiteSpace(draft.CustomerName)) existingDraft.CustomerName = draft.CustomerName.Trim();
-            existingDraft.CustomerPhone = cleanPhone;
-            if (!string.IsNullOrWhiteSpace(draft.CustomerEmail)) existingDraft.CustomerEmail = draft.CustomerEmail.Trim();
-            if (!string.IsNullOrWhiteSpace(draft.ShippingAddress)) existingDraft.ShippingAddress = draft.ShippingAddress.Trim();
-            if (!string.IsNullOrWhiteSpace(draft.City)) existingDraft.City = draft.City.Trim();
-            if (!string.IsNullOrWhiteSpace(draft.OrderNotes)) existingDraft.OrderNotes = draft.OrderNotes.Trim();
-            existingDraft.CartItemsJson = cartItemsJson;
-            existingDraft.TotalAmount = cart.GrandTotal;
-            existingDraft.ItemCount = cart.TotalItemCount;
-            existingDraft.LastUpdatedAt = now;
-        }
-        else
-        {
-            var newDraft = new AbandonedCheckout
-            {
-                SessionId = sessionId,
-                CustomerName = !string.IsNullOrWhiteSpace(draft.CustomerName) ? draft.CustomerName.Trim() : "زائر بالمتجر (Guest)",
-                CustomerPhone = cleanPhone,
-                CustomerEmail = draft.CustomerEmail?.Trim(),
-                ShippingAddress = draft.ShippingAddress?.Trim(),
-                City = draft.City?.Trim(),
-                OrderNotes = draft.OrderNotes?.Trim(),
-                CartItemsJson = cartItemsJson,
-                TotalAmount = cart.GrandTotal,
-                ItemCount = cart.TotalItemCount,
-                CreatedAt = now,
-                LastUpdatedAt = now,
-                IsRecovered = false
-            };
-            _context.AbandonedCheckouts.Add(newDraft);
-        }
+            // Find all active unrecovered drafts matching this session or phone and collapse any duplicates
+            var matchingDrafts = await _context.AbandonedCheckouts
+                .Where(a => !a.IsRecovered && ((!string.IsNullOrEmpty(sessionId) && a.SessionId == sessionId) || a.CustomerPhone == cleanPhone))
+                .OrderByDescending(a => a.LastUpdatedAt)
+                .ThenByDescending(a => a.Id)
+                .ToListAsync();
 
-        await _context.SaveChangesAsync();
+            var existingDraft = matchingDrafts.FirstOrDefault();
+            if (matchingDrafts.Count > 1)
+            {
+                _context.AbandonedCheckouts.RemoveRange(matchingDrafts.Skip(1));
+            }
+
+            if (existingDraft != null)
+            {
+                if (!string.IsNullOrEmpty(sessionId)) existingDraft.SessionId = sessionId;
+                if (!string.IsNullOrWhiteSpace(draft.CustomerName)) existingDraft.CustomerName = draft.CustomerName.Trim();
+                existingDraft.CustomerPhone = cleanPhone;
+                if (!string.IsNullOrWhiteSpace(draft.CustomerEmail)) existingDraft.CustomerEmail = draft.CustomerEmail.Trim();
+                if (!string.IsNullOrWhiteSpace(draft.ShippingAddress)) existingDraft.ShippingAddress = draft.ShippingAddress.Trim();
+                if (!string.IsNullOrWhiteSpace(draft.City)) existingDraft.City = draft.City.Trim();
+                if (!string.IsNullOrWhiteSpace(draft.OrderNotes)) existingDraft.OrderNotes = draft.OrderNotes.Trim();
+                existingDraft.CartItemsJson = cartItemsJson;
+                existingDraft.TotalAmount = cart.GrandTotal;
+                existingDraft.ItemCount = cart.TotalItemCount;
+                existingDraft.LastUpdatedAt = now;
+            }
+            else
+            {
+                var newDraft = new AbandonedCheckout
+                {
+                    SessionId = sessionId,
+                    CustomerName = !string.IsNullOrWhiteSpace(draft.CustomerName) ? draft.CustomerName.Trim() : "زائر بالمتجر (Guest)",
+                    CustomerPhone = cleanPhone,
+                    CustomerEmail = draft.CustomerEmail?.Trim(),
+                    ShippingAddress = draft.ShippingAddress?.Trim(),
+                    City = draft.City?.Trim(),
+                    OrderNotes = draft.OrderNotes?.Trim(),
+                    CartItemsJson = cartItemsJson,
+                    TotalAmount = cart.GrandTotal,
+                    ItemCount = cart.TotalItemCount,
+                    CreatedAt = now,
+                    LastUpdatedAt = now,
+                    IsRecovered = false
+                };
+                _context.AbandonedCheckouts.Add(newDraft);
+            }
+
+            await _context.SaveChangesAsync();
+        });
+
         return Json(new { success = true });
     }
 
