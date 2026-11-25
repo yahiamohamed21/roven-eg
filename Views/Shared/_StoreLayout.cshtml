@@ -9,6 +9,9 @@
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
     var isHomePage = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase) 
                   && string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase);
+    var isHeroBleedPage = isHomePage
+                       || (string.Equals(currentController, "OrderTracking", StringComparison.OrdinalIgnoreCase)
+                           && string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase));
     var siteSetting = DbContext.HomeSettings.FirstOrDefault() ?? new Stockify.Models.Entities.HomeSetting();
     var hasFilterParams = Context.Request.Query.ContainsKey("categoryId")
                        || Context.Request.Query.ContainsKey("inStockOnly")
@@ -2398,7 +2401,7 @@
             </div>
         </nav>
     </header>
-    <div class="store-header-spacer @(isHomePage ? "d-none" : "")"></div>
+    <div class="store-header-spacer @(isHeroBleedPage ? "d-none" : "")"></div>
 
     <!-- Maison ROVEN Luxury Mobile Navigation Drawer -->
     <div class="offcanvas offcanvas-start roven-mobile-drawer" tabindex="-1" id="rovenMobileDrawer" aria-labelledby="rovenMobileDrawerLabel">
