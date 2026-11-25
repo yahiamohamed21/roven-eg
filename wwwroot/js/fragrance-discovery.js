@@ -116,14 +116,22 @@
 
         elements.floatingBtn.addEventListener('mouseleave', function () {
             isHovered = false;
-            if (shouldCollapse) {
+            if (shouldCollapse && !document.body.classList.contains('roven-quiz-onboarding-active')) {
                 elements.floatingBtn.classList.add('collapsed');
             }
         });
 
+        window.addEventListener('rovenQuizOnboardingEnded', function () {
+            setTimeout(function () {
+                if (shouldCollapse && !isHovered && !document.body.classList.contains('roven-quiz-onboarding-active')) {
+                    elements.floatingBtn.classList.add('collapsed');
+                }
+            }, 1500);
+        });
+
         setTimeout(function () {
             shouldCollapse = true;
-            if (!isHovered) {
+            if (!isHovered && !document.body.classList.contains('roven-quiz-onboarding-active')) {
                 elements.floatingBtn.classList.add('collapsed');
             }
         }, 5000);

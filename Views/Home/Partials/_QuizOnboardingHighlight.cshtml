@@ -1,0 +1,492 @@
+@*
+    MAISON ROVEN — INTERACTIVE SCENT QUIZ ONBOARDING HIGHLIGHT
+    Shown automatically once per session on Homepage load for 30 seconds,
+    guiding visitors cleanly to the "Find Your Scent" floating button.
+*@
+<style>
+    /* Highlight pulse ring on the existing Find Your Scent floating button */
+    body.roven-quiz-onboarding-active #rovenFindScentFloatingBtn {
+        box-shadow: 0 0 0 4px rgba(223, 177, 91, 0.42),
+                    0 0 28px rgba(223, 177, 91, 0.72),
+                    0 12px 32px rgba(66, 11, 11, 0.6) !important;
+        animation: rovenOnboardingBtnRing 2.1s ease-in-out infinite !important;
+    }
+
+    @@keyframes rovenOnboardingBtnRing {
+        0%, 100% {
+            box-shadow: 0 0 0 3px rgba(223, 177, 91, 0.35),
+                        0 0 22px rgba(223, 177, 91, 0.55),
+                        0 10px 28px rgba(66, 11, 11, 0.55);
+        }
+        50% {
+            box-shadow: 0 0 0 8px rgba(223, 177, 91, 0.16),
+                        0 0 38px rgba(223, 177, 91, 0.9),
+                        0 14px 36px rgba(66, 11, 11, 0.65);
+        }
+    }
+
+    /* Fixed onboarding wrapper anchored to bottom-right near #rovenFindScentFloatingBtn */
+    #rovenQuizOnboardingWrap {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        z-index: 1039;
+        pointer-events: none;
+        display: none;
+        opacity: 0;
+        transform: translateY(14px) scale(0.97);
+        transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #rovenQuizOnboardingWrap.is-visible {
+        display: block;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    #rovenQuizOnboardingWrap.is-fading-out {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+        pointer-events: none;
+    }
+
+    /* Luxury Warm Ivory Card */
+    .roven-onboarding-card {
+        position: relative;
+        right: 205px;
+        bottom: 70px;
+        width: 310px;
+        background: linear-gradient(165deg, #FFFDF8 0%, #FBF3E4 100%);
+        border: 1.5px solid rgba(223, 177, 91, 0.85);
+        border-radius: 18px;
+        padding: 30px 22px 20px;
+        text-align: center;
+        pointer-events: auto;
+        box-shadow: 0 20px 50px rgba(20, 6, 4, 0.45),
+                    0 0 28px rgba(223, 177, 91, 0.36),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+        animation: rovenOnboardingFloat 4.2s ease-in-out infinite;
+    }
+
+    @@keyframes rovenOnboardingFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
+
+    /* Top-Centered Perfume Bottle Emblem */
+    .roven-onboarding-bottle-badge {
+        position: absolute;
+        top: -24px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 50% 45%, #3A0A08 0%, #1C0504 100%);
+        border: 1.5px solid rgba(223, 177, 91, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 18px rgba(27, 8, 6, 0.4),
+                    0 0 18px rgba(223, 177, 91, 0.48);
+    }
+
+    .roven-onboarding-sparkle-l,
+    .roven-onboarding-sparkle-r {
+        position: absolute;
+        top: 50%;
+        color: #dfb15b;
+        font-size: 0.65rem;
+        line-height: 1;
+        filter: drop-shadow(0 0 4px rgba(223, 177, 91, 0.8));
+        animation: rovenSparkleTwinkle 2.4s ease-in-out infinite;
+    }
+
+    .roven-onboarding-sparkle-l {
+        left: -18px;
+        transform: translateY(-50%);
+    }
+
+    .roven-onboarding-sparkle-r {
+        right: -18px;
+        transform: translateY(-50%);
+        animation-delay: 1.1s;
+    }
+
+    @@keyframes rovenSparkleTwinkle {
+        0%, 100% { opacity: 0.45; transform: translateY(-50%) scale(0.85); }
+        50% { opacity: 1; transform: translateY(-50%) scale(1.18); }
+    }
+
+    /* Close Button (Top-Right) */
+    .roven-onboarding-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 1px solid rgba(181, 141, 74, 0.35);
+        background: rgba(255, 255, 255, 0.92);
+        color: #4A1412;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 6px rgba(27, 23, 23, 0.08);
+        padding: 0;
+    }
+
+    .roven-onboarding-close:hover {
+        background: #810100;
+        color: #FAF9F5;
+        border-color: #810100;
+        transform: scale(1.08);
+    }
+
+    /* Typography */
+    .roven-onboarding-title {
+        font-family: 'Playfair Display', Didot, 'Cinzel', Georgia, serif;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #4A0807;
+        margin: 0 0 8px 0;
+        letter-spacing: 0.2px;
+        line-height: 1.2;
+    }
+
+    .roven-onboarding-body {
+        font-size: 0.83rem;
+        line-height: 1.48;
+        color: #4F2D27;
+        margin: 0 0 15px 0;
+        font-weight: 500;
+    }
+
+    .roven-onboarding-lead {
+        display: block;
+        margin-bottom: 6px;
+        color: #3A1D19;
+        font-weight: 600;
+    }
+
+    /* Luxury Burgundy CTA Button */
+    .roven-onboarding-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #6E0403 0%, #810100 100%);
+        color: #FAF9F5;
+        border: 1px solid rgba(223, 177, 91, 0.55);
+        border-radius: 999px;
+        padding: 9px 22px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(110, 4, 3, 0.32), 0 0 12px rgba(223, 177, 91, 0.2);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .roven-onboarding-cta:hover {
+        background: linear-gradient(135deg, #810100 0%, #520202 100%);
+        transform: translateY(-1.5px);
+        box-shadow: 0 10px 24px rgba(110, 4, 3, 0.42), 0 0 18px rgba(223, 177, 91, 0.4);
+        color: #FFFFFF;
+    }
+
+    /* Curved Glowing Arrow SVG (Desktop vs Mobile) */
+    .roven-onboarding-arrow-desktop {
+        position: absolute;
+        right: 78px;
+        bottom: 42px;
+        width: 145px;
+        height: 92px;
+        pointer-events: none;
+        overflow: visible;
+    }
+
+    .roven-onboarding-arrow-mobile {
+        display: none;
+    }
+
+    .roven-glow-path {
+        stroke-dasharray: 260;
+        stroke-dashoffset: 0;
+        animation: rovenArrowGlow 2.4s ease-in-out infinite;
+    }
+
+    @@keyframes rovenArrowGlow {
+        0%, 100% { opacity: 0.82; }
+        50% { opacity: 1; }
+    }
+
+    /* Responsive Mobile Adjustments (< 768px) */
+    @@media (max-width: 767.98px) {
+        #rovenQuizOnboardingWrap {
+            right: 16px;
+            bottom: 20px;
+        }
+
+        .roven-onboarding-card {
+            right: 0;
+            bottom: 86px;
+            width: min(286px, calc(100vw - 32px));
+            padding: 26px 16px 16px;
+            border-radius: 16px;
+        }
+
+        .roven-onboarding-bottle-badge {
+            width: 42px;
+            height: 42px;
+            top: -21px;
+        }
+
+        .roven-onboarding-title {
+            font-size: 1.18rem;
+            margin-bottom: 6px;
+        }
+
+        .roven-onboarding-body {
+            font-size: 0.78rem;
+            margin-bottom: 12px;
+            line-height: 1.42;
+        }
+
+        .roven-onboarding-cta {
+            padding: 8px 18px;
+            font-size: 0.8rem;
+        }
+
+        .roven-onboarding-arrow-desktop {
+            display: none;
+        }
+
+        .roven-onboarding-arrow-mobile {
+            display: block;
+            position: absolute;
+            right: 52px;
+            bottom: 44px;
+            width: 76px;
+            height: 48px;
+            pointer-events: none;
+            overflow: visible;
+        }
+    }
+</style>
+
+<div id="rovenQuizOnboardingWrap" role="dialog" aria-label="Find Your Scent Onboarding" aria-hidden="true">
+    <!-- Floating Luxury Onboarding Card -->
+    <div class="roven-onboarding-card">
+        <!-- Centered Miniature ROVEN Flacon Emblem -->
+        <div class="roven-onboarding-bottle-badge" aria-hidden="true">
+            <span class="roven-onboarding-sparkle-l">✦</span>
+            <svg width="24" height="28" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Faceted Obsidian Cap -->
+                <polygon points="10,2 18,2 20,7 14,9 8,7" fill="#181414" stroke="#DFB15B" stroke-width="0.9"/>
+                <!-- Gold Collar -->
+                <rect x="11.5" y="9" width="5" height="2.2" rx="0.6" fill="#DFB15B"/>
+                <!-- Amber Crystal Bottle -->
+                <rect x="5.5" y="11.5" width="17" height="17" rx="3" fill="url(#rovenAmberGrad)" stroke="#DFB15B" stroke-width="1"/>
+                <!-- Deep Crimson Label -->
+                <rect x="7.5" y="15.5" width="13" height="9" rx="1.2" fill="#630000" stroke="rgba(223,177,91,0.55)" stroke-width="0.6"/>
+                <!-- Label Micro Line -->
+                <line x1="10" y1="20" x2="18" y2="20" stroke="#FAF9F5" stroke-width="0.9" stroke-linecap="round"/>
+                <defs>
+                    <linearGradient id="rovenAmberGrad" x1="5.5" y1="11.5" x2="22.5" y2="28.5" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#F7C978"/>
+                        <stop offset="55%" stop-color="#C87E28"/>
+                        <stop offset="100%" stop-color="#5E190C"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <span class="roven-onboarding-sparkle-r">✦</span>
+        </div>
+
+        <!-- Close (X) Button -->
+        <button type="button" class="roven-onboarding-close" id="rovenOnboardingCloseBtn" aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <!-- Exact Required Copy -->
+        <h3 class="roven-onboarding-title">Find Your Scent</h3>
+        <div class="roven-onboarding-body">
+            <span class="roven-onboarding-lead">Not sure which fragrance suits you?</span>
+            Take a quick personal quiz and discover your perfect scent in just a few questions!
+        </div>
+
+        <!-- Exact Required CTA Button -->
+        <button type="button" class="roven-onboarding-cta" id="rovenOnboardingCtaBtn">
+            <span>Try the Quiz Now</span>
+            <span aria-hidden="true">→</span>
+        </button>
+    </div>
+
+    <!-- Desktop Curved Glowing Gold Arrow pointing from card right-bottom edge to #rovenFindScentFloatingBtn -->
+    <svg class="roven-onboarding-arrow-desktop" viewBox="0 0 145 92" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+            <filter id="rovenGoldGlowD" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="2.6" result="blur"/>
+                <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+            <linearGradient id="rovenGoldStrokeD" x1="12" y1="18" x2="128" y2="82" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#FFF5C3"/>
+                <stop offset="50%" stop-color="#DFB15B"/>
+                <stop offset="100%" stop-color="#FFF0A8"/>
+            </linearGradient>
+        </defs>
+        <!-- Origin Sparkle Star on Card Edge -->
+        <path d="M12 12 L13.8 16.2 L18 18 L13.8 19.8 L12 24 L10.2 19.8 L6 18 L10.2 16.2 Z" fill="#FFF3B8" filter="url(#rovenGoldGlowD)"/>
+        <!-- Curved Arrow Spline -->
+        <path class="roven-glow-path" d="M15 18 C 68 14, 102 42, 126 82" stroke="url(#rovenGoldStrokeD)" stroke-width="2.4" stroke-linecap="round" filter="url(#rovenGoldGlowD)"/>
+        <!-- Arrowhead -->
+        <path d="M116 78 L127 83.5 L129.5 71" stroke="#FFF3B8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" filter="url(#rovenGoldGlowD)"/>
+    </svg>
+
+    <!-- Mobile Curved Glowing Gold Arrow pointing down-right from card bottom to #rovenFindScentFloatingBtn -->
+    <svg class="roven-onboarding-arrow-mobile" viewBox="0 0 76 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+            <filter id="rovenGoldGlowM" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="2.2" result="blur"/>
+                <feMerge>
+                    <feMergeNode in="blur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+        </defs>
+        <path d="M12 4 L13.2 7.2 L16.4 8.4 L13.2 9.6 L12 12.8 L10.8 9.6 L7.6 8.4 L10.8 7.2 Z" fill="#FFF3B8" filter="url(#rovenGoldGlowM)"/>
+        <path class="roven-glow-path" d="M16 9 C 40 12, 54 24, 62 42" stroke="#DFB15B" stroke-width="2.2" stroke-linecap="round" filter="url(#rovenGoldGlowM)"/>
+        <path d="M53 38 L62.5 43 L65.5 32.5" stroke="#FFF3B8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#rovenGoldGlowM)"/>
+    </svg>
+</div>
+
+<script>
+    (function () {
+        'use strict';
+
+        const SESSION_KEY = 'roven_quiz_onboarding_dismissed';
+        const VISIBLE_DURATION_MS = 30000; // 30 seconds
+        let hideTimer = null;
+        let hasStarted = false;
+
+        function isAlreadyDismissed() {
+            try {
+                return sessionStorage.getItem(SESSION_KEY) === 'true';
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function markDismissed() {
+            try {
+                sessionStorage.setItem(SESSION_KEY, 'true');
+            } catch (e) { }
+        }
+
+        function dismissOnboarding(immediate) {
+            const wrap = document.getElementById('rovenQuizOnboardingWrap');
+            if (hideTimer) {
+                clearTimeout(hideTimer);
+                hideTimer = null;
+            }
+            markDismissed();
+            document.body.classList.remove('roven-quiz-onboarding-active');
+            window.dispatchEvent(new CustomEvent('rovenQuizOnboardingEnded'));
+
+            if (!wrap) return;
+            wrap.setAttribute('aria-hidden', 'true');
+
+            if (immediate) {
+                wrap.classList.remove('is-visible', 'is-fading-out');
+                wrap.style.display = 'none';
+            } else {
+                wrap.classList.add('is-fading-out');
+                wrap.classList.remove('is-visible');
+                setTimeout(function () {
+                    wrap.style.display = 'none';
+                    wrap.classList.remove('is-fading-out');
+                }, 580);
+            }
+        }
+
+        function startOnboarding() {
+            if (hasStarted || isAlreadyDismissed()) return;
+            const wrap = document.getElementById('rovenQuizOnboardingWrap');
+            const fab = document.getElementById('rovenFindScentFloatingBtn');
+            if (!wrap || !fab) return;
+
+            hasStarted = true;
+            document.body.classList.add('roven-quiz-onboarding-active');
+            fab.classList.remove('collapsed');
+
+            wrap.style.display = 'block';
+            wrap.setAttribute('aria-hidden', 'false');
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    wrap.classList.add('is-visible');
+                });
+            });
+
+            // Auto fade-out smoothly after 30 seconds
+            hideTimer = setTimeout(function () {
+                dismissOnboarding(false);
+            }, VISIBLE_DURATION_MS);
+        }
+
+        function bindOnboardingEvents() {
+            const closeBtn = document.getElementById('rovenOnboardingCloseBtn');
+            const ctaBtn = document.getElementById('rovenOnboardingCtaBtn');
+            const fab = document.getElementById('rovenFindScentFloatingBtn');
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function () {
+                    dismissOnboarding(true);
+                });
+            }
+
+            if (ctaBtn) {
+                ctaBtn.addEventListener('click', function () {
+                    dismissOnboarding(true);
+                    if (fab) fab.click();
+                });
+            }
+
+            if (fab) {
+                fab.addEventListener('click', function () {
+                    if (hasStarted) dismissOnboarding(true);
+                });
+            }
+        }
+
+        function init() {
+            if (isAlreadyDismissed()) return;
+            bindOnboardingEvents();
+
+            // Wait briefly for preloader dismissal if active on first hit, otherwise start right away
+            const preloader = document.getElementById('roven-preloader');
+            const preloaderVisible = preloader && !preloader.classList.contains('preloader-hidden') && preloader.style.display !== 'none';
+            if (preloaderVisible) {
+                window.addEventListener('rovenPreloaderDismissed', function () {
+                    setTimeout(startOnboarding, 250);
+                }, { once: true });
+                // Failsafe in case preloader event fired slightly before binding
+                setTimeout(startOnboarding, 2200);
+            } else {
+                setTimeout(startOnboarding, 350);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+</script>
