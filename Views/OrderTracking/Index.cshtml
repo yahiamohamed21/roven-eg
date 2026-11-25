@@ -510,24 +510,23 @@
                 width: 100%;
                 min-height: calc(100vh - 34px);
                 padding-bottom: 64px;
-                background: linear-gradient(180deg, #1E0203 0%, #2B0406 42%, #472F23 68%, #634836 100%);
+                background-color: #1C0203;
                 overflow: hidden;
             }
 
             .roven-desktop-scene-bg {
                 position: absolute;
-                top: 0;
+                top: 44px;
+                left: 0;
+                right: 0;
                 bottom: 0;
-                left: 50%;
-                transform: translateX(-50%);
                 width: 100%;
-                max-width: 1580px;
                 background-image:
-                    linear-gradient(180deg, #1E0203 0px, #1E0203 44px, rgba(30, 2, 3, 0) 104px),
-                    linear-gradient(90deg, rgba(20, 2, 3, 0.72) 0%, rgba(28, 4, 5, 0.25) 38%, rgba(28, 4, 5, 0) 64%, rgba(28, 4, 5, 0) 92%, rgba(26, 12, 9, 0.55) 100%),
+                    linear-gradient(180deg, #1C0203 0%, rgba(28, 2, 3, 0) 64px),
+                    linear-gradient(90deg, rgba(20, 2, 3, 0.52) 0%, rgba(28, 4, 5, 0.16) 40%, rgba(28, 4, 5, 0) 65%),
                     url('/images/banners/track-order-hero-desktop.webp');
-                background-size: 100% auto;
-                background-position: center 46px;
+                background-size: cover;
+                background-position: center top;
                 background-repeat: no-repeat;
                 pointer-events: none;
                 z-index: 1;
@@ -689,6 +688,16 @@
                 max-width: 960px;
                 padding: 0 20px 4rem;
                 margin-top: 36px;
+            }
+        }
+
+        @@media (min-width: 1600px) {
+            .roven-desktop-scene-bg {
+                top: 22px;
+            }
+
+            .roven-track-hero-banner {
+                padding: 152px 0 74px;
             }
         }
 
