@@ -740,6 +740,258 @@
         transform: translateY(0);
     }
 }
+
+/* ==========================================================================
+   MAISON ROVEN — CATALOG VIEW SWITCHER & LUXURY SORT DROPDOWN
+   ========================================================================== */
+.roven-view-switcher {
+    display: inline-flex;
+    align-items: center;
+    background: #FAF8F5;
+    border: 1px solid rgba(181, 141, 74, 0.3);
+    border-radius: 12px;
+    padding: 3px;
+    gap: 3px;
+    box-shadow: 0 1px 4px rgba(27, 23, 23, 0.03);
+}
+
+.roven-view-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: #8c8278;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 0;
+}
+
+.roven-view-btn:hover {
+    color: #1B1717;
+    background: rgba(181, 141, 74, 0.12);
+}
+
+.roven-view-btn.active {
+    background: #810100;
+    color: #dfb15b;
+    box-shadow: 0 2px 8px rgba(129, 1, 0, 0.25);
+}
+
+/* Custom Luxury Sort Dropdown */
+.roven-luxury-sort-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.roven-sort-btn {
+    background: #FFFFFF;
+    border: 1px solid rgba(181, 141, 74, 0.32);
+    border-radius: 12px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    color: #1B1717;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(27, 23, 23, 0.03);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    white-space: nowrap;
+}
+
+.roven-sort-btn:hover {
+    border-color: #b58d4a;
+    box-shadow: 0 4px 12px rgba(181, 141, 74, 0.15);
+    background: #FAF8F5;
+}
+
+.roven-sort-btn.active,
+.roven-sort-btn[aria-expanded="true"] {
+    border-color: #810100;
+    background: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(129, 1, 0, 0.1);
+}
+
+.roven-sort-label-lead {
+    color: #8c8278;
+    font-size: 0.74rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.roven-sort-current-val {
+    color: #810100;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.roven-sort-chevron {
+    color: #b58d4a;
+    font-size: 0.72rem;
+    transition: transform 0.25s ease, color 0.25s ease;
+    margin-inline-start: 4px;
+}
+
+.roven-sort-btn[aria-expanded="true"] .roven-sort-chevron {
+    transform: rotate(180deg);
+    color: #810100;
+}
+
+.roven-sort-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 215px;
+    background: #FFFFFF;
+    border: 1px solid rgba(181, 141, 74, 0.32);
+    border-radius: 14px;
+    box-shadow: 0 12px 36px rgba(27, 23, 23, 0.14), 0 2px 8px rgba(181, 141, 74, 0.12);
+    padding: 6px;
+    z-index: 1060;
+    display: none;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.roven-sort-menu.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.roven-sort-item {
+    width: 100%;
+    border: none;
+    background: transparent;
+    padding: 9px 12px;
+    border-radius: 9px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #2B2523;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.16s ease;
+    white-space: nowrap;
+}
+
+.roven-sort-item:hover {
+    background: #FAF6ED;
+    color: #810100;
+}
+
+.roven-sort-item.active {
+    background: linear-gradient(135deg, rgba(129, 1, 0, 0.08) 0%, rgba(181, 141, 74, 0.14) 100%);
+    color: #810100;
+    font-weight: 700;
+}
+
+.roven-sort-check {
+    font-size: 0.74rem;
+    color: #b58d4a;
+    display: none;
+}
+
+.roven-sort-item.active .roven-sort-check {
+    display: inline-block;
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVE 1-COL vs 2-COL CATALOG CARD MODES
+   ========================================================================== */
+@@media (max-width: 575.98px) {
+    /* 2 Columns Mode on Mobile */
+    #rovenProductGridRow.roven-mobile-grid-2 {
+        --bs-gutter-x: 0.65rem !important;
+        --bs-gutter-y: 0.75rem !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-catalog-card-col {
+        flex: 0 0 auto !important;
+        width: 50% !important;
+        max-width: 50% !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-store-flacon-card {
+        border-radius: 14px !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .product-image-container {
+        height: 165px !important;
+        border-radius: 14px 14px 0 0 !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-store-flacon-card > div:last-child {
+        padding: 0.65rem 0.65rem 0.75rem !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-product-cat-wrap {
+        margin-bottom: 0.35rem !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-product-cat-badge {
+        font-size: 0.58rem !important;
+        padding: 2px 7px !important;
+        letter-spacing: 0.4px !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-product-title {
+        font-size: 0.92rem !important;
+        line-height: 1.22 !important;
+        margin-bottom: 0.25rem !important;
+        min-height: 2.25rem !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-product-tagline {
+        display: none !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-card-footer {
+        padding-top: 0.5rem !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 6px !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-price-label {
+        font-size: 0.55rem !important;
+        margin-bottom: 2px !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-price-val {
+        font-size: 1.05rem !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-price-curr {
+        font-size: 0.65rem !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-btn-add-bag {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 5px 8px !important;
+        font-size: 0.74rem !important;
+        gap: 5px !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-badge-featured,
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-badge-out-of-stock {
+        font-size: 0.56rem !important;
+        padding: 2px 6px !important;
+    }
+
+    /* 1 Column Mode on Mobile */
+    #rovenProductGridRow.roven-mobile-grid-1 .roven-catalog-card-col {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-1 .product-image-container {
+        height: 260px !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-1 .roven-product-title {
+        font-size: 1.25rem !important;
+    }
+}
 </style>
 
 <div class="container roven-catalog-container">
@@ -933,46 +1185,63 @@
                         </div>
                     </div>
 
-                    <!-- Sort Select -->
-                    <div class="d-flex align-items-center gap-2">
-                        <label class="small text-muted text-nowrap fw-semibold">Sort By:</label>
-                        <select class="form-select form-select-sm" style="width: auto;" onchange="applySorting(this.value)">
-                            @if (Model.CurrentSort == "newest")
-                            {
-                                <option value="newest" selected>Newest First</option>
-                            }
-                            else
-                            {
-                                <option value="newest">Newest First</option>
-                            }
+                    <!-- Right Controls: View Switcher (1 or 2 cols on mobile) + Luxury Sort Dropdown -->
+                    <div class="d-flex align-items-center justify-content-between justify-content-sm-end gap-2.5 flex-wrap">
+                        <!-- Luxury View Mode Switcher -->
+                        <div class="roven-view-switcher" role="group" aria-label="Layout view mode">
+                            <button type="button" class="roven-view-btn" id="rovenViewBtn1" onclick="setCatalogViewMode('1')" title="عرض منتج واحد (Single Column)" aria-label="Single column">
+                                <svg width="17" height="17" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="2" y="2" width="14" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+                                </svg>
+                            </button>
+                            <button type="button" class="roven-view-btn active" id="rovenViewBtn2" onclick="setCatalogViewMode('2')" title="عرض منتجين جنب بعض (Two Columns)" aria-label="Two columns">
+                                <svg width="17" height="17" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="1.5" y="2" width="6.5" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                                    <rect x="10" y="2" width="6.5" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                                </svg>
+                            </button>
+                        </div>
 
-                            @if (Model.CurrentSort == "price_asc")
+                        <!-- Luxury Sort Dropdown -->
+                        @{
+                            var sortDict = new Dictionary<string, string>
                             {
-                                <option value="price_asc" selected>Price: Low to High</option>
-                            }
-                            else
-                            {
-                                <option value="price_asc">Price: Low to High</option>
-                            }
+                                { "newest", "Newest First" },
+                                { "price_asc", "Price: Low to High" },
+                                { "price_desc", "Price: High to Low" },
+                                { "name_asc", "Product Name (A-Z)" }
+                            };
+                            var curSortKey = Model.CurrentSort ?? "newest";
+                            var curSortLabel = sortDict.ContainsKey(curSortKey) ? sortDict[curSortKey] : "Newest First";
+                        }
+                        <div class="roven-luxury-sort-wrapper position-relative">
+                            <!-- Hidden native select for fallback & form compatibility -->
+                            <select class="d-none" id="rovenNativeSortSelect" onchange="applySorting(this.value)">
+                                <option value="newest" selected="@(curSortKey == "newest")">Newest First</option>
+                                <option value="price_asc" selected="@(curSortKey == "price_asc")">Price: Low to High</option>
+                                <option value="price_desc" selected="@(curSortKey == "price_desc")">Price: High to Low</option>
+                                <option value="name_asc" selected="@(curSortKey == "name_asc")">Product Name (A-Z)</option>
+                            </select>
 
-                            @if (Model.CurrentSort == "price_desc")
-                            {
-                                <option value="price_desc" selected>Price: High to Low</option>
-                            }
-                            else
-                            {
-                                <option value="price_desc">Price: High to Low</option>
-                            }
+                            <!-- Custom Luxury Trigger Button -->
+                            <button type="button" class="roven-sort-btn" id="rovenSortDropdownBtn" onclick="toggleRovenSortDropdown(event)" aria-expanded="false" aria-haspopup="true">
+                                <span class="roven-sort-label-lead">Sort By:</span>
+                                <span class="roven-sort-current-val" id="rovenSortCurrentValLabel">@curSortLabel</span>
+                                <i class="fa-solid fa-chevron-down roven-sort-chevron"></i>
+                            </button>
 
-                            @if (Model.CurrentSort == "name_asc")
-                            {
-                                <option value="name_asc" selected>Product Name (A-Z)</option>
-                            }
-                            else
-                            {
-                                <option value="name_asc">Product Name (A-Z)</option>
-                            }
-                        </select>
+                            <!-- Custom Luxury Menu -->
+                            <div class="roven-sort-menu" id="rovenSortMenu" role="menu">
+                                @foreach (var kvp in sortDict)
+                                {
+                                    var isActive = kvp.Key == curSortKey;
+                                    <button type="button" class="roven-sort-item @(isActive ? "active" : "")" data-sort-val="@kvp.Key" onclick="selectRovenSort('@kvp.Key', '@kvp.Value')" role="menuitem">
+                                        <span>@kvp.Value</span>
+                                        <i class="fa-solid fa-check roven-sort-check"></i>
+                                    </button>
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1007,7 +1276,7 @@
             </div>
 
             <!-- Products Grid -->
-            <div class="row g-4" id="rovenProductGridRow">
+            <div class="row g-4 roven-mobile-grid-2" id="rovenProductGridRow">
                 @foreach (var product in catalogList)
                 {
                     var isFilterMatch = (!Model.SelectedCategoryId.HasValue || product.CategoryId == Model.SelectedCategoryId.Value || (product.CategoryIds != null && product.CategoryIds.Contains(Model.SelectedCategoryId.Value)))
@@ -1140,6 +1409,97 @@
 
 @section Scripts {
 <script>
+    // ======================================================================
+    // 0. CATALOG VIEW MODE SWITCHER (1 COLUMN vs 2 COLUMNS ON MOBILE)
+    // ======================================================================
+    function setCatalogViewMode(mode) {
+        const grid = document.getElementById('rovenProductGridRow');
+        const btn1 = document.getElementById('rovenViewBtn1');
+        const btn2 = document.getElementById('rovenViewBtn2');
+
+        if (!grid) return;
+
+        if (mode === '1') {
+            grid.classList.remove('roven-mobile-grid-2');
+            grid.classList.add('roven-mobile-grid-1');
+            if (btn1) btn1.classList.add('active');
+            if (btn2) btn2.classList.remove('active');
+            try { localStorage.setItem('roven_catalog_view_mode', '1'); } catch(e) {}
+        } else {
+            grid.classList.remove('roven-mobile-grid-1');
+            grid.classList.add('roven-mobile-grid-2');
+            if (btn1) btn1.classList.remove('active');
+            if (btn2) btn2.classList.add('active');
+            try { localStorage.setItem('roven_catalog_view_mode', '2'); } catch(e) {}
+        }
+    }
+
+    // ======================================================================
+    // 0.1 LUXURY SORT DROPDOWN TOGGLE & SELECT HANDLERS
+    // ======================================================================
+    function toggleRovenSortDropdown(event) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        const menu = document.getElementById('rovenSortMenu');
+        const btn = document.getElementById('rovenSortDropdownBtn');
+        if (!menu || !btn) return;
+
+        const isShown = menu.classList.contains('show');
+        if (isShown) {
+            menu.classList.remove('show');
+            btn.setAttribute('aria-expanded', 'false');
+        } else {
+            menu.classList.add('show');
+            btn.setAttribute('aria-expanded', 'true');
+        }
+    }
+
+    function selectRovenSort(sortVal, sortLabel) {
+        const labelEl = document.getElementById('rovenSortCurrentValLabel');
+        if (labelEl) labelEl.textContent = sortLabel;
+
+        const items = document.querySelectorAll('.roven-sort-item');
+        items.forEach(it => {
+            if (it.dataset.sortVal === sortVal) {
+                it.classList.add('active');
+            } else {
+                it.classList.remove('active');
+            }
+        });
+
+        const nativeSelect = document.getElementById('rovenNativeSortSelect');
+        if (nativeSelect) nativeSelect.value = sortVal;
+
+        const menu = document.getElementById('rovenSortMenu');
+        const btn = document.getElementById('rovenSortDropdownBtn');
+        if (menu) menu.classList.remove('show');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+
+        applySorting(sortVal);
+    }
+
+    // Close sort dropdown when clicking anywhere outside
+    document.addEventListener('click', function(e) {
+        const wrapper = document.querySelector('.roven-luxury-sort-wrapper');
+        const menu = document.getElementById('rovenSortMenu');
+        const btn = document.getElementById('rovenSortDropdownBtn');
+        if (wrapper && !wrapper.contains(e.target)) {
+            if (menu) menu.classList.remove('show');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    // Initialize View Mode on Page Load
+    document.addEventListener('DOMContentLoaded', function() {
+        let savedMode = '2'; // Default to 2 columns on mobile
+        try {
+            savedMode = localStorage.getItem('roven_catalog_view_mode') || '2';
+        } catch(e) {}
+        setCatalogViewMode(savedMode);
+    });
+
     function resetAllFiltersFast() {
         const form = document.getElementById('catalog-filter-form');
         if (form) {
@@ -1197,6 +1557,24 @@
             const searchInput = form.querySelector('input[name="search"]');
             if (searchInput) searchTerm = searchInput.value || '';
         }
+
+        // Sync Custom Luxury Sort Dropdown UI
+        const sortLabelsMap = {
+            'newest': 'Newest First',
+            'price_asc': 'Price: Low to High',
+            'price_desc': 'Price: High to Low',
+            'name_asc': 'Product Name (A-Z)'
+        };
+        const currentSortLabel = sortLabelsMap[sortValue] || 'Newest First';
+        const sortValLabelEl = document.getElementById('rovenSortCurrentValLabel');
+        if (sortValLabelEl) sortValLabelEl.textContent = currentSortLabel;
+        const sortItems = document.querySelectorAll('.roven-sort-item');
+        sortItems.forEach(it => {
+            if (it.dataset.sortVal === sortValue) it.classList.add('active');
+            else it.classList.remove('active');
+        });
+        const nativeSort = document.getElementById('rovenNativeSortSelect');
+        if (nativeSort) nativeSort.value = sortValue;
 
         // ======================================================================
         // 1. INSTANT CLIENT-SIDE FILTERING & 10-PRODUCT PAGINATION
