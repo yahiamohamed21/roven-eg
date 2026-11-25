@@ -2,6 +2,7 @@
 @{
     Layout = "_StoreLayout";
     ViewData["Title"] = "Shopping Cart";
+    ViewData["SkipPreloader"] = true;
 }
 
 <div class="container py-4">
@@ -221,21 +222,19 @@
             </div>
         </div>
     }
-    else
-    {
-        <div class="card border-0 shadow-sm p-5 text-center my-4">
-            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; background-color: #EDEBDD; color: #630000;">
-                <i class="fa-solid fa-bag-shopping display-4"></i>
-            </div>
-            <h4 class="fw-bold mb-2" style="color: #1B1717;">Your Fragrance Bag is Empty</h4>
-            <p class="mb-4" style="color: #6c6358;">Explore our Extraits, Royal Oud, and discovery sets to begin your olfactory journey.</p>
-            <div>
-                <a asp-controller="Store" asp-action="Index" class="btn px-4 py-2 fw-semibold rounded-pill shadow-sm" style="background-color: #630000; color: #EDEBDD; border: 1px solid #810100;">
-                    <i class="fa-solid fa-spray-can-sparkles me-2"></i>Explore ROVEN Parfums
-                </a>
-            </div>
+
+    <div id="roven-empty-bag-state" class="card border-0 shadow-sm p-5 text-center my-4 @(Model.Items.Any() ? "d-none" : "")">
+        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; background-color: #EDEBDD; color: #630000;">
+            <i class="fa-solid fa-bag-shopping display-4"></i>
         </div>
-    }
+        <h4 class="fw-bold mb-2" style="color: #1B1717;">Your Fragrance Bag is Empty</h4>
+        <p class="mb-4" style="color: #6c6358;">Explore our Extraits, Royal Oud, and discovery sets to begin your olfactory journey.</p>
+        <div>
+            <a asp-controller="Store" asp-action="Index" class="btn px-4 py-2 fw-semibold rounded-pill shadow-sm" style="background-color: #630000; color: #EDEBDD; border: 1px solid #810100;">
+                <i class="fa-solid fa-spray-can-sparkles me-2"></i>Explore ROVEN Parfums
+            </a>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -293,7 +292,7 @@
                     if (badge) badge.textContent = data.totalCount;
 
                     if (data.totalCount === 0) {
-                        window.location.reload();
+                        showEmptyCartStateInPlace();
                     }
                 } else {
                     Swal.fire({
@@ -364,7 +363,7 @@
                     if (badge) badge.textContent = data.totalCount;
 
                     if (data.totalCount === 0) {
-                        window.location.reload();
+                        showEmptyCartStateInPlace();
                     }
 
                     Swal.fire({
@@ -503,6 +502,17 @@
         });
     }
 
+    function showEmptyCartStateInPlace() {
+        const contentRow = document.getElementById('cart-content-row');
+        if (contentRow) contentRow.classList.add('d-none');
+        const clearForm = document.getElementById('form-clear-cart');
+        if (clearForm) clearForm.classList.add('d-none');
+        const emptyState = document.getElementById('roven-empty-bag-state');
+        if (emptyState) emptyState.classList.remove('d-none');
+        const badge = document.getElementById('cart-item-count');
+        if (badge) badge.textContent = '0';
+    }
+
     function confirmClearCart() {
         Swal.fire({
             title: 'Clear Shopping Cart?',
@@ -512,8 +522,29 @@
             confirmButtonText: 'Yes, Clear Cart',
             confirmButtonColor: '#dc3545',
             cancelButtonText: 'Cancel'
-        }).then((result) => {
+        }).then(async (result) => {
             if (result.isConfirmed) {
+                try {
+                    const formData = new FormData();
+                    const csrfToken = getCsrfToken();
+                    if (csrfToken) {
+                        formData.append('__RequestVerificationToken', csrfToken);
+                    }
+                    const headers = { 'X-Requested-With': 'XMLHttpRequest' };
+                    if (csrfToken) headers['RequestVerificationToken'] = csrfToken;
+
+                    const res = await fetch('/Cart/ClearCart', {
+                        method: 'POST',
+                        headers: headers,
+                        body: formData
+                    });
+                    if (res.ok) {
+                        showEmptyCartStateInPlace();
+                        return;
+                    }
+                } catch (e) {
+                    console.error('ClearCart AJAX failed:', e);
+                }
                 document.getElementById('form-clear-cart').submit();
             }
         });
