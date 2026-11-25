@@ -1114,7 +1114,7 @@
                                             <span class="roven-custom-radio"><i class="fa-solid fa-check"></i></span>
                                             @if (!string.IsNullOrEmpty(c.ImageUrl))
                                             {
-                                                <img src="@c.ImageUrl" alt="@c.Name" class="rounded-circle border" style="width: 20px; height: 20px; object-fit: cover; margin-inline-end: 6px;" onerror="this.remove();" />
+                                                <img src="@c.ImageUrl" alt="@c.Name" loading="lazy" decoding="async" class="rounded-circle border" style="width: 20px; height: 20px; object-fit: cover; margin-inline-end: 6px;" onerror="this.remove();" />
                                             }
                                             <span class="roven-cat-name">@c.Name</span>
                                         </span>
@@ -1327,7 +1327,14 @@
                             <a asp-action="Details" asp-route-id="@product.Id" class="product-image-container d-block text-decoration-none position-relative" title="عرض تفاصيل عطر @product.Name">
                                 @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
                                 {
-                                    <img src="@product.ImageUrl" alt="@product.Name" loading="lazy" decoding="async" onload="this.classList.add('loaded')" onerror="this.onerror=null;this.src='/images/products/perfume_default.svg';" />
+                                    if (isInitiallyVisible && renderedCount <= 2)
+                                    {
+                                        <img src="@product.ImageUrl" alt="@product.Name" loading="eager" fetchpriority="high" decoding="async" onload="this.classList.add('loaded'); this.closest('.product-image-container')?.classList.add('is-loaded');" onerror="this.onerror=null;this.src='/images/products/perfume_default.svg';" />
+                                    }
+                                    else
+                                    {
+                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" data-src="@product.ImageUrl" alt="@product.Name" class="roven-lazy-img" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/images/products/perfume_default.svg';" />
+                                    }
                                 }
                                 else
                                 {
@@ -1448,6 +1455,7 @@
             if (btn2) btn2.classList.add('active');
             try { localStorage.setItem('roven_catalog_view_mode', '2'); } catch(e) {}
         }
+        if (window.rovenInitLazyImages) window.rovenInitLazyImages();
     }
 
     // ======================================================================
@@ -1692,6 +1700,7 @@
         if (emptyState) {
             emptyState.style.display = (totalMatching === 0) ? '' : 'none';
         }
+        if (window.rovenInitLazyImages) window.rovenInitLazyImages();
 
         // Update Clear All link in filter header
         const filterHeader = document.querySelector('.roven-filter-head');
@@ -1808,6 +1817,7 @@
         if (remainingHidden <= 0) {
             if (loadMoreContainer) loadMoreContainer.style.display = 'none';
         }
+        if (window.rovenInitLazyImages) window.rovenInitLazyImages();
     }
 
     window.addEventListener('popstate', function() {

@@ -1184,6 +1184,29 @@
             justify-content: center;
         }
 
+        .product-image-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(110deg, #FAF8F3 25%, #F2ECDE 45%, #FAF8F3 65%);
+            background-size: 220% 100%;
+            animation: rovenImgShimmer 1.4s infinite linear;
+            z-index: 1;
+            transition: opacity 0.28s ease;
+            pointer-events: none;
+        }
+
+        .product-image-container.is-loaded::before,
+        .product-image-container:has(img.loaded)::before {
+            opacity: 0;
+            animation: none;
+        }
+
+        @@keyframes rovenImgShimmer {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+
         @@media (max-width: 576px) {
             .product-image-container {
                 height: 210px;
@@ -1198,6 +1221,8 @@
             object-fit: cover;
             transition: opacity 0.35s ease-in-out, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
             opacity: 0;
+            position: relative;
+            z-index: 2;
         }
 
         .product-image-container img.loaded {
@@ -3258,6 +3283,82 @@
                 }
             }
         });
+
+        // Global True Viewport Lazy Loading (IntersectionObserver + Cached Safety + Shimmer)
+        (function () {
+            let lazyObserver = null;
+
+            function markImgLoaded(img) {
+                if (!img) return;
+                img.classList.add('loaded');
+                const box = img.closest('.product-image-container');
+                if (box) box.classList.add('is-loaded');
+            }
+
+            function loadRealSrc(img) {
+                const realSrc = img.getAttribute('data-src');
+                if (!realSrc) {
+                    if (img.complete && img.naturalWidth > 0) markImgLoaded(img);
+                    return;
+                }
+                img.removeAttribute('data-src');
+                img.addEventListener('load', function () { markImgLoaded(img); }, { once: true });
+                img.addEventListener('error', function () {
+                    markImgLoaded(img);
+                }, { once: true });
+                img.src = realSrc;
+                if (img.complete && img.naturalWidth > 0) {
+                    markImgLoaded(img);
+                }
+            }
+
+            window.rovenInitLazyImages = function () {
+                // Ensure any normal/cached images already complete get marked loaded
+                document.querySelectorAll('.product-image-container img:not([data-src])').forEach(function (img) {
+                    if (img.complete && img.naturalWidth > 0) {
+                        markImgLoaded(img);
+                    } else {
+                        img.addEventListener('load', function () { markImgLoaded(img); }, { once: true });
+                    }
+                });
+
+                const lazyImgs = Array.from(document.querySelectorAll('img[data-src]'));
+                if (!lazyImgs.length) return;
+
+                if ('IntersectionObserver' in window) {
+                    if (lazyObserver) lazyObserver.disconnect();
+                    lazyObserver = new IntersectionObserver(function (entries, obs) {
+                        entries.forEach(function (entry) {
+                            if (entry.isIntersecting) {
+                                const img = entry.target;
+                                // Skip if inside hidden container (e.g. display: none)
+                                if (img.offsetParent === null && getComputedStyle(img).position !== 'fixed') return;
+                                loadRealSrc(img);
+                                obs.unobserve(img);
+                            }
+                        });
+                    }, { rootMargin: '180px 240px', threshold: 0.01 });
+
+                    lazyImgs.forEach(function (img) {
+                        // Only observe visible cards (avoid observing display:none paged items until revealed)
+                        const col = img.closest('.roven-catalog-card-col');
+                        if (col && col.style.display === 'none') return;
+                        lazyObserver.observe(img);
+                    });
+                } else {
+                    lazyImgs.forEach(function (img) {
+                        const col = img.closest('.roven-catalog-card-col');
+                        if (!col || col.style.display !== 'none') loadRealSrc(img);
+                    });
+                }
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', window.rovenInitLazyImages);
+            } else {
+                window.rovenInitLazyImages();
+            }
+        })();
     </script>
 
     <!-- MAISON ROVEN — FIND YOUR SCENT QUIZ MODAL & FLOATING CTA -->

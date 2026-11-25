@@ -639,7 +639,7 @@
                                                 {
                                                     <!-- Custom Combined Photo / Graphic -->
                                                     <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none" title="@offer.DisplayTitle">
-                                                        <img src="@offer.CustomImageUrl" alt="@offer.DisplayTitle" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
+                                                        <img src="@offer.CustomImageUrl" alt="@offer.DisplayTitle" loading="lazy" decoding="async" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
                                                     </a>
                                                 }
                                                 else if (isTrio)
@@ -647,15 +647,15 @@
                                                     <!-- 3-Perfume Luxury Trio Stage -->
                                                     <div class="roven-offer-multi-stage trio-stage">
                                                         <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="roven-multi-bottle-tile" title="@offer.ProductName">
-                                                            <img src="@(string.IsNullOrWhiteSpace(offer.ImageUrl) ? "/images/placeholder.svg" : offer.ImageUrl)" alt="@offer.ProductName" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
+                                                            <img src="@(string.IsNullOrWhiteSpace(offer.ImageUrl) ? "/images/placeholder.svg" : offer.ImageUrl)" alt="@offer.ProductName" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
                                                             <span class="roven-duo-bottle-label">@offer.ProductName</span>
                                                         </a>
                                                         <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.SecondProductId" class="roven-multi-bottle-tile" title="@offer.SecondProductName">
-                                                            <img src="@(string.IsNullOrWhiteSpace(offer.SecondProductImageUrl) ? "/images/placeholder.svg" : offer.SecondProductImageUrl)" alt="@offer.SecondProductName" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
+                                                            <img src="@(string.IsNullOrWhiteSpace(offer.SecondProductImageUrl) ? "/images/placeholder.svg" : offer.SecondProductImageUrl)" alt="@offer.SecondProductName" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
                                                             <span class="roven-duo-bottle-label">@offer.SecondProductName</span>
                                                         </a>
                                                         <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ThirdProductId" class="roven-multi-bottle-tile" title="@offer.ThirdProductName">
-                                                            <img src="@(string.IsNullOrWhiteSpace(offer.ThirdProductImageUrl) ? "/images/placeholder.svg" : offer.ThirdProductImageUrl)" alt="@offer.ThirdProductName" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
+                                                            <img src="@(string.IsNullOrWhiteSpace(offer.ThirdProductImageUrl) ? "/images/placeholder.svg" : offer.ThirdProductImageUrl)" alt="@offer.ThirdProductName" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
                                                             <span class="roven-duo-bottle-label">@offer.ThirdProductName</span>
                                                         </a>
                                                     </div>
@@ -665,14 +665,14 @@
                                                     <!-- 2-Perfume Luxury Duo Stage -->
                                                     <div class="roven-offer-multi-stage duo-stage">
                                                         <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="roven-multi-bottle-tile" title="@offer.ProductName">
-                                                            <img src="@(string.IsNullOrWhiteSpace(offer.ImageUrl) ? "/images/placeholder.svg" : offer.ImageUrl)" alt="@offer.ProductName" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
+                                                            <img src="@(string.IsNullOrWhiteSpace(offer.ImageUrl) ? "/images/placeholder.svg" : offer.ImageUrl)" alt="@offer.ProductName" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
                                                             <span class="roven-duo-bottle-label">@offer.ProductName</span>
                                                         </a>
                                                         <div class="roven-duo-connector-badge">
                                                             <i class="fa-solid fa-plus"></i>
                                                         </div>
                                                         <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.SecondProductId" class="roven-multi-bottle-tile" title="@offer.SecondProductName">
-                                                            <img src="@(string.IsNullOrWhiteSpace(offer.SecondProductImageUrl) ? "/images/placeholder.svg" : offer.SecondProductImageUrl)" alt="@offer.SecondProductName" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
+                                                            <img src="@(string.IsNullOrWhiteSpace(offer.SecondProductImageUrl) ? "/images/placeholder.svg" : offer.SecondProductImageUrl)" alt="@offer.SecondProductName" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
                                                             <span class="roven-duo-bottle-label">@offer.SecondProductName</span>
                                                         </a>
                                                     </div>
@@ -683,7 +683,7 @@
                                                     <a asp-controller="Store" asp-action="Details" asp-route-id="@offer.ProductId" class="d-flex align-items-center justify-content-center w-100 h-100 text-decoration-none" title="@offer.DisplayTitle">
                                                         @if (!string.IsNullOrWhiteSpace(effectiveImg))
                                                         {
-                                                            <img src="@effectiveImg" alt="@offer.DisplayTitle" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
+                                                            <img src="@effectiveImg" alt="@offer.DisplayTitle" loading="lazy" decoding="async" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='/images/placeholder.svg';" />
                                                         }
                                                         else
                                                         {
