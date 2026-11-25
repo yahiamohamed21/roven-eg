@@ -349,6 +349,122 @@ public static class DbInitializer
         }
     }
 
+    /// <summary>
+    /// Converts all existing product raster images (.jpg, .jpeg, .png, etc.) to lightweight .webp format
+    /// on disk and updates Products.ImageUrl references in the database so server load stays minimal.
+    /// </summary>
+    public static async Task EnsureProductImagesWebpAsync(IServiceProvider serviceProvider)
+    {
+        try
+        {
+            var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            var environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+            var cacheService = serviceProvider.GetService<IStoreCacheService>();
+
+            var webRoot = !string.IsNullOrWhiteSpace(environment.WebRootPath)
+                ? environment.WebRootPath
+                : Path.Combine(environment.ContentRootPath, "wwwroot");
+
+            bool dbChanged = false;
+
+            // 1. Convert product image files referenced in Products table
+            var products = await context.Products
+                .Where(p => !string.IsNullOrEmpty(p.ImageUrl))
+                .ToListAsync();
+
+            foreach (var product in products)
+            {
+                var url = product.ImageUrl!.Trim();
+                if (!Stockify.Common.Media.WebpImageHelper.IsConvertibleRasterExtension(url))
+                {
+                    continue;
+                }
+
+                if (url.Contains("res.cloudinary.com/", StringComparison.OrdinalIgnoreCase))
+                {
+                    product.ImageUrl = Stockify.Common.Media.WebpImageHelper.ChangeUrlExtensionToWebp(url);
+                    dbChanged = true;
+                    continue;
+                }
+
+                if (url.StartsWith("/"))
+                {
+                    var cleanRelative = url.TrimStart('/', '\\').Replace('/', Path.DirectorySeparatorChar);
+                    var fullLocalPath = Path.Combine(webRoot, cleanRelative);
+                    var webpLocalPath = Path.ChangeExtension(fullLocalPath, ".webp");
+                    var newWebpUrl = Stockify.Common.Media.WebpImageHelper.ChangeUrlExtensionToWebp(url);
+
+                    if (File.Exists(webpLocalPath) && new FileInfo(webpLocalPath).Length > 0)
+                    {
+                        product.ImageUrl = newWebpUrl;
+                        dbChanged = true;
+                        if (File.Exists(fullLocalPath))
+                        {
+                            try { File.Delete(fullLocalPath); } catch { }
+                        }
+                    }
+                    else if (File.Exists(fullLocalPath))
+                    {
+                        var converted = await Stockify.Common.Media.WebpImageHelper.ConvertLocalFileToWebpAsync(
+                            fullLocalPath, webpLocalPath, deleteSourceAfterSuccess: true);
+                        if (converted)
+                        {
+                            product.ImageUrl = newWebpUrl;
+                            dbChanged = true;
+                        }
+                    }
+                }
+            }
+
+            if (dbChanged)
+            {
+                await context.SaveChangesAsync();
+                cacheService?.InvalidateAll();
+            }
+
+            // 2. Sweep product image folders for any remaining unconverted raster files
+            var productDirs = new List<string>
+            {
+                Path.Combine(webRoot, "roven", "products"),
+                Path.Combine(webRoot, "uploads", "products")
+            };
+
+            // Also sync persistent roven_media/products folder on VPS if present
+            var parentDir = Directory.GetParent(environment.ContentRootPath)?.FullName;
+            if (!string.IsNullOrEmpty(parentDir))
+            {
+                var persistentProductsDir = Path.Combine(parentDir, "roven_media", "products");
+                if (Directory.Exists(persistentProductsDir))
+                {
+                    productDirs.Add(persistentProductsDir);
+                }
+            }
+
+            foreach (var dir in productDirs)
+            {
+                if (!Directory.Exists(dir)) continue;
+                foreach (var file in Directory.GetFiles(dir))
+                {
+                    if (!Stockify.Common.Media.WebpImageHelper.IsConvertibleRasterExtension(file)) continue;
+                    var webpTarget = Path.ChangeExtension(file, ".webp");
+                    if (File.Exists(webpTarget) && new FileInfo(webpTarget).Length > 0)
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                    else
+                    {
+                        await Stockify.Common.Media.WebpImageHelper.ConvertLocalFileToWebpAsync(
+                            file, webpTarget, deleteSourceAfterSuccess: true);
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Never block application startup if optional image optimization encounters an issue
+        }
+    }
+
     public static async Task SeedFragranceDiscoveryBaselineAsync(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
@@ -479,7 +595,7 @@ public static class DbInitializer
                     StockQuantity = 10,
                     ReorderLevel = 5,
                     CategoryId = categoryId,
-                    ImageUrl = "/uploads/star_blended.jpg",
+                    ImageUrl = "/uploads/star_blended.webp",
                     IsActive = true,
                     IsPublished = true,
                     IsFeatured = true,
@@ -500,7 +616,7 @@ public static class DbInitializer
                     StockQuantity = 10,
                     ReorderLevel = 5,
                     CategoryId = categoryId,
-                    ImageUrl = "/uploads/velvet_blended.jpg",
+                    ImageUrl = "/uploads/velvet_blended.webp",
                     IsActive = true,
                     IsPublished = true,
                     IsFeatured = true,

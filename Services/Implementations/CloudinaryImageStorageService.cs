@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Stockify.Common.Media;
 using Stockify.Services.Interfaces;
 
 namespace Stockify.Services.Implementations;
@@ -211,32 +212,16 @@ public class CloudinaryImageStorageService : IImageStorageService
 
     private async Task<string> SaveLocalFileAsync(IFormFile file, string folder, string? customFileName)
     {
-        var webRoot = !string.IsNullOrWhiteSpace(_environment.WebRootPath)
-            ? _environment.WebRootPath
-            : Path.Combine(_environment.ContentRootPath, "wwwroot");
-
-        var targetFolder = Path.Combine(webRoot, folder.Replace('/', Path.DirectorySeparatorChar));
-        if (!Directory.Exists(targetFolder))
-        {
-            Directory.CreateDirectory(targetFolder);
-        }
-
-        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (string.IsNullOrEmpty(ext)) ext = ".webp";
-        var uniqueName = !string.IsNullOrWhiteSpace(customFileName)
-            ? customFileName
-            : $"{Guid.NewGuid():N}{ext}";
-
-        var filePath = Path.Combine(targetFolder, uniqueName);
-        await using (var fileStream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(fileStream);
-        }
-
-        return $"/{folder.Trim('/')}/{uniqueName}";
+        await using var stream = file.OpenReadStream();
+        return await SaveLocalStreamInternalAsync(stream, folder, file.FileName, customFileName);
     }
 
-    private async Task<string> SaveLocalStreamAsync(Stream stream, string folder, string fileName)
+    private Task<string> SaveLocalStreamAsync(Stream stream, string folder, string fileName)
+    {
+        return SaveLocalStreamInternalAsync(stream, folder, fileName, null);
+    }
+
+    private async Task<string> SaveLocalStreamInternalAsync(Stream stream, string folder, string originalFileName, string? customFileName)
     {
         var webRoot = !string.IsNullOrWhiteSpace(_environment.WebRootPath)
             ? _environment.WebRootPath
@@ -248,18 +233,50 @@ public class CloudinaryImageStorageService : IImageStorageService
             Directory.CreateDirectory(targetFolder);
         }
 
-        var ext = Path.GetExtension(fileName).ToLowerInvariant();
-        if (string.IsNullOrEmpty(ext)) ext = ".webp";
-        var uniqueName = $"{Guid.NewGuid():N}{ext}";
+        var origExt = Path.GetExtension(originalFileName).ToLowerInvariant();
+        if (origExt == ".svg")
+        {
+            var svgName = !string.IsNullOrWhiteSpace(customFileName)
+                ? Path.ChangeExtension(customFileName, ".svg")
+                : $"{Guid.NewGuid():N}.svg";
+            var svgPath = Path.Combine(targetFolder, svgName);
+            await using var svgStream = new FileStream(svgPath, FileMode.Create);
+            if (stream.CanSeek) stream.Position = 0;
+            await stream.CopyToAsync(svgStream);
+            return $"/{folder.Trim('/')}/{svgName}";
+        }
 
-        var filePath = Path.Combine(targetFolder, uniqueName);
-        await using (var fileStream = new FileStream(filePath, FileMode.Create))
+        // Force .webp conversion for all uploaded raster images to minimize server bandwidth and storage load
+        var webpName = !string.IsNullOrWhiteSpace(customFileName)
+            ? Path.ChangeExtension(customFileName, ".webp")
+            : $"{Guid.NewGuid():N}.webp";
+        var webpPath = Path.Combine(targetFolder, webpName);
+
+        try
+        {
+            await WebpImageHelper.SaveStreamAsWebpAsync(stream, webpPath);
+            if (File.Exists(webpPath) && new FileInfo(webpPath).Length > 0)
+            {
+                return $"/{folder.Trim('/')}/{webpName}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "WebP conversion failed for {FileName}, falling back to raw file save.", originalFileName);
+        }
+
+        var fallbackExt = string.IsNullOrEmpty(origExt) ? ".webp" : origExt;
+        var fallbackName = !string.IsNullOrWhiteSpace(customFileName)
+            ? customFileName
+            : $"{Guid.NewGuid():N}{fallbackExt}";
+        var fallbackPath = Path.Combine(targetFolder, fallbackName);
+        await using (var fileStream = new FileStream(fallbackPath, FileMode.Create))
         {
             if (stream.CanSeek) stream.Position = 0;
             await stream.CopyToAsync(fileStream);
         }
 
-        return $"/{folder.Trim('/')}/{uniqueName}";
+        return $"/{folder.Trim('/')}/{fallbackName}";
     }
 }
 

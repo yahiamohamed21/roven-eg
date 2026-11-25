@@ -252,6 +252,7 @@ using (var scope = app.Services.CreateScope())
 
         await DbInitializer.SeedRolesAndAdminAsync(services);
         await DbInitializer.SeedFragranceDiscoveryBaselineAsync(services);
+        await DbInitializer.EnsureProductImagesWebpAsync(services);
         await DbInitializer.AutoSyncImagesToCloudinaryAsync(services);
     }
     catch (Exception ex)
