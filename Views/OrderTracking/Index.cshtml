@@ -436,6 +436,116 @@
             padding: 0 14px;
         }
 
+        /* Desktop Two-Column Luxury Editorial Showcase (>= 992px)
+           Preserves exact overlapping mobile layout below 992px */
+        @@media (min-width: 992px) {
+            .roven-track-page {
+                padding-top: 98px;
+                padding-bottom: 4.5rem;
+            }
+
+            .roven-track-shell {
+                max-width: 1120px;
+                margin: 0 auto;
+                padding: 0 24px;
+                display: grid;
+                grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
+                gap: 28px;
+                align-items: stretch;
+            }
+
+            .roven-track-hero-banner {
+                border-radius: 28px;
+                padding: 0;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                background: linear-gradient(165deg, #3D0709 0%, #240305 55%, #170203 100%);
+                border: 1px solid rgba(215, 180, 106, 0.35);
+                box-shadow:
+                    0 24px 55px rgba(56, 10, 10, 0.16),
+                    0 4px 16px rgba(27, 23, 23, 0.08);
+            }
+
+            .roven-track-hero-stage {
+                display: none;
+            }
+
+            .roven-track-hero-inner {
+                max-width: 100%;
+                padding: 42px 36px 20px;
+                margin: 0;
+            }
+
+            .roven-track-hero-copy {
+                max-width: 100%;
+            }
+
+            .roven-track-hero-title {
+                font-size: 2.65rem;
+                margin-bottom: 10px;
+            }
+
+            .roven-track-hero-subtitle {
+                max-width: 440px;
+                font-size: 0.95rem;
+            }
+
+            .roven-hero-desktop-art {
+                position: relative;
+                width: 100%;
+                margin-top: auto;
+                overflow: hidden;
+            }
+
+            .roven-hero-desktop-art::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 76px;
+                background: linear-gradient(180deg, #240305 0%, rgba(36, 3, 5, 0) 100%);
+                z-index: 2;
+                pointer-events: none;
+            }
+
+            .roven-hero-desktop-art img {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 16 / 9;
+                object-fit: cover;
+                display: block;
+            }
+
+            .roven-track-card-container {
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+                display: flex;
+            }
+
+            .roven-floating-card {
+                width: 100%;
+                padding: 32px 38px 34px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .roven-floating-emblem {
+                margin-top: 0;
+                width: 66px;
+                height: 66px;
+            }
+
+            .roven-result-container {
+                max-width: 1120px;
+                padding: 0 24px;
+            }
+        }
+
         .roven-order-card {
             background: #FCF8F2;
             border: 1px solid #E5D6C3;
@@ -654,26 +764,31 @@
 
 <div class="roven-track-page" dir="ltr">
 
-    <!-- 1. Editorial Luxury Hero Section -->
-    <section class="roven-track-hero-banner">
-        <div class="roven-track-hero-stage" aria-hidden="true"></div>
-        <div class="roven-track-hero-inner">
-            <div class="roven-track-hero-copy">
-                <div class="roven-hero-eyebrow">
-                    <span class="roven-eyebrow-line"></span>
-                    <span>ORDER TRACKING</span>
-                    <span class="roven-eyebrow-line right"></span>
+    <div class="roven-track-shell">
+        <!-- 1. Editorial Luxury Hero Section -->
+        <section class="roven-track-hero-banner">
+            <div class="roven-track-hero-stage" aria-hidden="true"></div>
+            <div class="roven-track-hero-inner">
+                <div class="roven-track-hero-copy">
+                    <div class="roven-hero-eyebrow">
+                        <span class="roven-eyebrow-line"></span>
+                        <span>ORDER TRACKING</span>
+                        <span class="roven-eyebrow-line right"></span>
+                    </div>
+                    <h1 class="roven-track-hero-title">Track Your Order</h1>
+                    <p class="roven-track-hero-subtitle">
+                        Follow your order from our atelier to your doorstep with real-time updates and complete peace of mind.
+                    </p>
                 </div>
-                <h1 class="roven-track-hero-title">Track Your Order</h1>
-                <p class="roven-track-hero-subtitle">
-                    Follow your order from our atelier to your doorstep with real-time updates and complete peace of mind.
-                </p>
             </div>
-        </div>
-    </section>
+            <!-- Desktop Uncropped 16:9 Perfume Showcase -->
+            <div class="roven-hero-desktop-art d-none d-lg-block" aria-hidden="true">
+                <img src="~/images/banners/track-order-hero.webp" alt="ROVEN Fragrances Atelier" />
+            </div>
+        </section>
 
-    <!-- 2. Overlapping Luxury Lookup Card -->
-    <div class="roven-track-card-container">
+        <!-- 2. Overlapping / Paired Luxury Lookup Card -->
+        <div class="roven-track-card-container">
         <div class="roven-floating-card">
             <!-- Top Overlapping Circular Emblem (Isometric Box + Map Pin) -->
             <div class="roven-card-emblem-header">
@@ -837,6 +952,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- 3. Search Result Section -->
