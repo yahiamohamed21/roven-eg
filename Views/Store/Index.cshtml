@@ -909,8 +909,21 @@
 /* ==========================================================================
    MOBILE RESPONSIVE 1-COL vs 2-COL CATALOG CARD MODES
    ========================================================================== */
-@@media (max-width: 575.98px) {
-    /* 2 Columns Mode on Mobile */
+@@media (max-width: 767.98px) {
+    .roven-view-btn {
+        width: 32px;
+        height: 32px;
+    }
+    .roven-sort-btn {
+        padding: 6px 10px;
+        font-size: 0.78rem;
+        gap: 5px;
+    }
+    .roven-sort-label-lead {
+        font-size: 0.66rem;
+    }
+
+    /* 2 Columns Mode on Mobile / Small Screens */
     #rovenProductGridRow.roven-mobile-grid-2 {
         --bs-gutter-x: 0.65rem !important;
         --bs-gutter-y: 0.75rem !important;
@@ -980,8 +993,9 @@
         padding: 2px 6px !important;
     }
 
-    /* 1 Column Mode on Mobile */
+    /* 1 Column Mode on Mobile / Small Screens */
     #rovenProductGridRow.roven-mobile-grid-1 .roven-catalog-card-col {
+        flex: 0 0 auto !important;
         width: 100% !important;
         max-width: 100% !important;
     }
@@ -1186,18 +1200,20 @@
                     </div>
 
                     <!-- Right Controls: View Switcher (1 or 2 cols on mobile) + Luxury Sort Dropdown -->
-                    <div class="d-flex align-items-center justify-content-between justify-content-sm-end gap-2.5 flex-wrap">
-                        <!-- Luxury View Mode Switcher -->
-                        <div class="roven-view-switcher" role="group" aria-label="Layout view mode">
-                            <button type="button" class="roven-view-btn" id="rovenViewBtn1" onclick="setCatalogViewMode('1')" title="عرض منتج واحد (Single Column)" aria-label="Single column">
-                                <svg width="17" height="17" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="2" y="2" width="14" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+                    <div class="d-flex align-items-center justify-content-between justify-content-md-end gap-2 flex-wrap">
+                        <!-- Luxury View Mode Switcher (Mobile / Small Screens) -->
+                        <div class="roven-view-switcher d-inline-flex d-md-none" role="group" aria-label="Layout view mode">
+                            <button type="button" class="roven-view-btn" id="rovenViewBtn1" onclick="setCatalogViewMode('1')" title="عرض منتج واحد في الصف (Single Row)" aria-label="Single column">
+                                <svg width="16" height="16" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <line x1="2.5" y1="4.5" x2="15.5" y2="4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                                    <line x1="2.5" y1="9" x2="15.5" y2="9" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                                    <line x1="2.5" y1="13.5" x2="15.5" y2="13.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
                                 </svg>
                             </button>
                             <button type="button" class="roven-view-btn active" id="rovenViewBtn2" onclick="setCatalogViewMode('2')" title="عرض منتجين جنب بعض (Two Columns)" aria-label="Two columns">
-                                <svg width="17" height="17" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="1.5" y="2" width="6.5" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/>
-                                    <rect x="10" y="2" width="6.5" height="14" rx="2" stroke="currentColor" stroke-width="1.7"/>
+                                <svg width="16" height="16" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="3" y="2.5" width="4.5" height="13" rx="1.4" stroke="currentColor" stroke-width="1.8"/>
+                                    <rect x="10.5" y="2.5" width="4.5" height="13" rx="1.4" stroke="currentColor" stroke-width="1.8"/>
                                 </svg>
                             </button>
                         </div>
