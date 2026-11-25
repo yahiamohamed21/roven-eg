@@ -19,19 +19,25 @@
         </div>
     </nav>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold mb-1" style="color: #1B1717;"><i class="fa-solid fa-bag-shopping me-2" style="color: #630000;"></i>Your Fragrance Bag</h3>
-            <p class="small mb-0" style="color: #6c6358;">Review your chosen flacons, adjust allocations, and proceed to bespoke checkout.</p>
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
+            <h3 class="fw-bold mb-0" style="color: #1B1717;"><i class="fa-solid fa-bag-shopping me-2" style="color: #630000;"></i>Your Fragrance Bag</h3>
+            @if (Model.Items.Any())
+            {
+                <form asp-action="ClearCart" method="post" id="form-clear-cart" class="flex-shrink-0">
+                    <button type="button"
+                            class="btn btn-sm rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 text-nowrap fw-semibold"
+                            style="border: 1px solid rgba(129, 1, 0, 0.28); color: #810100; background: #FAF8F5; font-size: 0.78rem; transition: all 0.2s ease;"
+                            onmouseover="this.style.background='#810100'; this.style.color='#FAF9F5';"
+                            onmouseout="this.style.background='#FAF8F5'; this.style.color='#810100';"
+                            onclick="confirmClearCart()">
+                        <i class="fa-regular fa-trash-can"></i>
+                        <span>Empty Bag</span>
+                    </button>
+                </form>
+            }
         </div>
-        @if (Model.Items.Any())
-        {
-            <form asp-action="ClearCart" method="post" id="form-clear-cart">
-                <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmClearCart()">
-                    <i class="fa-solid fa-trash-can me-1"></i>Empty Bag
-                </button>
-            </form>
-        }
+        <p class="small mb-0" style="color: #6c6358;">Review your chosen flacons, adjust allocations, and proceed to bespoke checkout.</p>
     </div>
 
     @if (Model.Items.Any())
@@ -150,12 +156,6 @@
                         </table>
                     </div>
                 </div>
-
-                <div class="d-flex justify-content-between align-items-center">
-                    <a asp-controller="Store" asp-action="Index" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-1"></i>Continue Shopping
-                    </a>
-                </div>
             </div>
 
             <!-- Right: Order Summary Card -->
@@ -163,14 +163,9 @@
                 <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 90px;">
                     <h5 class="fw-bold text-dark mb-3">Order Summary</h5>
 
-                    <div class="d-flex justify-content-between mb-2 small text-muted">
+                    <div class="d-flex justify-content-between mb-3 small text-muted">
                         <span>Items Subtotal:</span>
                         <span class="fw-bold text-dark" id="summary-subtotal">@Model.Subtotal.ToString("N2") EGP</span>
-                    </div>
-
-                    <div class="d-flex justify-content-between mb-3 small text-muted">
-                        <span>Shipping / Delivery:</span>
-                        <span class="fw-bold text-success">FREE Nationwide</span>
                     </div>
 
                     <!-- Luxury Coupon Application Box -->
@@ -200,12 +195,15 @@
                         <span class="fw-bold" id="cart-discount-amount">- @Model.DiscountAmount.ToString("N2") EGP</span>
                     </div>
 
-                    <hr />
-
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <span class="fw-bold fs-5" style="color: #1B1717;">Total Investment:</span>
-                        <span class="fw-bold fs-4" style="color: #630000;" id="summary-grand-total">@Model.GrandTotal.ToString("N2") EGP</span>
+                    <div class="d-flex justify-content-between align-items-center mb-2 pt-2 border-top @(Model.DiscountAmount > 0 ? "" : "d-none")" id="summary-after-discount-row">
+                        <span class="fw-bold text-dark">Products After Discount:</span>
+                        <span class="fw-bold fs-5" style="color: #630000;" id="summary-grand-total">@Model.GrandTotal.ToString("N2") EGP</span>
                     </div>
+
+                    <p class="small text-muted mb-4" style="font-size: 0.78rem; line-height: 1.45;">
+                        <i class="fa-solid fa-location-dot me-1" style="color: #810100;"></i>
+                        Shipping cost &amp; final order total will be calculated after choosing your delivery address in the next step.
+                    </p>
 
                     <a asp-controller="Checkout" asp-action="Index" class="btn w-100 py-3 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2 shadow-sm mb-3" style="background-color: #630000; color: #EDEBDD; border: 1px solid #810100;">
                         <i class="fa-solid fa-lock"></i>
@@ -435,7 +433,10 @@
 
                     cartDiscountRow.classList.remove('d-none');
                     cartDiscountAmount.textContent = '- ' + formatEgp(data.discountAmount);
-                    document.getElementById('summary-grand-total').textContent = formatEgp(data.grandTotal);
+                    const afterDiscountRow = document.getElementById('summary-after-discount-row');
+                    if (afterDiscountRow) afterDiscountRow.classList.remove('d-none');
+                    const grandTotalEl = document.getElementById('summary-grand-total');
+                    if (grandTotalEl) grandTotalEl.textContent = formatEgp(data.grandTotal);
 
                     Swal.fire({
                         icon: 'success',
@@ -482,7 +483,10 @@
                     cartCouponBadge.classList.add('d-none');
                     cartCouponMsg.classList.add('d-none');
                     cartDiscountRow.classList.add('d-none');
-                    document.getElementById('summary-grand-total').textContent = formatEgp(data.grandTotal);
+                    const afterDiscountRow = document.getElementById('summary-after-discount-row');
+                    if (afterDiscountRow) afterDiscountRow.classList.add('d-none');
+                    const grandTotalEl = document.getElementById('summary-grand-total');
+                    if (grandTotalEl) grandTotalEl.textContent = formatEgp(data.grandTotal);
 
                     Swal.fire({
                         icon: 'info',
