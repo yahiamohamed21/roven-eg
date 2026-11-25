@@ -27,21 +27,37 @@
         .roven-track-hero-banner {
             position: relative;
             width: 100%;
-            background-color: #240405;
-            background-image:
-                linear-gradient(90deg, rgba(24, 3, 4, 0.90) 0%, rgba(44, 7, 8, 0.72) 48%, rgba(28, 5, 5, 0.14) 100%),
-                linear-gradient(180deg, rgba(16, 3, 4, 0.58) 0%, rgba(16, 3, 4, 0.08) 42%, rgba(24, 4, 5, 0.55) 100%),
-                url('/images/banners/track-order-hero.webp');
-            background-size: cover;
-            background-position: right center;
-            background-repeat: no-repeat;
-            padding: 112px 0 98px;
+            background: radial-gradient(circle at 20% 45%, #3B0709 0%, #240305 62%, #160203 100%);
+            padding: 122px 0 106px;
+            min-height: 430px;
+            display: flex;
+            align-items: center;
             color: #FAF7F2;
             overflow: hidden;
         }
 
+        .roven-track-hero-stage {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 1320px;
+            background-image:
+                linear-gradient(90deg, #270406 0%, rgba(44, 7, 8, 0.88) 38%, rgba(44, 7, 8, 0.25) 62%, rgba(22, 2, 3, 0.08) 92%, #160203 100%),
+                linear-gradient(180deg, rgba(16, 3, 4, 0.55) 0%, rgba(16, 3, 4, 0.05) 38%, rgba(24, 4, 5, 0.50) 100%),
+                url('/images/banners/track-order-hero.webp');
+            background-size: auto 100%;
+            background-position: right center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: 1;
+        }
+
         .roven-track-hero-inner {
-            max-width: 1040px;
+            width: 100%;
+            max-width: 1080px;
             margin: 0 auto;
             padding: 0 24px;
             position: relative;
@@ -96,14 +112,22 @@
             font-weight: 400;
         }
 
-        @@media (max-width: 767.98px) {
-            .roven-track-hero-banner {
+        @@media (max-width: 991.98px) {
+            .roven-track-hero-stage {
                 background-image:
                     linear-gradient(90deg, rgba(36, 4, 5, 0.88) 0%, rgba(52, 7, 9, 0.68) 54%, rgba(24, 4, 5, 0.10) 100%),
                     linear-gradient(180deg, rgba(16, 3, 4, 0.55) 0%, rgba(16, 3, 4, 0.05) 38%, rgba(26, 4, 5, 0.45) 100%),
                     url('/images/banners/track-order-hero.webp');
+                background-size: cover;
                 background-position: 80% center;
+            }
+        }
+
+        @@media (max-width: 767.98px) {
+            .roven-track-hero-banner {
+                min-height: 0;
                 padding: 86px 0 68px;
+                display: block;
             }
 
             .roven-track-hero-inner {
@@ -632,6 +656,7 @@
 
     <!-- 1. Editorial Luxury Hero Section -->
     <section class="roven-track-hero-banner">
+        <div class="roven-track-hero-stage" aria-hidden="true"></div>
         <div class="roven-track-hero-inner">
             <div class="roven-track-hero-copy">
                 <div class="roven-hero-eyebrow">
