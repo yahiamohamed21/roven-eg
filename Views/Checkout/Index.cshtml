@@ -287,23 +287,8 @@
                     </div>
                 </div>
 
-                <!-- Payment Selection Card -->
-                <div class="card border-0 shadow-sm p-4">
-                    <h5 class="fw-bold text-dark mb-3">
-                        <i class="bi bi-wallet2 text-success me-2"></i>2. Payment Method
-                    </h5>
-
-                    <div class="form-check p-3 border rounded-3 bg-light d-flex align-items-center gap-3">
-                        <input class="form-check-input ms-0" type="radio" asp-for="PaymentMethod" value="Cash on Delivery" id="pay-cod" checked />
-                        <label class="form-check-label w-100" for="pay-cod">
-                            <div class="fw-bold text-dark d-flex align-items-center justify-content-between">
-                                <span>Cash on Delivery (COD)</span>
-                                <i class="bi bi-cash-stack text-success fs-4"></i>
-                            </div>
-                            <div class="small text-muted">Pay in Egyptian Pounds when the shipment arrives at your doorstep.</div>
-                        </label>
-                    </div>
-                </div>
+                <!-- Hidden PaymentMethod preserved for backend order submission -->
+                <input type="hidden" asp-for="PaymentMethod" value="Cash on Delivery" />
             </div>
 
             <!-- Right: Order Summary Review -->
