@@ -962,7 +962,25 @@
         overflow: hidden !important;
     }
     #rovenProductGridRow.roven-mobile-grid-2 .roven-product-tagline {
-        display: none !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        gap: 4px !important;
+        font-size: 0.62rem !important;
+        line-height: 1.3 !important;
+        letter-spacing: 0.3px !important;
+        margin-bottom: 0.45rem !important;
+        min-height: 1.65rem !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-product-tagline::before {
+        width: 8px !important;
+        margin-top: 0.45em !important;
+        flex-shrink: 0 !important;
+    }
+    #rovenProductGridRow.roven-mobile-grid-2 .roven-product-tagline span {
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
     }
     #rovenProductGridRow.roven-mobile-grid-2 .roven-card-footer {
         padding-top: 0.5rem !important;
