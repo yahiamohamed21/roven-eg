@@ -87,12 +87,21 @@ public class OrderService : IOrderService
             .ToList();
 
         var consolidatedLines = request.Items
-            .GroupBy(i => new { i.ProductId, i.ProductSizeId })
+            .GroupBy(i => new
+            {
+                i.ProductId,
+                i.ProductSizeId,
+                TestersKey = (i.SelectedTesterProductIds != null && i.SelectedTesterProductIds.Any())
+                    ? string.Join("-", i.SelectedTesterProductIds.OrderBy(x => x))
+                    : (i.SelectedTestersSummary ?? "")
+            })
             .Select(g => new CreateOrderItemRequest
             {
                 ProductId = g.Key.ProductId,
                 ProductSizeId = g.Key.ProductSizeId,
-                Quantity = g.Sum(x => x.Quantity)
+                Quantity = g.Sum(x => x.Quantity),
+                SelectedTesterProductIds = g.First().SelectedTesterProductIds ?? new List<int>(),
+                SelectedTestersSummary = g.First().SelectedTestersSummary
             })
             .ToList();
 
@@ -120,6 +129,8 @@ public class OrderService : IOrderService
                 var productIds = consolidatedItems.Select(i => i.ProductId).Distinct().ToList();
                 var products = await _context.Products
                     .Include(p => p.ProductSizes)
+                    .Include(p => p.TesterOptions)
+                        .ThenInclude(t => t.FragranceProduct)
                     .AsNoTracking()
                     .Where(p => productIds.Contains(p.Id))
                     .ToDictionaryAsync(p => p.Id);
@@ -135,6 +146,40 @@ public class OrderService : IOrderService
                             ErrorMessage = $"المنتج #{item.ProductId} غير متوفر في الكتالوج الحالي.",
                             OutOfStockProductId = item.ProductId
                         };
+                    }
+                }
+
+                // 1b. Validate Tester Products & Resolve Authoritative Selected Scents Summary
+                foreach (var line in consolidatedLines)
+                {
+                    var prod = products[line.ProductId];
+                    if (prod.IsTester)
+                    {
+                        int reqCount = prod.TesterRequiredCount > 0 ? prod.TesterRequiredCount : 4;
+                        var allowedMap = prod.TesterOptions
+                            .Where(o => o.FragranceProduct != null && o.FragranceProduct.IsActive)
+                            .ToDictionary(o => o.FragranceProductId, o => o.FragranceProduct!.Name);
+
+                        var validIds = (line.SelectedTesterProductIds ?? new List<int>())
+                            .Where(id => id > 0 && allowedMap.ContainsKey(id))
+                            .Distinct()
+                            .ToList();
+
+                        if (validIds.Count != reqCount)
+                        {
+                            await transaction.RollbackAsync();
+                            return new CreateOrderResult
+                            {
+                                Success = false,
+                                ErrorMessage = $"المنتج '{prod.Name}' عبارة عن تيستر ويتطلب اختيار {reqCount} عطور بالضبط من القائمة المتاحة.",
+                                OutOfStockProductId = prod.Id
+                            };
+                        }
+
+                        if (string.IsNullOrWhiteSpace(line.SelectedTestersSummary))
+                        {
+                            line.SelectedTestersSummary = string.Join("، ", validIds.Select(id => allowedMap[id]));
+                        }
                     }
                 }
 
@@ -358,6 +403,7 @@ public class OrderService : IOrderService
                         ProductId = prod.Id,
                         ProductSizeId = pricing.SizeId,
                         SizeLabel = pricing.SizeLabel,
+                        SelectedTestersSummary = line.SelectedTestersSummary,
                         Quantity = line.Quantity,
                         UnitCost = pricing.UnitCost,
                         UnitProfit = pricing.UnitProfit,
@@ -366,9 +412,10 @@ public class OrderService : IOrderService
                     _context.OrderItems.Add(orderItem);
 
                     var sizeTag = string.IsNullOrWhiteSpace(pricing.SizeLabel) ? "" : $" [{pricing.SizeLabel}]";
+                    var testerTag = string.IsNullOrWhiteSpace(line.SelectedTestersSummary) ? "" : $" (Testers: {line.SelectedTestersSummary})";
                     var auditNote = request.OrderSource == OrderSource.Website
-                        ? $"Website Order #{order.OrderNumber}{sizeTag} by {order.CustomerName ?? "Online Patron"}"
-                        : $"POS In-Store Sale #{order.OrderNumber}{sizeTag}";
+                        ? $"Website Order #{order.OrderNumber}{sizeTag}{testerTag} by {order.CustomerName ?? "Online Patron"}"
+                        : $"POS In-Store Sale #{order.OrderNumber}{sizeTag}{testerTag}";
 
                     var audit = new InventoryTransaction
                     {

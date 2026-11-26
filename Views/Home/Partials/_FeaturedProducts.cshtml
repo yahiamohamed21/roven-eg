@@ -89,6 +89,12 @@
                                     {
                                         <button class="btn btn-sm btn-secondary rounded-pill px-3 py-1" disabled style="font-size: 0.78rem;">Unavailable</button>
                                     }
+                                    else if (product.IsTester)
+                                    {
+                                        <a asp-controller="Store" asp-action="Details" asp-route-id="@product.Id" class="roven-btn-add-bag text-decoration-none" title="اختر @product.TesterRequiredCount عطور للتيستر">
+                                            <i class="fa-solid fa-vials"></i><span>اختر @product.TesterRequiredCount</span>
+                                        </a>
+                                    }
                                     else
                                     {
                                         <button type="button" class="roven-btn-add-bag" data-size-id="@product.DefaultSizeId" onclick="window.addStoreItemToCart(@product.Id, 1, this)" title="Add to Bag">

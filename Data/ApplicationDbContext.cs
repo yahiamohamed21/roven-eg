@@ -39,6 +39,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ProductFragranceNote> ProductFragranceNotes => Set<ProductFragranceNote>();
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
     public DbSet<ProductSize> ProductSizes => Set<ProductSize>();
+    public DbSet<ProductTesterOption> ProductTesterOptions => Set<ProductTesterOption>();
 
     // Bidirectional Catalog Synchronization (Phase 7)
     public DbSet<SyncOutboxEvent> SyncOutboxEvents => Set<SyncOutboxEvent>();
@@ -196,6 +197,20 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
              .HasForeignKey(ps => ps.ProductId)
              .OnDelete(DeleteBehavior.Cascade);
             b.HasIndex(ps => ps.ProductId);
+        });
+
+        builder.Entity<ProductTesterOption>(b =>
+        {
+            b.HasKey(to => new { to.TesterProductId, to.FragranceProductId });
+            b.HasOne(to => to.TesterProduct)
+             .WithMany(p => p.TesterOptions)
+             .HasForeignKey(to => to.TesterProductId)
+             .OnDelete(DeleteBehavior.Cascade);
+            b.HasOne(to => to.FragranceProduct)
+             .WithMany()
+             .HasForeignKey(to => to.FragranceProductId)
+             .OnDelete(DeleteBehavior.NoAction);
+            b.HasIndex(to => to.FragranceProductId);
         });
 
         builder.Entity<OrderItem>(b =>

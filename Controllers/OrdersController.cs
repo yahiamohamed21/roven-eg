@@ -351,7 +351,9 @@ public class OrdersController : Controller
             {
                 ProductId = i.ProductId,
                 ProductSizeId = i.ProductSizeId,
-                Quantity = i.Quantity
+                Quantity = i.Quantity,
+                SelectedTesterProductIds = i.SelectedTesterProductIds ?? new List<int>(),
+                SelectedTestersSummary = i.SelectedTestersSummary
             }).ToList()
         };
 

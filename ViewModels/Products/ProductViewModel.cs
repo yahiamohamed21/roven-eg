@@ -14,6 +14,9 @@ public class ProductViewModel
     public int ReorderLevel { get; set; }
     public string? ImageUrl { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool IsTester { get; set; } = false;
+    public int TesterRequiredCount { get; set; } = 4;
+    public int TesterOptionsCount { get; set; } = 0;
     public DateTime CreatedAt { get; set; }
     public int CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;

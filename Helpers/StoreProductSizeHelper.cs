@@ -33,6 +33,28 @@ public static class StoreProductSizeHelper
             })
             .ToListAsync();
 
+        var testerMetaByProduct = await context.Products
+            .AsNoTracking()
+            .Where(p => productIds.Contains(p.Id) && p.IsTester)
+            .Select(p => new
+            {
+                p.Id,
+                p.TesterRequiredCount,
+                Options = p.TesterOptions
+                    .Where(o => o.FragranceProduct != null && o.FragranceProduct.IsActive)
+                    .OrderBy(o => o.DisplayOrder)
+                    .ThenBy(o => o.FragranceProduct!.Name)
+                    .Select(o => new StoreTesterOptionViewModel
+                    {
+                        FragranceProductId = o.FragranceProductId,
+                        Name = o.FragranceProduct!.Name,
+                        Sku = o.FragranceProduct.Sku ?? "",
+                        ImageUrl = o.FragranceProduct.ImageUrl
+                    })
+                    .ToList()
+            })
+            .ToDictionaryAsync(x => x.Id);
+
         var lookup = sizesByProduct
             .GroupBy(x => x.ProductId)
             .ToDictionary(g => g.Key, g => g.Select(x => x.ViewModel).ToList());
@@ -48,6 +70,18 @@ public static class StoreProductSizeHelper
             else if (card.Sizes.Count == 0)
             {
                 card.Sizes = new List<StoreProductSizeViewModel>();
+            }
+
+            if (testerMetaByProduct.TryGetValue(card.Id, out var testerMeta))
+            {
+                card.IsTester = true;
+                card.TesterRequiredCount = testerMeta.TesterRequiredCount > 0 ? testerMeta.TesterRequiredCount : 4;
+                card.AvailableTesterFragrances = testerMeta.Options;
+            }
+            else
+            {
+                card.IsTester = false;
+                card.AvailableTesterFragrances = new List<StoreTesterOptionViewModel>();
             }
         }
     }

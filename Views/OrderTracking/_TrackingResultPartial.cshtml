@@ -274,6 +274,12 @@
                                             <div class="min-w-0">
                                                 <div class="fw-bold" style="color: #1B1717;">@(oi.Product?.Name ?? "ROVEN Fragrance")</div>
                                                 <span class="font-monospace text-muted" style="font-size: 0.72rem;">SKU: @(oi.Product?.Sku ?? "ROV-FLACON")</span>
+                                                @if (!string.IsNullOrWhiteSpace(oi.SelectedTestersSummary))
+                                                {
+                                                    <div class="small fw-semibold mt-1" style="color: #630000; font-size: 0.75rem;">
+                                                        <i class="fa-solid fa-vials me-1"></i>العطور المختارة: @oi.SelectedTestersSummary
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </td>
@@ -348,6 +354,12 @@
                                                 @(string.IsNullOrWhiteSpace(oi.SizeLabel) ? "100ml Flacon" : oi.SizeLabel)
                                             </span>
                                         </div>
+                                        @if (!string.IsNullOrWhiteSpace(oi.SelectedTestersSummary))
+                                        {
+                                            <div class="small fw-semibold mb-2" style="color: #630000; font-size: 0.74rem; line-height: 1.4;">
+                                                <i class="fa-solid fa-vials me-1"></i>@oi.SelectedTestersSummary
+                                            </div>
+                                        }
 
                                         <div class="d-flex align-items-center justify-content-between pt-2 border-top flex-wrap gap-2" style="border-color: #efe4d6 !important;">
                                             <div class="d-flex align-items-center gap-1.5">

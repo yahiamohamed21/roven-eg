@@ -167,7 +167,9 @@ public class CheckoutController : Controller
                 {
                     ProductId = i.ProductId,
                     ProductSizeId = i.ProductSizeId,
-                    Quantity = i.Quantity
+                    Quantity = i.Quantity,
+                    SelectedTesterProductIds = i.SelectedTesterProductIds ?? new List<int>(),
+                    SelectedTestersSummary = i.SelectedTestersSummary
                 }).ToList()
             };
 
@@ -261,6 +263,7 @@ public class CheckoutController : Controller
             ProductId = i.ProductId,
             ProductSizeId = i.ProductSizeId,
             SizeLabel = i.SizeLabel,
+            SelectedTestersSummary = i.SelectedTestersSummary,
             ProductName = i.ProductName,
             Quantity = i.Quantity,
             UnitPrice = i.UnitPrice,

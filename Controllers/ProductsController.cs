@@ -197,6 +197,9 @@ public class ProductsController : Controller
                 ReorderLevel = p.ReorderLevel,
                 ImageUrl = p.ImageUrl,
                 IsActive = p.IsActive,
+                IsTester = p.IsTester,
+                TesterRequiredCount = p.TesterRequiredCount,
+                TesterOptionsCount = p.TesterOptions.Count,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category != null ? p.Category.Name : "General",
                 CategoryNames = p.ProductCategories.Any() ? p.ProductCategories.Select(pc => pc.Category.Name).ToList() : new List<string> { p.Category != null ? p.Category.Name : "General" },
@@ -218,7 +221,8 @@ public class ProductsController : Controller
                 new ProductSizeInputViewModel { SizeLabel = "100ml", IsDefault = true, DisplayOrder = 0 }
             },
             CategoriesList = await GetCategoriesSelectListAsync(),
-            AvailableNotesGrouped = await GetGroupedFragranceNotesAsync()
+            AvailableNotesGrouped = await GetGroupedFragranceNotesAsync(),
+            AvailableTesterProducts = await GetAvailableTesterChoicesAsync()
         };
         return View(model);
     }
@@ -236,6 +240,7 @@ public class ProductsController : Controller
             model.SelectedSeasons ??= new();
             model.SelectedFragranceNoteIds ??= new();
             model.SelectedCategoryIds ??= new();
+            model.SelectedTesterProductIds ??= new();
 
             if (model.CategoryId > 0 && !model.SelectedCategoryIds.Contains(model.CategoryId))
             {
@@ -280,11 +285,13 @@ public class ProductsController : Controller
             }
 
             NormalizeAndValidatePricing(model);
+            NormalizeAndValidateTester(model);
 
             if (!ModelState.IsValid)
             {
                 model.CategoriesList = await GetCategoriesSelectListAsync();
                 model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
+                model.AvailableTesterProducts = await GetAvailableTesterChoicesAsync();
                 return View(model);
             }
 
@@ -301,6 +308,7 @@ public class ProductsController : Controller
                     ModelState.AddModelError("ImageFile", "فشل حفظ أو رفع صورة المنتج. يرجى التأكد من صلاحية الملف والمحاولة مرة أخرى.");
                     model.CategoriesList = await GetCategoriesSelectListAsync();
                     model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
+                    model.AvailableTesterProducts = await GetAvailableTesterChoicesAsync();
                     return View(model);
                 }
             }
@@ -321,6 +329,8 @@ public class ProductsController : Controller
                 IsActive = true,
                 IsFeatured = model.IsFeatured,
                 IsBestSeller = model.IsBestSeller,
+                IsTester = model.IsTester,
+                TesterRequiredCount = model.TesterRequiredCount,
                 Projection = model.Projection,
                 InspiredBy = string.IsNullOrWhiteSpace(model.InspiredBy) ? null : model.InspiredBy.Trim(),
                 IsFragranceProfileApproved = model.IsFragranceProfileApproved,
@@ -376,6 +386,20 @@ public class ProductsController : Controller
                 });
             }
 
+            // Add Tester Available Fragrances (if IsTester)
+            if (model.IsTester)
+            {
+                for (int tIdx = 0; tIdx < model.SelectedTesterProductIds.Count; tIdx++)
+                {
+                    product.TesterOptions.Add(new ProductTesterOption
+                    {
+                        TesterProduct = product,
+                        FragranceProductId = model.SelectedTesterProductIds[tIdx],
+                        DisplayOrder = tIdx
+                    });
+                }
+            }
+
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
@@ -404,6 +428,7 @@ public class ProductsController : Controller
             ModelState.AddModelError(string.Empty, "حدث خطأ أثناء حفظ المنتج في قاعدة البيانات: " + ex.Message);
             model.CategoriesList = await GetCategoriesSelectListAsync();
             model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
+            model.AvailableTesterProducts = await GetAvailableTesterChoicesAsync();
             return View(model);
         }
     }
@@ -418,6 +443,7 @@ public class ProductsController : Controller
             .Include(p => p.ProductFragranceNotes)
             .Include(p => p.ProductCategories)
             .Include(p => p.ProductSizes)
+            .Include(p => p.TesterOptions)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
@@ -492,7 +518,11 @@ public class ProductsController : Controller
             SelectedAudiences = product.TargetAudiences.Select(a => a.Audience).ToList(),
             SelectedSeasons = product.Seasons.Select(s => s.Season).ToList(),
             SelectedFragranceNoteIds = product.ProductFragranceNotes.Select(n => n.FragranceNoteId).ToList(),
-            AvailableNotesGrouped = await GetGroupedFragranceNotesAsync()
+            AvailableNotesGrouped = await GetGroupedFragranceNotesAsync(),
+            IsTester = product.IsTester,
+            TesterRequiredCount = product.TesterRequiredCount > 0 ? product.TesterRequiredCount : 4,
+            SelectedTesterProductIds = product.TesterOptions.OrderBy(o => o.DisplayOrder).Select(o => o.FragranceProductId).ToList(),
+            AvailableTesterProducts = await GetAvailableTesterChoicesAsync(id)
         };
 
         return View(model);
@@ -515,6 +545,7 @@ public class ProductsController : Controller
             .Include(p => p.ProductFragranceNotes)
             .Include(p => p.ProductCategories)
             .Include(p => p.ProductSizes)
+            .Include(p => p.TesterOptions)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
@@ -572,12 +603,14 @@ public class ProductsController : Controller
         }
 
         NormalizeAndValidatePricing(model);
+        NormalizeAndValidateTester(model, id);
 
         if (!ModelState.IsValid)
         {
             model.ExistingImageUrl = product.ImageUrl;
             model.CategoriesList = await GetCategoriesSelectListAsync();
             model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
+            model.AvailableTesterProducts = await GetAvailableTesterChoicesAsync(id);
             return View(model);
         }
 
@@ -598,6 +631,7 @@ public class ProductsController : Controller
                 model.ExistingImageUrl = product.ImageUrl;
                 model.CategoriesList = await GetCategoriesSelectListAsync();
                 model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
+                model.AvailableTesterProducts = await GetAvailableTesterChoicesAsync(id);
                 return View(model);
             }
         }
@@ -648,6 +682,8 @@ public class ProductsController : Controller
         product.IsActive = model.IsActive;
         product.IsFeatured = model.IsFeatured;
         product.IsBestSeller = model.IsBestSeller;
+        product.IsTester = model.IsTester;
+        product.TesterRequiredCount = model.TesterRequiredCount;
 
         // Fragrance Profile Update & Approval Invalidation Logic
         product.Projection = model.Projection;
@@ -761,6 +797,36 @@ public class ProductsController : Controller
             }
         }
 
+        // Synchronize Tester Fragrance Options
+        var targetTesterIds = model.IsTester
+            ? model.SelectedTesterProductIds
+            : new List<int>();
+        var targetTesterSet = targetTesterIds.ToHashSet();
+        var testersToRemove = product.TesterOptions.Where(t => !targetTesterSet.Contains(t.FragranceProductId)).ToList();
+        foreach (var tRem in testersToRemove)
+        {
+            product.TesterOptions.Remove(tRem);
+            _context.ProductTesterOptions.Remove(tRem);
+        }
+        for (int tIdx = 0; tIdx < targetTesterIds.Count; tIdx++)
+        {
+            var fid = targetTesterIds[tIdx];
+            var existingOpt = product.TesterOptions.FirstOrDefault(t => t.FragranceProductId == fid);
+            if (existingOpt != null)
+            {
+                existingOpt.DisplayOrder = tIdx;
+            }
+            else
+            {
+                product.TesterOptions.Add(new ProductTesterOption
+                {
+                    TesterProductId = product.Id,
+                    FragranceProductId = fid,
+                    DisplayOrder = tIdx
+                });
+            }
+        }
+
         try
         {
             _context.Products.Update(product);
@@ -778,6 +844,7 @@ public class ProductsController : Controller
             model.ExistingImageUrl = oldImageUrl;
             model.CategoriesList = await GetCategoriesSelectListAsync();
             model.AvailableNotesGrouped = await GetGroupedFragranceNotesAsync();
+            model.AvailableTesterProducts = await GetAvailableTesterChoicesAsync(id);
             return View(model);
         }
 
@@ -922,6 +989,15 @@ public class ProductsController : Controller
                 _context.ProductReviews.RemoveRange(reviews);
             }
 
+            // 5. ProductTesterOptions referencing this product
+            var testerRefs = await _context.ProductTesterOptions
+                .Where(t => t.TesterProductId == id || t.FragranceProductId == id)
+                .ToListAsync();
+            if (testerRefs.Any())
+            {
+                _context.ProductTesterOptions.RemoveRange(testerRefs);
+            }
+
             var imageUrl = product.ImageUrl;
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
@@ -1057,6 +1133,42 @@ public class ProductsController : Controller
         if (!string.Equals(currentInspired, newInspired, StringComparison.OrdinalIgnoreCase)) return true;
 
         return false;
+    }
+
+    private async Task<List<TesterFragranceChoiceViewModel>> GetAvailableTesterChoicesAsync(int? excludeProductId = null)
+    {
+        return await _context.Products
+            .AsNoTracking()
+            .Where(p => p.IsActive && !p.IsTester && (!excludeProductId.HasValue || p.Id != excludeProductId.Value))
+            .OrderBy(p => p.Name)
+            .Select(p => new TesterFragranceChoiceViewModel
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Sku = p.Sku,
+                ImageUrl = p.ImageUrl,
+                CategoryName = p.Category != null ? p.Category.Name : "General"
+            })
+            .ToListAsync();
+    }
+
+    private void NormalizeAndValidateTester(ITesterProductFormModel model, int? selfProductId = null)
+    {
+        model.SelectedTesterProductIds = (model.SelectedTesterProductIds ?? new List<int>())
+            .Where(id => id > 0 && (!selfProductId.HasValue || id != selfProductId.Value))
+            .Distinct()
+            .ToList();
+
+        if (model.TesterRequiredCount < 1)
+        {
+            model.TesterRequiredCount = 4;
+        }
+
+        if (model.IsTester && model.SelectedTesterProductIds.Count < model.TesterRequiredCount)
+        {
+            ModelState.AddModelError("SelectedTesterProductIds",
+                $"عند تفعيل المنتج كتيستر، يجب اختيار {model.TesterRequiredCount} عطور على الأقل من العطور المتاحة.");
+        }
     }
 
     private static string GetCategoryNameEn(FragranceNoteCategory category) => category switch

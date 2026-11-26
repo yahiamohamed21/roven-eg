@@ -99,6 +99,14 @@ public class StoreCategoryViewModel
     public int ProductsCount { get; set; }
 }
 
+public class StoreTesterOptionViewModel
+{
+    public int FragranceProductId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Sku { get; set; } = string.Empty;
+    public string? ImageUrl { get; set; }
+}
+
 public class StoreProductCardViewModel
 {
     public int Id { get; set; }
@@ -114,9 +122,12 @@ public class StoreProductCardViewModel
     public List<string> CategoryNames { get; set; } = new();
     public string? FragranceTagline { get; set; }
     public bool IsFeatured { get; set; }
+    public bool IsTester { get; set; }
+    public int TesterRequiredCount { get; set; } = 4;
     public bool IsOutOfStock => StockQuantity <= 0;
     public bool IsLowStock => StockQuantity > 0 && StockQuantity <= 5;
     public List<StoreProductSizeViewModel> Sizes { get; set; } = new();
+    public List<StoreTesterOptionViewModel> AvailableTesterFragrances { get; set; } = new();
     public int? DefaultSizeId => Sizes.FirstOrDefault(s => s.IsDefault)?.Id ?? Sizes.FirstOrDefault()?.Id;
     public string? DefaultSizeLabel => Sizes.FirstOrDefault(s => s.IsDefault)?.SizeLabel ?? Sizes.FirstOrDefault()?.SizeLabel;
 }
@@ -170,13 +181,17 @@ public class CartItemViewModel
     public int ProductId { get; set; }
     public int? ProductSizeId { get; set; }
     public string? SizeLabel { get; set; }
+    public List<int> SelectedTesterProductIds { get; set; } = new();
+    public string? SelectedTestersSummary { get; set; }
     public string ProductName { get; set; } = string.Empty;
     public string Sku { get; set; } = string.Empty;
     public decimal UnitPrice { get; set; }
     public int Quantity { get; set; }
     public int StockAvailable { get; set; }
     public string? ImageUrl { get; set; }
-    public string LineKey => $"{ProductId}_{ProductSizeId ?? 0}";
+    public string LineKey => SelectedTesterProductIds != null && SelectedTesterProductIds.Any()
+        ? $"{ProductId}_{ProductSizeId ?? 0}_{string.Join("-", SelectedTesterProductIds)}"
+        : $"{ProductId}_{ProductSizeId ?? 0}";
     public decimal LineTotal => UnitPrice * Quantity;
 }
 

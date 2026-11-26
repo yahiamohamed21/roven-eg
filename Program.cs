@@ -245,6 +245,28 @@ using (var scope = app.Services.CreateScope())
                 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('OrderItems') AND name = 'UnitProfit')
                     ALTER TABLE [OrderItems] ADD [UnitProfit] decimal(18,2) NOT NULL DEFAULT 0;
 
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Products') AND name = 'IsTester')
+                    ALTER TABLE [Products] ADD [IsTester] bit NOT NULL DEFAULT 0;
+
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Products') AND name = 'TesterRequiredCount')
+                    ALTER TABLE [Products] ADD [TesterRequiredCount] int NOT NULL DEFAULT 4;
+
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('OrderItems') AND name = 'SelectedTestersSummary')
+                    ALTER TABLE [OrderItems] ADD [SelectedTestersSummary] nvarchar(600) NULL;
+
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ProductTesterOptions')
+                BEGIN
+                    CREATE TABLE [ProductTesterOptions] (
+                        [TesterProductId] int NOT NULL,
+                        [FragranceProductId] int NOT NULL,
+                        [DisplayOrder] int NOT NULL DEFAULT 0,
+                        CONSTRAINT [PK_ProductTesterOptions] PRIMARY KEY ([TesterProductId], [FragranceProductId]),
+                        CONSTRAINT [FK_ProductTesterOptions_Products_TesterProductId] FOREIGN KEY ([TesterProductId]) REFERENCES [Products] ([Id]) ON DELETE CASCADE,
+                        CONSTRAINT [FK_ProductTesterOptions_Products_FragranceProductId] FOREIGN KEY ([FragranceProductId]) REFERENCES [Products] ([Id]) ON DELETE NO ACTION
+                    );
+                    CREATE INDEX [IX_ProductTesterOptions_FragranceProductId] ON [ProductTesterOptions] ([FragranceProductId]);
+                END;
+
                 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ProductSizes')
                 BEGIN
                     CREATE TABLE [ProductSizes] (

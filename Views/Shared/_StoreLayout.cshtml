@@ -410,6 +410,31 @@
             color: #EDEBDD;
             box-shadow: 0 4px 12px rgba(99, 0, 0, 0.24);
         }
+        /* Interactive Tester Fragrance Selection Grid (Inspired by Minimal Sample Pack Picker) */
+        .roven-tester-pill {
+            border: 1.5px solid #e2ddd2;
+            background: #ffffff;
+            color: #1B1717;
+            font-size: 0.84rem;
+            font-weight: 600;
+            padding: 0.5rem 0.95rem;
+            border-radius: 6px;
+            transition: all 0.16s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .roven-tester-pill:hover {
+            border-color: #1B1717;
+            background: #faf8f4;
+        }
+        .roven-tester-pill.active {
+            background: #1B1717;
+            border-color: #1B1717;
+            color: #ffffff;
+            box-shadow: 0 3px 10px rgba(27, 23, 23, 0.2);
+        }
 
         html {
             width: 100% !important;
@@ -2933,7 +2958,7 @@
             };
 
             // Expose global helper for adding to cart with immediate visual loading state
-            window.addStoreItemToCart = async function(productId, qty = 1, triggerBtn = null, sizeId = null) {
+            window.addStoreItemToCart = async function(productId, qty = 1, triggerBtn = null, sizeId = null, testerIds = null) {
                 // Automatically identify trigger button if not passed
                 let btn = triggerBtn;
                 if (!btn && window.event && window.event.target) {
@@ -2961,6 +2986,9 @@
                     formData.append('quantity', qty);
                     if (resolvedSizeId) {
                         formData.append('sizeId', resolvedSizeId);
+                    }
+                    if (testerIds) {
+                        formData.append('testerIds', testerIds);
                     }
 
                     const csrfToken = document.querySelector('#storefrontCsrfForm input[name="__RequestVerificationToken"]')?.value 

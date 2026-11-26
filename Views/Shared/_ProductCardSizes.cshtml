@@ -1,7 +1,15 @@
 @model Stockify.ViewModels.Store.StoreProductCardViewModel
 @using System.Globalization
 
-@if (Model.Sizes != null && Model.Sizes.Count > 1)
+@if (Model.IsTester)
+{
+    <div class="my-1 d-flex flex-wrap gap-1">
+        <span class="roven-size-single-chip" style="background: #630000; color: #EDEBDD; border-color: #630000;">
+            <i class="fa-solid fa-vials me-1" style="font-size: 0.65rem;"></i>تيستر • اختر @Model.TesterRequiredCount عطور
+        </span>
+    </div>
+}
+else if (Model.Sizes != null && Model.Sizes.Count > 1)
 {
     var activeId = Model.DefaultSizeId ?? Model.Sizes[0].Id;
     <div class="roven-card-sizes d-flex flex-wrap gap-1 my-1.5" role="group" aria-label="اختر حجم الزجاجة">

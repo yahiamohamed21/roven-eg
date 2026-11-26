@@ -60,7 +60,24 @@ public interface IProductPricingFormModel
     List<ProductSizeInputViewModel> Sizes { get; set; }
 }
 
-public class ProductCreateViewModel : IFragranceProfileFormModel, IProductPricingFormModel
+public class TesterFragranceChoiceViewModel
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Sku { get; set; } = string.Empty;
+    public string? ImageUrl { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
+}
+
+public interface ITesterProductFormModel
+{
+    bool IsTester { get; set; }
+    int TesterRequiredCount { get; set; }
+    List<int> SelectedTesterProductIds { get; set; }
+    List<TesterFragranceChoiceViewModel> AvailableTesterProducts { get; set; }
+}
+
+public class ProductCreateViewModel : IFragranceProfileFormModel, IProductPricingFormModel, ITesterProductFormModel
 {
     [Required(ErrorMessage = "Product name is required.")]
     [StringLength(150, ErrorMessage = "Product name cannot exceed 150 characters.")]
@@ -147,9 +164,22 @@ public class ProductCreateViewModel : IFragranceProfileFormModel, IProductPricin
     public DateTime? FragranceProfileReviewedAt => null;
 
     public List<FragranceNoteCategoryGroupViewModel> AvailableNotesGrouped { get; set; } = new();
+
+    // Tester / Discovery Set Configuration
+    [Display(Name = "هذا المنتج عبارة عن تيستر (Tester Product)")]
+    public bool IsTester { get; set; } = false;
+
+    [Range(1, 20, ErrorMessage = "عدد الاختيارات المطلوبة يجب أن يكون بين 1 و 20.")]
+    [Display(Name = "عدد العطور المطلوب اختيارها (4 افتراضياً)")]
+    public int TesterRequiredCount { get; set; } = 4;
+
+    [Display(Name = "العطور المتاحة كتيستر في هذا المنتج")]
+    public List<int> SelectedTesterProductIds { get; set; } = new();
+
+    public List<TesterFragranceChoiceViewModel> AvailableTesterProducts { get; set; } = new();
 }
 
-public class ProductEditViewModel : IFragranceProfileFormModel, IProductPricingFormModel
+public class ProductEditViewModel : IFragranceProfileFormModel, IProductPricingFormModel, ITesterProductFormModel
 {
     public int Id { get; set; }
 
@@ -244,4 +274,17 @@ public class ProductEditViewModel : IFragranceProfileFormModel, IProductPricingF
     public DateTime? FragranceProfileReviewedAt { get; set; }
 
     public List<FragranceNoteCategoryGroupViewModel> AvailableNotesGrouped { get; set; } = new();
+
+    // Tester / Discovery Set Configuration
+    [Display(Name = "هذا المنتج عبارة عن تيستر (Tester Product)")]
+    public bool IsTester { get; set; } = false;
+
+    [Range(1, 20, ErrorMessage = "عدد الاختيارات المطلوبة يجب أن يكون بين 1 و 20.")]
+    [Display(Name = "عدد العطور المطلوب اختيارها (4 افتراضياً)")]
+    public int TesterRequiredCount { get; set; } = 4;
+
+    [Display(Name = "العطور المتاحة كتيستر في هذا المنتج")]
+    public List<int> SelectedTesterProductIds { get; set; } = new();
+
+    public List<TesterFragranceChoiceViewModel> AvailableTesterProducts { get; set; } = new();
 }

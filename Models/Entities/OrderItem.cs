@@ -17,6 +17,9 @@ public class OrderItem
     [StringLength(40)]
     public string? SizeLabel { get; set; }
 
+    [StringLength(600)]
+    public string? SelectedTestersSummary { get; set; }
+
     public int Quantity { get; set; }
 
     [Column(TypeName = "decimal(18,2)")]

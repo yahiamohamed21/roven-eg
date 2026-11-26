@@ -141,6 +141,12 @@
                                     <span class="font-monospace small text-muted">
                                         SKU: @(item.Product != null ? item.Product.Sku : "—")
                                     </span>
+                                    @if (!string.IsNullOrWhiteSpace(item.SelectedTestersSummary))
+                                    {
+                                        <div class="mt-1 small fw-semibold" style="color: #630000;">
+                                            <i class="fa-solid fa-vials me-1"></i>تيسترات العميل: @item.SelectedTestersSummary
+                                        </div>
+                                    }
                                 </td>
                                 <td class="small">
                                     <div class="text-muted font-monospace">صافي: @((effCost * item.Quantity).ToString("N2")) EGP</div>

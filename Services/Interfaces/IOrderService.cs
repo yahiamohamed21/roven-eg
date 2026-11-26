@@ -8,6 +8,8 @@ public class CreateOrderItemRequest
     public int ProductId { get; set; }
     public int? ProductSizeId { get; set; }
     public int Quantity { get; set; }
+    public List<int> SelectedTesterProductIds { get; set; } = new();
+    public string? SelectedTestersSummary { get; set; }
 }
 
 public class CreateOrderRequest

@@ -156,6 +156,12 @@
                                             <a asp-action="Details" asp-route-id="@p.Id" class="text-decoration-none text-dark hover-primary">
                                                 @p.Name
                                             </a>
+                                            @if (p.IsTester)
+                                            {
+                                                <span class="badge ms-1 small" style="background-color: #630000; color: #EDEBDD;">
+                                                    <i class="fa-solid fa-vials me-1"></i>Tester (@p.TesterOptionsCount/@p.TesterRequiredCount)
+                                                </span>
+                                            }
                                             @if (!p.IsActive)
                                             {
                                                 <span class="badge bg-secondary-subtle text-secondary ms-1 small">Archived</span>

@@ -326,6 +326,12 @@
                                             <span class="badge bg-light text-dark border font-monospace ms-1" style="font-size: 0.68rem;">@item.SizeLabel</span>
                                         }
                                     </div>
+                                    @if (!string.IsNullOrWhiteSpace(item.SelectedTestersSummary))
+                                    {
+                                        <div class="small fw-semibold mt-0.5" style="color: #630000; font-size: 0.72rem;">
+                                            <i class="fa-solid fa-vials me-1"></i>تيسترات: @item.SelectedTestersSummary
+                                        </div>
+                                    }
                                     <div class="small text-muted">Qty: <strong>@item.Quantity</strong> &times; @item.UnitPrice.ToString("N2") EGP</div>
                                 </div>
                                 <div class="fw-bold text-dark small text-nowrap">

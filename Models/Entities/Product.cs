@@ -39,10 +39,15 @@ public class Product
     public bool IsFragranceProfileApproved { get; set; } = false;
     public DateTime? FragranceProfileReviewedAt { get; set; }
 
+    // Tester / Discovery Pack Configuration
+    public bool IsTester { get; set; } = false;
+    public int TesterRequiredCount { get; set; } = 4;
+
     public int CategoryId { get; set; }
     public Category? Category { get; set; }
     public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
     public ICollection<ProductSize> ProductSizes { get; set; } = new List<ProductSize>();
+    public ICollection<ProductTesterOption> TesterOptions { get; set; } = new List<ProductTesterOption>();
 
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     public ICollection<InventoryTransaction> InventoryTransactions { get; set; } = new List<InventoryTransaction>();

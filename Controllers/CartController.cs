@@ -42,12 +42,14 @@ public class CartController : Controller
     // POST: /Cart/AddToCart
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddToCart(int productId, int quantity = 1, int? sizeId = null)
+    public async Task<IActionResult> AddToCart(int productId, int quantity = 1, int? sizeId = null, string? testerIds = null)
     {
         if (quantity < 1) quantity = 1;
 
         var product = await _context.Products
             .Include(p => p.ProductSizes)
+            .Include(p => p.TesterOptions)
+                .ThenInclude(t => t.FragranceProduct)
             .FirstOrDefaultAsync(p => p.Id == productId && p.IsActive && p.IsPublished);
 
         if (product == null)
@@ -60,6 +62,36 @@ public class CartController : Controller
             return Json(new { success = false, message = $"Sorry, '{product.Name}' is currently out of stock." });
         }
 
+        var selectedTesterIds = new List<int>();
+        string? selectedTestersSummary = null;
+
+        if (product.IsTester)
+        {
+            int reqCount = product.TesterRequiredCount > 0 ? product.TesterRequiredCount : 4;
+            var allowedLookup = product.TesterOptions
+                .Where(o => o.FragranceProduct != null && o.FragranceProduct.IsActive)
+                .ToDictionary(o => o.FragranceProductId, o => o.FragranceProduct!.Name);
+
+            var parsedIds = (testerIds ?? string.Empty)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(s => int.TryParse(s, out var tid) ? tid : 0)
+                .Where(tid => tid > 0 && allowedLookup.ContainsKey(tid))
+                .Distinct()
+                .ToList();
+
+            if (parsedIds.Count != reqCount)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"هذا المنتج تيستر ويتطلب اختيار {reqCount} عطور بالضبط من القائمة المتاحة."
+                });
+            }
+
+            selectedTestersSummary = string.Join("، ", parsedIds.Select(id => allowedLookup[id]));
+            selectedTesterIds = parsedIds.OrderBy(id => id).ToList();
+        }
+
         var selectedSize = sizeId.HasValue && sizeId.Value > 0
             ? product.ProductSizes.FirstOrDefault(s => s.Id == sizeId.Value)
             : (product.ProductSizes.OrderByDescending(s => s.IsDefault).ThenBy(s => s.DisplayOrder).FirstOrDefault());
@@ -67,8 +99,12 @@ public class CartController : Controller
         var resolvedSizeId = selectedSize?.Id;
         var resolvedSizeLabel = selectedSize?.SizeLabel;
 
+        var candidateKey = selectedTesterIds.Any()
+            ? $"{productId}_{resolvedSizeId ?? 0}_{string.Join("-", selectedTesterIds)}"
+            : $"{productId}_{resolvedSizeId ?? 0}";
+
         var cart = GetCartFromSession();
-        var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId && i.ProductSizeId == resolvedSizeId);
+        var existingItem = cart.Items.FirstOrDefault(i => string.Equals(i.LineKey, candidateKey, StringComparison.Ordinal));
         var currentTotalProductQty = cart.Items.Where(i => i.ProductId == productId).Sum(i => i.Quantity);
 
         var targetTotalQty = currentTotalProductQty + quantity;
@@ -101,6 +137,8 @@ public class CartController : Controller
             existingItem.Quantity = targetQuantity;
             existingItem.UnitPrice = effectivePrice;
             existingItem.SizeLabel = resolvedSizeLabel;
+            existingItem.SelectedTesterProductIds = selectedTesterIds;
+            existingItem.SelectedTestersSummary = selectedTestersSummary;
             existingItem.StockAvailable = product.StockQuantity;
         }
         else
@@ -110,6 +148,8 @@ public class CartController : Controller
                 ProductId = product.Id,
                 ProductSizeId = resolvedSizeId,
                 SizeLabel = resolvedSizeLabel,
+                SelectedTesterProductIds = selectedTesterIds,
+                SelectedTestersSummary = selectedTestersSummary,
                 ProductName = product.Name,
                 Sku = product.Sku ?? "",
                 UnitPrice = effectivePrice,
@@ -285,10 +325,12 @@ public class CartController : Controller
     // POST: /Cart/UpdateQuantity
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateQuantity(int productId, int quantity, int? sizeId = null)
+    public async Task<IActionResult> UpdateQuantity(int productId, int quantity, int? sizeId = null, string? lineKey = null)
     {
         var cart = GetCartFromSession();
-        var item = cart.Items.FirstOrDefault(i => i.ProductId == productId && (!sizeId.HasValue || i.ProductSizeId == sizeId.Value));
+        var item = !string.IsNullOrWhiteSpace(lineKey)
+            ? cart.Items.FirstOrDefault(i => string.Equals(i.LineKey, lineKey, StringComparison.Ordinal))
+            : cart.Items.FirstOrDefault(i => i.ProductId == productId && (!sizeId.HasValue || i.ProductSizeId == sizeId.Value));
 
         if (item == null)
         {
@@ -373,10 +415,12 @@ public class CartController : Controller
     // POST: /Cart/RemoveFromCart
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult RemoveFromCart(int productId, int? sizeId = null)
+    public IActionResult RemoveFromCart(int productId, int? sizeId = null, string? lineKey = null)
     {
         var cart = GetCartFromSession();
-        var item = cart.Items.FirstOrDefault(i => i.ProductId == productId && (!sizeId.HasValue || i.ProductSizeId == sizeId.Value));
+        var item = !string.IsNullOrWhiteSpace(lineKey)
+            ? cart.Items.FirstOrDefault(i => string.Equals(i.LineKey, lineKey, StringComparison.Ordinal))
+            : cart.Items.FirstOrDefault(i => i.ProductId == productId && (!sizeId.HasValue || i.ProductSizeId == sizeId.Value));
 
         if (item != null)
         {
