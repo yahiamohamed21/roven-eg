@@ -123,13 +123,10 @@
 
             <!-- Right: Details & Purchase Actions -->
             <div class="col-12 col-md-6 d-flex flex-column">
-                <!-- Badges & SKU Row -->
+                <!-- Category & Stock Badges Row -->
                 <div class="d-flex align-items-center flex-wrap gap-1.5 gap-sm-2 mb-2">
                     <span class="badge px-3 py-1.5 rounded-pill" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99, 0, 0, 0.2); font-size: 0.78rem; font-weight: 700;">
                         <i class="fa-solid fa-tag me-1"></i>@p.CategoryName
-                    </span>
-                    <span class="badge bg-light text-muted border rounded-pill px-2.5 py-1 font-monospace" style="font-size: 0.75rem;">
-                        SKU: @p.Sku
                     </span>
                     @if (p.StockQuantity > 0 && p.StockQuantity <= 5)
                     {
