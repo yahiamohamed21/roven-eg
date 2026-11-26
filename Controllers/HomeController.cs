@@ -385,6 +385,8 @@ public class HomeController : Controller
                 .Take(12)
                 .ToListAsync();
 
+            await _context.HydrateSizesAsync(featured.Concat(latest).Concat(bestSellers));
+
             return new StoreHomeViewModel
             {
                 FeaturedProducts = featured,

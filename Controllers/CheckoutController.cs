@@ -166,6 +166,7 @@ public class CheckoutController : Controller
                 Items = cart.Items.Select(i => new CreateOrderItemRequest
                 {
                     ProductId = i.ProductId,
+                    ProductSizeId = i.ProductSizeId,
                     Quantity = i.Quantity
                 }).ToList()
             };
@@ -258,6 +259,8 @@ public class CheckoutController : Controller
         var itemsSummary = cart.Items.Select(i => new
         {
             ProductId = i.ProductId,
+            ProductSizeId = i.ProductSizeId,
+            SizeLabel = i.SizeLabel,
             ProductName = i.ProductName,
             Quantity = i.Quantity,
             UnitPrice = i.UnitPrice,

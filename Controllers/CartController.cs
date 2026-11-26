@@ -42,11 +42,12 @@ public class CartController : Controller
     // POST: /Cart/AddToCart
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
+    public async Task<IActionResult> AddToCart(int productId, int quantity = 1, int? sizeId = null)
     {
         if (quantity < 1) quantity = 1;
 
         var product = await _context.Products
+            .Include(p => p.ProductSizes)
             .FirstOrDefaultAsync(p => p.Id == productId && p.IsActive && p.IsPublished);
 
         if (product == null)
@@ -59,11 +60,19 @@ public class CartController : Controller
             return Json(new { success = false, message = $"Sorry, '{product.Name}' is currently out of stock." });
         }
 
-        var cart = GetCartFromSession();
-        var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+        var selectedSize = sizeId.HasValue && sizeId.Value > 0
+            ? product.ProductSizes.FirstOrDefault(s => s.Id == sizeId.Value)
+            : (product.ProductSizes.OrderByDescending(s => s.IsDefault).ThenBy(s => s.DisplayOrder).FirstOrDefault());
 
-        var targetQuantity = (existingItem?.Quantity ?? 0) + quantity;
-        if (targetQuantity > product.StockQuantity)
+        var resolvedSizeId = selectedSize?.Id;
+        var resolvedSizeLabel = selectedSize?.SizeLabel;
+
+        var cart = GetCartFromSession();
+        var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId && i.ProductSizeId == resolvedSizeId);
+        var currentTotalProductQty = cart.Items.Where(i => i.ProductId == productId).Sum(i => i.Quantity);
+
+        var targetTotalQty = currentTotalProductQty + quantity;
+        if (targetTotalQty > product.StockQuantity)
         {
             return Json(new
             {
@@ -72,15 +81,26 @@ public class CartController : Controller
             });
         }
 
-        // Determine effective price: Check if product is part of an active HomeOffer
-        var activeOffer = await _context.HomeOffers
-            .FirstOrDefaultAsync(o => o.ProductId == productId && o.IsActive);
-        var effectivePrice = (activeOffer != null && activeOffer.OfferPrice > 0) ? activeOffer.OfferPrice : product.Price;
+        var targetQuantity = (existingItem?.Quantity ?? 0) + quantity;
+
+        // Determine effective price: explicit non-default size uses exact size price; default size respects any active HomeOffer
+        var baseSizePrice = selectedSize?.SellingPrice ?? product.Price;
+        decimal effectivePrice = baseSizePrice;
+        if (selectedSize == null || selectedSize.IsDefault)
+        {
+            var activeOffer = await _context.HomeOffers
+                .FirstOrDefaultAsync(o => o.ProductId == productId && o.IsActive);
+            if (activeOffer != null && activeOffer.OfferPrice > 0)
+            {
+                effectivePrice = activeOffer.OfferPrice;
+            }
+        }
 
         if (existingItem != null)
         {
             existingItem.Quantity = targetQuantity;
-            existingItem.UnitPrice = effectivePrice; // keep refreshed with offer price
+            existingItem.UnitPrice = effectivePrice;
+            existingItem.SizeLabel = resolvedSizeLabel;
             existingItem.StockAvailable = product.StockQuantity;
         }
         else
@@ -88,6 +108,8 @@ public class CartController : Controller
             cart.Items.Add(new CartItemViewModel
             {
                 ProductId = product.Id,
+                ProductSizeId = resolvedSizeId,
+                SizeLabel = resolvedSizeLabel,
                 ProductName = product.Name,
                 Sku = product.Sku ?? "",
                 UnitPrice = effectivePrice,
@@ -99,11 +121,15 @@ public class CartController : Controller
 
         SaveCartToSession(cart);
 
+        var displayTitle = string.IsNullOrWhiteSpace(resolvedSizeLabel)
+            ? product.Name
+            : $"{product.Name} ({resolvedSizeLabel})";
+
         return Json(new
         {
             success = true,
             cartCount = cart.TotalItemCount,
-            message = $"'{product.Name}' added to your shopping cart."
+            message = $"'{displayTitle}' added to your shopping cart."
         });
     }
 
@@ -113,9 +139,9 @@ public class CartController : Controller
     public async Task<IActionResult> AddOfferToCart(int offerId)
     {
         var offer = await _context.HomeOffers
-            .Include(o => o.Product)
-            .Include(o => o.SecondProduct)
-            .Include(o => o.ThirdProduct)
+            .Include(o => o.Product).ThenInclude(p => p!.ProductSizes)
+            .Include(o => o.SecondProduct).ThenInclude(p => p!.ProductSizes)
+            .Include(o => o.ThirdProduct).ThenInclude(p => p!.ProductSizes)
             .FirstOrDefaultAsync(o => o.Id == offerId && o.IsActive);
 
         if (offer == null || offer.Product == null || !offer.Product.IsActive || !offer.Product.IsPublished)
@@ -174,11 +200,17 @@ public class CartController : Controller
                     allocatedSum += curPrice;
                 }
 
-                var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == curProd.Id);
+                var defSize = curProd.ProductSizes
+                    .OrderByDescending(s => s.IsDefault)
+                    .ThenBy(s => s.DisplayOrder)
+                    .FirstOrDefault();
+
+                var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == curProd.Id && i.ProductSizeId == defSize?.Id);
                 if (existingItem != null)
                 {
                     existingItem.Quantity += 1;
                     existingItem.UnitPrice = curPrice;
+                    existingItem.SizeLabel = defSize?.SizeLabel;
                     existingItem.StockAvailable = curProd.StockQuantity;
                 }
                 else
@@ -186,6 +218,8 @@ public class CartController : Controller
                     cart.Items.Add(new CartItemViewModel
                     {
                         ProductId = curProd.Id,
+                        ProductSizeId = defSize?.Id,
+                        SizeLabel = defSize?.SizeLabel,
                         ProductName = curProd.Name,
                         Sku = curProd.Sku ?? "",
                         UnitPrice = curPrice,
@@ -209,11 +243,16 @@ public class CartController : Controller
         {
             // Single Product Offer
             var effectivePrice = offer.OfferPrice > 0 ? offer.OfferPrice : prod1.Price;
-            var item1 = cart.Items.FirstOrDefault(i => i.ProductId == prod1.Id);
+            var defSize1 = prod1.ProductSizes
+                .OrderByDescending(s => s.IsDefault)
+                .ThenBy(s => s.DisplayOrder)
+                .FirstOrDefault();
+            var item1 = cart.Items.FirstOrDefault(i => i.ProductId == prod1.Id && i.ProductSizeId == defSize1?.Id);
             if (item1 != null)
             {
                 item1.Quantity += 1;
                 item1.UnitPrice = effectivePrice;
+                item1.SizeLabel = defSize1?.SizeLabel;
                 item1.StockAvailable = prod1.StockQuantity;
             }
             else
@@ -221,6 +260,8 @@ public class CartController : Controller
                 cart.Items.Add(new CartItemViewModel
                 {
                     ProductId = prod1.Id,
+                    ProductSizeId = defSize1?.Id,
+                    SizeLabel = defSize1?.SizeLabel,
                     ProductName = prod1.Name,
                     Sku = prod1.Sku ?? "",
                     UnitPrice = effectivePrice,
@@ -244,10 +285,10 @@ public class CartController : Controller
     // POST: /Cart/UpdateQuantity
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateQuantity(int productId, int quantity)
+    public async Task<IActionResult> UpdateQuantity(int productId, int quantity, int? sizeId = null)
     {
         var cart = GetCartFromSession();
-        var item = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+        var item = cart.Items.FirstOrDefault(i => i.ProductId == productId && (!sizeId.HasValue || i.ProductSizeId == sizeId.Value));
 
         if (item == null)
         {
@@ -269,21 +310,49 @@ public class CartController : Controller
             });
         }
 
-        var product = await _context.Products.FindAsync(productId);
-        if (product != null && quantity > product.StockQuantity)
+        var product = await _context.Products
+            .Include(p => p.ProductSizes)
+            .FirstOrDefaultAsync(p => p.Id == productId);
+
+        var otherSizeQty = cart.Items
+            .Where(i => i.ProductId == productId && !ReferenceEquals(i, item))
+            .Sum(i => i.Quantity);
+
+        if (product != null && (otherSizeQty + quantity) > product.StockQuantity)
         {
+            var remainingForThisLine = Math.Max(1, product.StockQuantity - otherSizeQty);
             return Json(new
             {
                 success = false,
-                message = $"Only {product.StockQuantity} unit(s) available in stock.",
-                stockAvailable = product.StockQuantity
+                message = $"Only {product.StockQuantity} unit(s) available in stock across selected sizes.",
+                stockAvailable = remainingForThisLine
             });
         }
 
         item.Quantity = quantity;
         if (product != null)
         {
-            item.UnitPrice = product.Price;
+            var matchedSize = item.ProductSizeId.HasValue
+                ? product.ProductSizes.FirstOrDefault(s => s.Id == item.ProductSizeId.Value)
+                : product.ProductSizes.OrderByDescending(s => s.IsDefault).ThenBy(s => s.DisplayOrder).FirstOrDefault();
+
+            var unitPrice = matchedSize?.SellingPrice ?? product.Price;
+            if (matchedSize == null || matchedSize.IsDefault)
+            {
+                var activeOffer = await _context.HomeOffers
+                    .FirstOrDefaultAsync(o => o.ProductId == productId && o.IsActive);
+                if (activeOffer != null && activeOffer.OfferPrice > 0)
+                {
+                    unitPrice = activeOffer.OfferPrice;
+                }
+            }
+
+            item.UnitPrice = unitPrice;
+            if (matchedSize != null)
+            {
+                item.ProductSizeId = matchedSize.Id;
+                item.SizeLabel = matchedSize.SizeLabel;
+            }
             item.StockAvailable = product.StockQuantity;
         }
 
@@ -304,10 +373,10 @@ public class CartController : Controller
     // POST: /Cart/RemoveFromCart
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult RemoveFromCart(int productId)
+    public IActionResult RemoveFromCart(int productId, int? sizeId = null)
     {
         var cart = GetCartFromSession();
-        var item = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+        var item = cart.Items.FirstOrDefault(i => i.ProductId == productId && (!sizeId.HasValue || i.ProductSizeId == sizeId.Value));
 
         if (item != null)
         {

@@ -38,6 +38,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ProductSeason> ProductSeasons => Set<ProductSeason>();
     public DbSet<ProductFragranceNote> ProductFragranceNotes => Set<ProductFragranceNote>();
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
+    public DbSet<ProductSize> ProductSizes => Set<ProductSize>();
 
     // Bidirectional Catalog Synchronization (Phase 7)
     public DbSet<SyncOutboxEvent> SyncOutboxEvents => Set<SyncOutboxEvent>();
@@ -181,6 +182,27 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<Product>(b =>
         {
             b.HasIndex(p => p.IsFragranceProfileApproved);
+            b.Property(p => p.CostPrice).HasPrecision(18, 2);
+            b.Property(p => p.ProfitAmount).HasPrecision(18, 2);
+        });
+
+        builder.Entity<ProductSize>(b =>
+        {
+            b.Property(ps => ps.CostPrice).HasPrecision(18, 2);
+            b.Property(ps => ps.ProfitAmount).HasPrecision(18, 2);
+            b.Property(ps => ps.SellingPrice).HasPrecision(18, 2);
+            b.HasOne(ps => ps.Product)
+             .WithMany(p => p.ProductSizes)
+             .HasForeignKey(ps => ps.ProductId)
+             .OnDelete(DeleteBehavior.Cascade);
+            b.HasIndex(ps => ps.ProductId);
+        });
+
+        builder.Entity<OrderItem>(b =>
+        {
+            b.Property(oi => oi.UnitCost).HasPrecision(18, 2);
+            b.Property(oi => oi.UnitProfit).HasPrecision(18, 2);
+            b.Property(oi => oi.UnitPrice).HasPrecision(18, 2);
         });
 
         // Catalog Sync Configurations

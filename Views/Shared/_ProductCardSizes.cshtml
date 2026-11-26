@@ -1,0 +1,29 @@
+@model Stockify.ViewModels.Store.StoreProductCardViewModel
+@using System.Globalization
+
+@if (Model.Sizes != null && Model.Sizes.Count > 1)
+{
+    var activeId = Model.DefaultSizeId ?? Model.Sizes[0].Id;
+    <div class="roven-card-sizes d-flex flex-wrap gap-1 my-1.5" role="group" aria-label="اختر حجم الزجاجة">
+        @foreach (var sz in Model.Sizes)
+        {
+            var isSelected = sz.Id == activeId;
+            <button type="button"
+                    class="roven-size-pill @(isSelected ? "active" : "")"
+                    data-size-id="@sz.Id"
+                    data-size-label="@sz.SizeLabel"
+                    data-size-price="@sz.SellingPrice.ToString("0.##", CultureInfo.InvariantCulture)"
+                    onclick="window.selectRovenCardSize(this, event)">
+                @sz.SizeLabel
+            </button>
+        }
+    </div>
+}
+else if (Model.Sizes != null && Model.Sizes.Count == 1)
+{
+    <div class="my-1">
+        <span class="roven-size-single-chip">
+            <i class="fa-solid fa-flask me-1" style="font-size: 0.65rem;"></i>@Model.Sizes[0].SizeLabel
+        </span>
+    </div>
+}

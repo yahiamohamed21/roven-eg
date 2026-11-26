@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Stockify.Common.Extensions;
 using Stockify.Data;
+using Stockify.Models.Entities;
 using Stockify.Models.Enums;
 using Stockify.ViewModels.Reports;
 
@@ -19,6 +20,100 @@ public class ReportsController : Controller
         _context = context;
     }
 
+    private sealed record OrderFinancialSummary(
+        Order Order,
+        decimal ProductSalesNet,
+        decimal TotalCost,
+        decimal NetProfit);
+
+    private static decimal ResolveEffectiveUnitCost(OrderItem oi)
+    {
+        if (oi.UnitCost > 0 || oi.UnitProfit > 0)
+        {
+            return oi.UnitCost;
+        }
+
+        if (oi.Product != null)
+        {
+            if (oi.ProductSizeId.HasValue)
+            {
+                var size = oi.Product.ProductSizes.FirstOrDefault(s => s.Id == oi.ProductSizeId.Value);
+                if (size != null) return size.CostPrice;
+            }
+            return oi.Product.CostPrice;
+        }
+
+        return 0m;
+    }
+
+    private static string ResolveEffectiveSizeLabel(OrderItem oi)
+    {
+        if (!string.IsNullOrWhiteSpace(oi.SizeLabel)) return oi.SizeLabel.Trim();
+        if (oi.Product != null && oi.ProductSizeId.HasValue)
+        {
+            var size = oi.Product.ProductSizes.FirstOrDefault(s => s.Id == oi.ProductSizeId.Value);
+            if (size != null && !string.IsNullOrWhiteSpace(size.SizeLabel)) return size.SizeLabel.Trim();
+        }
+        var def = oi.Product?.ProductSizes.FirstOrDefault(s => s.IsDefault)?.SizeLabel;
+        return !string.IsNullOrWhiteSpace(def) ? def.Trim() : "Standard";
+    }
+
+    private static OrderFinancialSummary SummarizeOrder(Order o)
+    {
+        var itemsGross = o.OrderItems.Sum(i => i.UnitPrice * i.Quantity);
+        var productSalesNet = itemsGross > 0
+            ? Math.Max(0m, itemsGross - o.DiscountAmount)
+            : Math.Max(0m, o.TotalAmount - o.ShippingFee);
+        var totalCost = o.OrderItems.Sum(i => ResolveEffectiveUnitCost(i) * i.Quantity);
+        var netProfit = Math.Round(productSalesNet - totalCost, 2, MidpointRounding.AwayFromZero);
+        return new OrderFinancialSummary(o, productSalesNet, Math.Round(totalCost, 2, MidpointRounding.AwayFromZero), netProfit);
+    }
+
+    private static List<ProductProfitBreakdownItem> BuildProductProfitBreakdown(IEnumerable<Order> nonCancelledOrders)
+    {
+        var rows = new Dictionary<(int ProductId, string SizeLabel), ProductProfitBreakdownItem>();
+
+        foreach (var o in nonCancelledOrders)
+        {
+            var itemsGross = o.OrderItems.Sum(i => i.UnitPrice * i.Quantity);
+            decimal discountRatio = (itemsGross > 0 && o.DiscountAmount > 0)
+                ? Math.Min(1m, o.DiscountAmount / itemsGross)
+                : 0m;
+
+            foreach (var oi in o.OrderItems)
+            {
+                var sizeLabel = ResolveEffectiveSizeLabel(oi);
+                var key = (oi.ProductId, sizeLabel);
+                var grossLine = oi.UnitPrice * oi.Quantity;
+                var netLineSales = Math.Round(grossLine * (1m - discountRatio), 2, MidpointRounding.AwayFromZero);
+                var costLine = Math.Round(ResolveEffectiveUnitCost(oi) * oi.Quantity, 2, MidpointRounding.AwayFromZero);
+                var profitLine = Math.Round(netLineSales - costLine, 2, MidpointRounding.AwayFromZero);
+
+                if (!rows.TryGetValue(key, out var item))
+                {
+                    item = new ProductProfitBreakdownItem
+                    {
+                        ProductId = oi.ProductId,
+                        ProductName = oi.Product?.Name ?? $"Product #{oi.ProductId}",
+                        Sku = oi.Product?.Sku ?? "-",
+                        SizeLabel = sizeLabel
+                    };
+                    rows[key] = item;
+                }
+
+                item.UnitsSold += oi.Quantity;
+                item.TotalRevenue += netLineSales;
+                item.TotalCost += costLine;
+                item.TotalProfit += profitLine;
+            }
+        }
+
+        return rows.Values
+            .OrderByDescending(x => x.TotalProfit)
+            .ThenByDescending(x => x.UnitsSold)
+            .ToList();
+    }
+
     // GET: Reports/Index
     public async Task<IActionResult> Index(string mode = "year", int? year = null, int? month = null)
     {
@@ -28,35 +123,49 @@ public class ReportsController : Controller
 
         var vm = new ReportsViewModel();
 
-        // 1. Live Sales & Revenue Data (Single Combined Query)
-        var orderReportKpis = await _context.Orders.AsNoTracking()
-            .GroupBy(_ => 1)
-            .Select(g => new
-            {
-                MonthlyGrossRevenue = g.Where(o => o.Status != OrderStatus.Cancelled && o.OrderDate >= startOfMonthUtc && o.OrderDate < endOfMonthUtc).Sum(o => o.TotalAmount),
-                TotalRevenueAllTime = g.Where(o => o.Status != OrderStatus.Cancelled).Sum(o => o.TotalAmount),
-                MonthlyOrdersCount = g.Count(o => o.OrderDate >= startOfMonthUtc && o.OrderDate < endOfMonthUtc),
-                TotalOrdersCount = g.Count(),
-                CompletedOrActiveOrdersCount = g.Count(o => o.Status != OrderStatus.Cancelled),
-                WebsiteRevenue = g.Where(o => o.Status != OrderStatus.Cancelled && o.OrderSource == OrderSource.Website).Sum(o => o.TotalAmount),
-                PosRevenue = g.Where(o => o.Status != OrderStatus.Cancelled && o.OrderSource == OrderSource.Manual).Sum(o => o.TotalAmount)
-            })
-            .FirstOrDefaultAsync();
+        // 1. Live Sales, Revenue, Net Cost & Net Profit Data
+        vm.TotalOrdersCount = await _context.Orders.CountAsync();
+        vm.MonthlyOrdersCount = await _context.Orders.CountAsync(o => o.OrderDate >= startOfMonthUtc && o.OrderDate < endOfMonthUtc);
 
-        vm.MonthlyGrossRevenue = orderReportKpis?.MonthlyGrossRevenue ?? 0m;
-        vm.TotalRevenueAllTime = orderReportKpis?.TotalRevenueAllTime ?? 0m;
-        vm.MonthlyOrdersCount = orderReportKpis?.MonthlyOrdersCount ?? 0;
-        vm.TotalOrdersCount = orderReportKpis?.TotalOrdersCount ?? 0;
-        var completedOrActiveOrdersCount = orderReportKpis?.CompletedOrActiveOrdersCount ?? 0;
+        var activeOrders = await _context.Orders
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(p => p!.ProductSizes)
+            .Where(o => o.Status != OrderStatus.Cancelled)
+            .AsNoTracking()
+            .ToListAsync();
 
-        vm.AverageOrderValue = completedOrActiveOrdersCount > 0
-            ? Math.Round(vm.TotalRevenueAllTime / completedOrActiveOrdersCount, 2)
+        var summaries = activeOrders.Select(SummarizeOrder).ToList();
+        var monthlySummaries = summaries
+            .Where(s => s.Order.OrderDate >= startOfMonthUtc && s.Order.OrderDate < endOfMonthUtc)
+            .ToList();
+
+        vm.TotalRevenueAllTime = summaries.Sum(s => s.Order.TotalAmount);
+        vm.TotalNetCostAllTime = summaries.Sum(s => s.TotalCost);
+        vm.TotalNetProfitAllTime = summaries.Sum(s => s.NetProfit);
+        var allTimeNetSales = summaries.Sum(s => s.ProductSalesNet);
+        vm.AllTimeProfitMarginPercent = allTimeNetSales > 0
+            ? Math.Round((vm.TotalNetProfitAllTime / allTimeNetSales) * 100m, 1)
             : 0m;
 
-        vm.WebsiteRevenue = orderReportKpis?.WebsiteRevenue ?? 0m;
-        vm.PosRevenue = orderReportKpis?.PosRevenue ?? 0m;
+        vm.MonthlyGrossRevenue = monthlySummaries.Sum(s => s.Order.TotalAmount);
+        vm.MonthlyNetCost = monthlySummaries.Sum(s => s.TotalCost);
+        vm.MonthlyNetProfit = monthlySummaries.Sum(s => s.NetProfit);
+        var monthlyNetSales = monthlySummaries.Sum(s => s.ProductSalesNet);
+        vm.MonthlyProfitMarginPercent = monthlyNetSales > 0
+            ? Math.Round((vm.MonthlyNetProfit / monthlyNetSales) * 100m, 1)
+            : 0m;
 
-        // 2. Live Inventory Valuation Data
+        vm.AverageOrderValue = summaries.Count > 0
+            ? Math.Round(vm.TotalRevenueAllTime / summaries.Count, 2)
+            : 0m;
+
+        vm.WebsiteRevenue = summaries.Where(s => s.Order.OrderSource == OrderSource.Website).Sum(s => s.Order.TotalAmount);
+        vm.PosRevenue = summaries.Where(s => s.Order.OrderSource == OrderSource.Manual).Sum(s => s.Order.TotalAmount);
+
+        vm.ProductProfitBreakdown = BuildProductProfitBreakdown(activeOrders);
+
+        // 2. Live Inventory Valuation Data (Selling vs Wholesale Cost vs Expected Profit)
         var activeProducts = await _context.Products
             .Where(p => p.IsActive)
             .AsNoTracking()
@@ -65,6 +174,9 @@ public class ReportsController : Controller
         vm.ActiveProductsCount = activeProducts.Count;
         vm.TotalInventoryUnits = activeProducts.Sum(p => p.StockQuantity);
         vm.TotalStockValuation = activeProducts.Sum(p => p.StockQuantity * p.Price);
+        vm.TotalInventoryCostValuation = activeProducts.Sum(p => p.StockQuantity * p.CostPrice);
+        vm.TotalInventoryProjectedProfit = activeProducts.Sum(p =>
+            p.StockQuantity * ((p.CostPrice > 0 || p.ProfitAmount > 0) ? p.ProfitAmount : p.Price));
         vm.LowStockCount = activeProducts.Count(p => p.StockQuantity > 0 && p.StockQuantity <= p.ReorderLevel);
         vm.OutOfStockCount = activeProducts.Count(p => p.StockQuantity <= 0);
 
@@ -88,8 +200,8 @@ public class ReportsController : Controller
             ? Math.Round(vm.TotalRevenueAllTime / vm.ActiveCustomersWithOrders, 2)
             : 0m;
 
-        // 4. Live Dynamic Sales Trend from Database
-        await PopulateChartDataAsync(vm, mode, year, month);
+        // 4. Live Dynamic Sales & Net Profit Trend from Database
+        await PopulateChartDataAsync(vm, mode, year, month, summaries);
 
         return View(vm);
     }
@@ -114,9 +226,13 @@ public class ReportsController : Controller
             success = true,
             labels = vm.ChartMonthLabels,
             actualData = vm.ChartActualRevenue,
+            profitData = vm.ChartNetProfit,
             targetData = vm.ChartTargetRevenue,
             ordersCount = vm.ChartOrdersCount,
             totalRevenue = vm.ChartTotalRevenue,
+            totalCost = vm.ChartTotalCost,
+            totalProfit = vm.ChartTotalProfit,
+            profitMargin = vm.ChartProfitMarginPercent,
             totalOrders = vm.ChartTotalOrders,
             averageRevenue = vm.ChartAverageRevenue,
             peakRevenue = vm.ChartPeakRevenue,
@@ -125,7 +241,12 @@ public class ReportsController : Controller
         });
     }
 
-    private async Task PopulateChartDataAsync(ReportsViewModel vm, string mode, int? year, int? month)
+    private async Task PopulateChartDataAsync(
+        ReportsViewModel vm,
+        string mode,
+        int? year,
+        int? month,
+        List<OrderFinancialSummary>? preloadedSummaries = null)
     {
         var nowEgypt = DateTimeExtensions.EgyptNow;
         int targetYear = year ?? nowEgypt.Year;
@@ -135,15 +256,34 @@ public class ReportsController : Controller
         vm.SelectedYear = targetYear;
         vm.SelectedMonth = targetMonth;
 
+        List<OrderFinancialSummary> allSummaries;
+        if (preloadedSummaries != null)
+        {
+            allSummaries = preloadedSummaries;
+        }
+        else
+        {
+            var nonCancelled = await _context.Orders
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                        .ThenInclude(p => p!.ProductSizes)
+                .Where(o => o.Status != OrderStatus.Cancelled)
+                .AsNoTracking()
+                .ToListAsync();
+            allSummaries = nonCancelled.Select(SummarizeOrder).ToList();
+        }
+
         // Populate available years from database orders + current year
-        var minOrderYear = await _context.Orders
-            .OrderBy(o => o.OrderDate)
-            .Select(o => (int?)o.OrderDate.Year)
-            .FirstOrDefaultAsync();
+        var minOrderYear = allSummaries.Any()
+            ? (int?)allSummaries.Min(s => s.Order.OrderDate.Year)
+            : null;
 
         int currentYear = nowEgypt.Year;
         int startYear = minOrderYear.HasValue && minOrderYear.Value > 2000 ? Math.Min(minOrderYear.Value, currentYear - 3) : currentYear - 3;
         vm.AvailableYears = Enumerable.Range(startYear, (currentYear - startYear) + 2).OrderByDescending(y => y).ToList();
+
+        decimal totalPeriodCost = 0m;
+        decimal totalPeriodNetSales = 0m;
 
         if (vm.FilterMode == "month")
         {
@@ -154,17 +294,24 @@ public class ReportsController : Controller
             var mStartUtc = mStartEgypt.ToUtcFromEgypt();
             var mEndUtc = mEndEgypt.ToUtcFromEgypt();
 
-            var orders = await _context.Orders.AsNoTracking()
-                .Where(o => o.Status != OrderStatus.Cancelled && o.OrderDate >= mStartUtc && o.OrderDate < mEndUtc)
-                .Select(o => new { o.OrderDate, o.TotalAmount })
-                .ToListAsync();
+            var periodOrders = allSummaries
+                .Where(s => s.Order.OrderDate >= mStartUtc && s.Order.OrderDate < mEndUtc)
+                .ToList();
 
-            var ordersByDay = orders
-                .Select(o => new { Day = o.OrderDate.ToEgyptTime().Day, o.TotalAmount })
-                .GroupBy(o => o.Day)
-                .ToDictionary(g => g.Key, g => new { Total = g.Sum(x => x.TotalAmount), Count = g.Count() });
+            var ordersByDay = periodOrders
+                .GroupBy(s => s.Order.OrderDate.ToEgyptTime().Day)
+                .ToDictionary(
+                    g => g.Key,
+                    g => new
+                    {
+                        Revenue = g.Sum(x => x.Order.TotalAmount),
+                        Profit = g.Sum(x => x.NetProfit),
+                        Cost = g.Sum(x => x.TotalCost),
+                        SalesNet = g.Sum(x => x.ProductSalesNet),
+                        Count = g.Count()
+                    });
 
-            decimal avgDailyActual = orders.Any() ? orders.Sum(x => x.TotalAmount) / daysInMonth : 0m;
+            decimal avgDailyActual = periodOrders.Any() ? periodOrders.Sum(x => x.Order.TotalAmount) / daysInMonth : 0m;
 
             for (int day = 1; day <= daysInMonth; day++)
             {
@@ -172,14 +319,19 @@ public class ReportsController : Controller
                 vm.ChartMonthLabels.Add(dayDate.ToString("d MMM"));
 
                 decimal rev = 0m;
+                decimal prof = 0m;
                 int count = 0;
                 if (ordersByDay.TryGetValue(day, out var dayData))
                 {
-                    rev = dayData.Total;
+                    rev = dayData.Revenue;
+                    prof = dayData.Profit;
                     count = dayData.Count;
+                    totalPeriodCost += dayData.Cost;
+                    totalPeriodNetSales += dayData.SalesNet;
                 }
 
                 vm.ChartActualRevenue.Add(rev);
+                vm.ChartNetProfit.Add(prof);
                 vm.ChartOrdersCount.Add(count);
 
                 decimal target = rev > 0 ? Math.Round(rev * 1.20m, 0) : (avgDailyActual > 0 ? Math.Round(avgDailyActual * 1.15m, 0) : 0m);
@@ -197,17 +349,20 @@ public class ReportsController : Controller
                 var mStartUtc = mStartEgypt.ToUtcFromEgypt();
                 var mEndUtc = mEndEgypt.ToUtcFromEgypt();
 
-                var mOrders = await _context.Orders.AsNoTracking()
-                    .Where(o => o.Status != OrderStatus.Cancelled && o.OrderDate >= mStartUtc && o.OrderDate < mEndUtc)
-                    .Select(o => o.TotalAmount)
-                    .ToListAsync();
+                var mOrders = allSummaries
+                    .Where(s => s.Order.OrderDate >= mStartUtc && s.Order.OrderDate < mEndUtc)
+                    .ToList();
 
-                decimal rev = mOrders.Sum();
+                decimal rev = mOrders.Sum(s => s.Order.TotalAmount);
+                decimal prof = mOrders.Sum(s => s.NetProfit);
+                totalPeriodCost += mOrders.Sum(s => s.TotalCost);
+                totalPeriodNetSales += mOrders.Sum(s => s.ProductSalesNet);
                 int count = mOrders.Count;
                 decimal target = rev > 0 ? Math.Round(rev * 1.20m, 0) : 0m;
 
                 vm.ChartMonthLabels.Add(mStartEgypt.ToString("MMM yyyy"));
                 vm.ChartActualRevenue.Add(rev);
+                vm.ChartNetProfit.Add(prof);
                 vm.ChartTargetRevenue.Add(target);
                 vm.ChartOrdersCount.Add(count);
             }
@@ -222,23 +377,31 @@ public class ReportsController : Controller
                 var mStartUtc = mStartEgypt.ToUtcFromEgypt();
                 var mEndUtc = mEndEgypt.ToUtcFromEgypt();
 
-                var mOrders = await _context.Orders.AsNoTracking()
-                    .Where(o => o.Status != OrderStatus.Cancelled && o.OrderDate >= mStartUtc && o.OrderDate < mEndUtc)
-                    .Select(o => o.TotalAmount)
-                    .ToListAsync();
+                var mOrders = allSummaries
+                    .Where(s => s.Order.OrderDate >= mStartUtc && s.Order.OrderDate < mEndUtc)
+                    .ToList();
 
-                decimal rev = mOrders.Sum();
+                decimal rev = mOrders.Sum(s => s.Order.TotalAmount);
+                decimal prof = mOrders.Sum(s => s.NetProfit);
+                totalPeriodCost += mOrders.Sum(s => s.TotalCost);
+                totalPeriodNetSales += mOrders.Sum(s => s.ProductSalesNet);
                 int count = mOrders.Count;
                 decimal target = rev > 0 ? Math.Round(rev * 1.20m, 0) : 0m;
 
                 vm.ChartMonthLabels.Add(mStartEgypt.ToString("MMM yyyy"));
                 vm.ChartActualRevenue.Add(rev);
+                vm.ChartNetProfit.Add(prof);
                 vm.ChartTargetRevenue.Add(target);
                 vm.ChartOrdersCount.Add(count);
             }
         }
 
         vm.ChartTotalRevenue = vm.ChartActualRevenue.Sum();
+        vm.ChartTotalCost = Math.Round(totalPeriodCost, 2);
+        vm.ChartTotalProfit = vm.ChartNetProfit.Sum();
+        vm.ChartProfitMarginPercent = totalPeriodNetSales > 0
+            ? Math.Round((vm.ChartTotalProfit / totalPeriodNetSales) * 100m, 1)
+            : 0m;
         vm.ChartTotalOrders = vm.ChartOrdersCount.Sum();
         vm.ChartAverageRevenue = vm.ChartActualRevenue.Count > 0 ? Math.Round(vm.ChartTotalRevenue / vm.ChartActualRevenue.Count, 2) : 0m;
 
@@ -298,17 +461,37 @@ public class ReportsController : Controller
         ovHeader.Style.Fill.BackgroundColor = XLColor.FromHtml("#630000");
         wsOverview.Row(4).Height = 24;
 
-        // Data queries
-        var totalRev = await _context.Orders.Where(o => o.Status != OrderStatus.Cancelled).SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
-        var monthRev = await _context.Orders.Where(o => o.Status != OrderStatus.Cancelled && o.OrderDate >= startOfMonthUtc && o.OrderDate < endOfMonthUtc).SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
-        var websiteRev = await _context.Orders.Where(o => o.Status != OrderStatus.Cancelled && o.OrderSource == OrderSource.Website).SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
-        var posRev = await _context.Orders.Where(o => o.Status != OrderStatus.Cancelled && o.OrderSource == OrderSource.Manual).SumAsync(o => (decimal?)o.TotalAmount) ?? 0m;
-        var totalOrders = await _context.Orders.CountAsync();
-        var nonCancelledOrders = await _context.Orders.CountAsync(o => o.Status != OrderStatus.Cancelled);
+        var activeExportOrders = await _context.Orders
+            .Include(o => o.Customer)
+            .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                    .ThenInclude(p => p!.ProductSizes)
+            .OrderByDescending(o => o.OrderDate)
+            .AsNoTracking()
+            .ToListAsync();
+
+        var exportSummaries = activeExportOrders
+            .Where(o => o.Status != OrderStatus.Cancelled)
+            .Select(SummarizeOrder)
+            .ToList();
+
+        var totalRev = exportSummaries.Sum(s => s.Order.TotalAmount);
+        var totalNetCostAll = exportSummaries.Sum(s => s.TotalCost);
+        var totalNetProfitAll = exportSummaries.Sum(s => s.NetProfit);
+        var monthSummaries = exportSummaries.Where(s => s.Order.OrderDate >= startOfMonthUtc && s.Order.OrderDate < endOfMonthUtc).ToList();
+        var monthRev = monthSummaries.Sum(s => s.Order.TotalAmount);
+        var monthNetCost = monthSummaries.Sum(s => s.TotalCost);
+        var monthNetProfit = monthSummaries.Sum(s => s.NetProfit);
+        var websiteRev = exportSummaries.Where(s => s.Order.OrderSource == OrderSource.Website).Sum(s => s.Order.TotalAmount);
+        var posRev = exportSummaries.Where(s => s.Order.OrderSource == OrderSource.Manual).Sum(s => s.Order.TotalAmount);
+        var totalOrders = activeExportOrders.Count;
+        var nonCancelledOrders = exportSummaries.Count;
         var aov = nonCancelledOrders > 0 ? Math.Round(totalRev / nonCancelledOrders, 2) : 0m;
 
         var products = await _context.Products.Include(p => p.Category).Where(p => p.IsActive).AsNoTracking().ToListAsync();
         var totalStockVal = products.Sum(p => p.StockQuantity * p.Price);
+        var totalStockCostVal = products.Sum(p => p.StockQuantity * p.CostPrice);
+        var totalStockProjectedProfit = products.Sum(p => p.StockQuantity * ((p.CostPrice > 0 || p.ProfitAmount > 0) ? p.ProfitAmount : p.Price));
         var totalStockUnits = products.Sum(p => p.StockQuantity);
         var lowStockUnits = products.Count(p => p.StockQuantity > 0 && p.StockQuantity <= p.ReorderLevel);
         var outOfStockCount = products.Count(p => p.StockQuantity <= 0);
@@ -320,13 +503,19 @@ public class ReportsController : Controller
 
         var kpiRows = new (string Domain, string Name, object Value, string Unit)[]
         {
-            ("Sales & Revenue", "Gross Revenue (All Time)", totalRev.ToString("N2"), "EGP"),
-            ("Sales & Revenue", "Monthly Gross Revenue (Current Month)", monthRev.ToString("N2"), "EGP"),
-            ("Sales & Revenue", "E-Commerce Online Revenue", websiteRev.ToString("N2"), "EGP"),
-            ("Sales & Revenue", "POS Boutique Counter Revenue", posRev.ToString("N2"), "EGP"),
-            ("Sales & Revenue", "Total Orders Recorded", totalOrders, "Orders"),
-            ("Sales & Revenue", "Average Order Value (AOV)", aov.ToString("N2"), "EGP / Order"),
-            ("Inventory & Flacons", "Total Stock Asset Valuation", totalStockVal.ToString("N2"), "EGP"),
+            ("Sales & Profit", "Gross Revenue (All Time)", totalRev.ToString("N2"), "EGP"),
+            ("Sales & Profit", "Total Net Cost / COGS (All Time)", totalNetCostAll.ToString("N2"), "EGP"),
+            ("Sales & Profit", "All-Time Net Profit (صافي المكسب)", totalNetProfitAll.ToString("N2"), "EGP"),
+            ("Sales & Profit", "Monthly Gross Revenue (Current Month)", monthRev.ToString("N2"), "EGP"),
+            ("Sales & Profit", "Monthly Net Cost (Current Month)", monthNetCost.ToString("N2"), "EGP"),
+            ("Sales & Profit", "Monthly Net Profit (صافي مكسب الشهر)", monthNetProfit.ToString("N2"), "EGP"),
+            ("Sales & Profit", "E-Commerce Online Revenue", websiteRev.ToString("N2"), "EGP"),
+            ("Sales & Profit", "POS Boutique Counter Revenue", posRev.ToString("N2"), "EGP"),
+            ("Sales & Profit", "Total Orders Recorded", totalOrders, "Orders"),
+            ("Sales & Profit", "Average Order Value (AOV)", aov.ToString("N2"), "EGP / Order"),
+            ("Inventory & Flacons", "Total Stock Selling Valuation", totalStockVal.ToString("N2"), "EGP"),
+            ("Inventory & Flacons", "Total Stock Wholesale Net Cost", totalStockCostVal.ToString("N2"), "EGP"),
+            ("Inventory & Flacons", "Projected Profit From Stock", totalStockProjectedProfit.ToString("N2"), "EGP"),
             ("Inventory & Flacons", "Total Flacons In Reserves", totalStockUnits, "Bottles / Flacons"),
             ("Inventory & Flacons", "Active Fragrance References", products.Count, "SKUs"),
             ("Inventory & Flacons", "Low Stock Fragrance Alerts", lowStockUnits, "Products"),
@@ -360,14 +549,14 @@ public class ReportsController : Controller
         // Sheet 2: Sales & Orders Ledger
         // -------------------------------------------------------------
         var wsSales = workbook.Worksheets.Add("Sales & Orders Ledger");
-        wsSales.Cell(1, 1).Value = "ROVEN - OMNICHANNEL SALES TRANSACTIONS LEDGER";
-        wsSales.Range(1, 1, 1, 9).Merge();
+        wsSales.Cell(1, 1).Value = "ROVEN - OMNICHANNEL SALES & PROFIT LEDGER";
+        wsSales.Range(1, 1, 1, 11).Merge();
         wsSales.Cell(1, 1).Style.Font.Bold = true;
         wsSales.Cell(1, 1).Style.Font.FontSize = 13;
         wsSales.Cell(1, 1).Style.Font.FontColor = XLColor.FromHtml("#630000");
         wsSales.Row(1).Height = 26;
 
-        string[] salesHeaders = { "Order #", "Order Date", "Sales Channel", "Customer", "Phone", "Shipping City", "Units", "Status", "Amount (EGP)" };
+        string[] salesHeaders = { "Order #", "Order Date", "Sales Channel", "Customer", "Phone", "Shipping City", "Units", "Status", "Order Total (EGP)", "Net Cost (EGP)", "Net Profit (EGP)" };
         for (int i = 0; i < salesHeaders.Length; i++)
         {
             var c = wsSales.Cell(3, i + 1);
@@ -379,16 +568,12 @@ public class ReportsController : Controller
         }
         wsSales.Row(3).Height = 24;
 
-        var allOrders = await _context.Orders
-            .Include(o => o.Customer)
-            .Include(o => o.OrderItems)
-            .OrderByDescending(o => o.OrderDate)
-            .AsNoTracking()
-            .ToListAsync();
+        var allOrders = activeExportOrders;
 
         int sRow = 4;
         foreach (var ord in allOrders)
         {
+            var fin = SummarizeOrder(ord);
             wsSales.Cell(sRow, 1).Value = ord.OrderNumber;
             wsSales.Cell(sRow, 1).Style.Font.Bold = true;
             wsSales.Cell(sRow, 2).Value = ord.OrderDate.ToEgyptTime().ToString("yyyy-MM-dd HH:mm");
@@ -403,8 +588,14 @@ public class ReportsController : Controller
             wsSales.Cell(sRow, 9).Value = ord.TotalAmount;
             wsSales.Cell(sRow, 9).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
             wsSales.Cell(sRow, 9).Style.Font.Bold = true;
+            wsSales.Cell(sRow, 10).Value = fin.TotalCost;
+            wsSales.Cell(sRow, 10).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsSales.Cell(sRow, 11).Value = fin.NetProfit;
+            wsSales.Cell(sRow, 11).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsSales.Cell(sRow, 11).Style.Font.Bold = true;
+            wsSales.Cell(sRow, 11).Style.Font.FontColor = XLColor.FromHtml("#198754");
 
-            var rRange = wsSales.Range(sRow, 1, sRow, 9);
+            var rRange = wsSales.Range(sRow, 1, sRow, 11);
             rRange.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
             rRange.Style.Border.BottomBorderColor = XLColor.FromHtml("#e8e3d5");
             if (sRow % 2 == 1) rRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#FAF9F5");
@@ -419,11 +610,17 @@ public class ReportsController : Controller
             wsSales.Cell(sRow, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
             wsSales.Cell(sRow, 7).Value = allOrders.Where(o => o.Status != OrderStatus.Cancelled).Sum(o => o.OrderItems.Sum(i => i.Quantity));
             wsSales.Cell(sRow, 7).Style.Font.Bold = true;
-            wsSales.Cell(sRow, 9).Value = allOrders.Where(o => o.Status != OrderStatus.Cancelled).Sum(o => o.TotalAmount);
+            wsSales.Cell(sRow, 9).Value = totalRev;
             wsSales.Cell(sRow, 9).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
             wsSales.Cell(sRow, 9).Style.Font.Bold = true;
+            wsSales.Cell(sRow, 10).Value = totalNetCostAll;
+            wsSales.Cell(sRow, 10).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsSales.Cell(sRow, 10).Style.Font.Bold = true;
+            wsSales.Cell(sRow, 11).Value = totalNetProfitAll;
+            wsSales.Cell(sRow, 11).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsSales.Cell(sRow, 11).Style.Font.Bold = true;
 
-            var tot = wsSales.Range(sRow, 1, sRow, 9);
+            var tot = wsSales.Range(sRow, 1, sRow, 11);
             tot.Style.Fill.BackgroundColor = XLColor.FromHtml("#EDEBDD");
             tot.Style.Border.TopBorder = XLBorderStyleValues.Medium;
             tot.Style.Border.BottomBorder = XLBorderStyleValues.Double;
@@ -432,17 +629,78 @@ public class ReportsController : Controller
         wsSales.Columns().AdjustToContents();
 
         // -------------------------------------------------------------
+        // Sheet 2b: Profit Breakdown By Product & Size
+        // -------------------------------------------------------------
+        var wsProfit = workbook.Worksheets.Add("Profit By Product & Size");
+        wsProfit.Cell(1, 1).Value = "ROVEN - NET PROFIT BREAKDOWN BY PRODUCT & SIZE";
+        wsProfit.Range(1, 1, 1, 7).Merge();
+        wsProfit.Cell(1, 1).Style.Font.Bold = true;
+        wsProfit.Cell(1, 1).Style.Font.FontSize = 13;
+        wsProfit.Cell(1, 1).Style.Font.FontColor = XLColor.FromHtml("#630000");
+        wsProfit.Row(1).Height = 26;
+
+        string[] profitHeaders = { "SKU", "Fragrance Name", "Size", "Units Sold", "Net Sales (EGP)", "Net Cost (EGP)", "Net Profit (EGP)" };
+        for (int i = 0; i < profitHeaders.Length; i++)
+        {
+            var c = wsProfit.Cell(3, i + 1);
+            c.Value = profitHeaders[i];
+            c.Style.Font.Bold = true;
+            c.Style.Font.FontColor = XLColor.FromHtml("#EDEBDD");
+            c.Style.Fill.BackgroundColor = XLColor.FromHtml("#630000");
+        }
+        wsProfit.Row(3).Height = 24;
+
+        var breakdown = BuildProductProfitBreakdown(activeExportOrders.Where(o => o.Status != OrderStatus.Cancelled));
+        int pRow = 4;
+        foreach (var item in breakdown)
+        {
+            wsProfit.Cell(pRow, 1).Value = item.Sku;
+            wsProfit.Cell(pRow, 2).Value = item.ProductName;
+            wsProfit.Cell(pRow, 2).Style.Font.Bold = true;
+            wsProfit.Cell(pRow, 3).Value = item.SizeLabel;
+            wsProfit.Cell(pRow, 4).Value = item.UnitsSold;
+            wsProfit.Cell(pRow, 4).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            wsProfit.Cell(pRow, 5).Value = item.TotalRevenue;
+            wsProfit.Cell(pRow, 5).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsProfit.Cell(pRow, 6).Value = item.TotalCost;
+            wsProfit.Cell(pRow, 6).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsProfit.Cell(pRow, 7).Value = item.TotalProfit;
+            wsProfit.Cell(pRow, 7).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsProfit.Cell(pRow, 7).Style.Font.Bold = true;
+            wsProfit.Cell(pRow, 7).Style.Font.FontColor = XLColor.FromHtml("#198754");
+            wsProfit.Row(pRow).Height = 20;
+            pRow++;
+        }
+        if (breakdown.Any())
+        {
+            wsProfit.Cell(pRow, 1).Value = "TOTAL";
+            wsProfit.Range(pRow, 1, pRow, 3).Merge();
+            wsProfit.Cell(pRow, 1).Style.Font.Bold = true;
+            wsProfit.Cell(pRow, 4).Value = breakdown.Sum(x => x.UnitsSold);
+            wsProfit.Cell(pRow, 5).Value = breakdown.Sum(x => x.TotalRevenue);
+            wsProfit.Cell(pRow, 5).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsProfit.Cell(pRow, 6).Value = breakdown.Sum(x => x.TotalCost);
+            wsProfit.Cell(pRow, 6).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsProfit.Cell(pRow, 7).Value = breakdown.Sum(x => x.TotalProfit);
+            wsProfit.Cell(pRow, 7).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsProfit.Cell(pRow, 7).Style.Font.Bold = true;
+            wsProfit.Range(pRow, 1, pRow, 7).Style.Fill.BackgroundColor = XLColor.FromHtml("#EDEBDD");
+            wsProfit.Row(pRow).Height = 24;
+        }
+        wsProfit.Columns().AdjustToContents();
+
+        // -------------------------------------------------------------
         // Sheet 3: Perfume Inventory Valuation
         // -------------------------------------------------------------
         var wsInv = workbook.Worksheets.Add("Inventory Valuation");
-        wsInv.Cell(1, 1).Value = "ROVEN - ATELIER PERFUME INVENTORY VALUATION";
-        wsInv.Range(1, 1, 1, 8).Merge();
+        wsInv.Cell(1, 1).Value = "ROVEN - ATELIER PERFUME INVENTORY VALUATION & PROFIT";
+        wsInv.Range(1, 1, 1, 10).Merge();
         wsInv.Cell(1, 1).Style.Font.Bold = true;
         wsInv.Cell(1, 1).Style.Font.FontSize = 13;
         wsInv.Cell(1, 1).Style.Font.FontColor = XLColor.FromHtml("#630000");
         wsInv.Row(1).Height = 26;
 
-        string[] invHeaders = { "SKU", "Flacon / Fragrance Name", "Fragrance Line / Category", "Unit Price (EGP)", "Stock Units", "Threshold", "Stock Status", "Total Asset Value (EGP)" };
+        string[] invHeaders = { "SKU", "Flacon / Fragrance Name", "Fragrance Line / Category", "Selling Price (EGP)", "Net Cost (EGP)", "Profit/Unit (EGP)", "Stock Units", "Stock Status", "Total Selling Value (EGP)", "Projected Profit (EGP)" };
         for (int i = 0; i < invHeaders.Length; i++)
         {
             var c = wsInv.Cell(3, i + 1);
@@ -459,6 +717,8 @@ public class ReportsController : Controller
         {
             var status = p.StockQuantity <= 0 ? "Out of Stock" : (p.StockQuantity <= p.ReorderLevel ? "Low Stock" : "Sufficient Stock");
             var val = p.StockQuantity * p.Price;
+            var unitProfit = (p.CostPrice > 0 || p.ProfitAmount > 0) ? p.ProfitAmount : p.Price;
+            var projProfit = p.StockQuantity * unitProfit;
 
             wsInv.Cell(iRow, 1).Value = p.Sku;
             wsInv.Cell(iRow, 2).Value = p.Name;
@@ -466,17 +726,24 @@ public class ReportsController : Controller
             wsInv.Cell(iRow, 3).Value = p.Category?.Name ?? "-";
             wsInv.Cell(iRow, 4).Value = p.Price;
             wsInv.Cell(iRow, 4).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
-            wsInv.Cell(iRow, 5).Value = p.StockQuantity;
-            wsInv.Cell(iRow, 5).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-            wsInv.Cell(iRow, 6).Value = p.ReorderLevel;
-            wsInv.Cell(iRow, 6).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-            wsInv.Cell(iRow, 7).Value = status;
+            wsInv.Cell(iRow, 5).Value = p.CostPrice;
+            wsInv.Cell(iRow, 5).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsInv.Cell(iRow, 6).Value = unitProfit;
+            wsInv.Cell(iRow, 6).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsInv.Cell(iRow, 6).Style.Font.FontColor = XLColor.FromHtml("#198754");
+            wsInv.Cell(iRow, 7).Value = p.StockQuantity;
             wsInv.Cell(iRow, 7).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-            wsInv.Cell(iRow, 8).Value = val;
-            wsInv.Cell(iRow, 8).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
-            wsInv.Cell(iRow, 8).Style.Font.Bold = true;
+            wsInv.Cell(iRow, 8).Value = status;
+            wsInv.Cell(iRow, 8).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            wsInv.Cell(iRow, 9).Value = val;
+            wsInv.Cell(iRow, 9).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsInv.Cell(iRow, 9).Style.Font.Bold = true;
+            wsInv.Cell(iRow, 10).Value = projProfit;
+            wsInv.Cell(iRow, 10).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsInv.Cell(iRow, 10).Style.Font.Bold = true;
+            wsInv.Cell(iRow, 10).Style.Font.FontColor = XLColor.FromHtml("#198754");
 
-            var rRange = wsInv.Range(iRow, 1, iRow, 8);
+            var rRange = wsInv.Range(iRow, 1, iRow, 10);
             rRange.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
             rRange.Style.Border.BottomBorderColor = XLColor.FromHtml("#e8e3d5");
             if (iRow % 2 == 1) rRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#FAF9F5");
@@ -486,16 +753,20 @@ public class ReportsController : Controller
         if (products.Any())
         {
             wsInv.Cell(iRow, 1).Value = "TOTAL VALUATION";
-            wsInv.Range(iRow, 1, iRow, 4).Merge();
+            wsInv.Range(iRow, 1, iRow, 6).Merge();
             wsInv.Cell(iRow, 1).Style.Font.Bold = true;
             wsInv.Cell(iRow, 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
-            wsInv.Cell(iRow, 5).Value = products.Sum(p => p.StockQuantity);
-            wsInv.Cell(iRow, 5).Style.Font.Bold = true;
-            wsInv.Cell(iRow, 8).Value = products.Sum(p => p.StockQuantity * p.Price);
-            wsInv.Cell(iRow, 8).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
-            wsInv.Cell(iRow, 8).Style.Font.Bold = true;
+            wsInv.Cell(iRow, 7).Value = products.Sum(p => p.StockQuantity);
+            wsInv.Cell(iRow, 7).Style.Font.Bold = true;
+            wsInv.Cell(iRow, 9).Value = totalStockVal;
+            wsInv.Cell(iRow, 9).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsInv.Cell(iRow, 9).Style.Font.Bold = true;
+            wsInv.Cell(iRow, 10).Value = totalStockProjectedProfit;
+            wsInv.Cell(iRow, 10).Style.NumberFormat.Format = "#,##0.00 \"EGP\"";
+            wsInv.Cell(iRow, 10).Style.Font.Bold = true;
+            wsInv.Cell(iRow, 10).Style.Font.FontColor = XLColor.FromHtml("#198754");
 
-            var tot = wsInv.Range(iRow, 1, iRow, 8);
+            var tot = wsInv.Range(iRow, 1, iRow, 10);
             tot.Style.Fill.BackgroundColor = XLColor.FromHtml("#EDEBDD");
             tot.Style.Border.TopBorder = XLBorderStyleValues.Medium;
             tot.Style.Border.BottomBorder = XLBorderStyleValues.Double;

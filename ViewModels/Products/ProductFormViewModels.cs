@@ -34,7 +34,33 @@ public interface IFragranceProfileFormModel
     List<FragranceNoteCategoryGroupViewModel> AvailableNotesGrouped { get; set; }
 }
 
-public class ProductCreateViewModel : IFragranceProfileFormModel
+public class ProductSizeInputViewModel
+{
+    public int Id { get; set; }
+    [Required(ErrorMessage = "اسم الحجم مطلوب.")]
+    [StringLength(40)]
+    public string SizeLabel { get; set; } = "100ml";
+
+    [Range(0, 10000000.00, ErrorMessage = "صافي المنتج لا يمكن أن يكون سالباً.")]
+    public decimal CostPrice { get; set; } = 0m;
+
+    [Range(0, 10000000.00, ErrorMessage = "المكسب لا يمكن أن يكون سالباً.")]
+    public decimal ProfitAmount { get; set; } = 0m;
+
+    public decimal SellingPrice { get; set; } = 0m;
+    public bool IsDefault { get; set; } = false;
+    public int DisplayOrder { get; set; } = 0;
+}
+
+public interface IProductPricingFormModel
+{
+    decimal CostPrice { get; set; }
+    decimal ProfitAmount { get; set; }
+    decimal Price { get; set; }
+    List<ProductSizeInputViewModel> Sizes { get; set; }
+}
+
+public class ProductCreateViewModel : IFragranceProfileFormModel, IProductPricingFormModel
 {
     [Required(ErrorMessage = "Product name is required.")]
     [StringLength(150, ErrorMessage = "Product name cannot exceed 150 characters.")]
@@ -55,10 +81,20 @@ public class ProductCreateViewModel : IFragranceProfileFormModel
     [Display(Name = "تركيز العطر / الجملة التعريفية (Fragrance Tagline / Concentration)")]
     public string? FragranceTagline { get; set; }
 
+    [Range(0, 10000000.00, ErrorMessage = "Net cost must be zero or greater.")]
+    [Display(Name = "صافي المنتج (Net Cost EGP)")]
+    public decimal CostPrice { get; set; } = 0m;
+
+    [Range(0, 10000000.00, ErrorMessage = "Profit amount must be zero or greater.")]
+    [Display(Name = "المكسب (Profit EGP)")]
+    public decimal ProfitAmount { get; set; } = 0m;
+
     [Required(ErrorMessage = "Price is required.")]
-    [Range(0.01, 10000000.00, ErrorMessage = "Price must be greater than zero.")]
-    [Display(Name = "Selling Price (EGP)")]
+    [Range(0.01, 10000000.00, ErrorMessage = "Selling price (Net Cost + Profit) must be greater than zero.")]
+    [Display(Name = "Final Selling Price (EGP)")]
     public decimal Price { get; set; }
+
+    public List<ProductSizeInputViewModel> Sizes { get; set; } = new();
 
     [Required(ErrorMessage = "Initial stock quantity is required.")]
     [Range(0, 1000000, ErrorMessage = "Stock quantity cannot be negative.")]
@@ -113,7 +149,7 @@ public class ProductCreateViewModel : IFragranceProfileFormModel
     public List<FragranceNoteCategoryGroupViewModel> AvailableNotesGrouped { get; set; } = new();
 }
 
-public class ProductEditViewModel : IFragranceProfileFormModel
+public class ProductEditViewModel : IFragranceProfileFormModel, IProductPricingFormModel
 {
     public int Id { get; set; }
 
@@ -135,10 +171,20 @@ public class ProductEditViewModel : IFragranceProfileFormModel
     [Display(Name = "تركيز العطر / الجملة التعريفية (Fragrance Tagline / Concentration)")]
     public string? FragranceTagline { get; set; }
 
+    [Range(0, 10000000.00, ErrorMessage = "Net cost must be zero or greater.")]
+    [Display(Name = "صافي المنتج (Net Cost EGP)")]
+    public decimal CostPrice { get; set; } = 0m;
+
+    [Range(0, 10000000.00, ErrorMessage = "Profit amount must be zero or greater.")]
+    [Display(Name = "المكسب (Profit EGP)")]
+    public decimal ProfitAmount { get; set; } = 0m;
+
     [Required(ErrorMessage = "Price is required.")]
-    [Range(0.01, 10000000.00, ErrorMessage = "Price must be greater than zero.")]
-    [Display(Name = "Selling Price (EGP)")]
+    [Range(0.01, 10000000.00, ErrorMessage = "Selling price (Net Cost + Profit) must be greater than zero.")]
+    [Display(Name = "Final Selling Price (EGP)")]
     public decimal Price { get; set; }
+
+    public List<ProductSizeInputViewModel> Sizes { get; set; } = new();
 
     [Required(ErrorMessage = "Stock quantity is required.")]
     [Range(0, 1000000, ErrorMessage = "Stock quantity must be zero or greater.")]

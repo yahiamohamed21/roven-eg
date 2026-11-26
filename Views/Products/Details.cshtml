@@ -2,9 +2,16 @@
 @{
     ViewData["Title"] = $"Product: {Model.Name}";
     var totalValuation = Model.Price * Model.StockQuantity;
+    var totalCostValuation = Model.CostPrice * Model.StockQuantity;
+    var effectiveProfit = (Model.ProfitAmount > 0 || Model.CostPrice > 0) ? Model.ProfitAmount : Model.Price;
+    var totalProjectedProfit = effectiveProfit * Model.StockQuantity;
     var isLowStock = Model.StockQuantity <= Model.ReorderLevel;
     var isOutOfStock = Model.StockQuantity <= 0;
     var transactions = Model.InventoryTransactions ?? new List<Stockify.Models.Entities.InventoryTransaction>();
+    var orderedSizes = (Model.ProductSizes ?? new List<Stockify.Models.Entities.ProductSize>())
+        .OrderByDescending(s => s.IsDefault)
+        .ThenBy(s => s.DisplayOrder)
+        .ToList();
 }
 
 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
@@ -61,6 +68,10 @@
             }
 
             <h4 class="fw-bold text-primary mb-1">@Model.Price.ToString("N2") EGP</h4>
+            <div class="d-flex justify-content-center gap-2 flex-wrap small mb-2">
+                <span class="badge bg-light text-dark border">صافي: @Model.CostPrice.ToString("N2")</span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle">مكسب: +@effectiveProfit.ToString("N2")</span>
+            </div>
             @if (isOutOfStock)
             {
                 <span class="badge bg-danger text-white px-3 py-1 mt-2">Out of Stock</span>
@@ -86,7 +97,15 @@
                 </div>
                 <div class="d-flex justify-content-between py-1">
                     <span>Total Valuation:</span>
-                    <span class="text-success fw-bold">@totalValuation.ToString("N2") EGP</span>
+                    <span class="text-primary fw-bold">@totalValuation.ToString("N2") EGP</span>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span>Inventory Net Cost:</span>
+                    <span class="text-dark fw-semibold">@totalCostValuation.ToString("N2") EGP</span>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span>Expected Net Profit:</span>
+                    <span class="text-success fw-bold">+@totalProjectedProfit.ToString("N2") EGP</span>
                 </div>
                 <div class="d-flex justify-content-between py-1">
                     <span>Added Date:</span>
@@ -97,6 +116,49 @@
     </div>
 
     <div class="col-12 col-md-7 col-lg-8">
+        @if (orderedSizes.Any())
+        {
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">الأحجام والأسعار والمكسب (Product Sizes &amp; Profit)</span>
+                    <span class="badge bg-light text-dark border">@orderedSizes.Count أحجام</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>الحجم (Size)</th>
+                                <th class="text-end">صافي المنتج</th>
+                                <th class="text-end">المكسب</th>
+                                <th class="text-end">السعر للعميل</th>
+                                <th class="text-center">الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var sz in orderedSizes)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@sz.SizeLabel</td>
+                                    <td class="text-end font-monospace text-muted">@sz.CostPrice.ToString("N2") EGP</td>
+                                    <td class="text-end font-monospace text-success fw-semibold">+@sz.ProfitAmount.ToString("N2") EGP</td>
+                                    <td class="text-end font-monospace fw-bold text-dark">@sz.SellingPrice.ToString("N2") EGP</td>
+                                    <td class="text-center">
+                                        @if (sz.IsDefault)
+                                        {
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">رئيسي</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">إضافي</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
         <!-- Description Card -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white py-3">

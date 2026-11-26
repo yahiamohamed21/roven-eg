@@ -319,7 +319,13 @@
                         {
                             <div class="d-flex justify-content-between align-items-center py-2 border-bottom last-border-0">
                                 <div>
-                                    <div class="fw-semibold text-dark small text-truncate" style="max-width: 220px;">@item.ProductName</div>
+                                    <div class="fw-semibold text-dark small text-truncate" style="max-width: 220px;">
+                                        @item.ProductName
+                                        @if (!string.IsNullOrWhiteSpace(item.SizeLabel))
+                                        {
+                                            <span class="badge bg-light text-dark border font-monospace ms-1" style="font-size: 0.68rem;">@item.SizeLabel</span>
+                                        }
+                                    </div>
                                     <div class="small text-muted">Qty: <strong>@item.Quantity</strong> &times; @item.UnitPrice.ToString("N2") EGP</div>
                                 </div>
                                 <div class="fw-bold text-dark small text-nowrap">

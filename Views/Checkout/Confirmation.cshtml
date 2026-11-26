@@ -95,6 +95,10 @@
                                 <div class="d-flex justify-content-between align-items-center small p-2 rounded-3 bg-white border" style="border-color: #f0ece1 !important;">
                                     <div>
                                         <span class="fw-semibold text-dark">@(item.Product?.Name ?? "Flacon")</span>
+                                        @if (!string.IsNullOrWhiteSpace(item.SizeLabel))
+                                        {
+                                            <span class="badge bg-light text-dark border font-monospace ms-1" style="font-size: 0.7rem;">@item.SizeLabel</span>
+                                        }
                                         <span class="badge bg-light text-muted border font-monospace ms-1">&times; @item.Quantity</span>
                                     </div>
                                     <span class="fw-bold font-monospace" style="color: #1B1717;">@(item.UnitPrice * item.Quantity).ToString("N2") EGP</span>

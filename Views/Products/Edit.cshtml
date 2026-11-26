@@ -61,15 +61,26 @@
                             <small class="text-muted d-block mt-1">اختر قسماً واحداً أو أكثر (مثل: Best Seller + Winter معا) ليظهر العطر فيها جميعاً.</small>
                         </div>
 
-                        <div class="col-12 col-md-6">
-                            <label asp-for="Price" class="form-label small fw-semibold text-secondary"></label>
-                            <span class="text-danger">*</span>
-                            <div class="input-group">
-                                <input asp-for="Price" type="number" step="0.01" class="form-control" />
-                                <span class="input-group-text bg-light text-muted">EGP</span>
+                        <div class="col-12 col-md-6 d-flex flex-column justify-content-between">
+                            <label class="form-label small fw-semibold text-secondary mb-1">
+                                التسعير وحساب المكسب والأحجام <span class="text-danger">*</span>
+                            </label>
+                            <div class="border rounded-3 p-3 h-100 d-flex flex-column justify-content-center" style="background: linear-gradient(135deg, #FAF6EE 0%, #F4ECE0 100%); border-color: #decba8 !important;">
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <span class="small fw-bold" style="color: #630000;"><i class="fa-solid fa-calculator me-1"></i>حاسبة السعر للعميل</span>
+                                    <span class="badge bg-white text-dark border small font-monospace" id="topPrimarySizeLabel">الافتراضي</span>
+                                </div>
+                                <div class="small text-muted mb-2" style="font-size: 0.78rem;">
+                                    حدّد أحجام المنتج بالأسفل واكتب <strong>صافي المنتج</strong> + <strong>المكسب</strong> ليتم حساب <strong>السعر النهائي للعميل</strong> تلقائياً وعرضه في المتجر والتقارير.
+                                </div>
+                                <div class="d-flex align-items-baseline justify-content-between pt-2 border-top" style="border-color: #e4d6bf !important;">
+                                    <span class="small fw-semibold text-dark">السعر الظاهر للعميل:</span>
+                                    <span class="fw-extrabold fs-5 font-monospace" style="color: #630000;" id="topSellingPricePreview">@Model.Price.ToString("N2") EGP</span>
+                                </div>
                             </div>
-                            <span asp-validation-for="Price" class="text-danger small"></span>
                         </div>
+
+                        <partial name="_PricingAndSizesSection" model="Model" />
 
                         <div class="col-12 col-md-6">
                             <label asp-for="StockQuantity" class="form-label small fw-semibold text-secondary"></label>

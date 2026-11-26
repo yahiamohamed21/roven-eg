@@ -223,6 +223,67 @@ using (var scope = app.Services.CreateScope())
             logger.LogWarning(ex, "HomeOffers.ThirdProductId column check: {Message}", ex.Message);
         }
 
+        // Ensure ProductSizes table and Cost/Profit columns on Products & OrderItems exist
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Products') AND name = 'CostPrice')
+                    ALTER TABLE [Products] ADD [CostPrice] decimal(18,2) NOT NULL DEFAULT 0;
+
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Products') AND name = 'ProfitAmount')
+                    ALTER TABLE [Products] ADD [ProfitAmount] decimal(18,2) NOT NULL DEFAULT 0;
+
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('OrderItems') AND name = 'ProductSizeId')
+                    ALTER TABLE [OrderItems] ADD [ProductSizeId] int NULL;
+
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('OrderItems') AND name = 'SizeLabel')
+                    ALTER TABLE [OrderItems] ADD [SizeLabel] nvarchar(40) NULL;
+
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('OrderItems') AND name = 'UnitCost')
+                    ALTER TABLE [OrderItems] ADD [UnitCost] decimal(18,2) NOT NULL DEFAULT 0;
+
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('OrderItems') AND name = 'UnitProfit')
+                    ALTER TABLE [OrderItems] ADD [UnitProfit] decimal(18,2) NOT NULL DEFAULT 0;
+
+                IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ProductSizes')
+                BEGIN
+                    CREATE TABLE [ProductSizes] (
+                        [Id] int NOT NULL IDENTITY,
+                        [ProductId] int NOT NULL,
+                        [SizeLabel] nvarchar(40) NOT NULL,
+                        [CostPrice] decimal(18,2) NOT NULL DEFAULT 0,
+                        [ProfitAmount] decimal(18,2) NOT NULL DEFAULT 0,
+                        [SellingPrice] decimal(18,2) NOT NULL DEFAULT 0,
+                        [IsDefault] bit NOT NULL DEFAULT 0,
+                        [DisplayOrder] int NOT NULL DEFAULT 0,
+                        CONSTRAINT [PK_ProductSizes] PRIMARY KEY ([Id]),
+                        CONSTRAINT [FK_ProductSizes_Products_ProductId] FOREIGN KEY ([ProductId]) REFERENCES [Products] ([Id]) ON DELETE CASCADE
+                    );
+                    CREATE INDEX [IX_ProductSizes_ProductId] ON [ProductSizes] ([ProductId]);
+                END;
+
+                -- Backfill default ProfitAmount for legacy products that have Price > 0 and no Cost/Profit set
+                UPDATE [Products]
+                SET [ProfitAmount] = [Price]
+                WHERE [CostPrice] = 0 AND [ProfitAmount] = 0 AND [Price] > 0;
+
+                -- Seed default 100ml size row for any existing product missing ProductSizes
+                IF EXISTS (SELECT * FROM sys.tables WHERE name = 'ProductSizes') AND EXISTS (SELECT * FROM sys.tables WHERE name = 'Products')
+                BEGIN
+                    INSERT INTO [ProductSizes] ([ProductId], [SizeLabel], [CostPrice], [ProfitAmount], [SellingPrice], [IsDefault], [DisplayOrder])
+                    SELECT p.[Id], N'100ml', p.[CostPrice], p.[ProfitAmount], p.[Price], 1, 0
+                    FROM [Products] p
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM [ProductSizes] ps WHERE ps.[ProductId] = p.[Id]
+                    );
+                END;
+            ");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "ProductSizes & Cost/Profit schema initialization: {Message}", ex.Message);
+        }
+
         // Deduplicate any historical duplicate unrecovered AbandonedCheckouts rows
         try
         {

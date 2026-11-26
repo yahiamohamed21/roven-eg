@@ -1,0 +1,384 @@
+@model Stockify.ViewModels.Products.IProductPricingFormModel
+@using System.Globalization
+@using Stockify.ViewModels.Products
+@{
+    var sizes = (Model.Sizes != null && Model.Sizes.Any())
+        ? Model.Sizes
+        : new List<ProductSizeInputViewModel>
+        {
+            new ProductSizeInputViewModel
+            {
+                SizeLabel = "100ml",
+                CostPrice = Model.CostPrice,
+                ProfitAmount = Model.ProfitAmount > 0 || Model.CostPrice > 0 ? Model.ProfitAmount : Model.Price,
+                SellingPrice = Model.Price,
+                IsDefault = true,
+                DisplayOrder = 0
+            }
+        };
+
+    if (!sizes.Any(s => s.IsDefault) && sizes.Count > 0)
+    {
+        sizes[0].IsDefault = true;
+    }
+
+    var presetVolumes = new[] { "15ml", "30ml", "50ml", "100ml", "150ml", "200ml" };
+}
+
+<div class="col-12">
+    <div class="card border rounded-4 shadow-xs overflow-hidden" style="border-color: #e6dfd1 !important; background: #fffdf9;">
+        <div class="card-header py-2.5 px-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2" style="background: linear-gradient(90deg, #FAF6EE 0%, #F5ECDF 100%); border-bottom: 1px solid #e6dfd1;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-flask-vial" style="color: #630000;"></i>
+                <span class="fw-bold text-dark" style="font-size: 0.94rem;">أحجام المنتج والتسعير وحساب المكسب (Sizes, Net Cost &amp; Profit) <span class="text-danger">*</span></span>
+            </div>
+            <button type="button" id="btnAddCustomSizeRow" class="btn btn-sm rounded-pill fw-semibold px-3 py-1" style="background-color: #630000; color: #EDEBDD; font-size: 0.78rem;">
+                <i class="fa-solid fa-plus me-1"></i> إضافة حجم مخصص
+            </button>
+        </div>
+
+        <div class="card-body p-3">
+            <!-- Quick Bottle Volume Presets -->
+            <div class="mb-3 pb-2.5 border-bottom d-flex flex-wrap align-items-center gap-2" style="border-color: #f0e8da !important;">
+                <span class="small fw-semibold text-muted me-1">
+                    <i class="fa-solid fa-wand-magic-sparkles me-1" style="color: #b58d4a;"></i>إضافة سريعة للأحجام:
+                </span>
+                @foreach (var vol in presetVolumes)
+                {
+                    var exists = sizes.Any(s => string.Equals(s.SizeLabel?.Trim(), vol, StringComparison.OrdinalIgnoreCase));
+                    <button type="button"
+                            class="btn btn-sm rounded-pill px-2.5 py-1 fw-semibold roven-preset-size-btn @(exists ? "active" : "")"
+                            data-size-preset="@vol"
+                            style="font-size: 0.76rem; border: 1px solid #d5c7b2; background: @(exists ? "#630000" : "#ffffff"); color: @(exists ? "#EDEBDD" : "#1B1717");">
+                        <i class="fa-solid @(exists ? "fa-check" : "fa-plus") me-1"></i>@vol
+                    </button>
+                }
+            </div>
+
+            <!-- Dynamic Size + Net Cost + Profit Rows -->
+            <div id="rovenSizeRowsContainer" class="d-flex flex-column gap-2.5">
+                @for (int i = 0; i < sizes.Count; i++)
+                {
+                    var row = sizes[i];
+                    var rowTotal = row.CostPrice + row.ProfitAmount;
+                    <div class="roven-size-row border rounded-3 p-2.5 bg-white shadow-xs" data-row-index="@i" style="border-color: #e8e1d5 !important;">
+                        <input type="hidden" class="roven-size-id" name="Sizes[@i].Id" value="@row.Id" />
+                        <input type="hidden" class="roven-size-order" name="Sizes[@i].DisplayOrder" value="@i" />
+                        <input type="hidden" class="roven-size-is-default-val" name="Sizes[@i].IsDefault" value="@(row.IsDefault ? "true" : "false")" />
+                        <input type="hidden" class="roven-size-selling-val" name="Sizes[@i].SellingPrice" value="@rowTotal.ToString("0.00", CultureInfo.InvariantCulture)" />
+
+                        <div class="row g-2 align-items-end">
+                            <div class="col-12 col-sm-2">
+                                <label class="form-label small fw-semibold text-muted mb-1 d-block" style="font-size: 0.72rem;">الحجم (Size) <span class="text-danger">*</span></label>
+                                <input type="text"
+                                       class="form-control form-control-sm fw-bold roven-size-label-input"
+                                       name="Sizes[@i].SizeLabel"
+                                       value="@row.SizeLabel"
+                                       placeholder="100ml"
+                                       required />
+                            </div>
+
+                            <div class="col-6 col-sm-3">
+                                <label class="form-label small fw-semibold text-muted mb-1 d-block" style="font-size: 0.72rem;">صافي المنتج (Net Cost)</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control fw-semibold roven-size-cost-input"
+                                           name="Sizes[@i].CostPrice"
+                                           value="@row.CostPrice.ToString("0.##", CultureInfo.InvariantCulture)"
+                                           placeholder="200"
+                                           required />
+                                    <span class="input-group-text bg-light text-muted" style="font-size: 0.72rem;">EGP</span>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-sm-3">
+                                <label class="form-label small fw-semibold text-muted mb-1 d-block" style="font-size: 0.72rem;">المكسب (Profit)</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control fw-semibold text-success roven-size-profit-input"
+                                           name="Sizes[@i].ProfitAmount"
+                                           value="@row.ProfitAmount.ToString("0.##", CultureInfo.InvariantCulture)"
+                                           placeholder="300"
+                                           required />
+                                    <span class="input-group-text bg-light text-success" style="font-size: 0.72rem;">+ EGP</span>
+                                </div>
+                            </div>
+
+                            <div class="col-7 col-sm-2">
+                                <label class="form-label small fw-semibold text-muted mb-1 d-block" style="font-size: 0.72rem;">السعر للعميل (Total)</label>
+                                <div class="form-control form-control-sm bg-light fw-bold text-center font-monospace roven-size-total-display" style="color: #630000; border-color: #decba8; background-color: #FAF6EE !important;">
+                                    @rowTotal.ToString("N2") EGP
+                                </div>
+                            </div>
+
+                            <div class="col-5 col-sm-2 d-flex align-items-center justify-content-end gap-2 pb-0.5">
+                                <label class="d-inline-flex align-items-center gap-1 small fw-semibold text-dark mb-0" style="cursor: pointer; font-size: 0.74rem;" title="الحجم الرئيسي الظاهر على واجهة المتجر">
+                                    <input type="radio"
+                                           name="rovenDefaultSizeRadio"
+                                           class="form-check-input mt-0 roven-default-size-radio"
+                                           @(row.IsDefault ? "checked" : "") />
+                                    <span>رئيسي</span>
+                                </label>
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center roven-remove-size-btn" style="width: 28px; height: 28px;" title="حذف هذا الحجم">
+                                    <i class="fa-solid fa-trash-can" style="font-size: 0.72rem;"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Synced Primary Fields Bound to ProductCreateViewModel / ProductEditViewModel -->
+            <input type="hidden" name="CostPrice" id="primaryCostPriceInput" value="@Model.CostPrice.ToString("0.00", CultureInfo.InvariantCulture)" />
+            <input type="hidden" name="ProfitAmount" id="primaryProfitAmountInput" value="@Model.ProfitAmount.ToString("0.00", CultureInfo.InvariantCulture)" />
+            <input type="hidden" name="Price" id="primarySellingPriceInput" value="@Model.Price.ToString("0.00", CultureInfo.InvariantCulture)" />
+            <span asp-validation-for="Price" class="text-danger small d-block mt-2"></span>
+
+            <!-- Live Profit & Customer Price Formula Summary Banner -->
+            <div class="mt-3 p-2.5 px-3 rounded-3 d-flex flex-wrap align-items-center justify-content-between gap-2" style="background: #FAF6EE; border: 1px dashed #c8b48e;">
+                <div class="d-flex flex-wrap align-items-center gap-2 small">
+                    <span class="text-muted fw-semibold">السعر الافتراضي للعميل على الموقع (<span id="summarySizeBadge" class="fw-bold text-dark">100ml</span>):</span>
+                    <span class="badge bg-white text-dark border font-monospace" id="summaryCostBadge">صافي: 0.00 EGP</span>
+                    <span class="fw-bold text-muted">+</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle font-monospace" id="summaryProfitBadge">مكسب: 0.00 EGP</span>
+                    <span class="fw-bold text-muted">=</span>
+                </div>
+                <div class="fw-extrabold fs-5 font-monospace" style="color: #630000;" id="summaryFinalTotalBadge">
+                    0.00 EGP
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        function initProductSizingPricing() {
+            const container = document.getElementById('rovenSizeRowsContainer');
+            const addCustomBtn = document.getElementById('btnAddCustomSizeRow');
+            if (!container || container.dataset.bound === 'true') return;
+            container.dataset.bound = 'true';
+
+            const primaryCostEl = document.getElementById('primaryCostPriceInput');
+            const primaryProfitEl = document.getElementById('primaryProfitAmountInput');
+            const primaryPriceEl = document.getElementById('primarySellingPriceInput');
+
+            const sumSizeBadge = document.getElementById('summarySizeBadge');
+            const sumCostBadge = document.getElementById('summaryCostBadge');
+            const sumProfitBadge = document.getElementById('summaryProfitBadge');
+            const sumFinalTotalBadge = document.getElementById('summaryFinalTotalBadge');
+            const topSizeBadge = document.getElementById('topPrimarySizeLabel');
+            const topTotalPreview = document.getElementById('topSellingPricePreview');
+
+            function fmt(num) {
+                return (isNaN(num) ? 0 : num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            function syncPresetButtons() {
+                const labels = Array.from(container.querySelectorAll('.roven-size-label-input'))
+                    .map(i => (i.value || '').trim().toLowerCase());
+
+                document.querySelectorAll('.roven-preset-size-btn').forEach(btn => {
+                    const preset = (btn.dataset.sizePreset || '').trim().toLowerCase();
+                    const active = labels.includes(preset);
+                    btn.classList.toggle('active', active);
+                    btn.style.background = active ? '#630000' : '#ffffff';
+                    btn.style.color = active ? '#EDEBDD' : '#1B1717';
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        icon.className = active ? 'fa-solid fa-check me-1' : 'fa-solid fa-plus me-1';
+                    }
+                });
+            }
+
+            function reindexAndCompute() {
+                const rows = Array.from(container.querySelectorAll('.roven-size-row'));
+                if (rows.length === 0) return;
+
+                let defaultRow = rows.find(r => r.querySelector('.roven-default-size-radio')?.checked);
+                if (!defaultRow) {
+                    defaultRow = rows[0];
+                    const radio = defaultRow.querySelector('.roven-default-size-radio');
+                    if (radio) radio.checked = true;
+                }
+
+                rows.forEach((row, idx) => {
+                    row.dataset.rowIndex = idx;
+                    const idInput = row.querySelector('.roven-size-id');
+                    const orderInput = row.querySelector('.roven-size-order');
+                    const isDefInput = row.querySelector('.roven-size-is-default-val');
+                    const sellingValInput = row.querySelector('.roven-size-selling-val');
+                    const labelInput = row.querySelector('.roven-size-label-input');
+                    const costInput = row.querySelector('.roven-size-cost-input');
+                    const profitInput = row.querySelector('.roven-size-profit-input');
+                    const totalDisp = row.querySelector('.roven-size-total-display');
+                    const radio = row.querySelector('.roven-default-size-radio');
+                    const removeBtn = row.querySelector('.roven-remove-size-btn');
+
+                    const isDefault = row === defaultRow;
+                    if (radio) radio.checked = isDefault;
+
+                    if (idInput) idInput.name = `Sizes[${idx}].Id`;
+                    if (orderInput) {
+                        orderInput.name = `Sizes[${idx}].DisplayOrder`;
+                        orderInput.value = idx;
+                    }
+                    if (isDefInput) {
+                        isDefInput.name = `Sizes[${idx}].IsDefault`;
+                        isDefInput.value = isDefault ? 'true' : 'false';
+                    }
+                    if (labelInput) labelInput.name = `Sizes[${idx}].SizeLabel`;
+                    if (costInput) costInput.name = `Sizes[${idx}].CostPrice`;
+                    if (profitInput) profitInput.name = `Sizes[${idx}].ProfitAmount`;
+
+                    const costVal = Math.max(0, parseFloat(costInput?.value || '0') || 0);
+                    const profitVal = Math.max(0, parseFloat(profitInput?.value || '0') || 0);
+                    const totalVal = Math.round((costVal + profitVal) * 100) / 100;
+
+                    if (sellingValInput) {
+                        sellingValInput.name = `Sizes[${idx}].SellingPrice`;
+                        sellingValInput.value = totalVal.toFixed(2);
+                    }
+                    if (totalDisp) {
+                        totalDisp.textContent = fmt(totalVal) + ' EGP';
+                    }
+                    if (removeBtn) {
+                        removeBtn.disabled = rows.length <= 1;
+                        removeBtn.style.opacity = rows.length <= 1 ? '0.45' : '1';
+                    }
+
+                    if (isDefault) {
+                        const defLabel = (labelInput?.value || '100ml').trim() || '100ml';
+                        if (primaryCostEl) primaryCostEl.value = costVal.toFixed(2);
+                        if (primaryProfitEl) primaryProfitEl.value = profitVal.toFixed(2);
+                        if (primaryPriceEl) primaryPriceEl.value = totalVal.toFixed(2);
+
+                        if (sumSizeBadge) sumSizeBadge.textContent = defLabel;
+                        if (sumCostBadge) sumCostBadge.textContent = 'صافي: ' + fmt(costVal) + ' EGP';
+                        if (sumProfitBadge) sumProfitBadge.textContent = 'مكسب: ' + fmt(profitVal) + ' EGP';
+                        if (sumFinalTotalBadge) sumFinalTotalBadge.textContent = fmt(totalVal) + ' EGP';
+                        if (topSizeBadge) topSizeBadge.textContent = defLabel;
+                        if (topTotalPreview) topTotalPreview.textContent = fmt(totalVal) + ' EGP';
+                    }
+                });
+
+                syncPresetButtons();
+            }
+
+            function appendSizeRow(sizeLabel, costVal = 0, profitVal = 0) {
+                const div = document.createElement('div');
+                div.className = 'roven-size-row border rounded-3 p-2.5 bg-white shadow-xs';
+                div.style.cssText = 'border-color: #e8e1d5 !important;';
+                div.innerHTML = `
+                    <input type="hidden" class="roven-size-id" value="0" />
+                    <input type="hidden" class="roven-size-order" value="0" />
+                    <input type="hidden" class="roven-size-is-default-val" value="false" />
+                    <input type="hidden" class="roven-size-selling-val" value="0.00" />
+                    <div class="row g-2 align-items-end">
+                        <div class="col-12 col-sm-2">
+                            <label class="form-label small fw-semibold text-muted mb-1 d-block" style="font-size: 0.72rem;">الحجم (Size) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm fw-bold roven-size-label-input" value="${sizeLabel}" placeholder="e.g. 50ml" required />
+                        </div>
+                        <div class="col-6 col-sm-3">
+                            <label class="form-label small fw-semibold text-muted mb-1 d-block" style="font-size: 0.72rem;">صافي المنتج (Net Cost)</label>
+                            <div class="input-group input-group-sm">
+                                <input type="number" step="0.01" min="0" class="form-control fw-semibold roven-size-cost-input" value="${costVal}" placeholder="200" required />
+                                <span class="input-group-text bg-light text-muted" style="font-size: 0.72rem;">EGP</span>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-3">
+                            <label class="form-label small fw-semibold text-muted mb-1 d-block" style="font-size: 0.72rem;">المكسب (Profit)</label>
+                            <div class="input-group input-group-sm">
+                                <input type="number" step="0.01" min="0" class="form-control fw-semibold text-success roven-size-profit-input" value="${profitVal}" placeholder="300" required />
+                                <span class="input-group-text bg-light text-success" style="font-size: 0.72rem;">+ EGP</span>
+                            </div>
+                        </div>
+                        <div class="col-7 col-sm-2">
+                            <label class="form-label small fw-semibold text-muted mb-1 d-block" style="font-size: 0.72rem;">السعر للعميل (Total)</label>
+                            <div class="form-control form-control-sm bg-light fw-bold text-center font-monospace roven-size-total-display" style="color: #630000; border-color: #decba8; background-color: #FAF6EE !important;">0.00 EGP</div>
+                        </div>
+                        <div class="col-5 col-sm-2 d-flex align-items-center justify-content-end gap-2 pb-0.5">
+                            <label class="d-inline-flex align-items-center gap-1 small fw-semibold text-dark mb-0" style="cursor: pointer; font-size: 0.74rem;" title="الحجم الرئيسي الظاهر على واجهة المتجر">
+                                <input type="radio" name="rovenDefaultSizeRadio" class="form-check-input mt-0 roven-default-size-radio" />
+                                <span>رئيسي</span>
+                            </label>
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center roven-remove-size-btn" style="width: 28px; height: 28px;" title="حذف هذا الحجم">
+                                <i class="fa-solid fa-trash-can" style="font-size: 0.72rem;"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+                reindexAndCompute();
+                div.querySelector('.roven-size-cost-input')?.focus();
+            }
+
+            container.addEventListener('input', function (e) {
+                if (e.target.matches('.roven-size-cost-input, .roven-size-profit-input, .roven-size-label-input')) {
+                    reindexAndCompute();
+                }
+            });
+
+            container.addEventListener('change', function (e) {
+                if (e.target.matches('.roven-default-size-radio')) {
+                    reindexAndCompute();
+                }
+            });
+
+            container.addEventListener('click', function (e) {
+                const removeBtn = e.target.closest('.roven-remove-size-btn');
+                if (removeBtn) {
+                    const rows = container.querySelectorAll('.roven-size-row');
+                    if (rows.length <= 1) return;
+                    removeBtn.closest('.roven-size-row')?.remove();
+                    reindexAndCompute();
+                }
+            });
+
+            document.querySelectorAll('.roven-preset-size-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const preset = (this.dataset.sizePreset || '').trim();
+                    if (!preset) return;
+
+                    const matchingRow = Array.from(container.querySelectorAll('.roven-size-row')).find(r => {
+                        const lbl = (r.querySelector('.roven-size-label-input')?.value || '').trim().toLowerCase();
+                        return lbl === preset.toLowerCase();
+                    });
+
+                    if (matchingRow) {
+                        const rows = container.querySelectorAll('.roven-size-row');
+                        if (rows.length > 1) {
+                            matchingRow.remove();
+                            reindexAndCompute();
+                        }
+                    } else {
+                        appendSizeRow(preset, primaryCostEl?.value || 0, primaryProfitEl?.value || 0);
+                    }
+                });
+            });
+
+            if (addCustomBtn) {
+                addCustomBtn.addEventListener('click', function () {
+                    appendSizeRow('', 0, 0);
+                });
+            }
+
+            const form = container.closest('form');
+            if (form) {
+                form.addEventListener('submit', reindexAndCompute);
+            }
+
+            reindexAndCompute();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initProductSizingPricing);
+        } else {
+            initProductSizingPricing();
+        }
+    })();
+</script>

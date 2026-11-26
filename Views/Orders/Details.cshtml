@@ -116,7 +116,8 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th>Item & Description</th>
+                            <th>Item & Size</th>
+                            <th>صافي / مكسب</th>
                             <th>Unit Price</th>
                             <th>Quantity</th>
                             <th class="text-end pe-3">Line Total</th>
@@ -126,14 +127,24 @@
                         @foreach (var item in Model.OrderItems)
                         {
                             var lineTotal = item.UnitPrice * item.Quantity;
+                            var effCost = item.UnitCost;
+                            var effProfit = (item.UnitProfit > 0 || item.UnitCost > 0) ? item.UnitProfit : (item.UnitPrice - effCost);
                             <tr>
                                 <td>
-                                    <div class="fw-bold text-dark">
-                                        @(item.Product != null ? item.Product.Name : "Product")
+                                    <div class="fw-bold text-dark d-flex align-items-center gap-2 flex-wrap">
+                                        <span>@(item.Product != null ? item.Product.Name : "Product")</span>
+                                        @if (!string.IsNullOrWhiteSpace(item.SizeLabel))
+                                        {
+                                            <span class="badge bg-light text-dark border font-monospace" style="font-size: 0.72rem;">@item.SizeLabel</span>
+                                        }
                                     </div>
                                     <span class="font-monospace small text-muted">
                                         SKU: @(item.Product != null ? item.Product.Sku : "—")
                                     </span>
+                                </td>
+                                <td class="small">
+                                    <div class="text-muted font-monospace">صافي: @((effCost * item.Quantity).ToString("N2")) EGP</div>
+                                    <div class="text-success fw-semibold font-monospace">مكسب: +@((effProfit * item.Quantity).ToString("N2")) EGP</div>
                                 </td>
                                 <td>@item.UnitPrice.ToString("N2") EGP</td>
                                 <td><span class="badge bg-light text-dark border fs-6">@item.Quantity</span></td>
@@ -198,6 +209,18 @@
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted">Subtotal:</span>
                     <span class="fw-bold text-dark">@subtotal.ToString("N2") EGP</span>
+                </div>
+                @{
+                    var orderNetCost = Model.OrderItems.Sum(i => i.UnitCost * i.Quantity);
+                    var orderNetProfit = Math.Round((subtotal - Model.DiscountAmount) - orderNetCost, 2);
+                }
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">إجمالي صافي المنتج (Cost):</span>
+                    <span class="fw-semibold text-muted font-monospace">@orderNetCost.ToString("N2") EGP</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">صافي الربح (Net Profit):</span>
+                    <span class="fw-bold text-success font-monospace">+@orderNetProfit.ToString("N2") EGP</span>
                 </div>
                 @if (Model.DiscountAmount > 0)
                 {

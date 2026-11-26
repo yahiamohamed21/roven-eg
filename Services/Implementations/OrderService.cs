@@ -23,6 +23,47 @@ public class OrderService : IOrderService
         _storeCacheService = storeCacheService;
     }
 
+    private static (int? SizeId, string? SizeLabel, decimal UnitCost, decimal UnitProfit, decimal UnitPrice) ResolveLinePricing(
+        Product prod,
+        int? requestedSizeId,
+        IReadOnlyDictionary<int, decimal> activeOffers)
+    {
+        var matchedSize = (requestedSizeId.HasValue && requestedSizeId.Value > 0)
+            ? prod.ProductSizes.FirstOrDefault(s => s.Id == requestedSizeId.Value)
+            : null;
+        matchedSize ??= prod.ProductSizes
+            .OrderByDescending(s => s.IsDefault)
+            .ThenBy(s => s.DisplayOrder)
+            .FirstOrDefault();
+
+        var unitCost = matchedSize?.CostPrice ?? prod.CostPrice;
+        var baseSelling = matchedSize?.SellingPrice ?? prod.Price;
+        var unitPrice = baseSelling;
+
+        if ((matchedSize == null || matchedSize.IsDefault) &&
+            activeOffers.TryGetValue(prod.Id, out var offerPrice) &&
+            offerPrice > 0)
+        {
+            unitPrice = offerPrice;
+        }
+
+        decimal unitProfit;
+        if (unitPrice == baseSelling && matchedSize != null && (matchedSize.CostPrice > 0 || matchedSize.ProfitAmount > 0))
+        {
+            unitProfit = matchedSize.ProfitAmount;
+        }
+        else if (unitPrice == prod.Price && (prod.CostPrice > 0 || prod.ProfitAmount > 0))
+        {
+            unitProfit = prod.ProfitAmount;
+        }
+        else
+        {
+            unitProfit = Math.Round(unitPrice - unitCost, 2, MidpointRounding.AwayFromZero);
+        }
+
+        return (matchedSize?.Id, matchedSize?.SizeLabel, unitCost, unitProfit, unitPrice);
+    }
+
     public async Task<CreateOrderResult> CreateOrderAsync(CreateOrderRequest request)
     {
         if (request == null || request.Items == null || !request.Items.Any())
@@ -34,12 +75,23 @@ public class OrderService : IOrderService
             };
         }
 
-        // Consolidate duplicate products in the request
+        // Consolidate total stock quantities per ProductId (atomic stock check across sizes)
+        // and consolidate distinct order lines per (ProductId, ProductSizeId)
         var consolidatedItems = request.Items
             .GroupBy(i => i.ProductId)
             .Select(g => new CreateOrderItemRequest
             {
                 ProductId = g.Key,
+                Quantity = g.Sum(x => x.Quantity)
+            })
+            .ToList();
+
+        var consolidatedLines = request.Items
+            .GroupBy(i => new { i.ProductId, i.ProductSizeId })
+            .Select(g => new CreateOrderItemRequest
+            {
+                ProductId = g.Key.ProductId,
+                ProductSizeId = g.Key.ProductSizeId,
                 Quantity = g.Sum(x => x.Quantity)
             })
             .ToList();
@@ -64,9 +116,10 @@ public class OrderService : IOrderService
             await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted);
             try
             {
-                // 1. Fetch active catalog products using AsNoTracking (so change tracker doesn't conflict with direct SQL updates)
+                // 1. Fetch active catalog products & sizes using AsNoTracking (so change tracker doesn't conflict with direct SQL updates)
                 var productIds = consolidatedItems.Select(i => i.ProductId).Distinct().ToList();
                 var products = await _context.Products
+                    .Include(p => p.ProductSizes)
                     .AsNoTracking()
                     .Where(p => productIds.Contains(p.Id))
                     .ToDictionaryAsync(p => p.Id);
@@ -219,12 +272,10 @@ public class OrderService : IOrderService
                     .ToDictionaryAsync(o => o.ProductId, o => o.OfferPrice);
 
                 decimal subtotal = 0;
-                foreach (var item in consolidatedItems)
+                foreach (var line in consolidatedLines)
                 {
-                    var unitPrice = (activeOffers.TryGetValue(item.ProductId, out var op) && op > 0)
-                        ? op
-                        : products[item.ProductId].Price;
-                    subtotal += unitPrice * item.Quantity;
+                    var pricing = ResolveLinePricing(products[line.ProductId], line.ProductSizeId, activeOffers);
+                    subtotal += pricing.UnitPrice * line.Quantity;
                 }
 
                 // Apply Coupon if supplied
@@ -296,30 +347,33 @@ public class OrderService : IOrderService
                 await _context.SaveChangesAsync();
 
                 // 6. Create Order Items & Ledger Audit Trail (InventoryTransaction)
-                foreach (var item in consolidatedItems)
+                foreach (var line in consolidatedLines)
                 {
-                    var prod = products[item.ProductId];
-                    var itemUnitPrice = (activeOffers.TryGetValue(item.ProductId, out var op) && op > 0)
-                        ? op
-                        : prod.Price;
+                    var prod = products[line.ProductId];
+                    var pricing = ResolveLinePricing(prod, line.ProductSizeId, activeOffers);
 
                     var orderItem = new OrderItem
                     {
                         OrderId = order.Id,
                         ProductId = prod.Id,
-                        Quantity = item.Quantity,
-                        UnitPrice = itemUnitPrice
+                        ProductSizeId = pricing.SizeId,
+                        SizeLabel = pricing.SizeLabel,
+                        Quantity = line.Quantity,
+                        UnitCost = pricing.UnitCost,
+                        UnitProfit = pricing.UnitProfit,
+                        UnitPrice = pricing.UnitPrice
                     };
                     _context.OrderItems.Add(orderItem);
 
+                    var sizeTag = string.IsNullOrWhiteSpace(pricing.SizeLabel) ? "" : $" [{pricing.SizeLabel}]";
                     var auditNote = request.OrderSource == OrderSource.Website
-                        ? $"Website Order #{order.OrderNumber} by {order.CustomerName ?? "Online Patron"}"
-                        : $"POS In-Store Sale #{order.OrderNumber}";
+                        ? $"Website Order #{order.OrderNumber}{sizeTag} by {order.CustomerName ?? "Online Patron"}"
+                        : $"POS In-Store Sale #{order.OrderNumber}{sizeTag}";
 
                     var audit = new InventoryTransaction
                     {
                         ProductId = prod.Id,
-                        Quantity = item.Quantity,
+                        Quantity = line.Quantity,
                         TransactionType = TransactionType.StockOut,
                         TransactionDate = DateTime.UtcNow,
                         Notes = auditNote,

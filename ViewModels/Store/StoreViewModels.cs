@@ -116,6 +116,9 @@ public class StoreProductCardViewModel
     public bool IsFeatured { get; set; }
     public bool IsOutOfStock => StockQuantity <= 0;
     public bool IsLowStock => StockQuantity > 0 && StockQuantity <= 5;
+    public List<StoreProductSizeViewModel> Sizes { get; set; } = new();
+    public int? DefaultSizeId => Sizes.FirstOrDefault(s => s.IsDefault)?.Id ?? Sizes.FirstOrDefault()?.Id;
+    public string? DefaultSizeLabel => Sizes.FirstOrDefault(s => s.IsDefault)?.SizeLabel ?? Sizes.FirstOrDefault()?.SizeLabel;
 }
 
 public class StoreCatalogViewModel
@@ -154,15 +157,26 @@ public class ProductReviewViewModel
     public DateTime CreatedAt { get; set; }
 }
 
+public class StoreProductSizeViewModel
+{
+    public int Id { get; set; }
+    public string SizeLabel { get; set; } = string.Empty;
+    public decimal SellingPrice { get; set; }
+    public bool IsDefault { get; set; }
+}
+
 public class CartItemViewModel
 {
     public int ProductId { get; set; }
+    public int? ProductSizeId { get; set; }
+    public string? SizeLabel { get; set; }
     public string ProductName { get; set; } = string.Empty;
     public string Sku { get; set; } = string.Empty;
     public decimal UnitPrice { get; set; }
     public int Quantity { get; set; }
     public int StockAvailable { get; set; }
     public string? ImageUrl { get; set; }
+    public string LineKey => $"{ProductId}_{ProductSizeId ?? 0}";
     public decimal LineTotal => UnitPrice * Quantity;
 }
 

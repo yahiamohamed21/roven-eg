@@ -169,12 +169,18 @@
                 </div>
 
                 <!-- Price and Availability Box (Fluid on Mobile) -->
-                <div class="p-3 p-sm-3.5 rounded-3 mb-4 d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3" style="background-color: #FAF9F5; border: 1px solid #e8e3d5;">
+                <div class="p-3 p-sm-3.5 rounded-3 mb-3 d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3" style="background-color: #FAF9F5; border: 1px solid #e8e3d5;">
                     <div>
-                        <div class="text-uppercase small fw-bold mb-0.5" style="color: #8c8374; font-size: 0.72rem; letter-spacing: 0.5px;">سعر الزجاجة (Flacon Price)</div>
+                        <div class="text-uppercase small fw-bold mb-0.5 d-flex align-items-center gap-2" style="color: #8c8374; font-size: 0.72rem; letter-spacing: 0.5px;">
+                            <span>سعر الزجاجة (Flacon Price)</span>
+                            @if (!string.IsNullOrWhiteSpace(p.DefaultSizeLabel))
+                            {
+                                <span class="badge bg-white text-dark border font-monospace" id="detailSelectedSizeText">@p.DefaultSizeLabel</span>
+                            }
+                        </div>
                         <div class="d-flex align-items-baseline gap-2">
-                            <span class="fw-extrabold" style="color: #630000; font-size: clamp(1.8rem, 5vw, 2.4rem); font-family: 'Playfair Display', serif; line-height: 1;">
-                                @p.Price.ToString("N0")
+                            <span class="fw-extrabold" id="detailSellingPriceDisplay" style="color: #630000; font-size: clamp(1.8rem, 5vw, 2.4rem); font-family: 'Playfair Display', serif; line-height: 1;">
+                                @p.Price.ToString("N2")
                             </span>
                             <span class="fw-bold" style="color: #6c6358; font-size: 0.95rem;">جنيه مصري</span>
                         </div>
@@ -200,6 +206,30 @@
                         }
                     </div>
                 </div>
+
+                @if (p.Sizes != null && p.Sizes.Any())
+                {
+                    <div class="mb-4">
+                        <div class="small fw-bold text-uppercase mb-2" style="letter-spacing: 0.05em; color: #630000;">
+                            <i class="fa-solid fa-flask me-1"></i>اختر الحجم المطلوب (Select Size)
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var sz in p.Sizes)
+                            {
+                                var isSelected = sz.Id == (p.DefaultSizeId ?? p.Sizes.First().Id);
+                                <button type="button"
+                                        class="btn roven-detail-size-btn @(isSelected ? "active" : "")"
+                                        data-size-id="@sz.Id"
+                                        data-size-label="@sz.SizeLabel"
+                                        data-size-price="@sz.SellingPrice.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                                        onclick="selectDetailSize(this)">
+                                    <span class="fw-bold d-block" style="font-size: 0.9rem;">@sz.SizeLabel</span>
+                                    <span class="small font-monospace" style="font-size: 0.74rem; opacity: 0.85;">@sz.SellingPrice.ToString("N2") EGP</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
 
                 <!-- Product Description -->
                 <div class="mb-4">
@@ -492,6 +522,8 @@
                                     <span>@(string.IsNullOrWhiteSpace(related.FragranceTagline) ? Model.DefaultFragranceTagline : related.FragranceTagline)</span>
                                 </div>
 
+                                <partial name="_ProductCardSizes" model="related" />
+
                                 <div class="roven-card-footer">
                                     <div>
                                         <div class="roven-price-label">Price</div>
@@ -506,7 +538,7 @@
                                     }
                                     else
                                     {
-                                        <button type="button" class="roven-btn-add-bag" onclick="window.addStoreItemToCart(@related.Id, 1, this)" title="Add to Bag">
+                                        <button type="button" class="roven-btn-add-bag" data-size-id="@related.DefaultSizeId" onclick="window.addStoreItemToCart(@related.Id, 1, this)" title="Add to Bag">
                                             <i class="fa-solid fa-bag-shopping"></i><span>Add</span>
                                         </button>
                                     }
@@ -533,24 +565,46 @@
         input.value = current;
     }
 
-    function handleAddToCart() {
+    let selectedDetailSizeId = @(p.DefaultSizeId?.ToString() ?? "null");
+    let selectedDetailSizeLabel = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(p.DefaultSizeLabel ?? ""));
+    let selectedDetailPrice = @p.Price.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
+    function selectDetailSize(btn) {
+        if (!btn) return;
+        document.querySelectorAll('.roven-detail-size-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedDetailSizeId = parseInt(btn.dataset.sizeId) || null;
+        selectedDetailSizeLabel = btn.dataset.sizeLabel || '';
+        selectedDetailPrice = parseFloat(btn.dataset.sizePrice) || @p.Price.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+        const priceEl = document.getElementById('detailSellingPriceDisplay');
+        if (priceEl) {
+            priceEl.textContent = selectedDetailPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        const sizeTxt = document.getElementById('detailSelectedSizeText');
+        if (sizeTxt) {
+            sizeTxt.textContent = selectedDetailSizeLabel;
+        }
+    }
+
+    function handleAddToCart(triggerBtn) {
         const input = document.getElementById('purchase-qty');
         const qty = parseInt(input.value) || 1;
-        window.addStoreItemToCart(@p.Id, qty);
+        window.addStoreItemToCart(@p.Id, qty, triggerBtn || null, selectedDetailSizeId);
     }
 
     function handleDirectWhatsAppOrder(e) {
         if (e) e.preventDefault();
         const input = document.getElementById('purchase-qty');
         const qty = parseInt(input ? input.value : '1') || 1;
-        const unitPrice = @p.Price;
+        const unitPrice = selectedDetailPrice;
         const totalPrice = (unitPrice * qty).toLocaleString('en-US');
         const productName = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(p.Name));
+        const sizePart = selectedDetailSizeLabel ? ` (${selectedDetailSizeLabel})` : '';
         const concentration = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(!string.IsNullOrWhiteSpace(p.FragranceTagline) ? p.FragranceTagline : Model.DefaultFragranceTagline));
         const cleanPhone = '@Stockify.Models.Entities.HomeSetting.NormalizeWhatsAppNumber(!string.IsNullOrWhiteSpace(Model.WhatsAppNumber) ? Model.WhatsAppNumber : "201006856199")';
         const pageUrl = window.location.href;
 
-        let msg = `مرحباً دار Roven، أود طلب عطر ${productName}`;
+        let msg = `مرحباً دار Roven، أود طلب عطر ${productName}${sizePart}`;
         if (qty > 1) {
             msg += ` (الكمية: ${qty} زجاجات - الإجمالي: ${totalPrice} ج.م)`;
         } else {

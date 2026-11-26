@@ -44,6 +44,82 @@ public class ProductsController : Controller
         _storeCacheService.InvalidateAll();
     }
 
+    private void NormalizeAndValidatePricing(IProductPricingFormModel model)
+    {
+        var rawSizes = (model.Sizes ?? new List<ProductSizeInputViewModel>())
+            .Where(s => s != null && (!string.IsNullOrWhiteSpace(s.SizeLabel) || s.CostPrice > 0 || s.ProfitAmount > 0))
+            .ToList();
+
+        if (rawSizes.Count == 0)
+        {
+            rawSizes.Add(new ProductSizeInputViewModel
+            {
+                SizeLabel = "100ml",
+                CostPrice = Math.Max(0, model.CostPrice),
+                ProfitAmount = Math.Max(0, model.ProfitAmount > 0 || model.CostPrice > 0 ? model.ProfitAmount : model.Price),
+                IsDefault = true,
+                DisplayOrder = 0
+            });
+        }
+
+        var seenLabels = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < rawSizes.Count; i++)
+        {
+            var s = rawSizes[i];
+            s.SizeLabel = (s.SizeLabel ?? string.Empty).Trim();
+            s.DisplayOrder = i;
+
+            if (string.IsNullOrWhiteSpace(s.SizeLabel))
+            {
+                ModelState.AddModelError("Price", $"يرجى إدخال اسم/مقاس الحجم في السطر رقم {i + 1} (مثال: 50ml أو 100ml).");
+            }
+            else if (!seenLabels.Add(s.SizeLabel))
+            {
+                ModelState.AddModelError("Price", $"الحجم '{s.SizeLabel}' مكرر أكثر من مرة لنفس المنتج. يرجى عدم تكرار الحجم.");
+            }
+
+            if (s.CostPrice < 0)
+            {
+                ModelState.AddModelError("Price", $"صافي المنتج للحجم '{s.SizeLabel}' لا يمكن أن يكون أقل من صفر.");
+                s.CostPrice = 0;
+            }
+            if (s.ProfitAmount < 0)
+            {
+                ModelState.AddModelError("Price", $"المكسب للحجم '{s.SizeLabel}' لا يمكن أن يكون أقل من صفر.");
+                s.ProfitAmount = 0;
+            }
+
+            s.SellingPrice = Math.Round(s.CostPrice + s.ProfitAmount, 2, MidpointRounding.AwayFromZero);
+            if (s.SellingPrice < 0.01m)
+            {
+                ModelState.AddModelError("Price", $"إجمالي السعر للعميل للحجم '{(string.IsNullOrWhiteSpace(s.SizeLabel) ? $"#{i + 1}" : s.SizeLabel)}' (صافي + مكسب) يجب أن يكون أكبر من 0.");
+            }
+        }
+
+        // Guarantee exactly one default size
+        var defaultRow = rawSizes.FirstOrDefault(s => s.IsDefault) ?? rawSizes[0];
+        foreach (var s in rawSizes)
+        {
+            s.IsDefault = ReferenceEquals(s, defaultRow);
+        }
+
+        model.Sizes = rawSizes;
+        model.CostPrice = Math.Round(defaultRow.CostPrice, 2, MidpointRounding.AwayFromZero);
+        model.ProfitAmount = Math.Round(defaultRow.ProfitAmount, 2, MidpointRounding.AwayFromZero);
+        model.Price = defaultRow.SellingPrice;
+
+        // Reconcile computed fields against any stale form-binding ModelState errors
+        ModelState.Remove(nameof(IProductPricingFormModel.CostPrice));
+        ModelState.Remove(nameof(IProductPricingFormModel.ProfitAmount));
+        ModelState.Remove(nameof(IProductPricingFormModel.Price));
+        for (int i = 0; i < rawSizes.Count; i++)
+        {
+            ModelState.Remove($"Sizes[{i}].SellingPrice");
+            ModelState.Remove($"Sizes[{i}].IsDefault");
+            ModelState.Remove($"Sizes[{i}].DisplayOrder");
+        }
+    }
+
     // GET: Products
     public async Task<IActionResult> Index(int? categoryId, string? status, string? search)
     {
@@ -51,6 +127,7 @@ public class ProductsController : Controller
             .Include(p => p.Category)
             .Include(p => p.ProductCategories)
                 .ThenInclude(pc => pc.Category)
+            .Include(p => p.ProductSizes)
             .AsNoTracking();
 
         // Summary Statistics (calculated across all active products in 1 single combined query)
@@ -109,6 +186,13 @@ public class ProductsController : Controller
                 Sku = p.Sku,
                 Description = p.Description,
                 Price = p.Price,
+                CostPrice = p.CostPrice,
+                ProfitAmount = p.ProfitAmount,
+                SizeLabels = p.ProductSizes
+                    .OrderByDescending(s => s.IsDefault)
+                    .ThenBy(s => s.DisplayOrder)
+                    .Select(s => s.SizeLabel)
+                    .ToList(),
                 StockQuantity = p.StockQuantity,
                 ReorderLevel = p.ReorderLevel,
                 ImageUrl = p.ImageUrl,
@@ -129,6 +213,10 @@ public class ProductsController : Controller
     {
         var model = new ProductCreateViewModel
         {
+            Sizes = new List<ProductSizeInputViewModel>
+            {
+                new ProductSizeInputViewModel { SizeLabel = "100ml", IsDefault = true, DisplayOrder = 0 }
+            },
             CategoriesList = await GetCategoriesSelectListAsync(),
             AvailableNotesGrouped = await GetGroupedFragranceNotesAsync()
         };
@@ -191,6 +279,8 @@ public class ProductsController : Controller
                 ValidateFragranceProfileCompleteness(model.SelectedAudiences, model.SelectedSeasons, model.Projection, model.SelectedFragranceNoteIds);
             }
 
+            NormalizeAndValidatePricing(model);
+
             if (!ModelState.IsValid)
             {
                 model.CategoriesList = await GetCategoriesSelectListAsync();
@@ -221,6 +311,8 @@ public class ProductsController : Controller
                 Sku = normalizedSku,
                 Description = model.Description?.Trim(),
                 FragranceTagline = string.IsNullOrWhiteSpace(model.FragranceTagline) ? null : model.FragranceTagline.Trim(),
+                CostPrice = model.CostPrice,
+                ProfitAmount = model.ProfitAmount,
                 Price = model.Price,
                 StockQuantity = model.StockQuantity,
                 ReorderLevel = model.ReorderLevel,
@@ -269,6 +361,21 @@ public class ProductsController : Controller
                 });
             }
 
+            // Add Product Sizes (Net Cost + Profit = Selling Price)
+            foreach (var sizeInput in model.Sizes)
+            {
+                product.ProductSizes.Add(new ProductSize
+                {
+                    Product = product,
+                    SizeLabel = sizeInput.SizeLabel,
+                    CostPrice = sizeInput.CostPrice,
+                    ProfitAmount = sizeInput.ProfitAmount,
+                    SellingPrice = sizeInput.SellingPrice,
+                    IsDefault = sizeInput.IsDefault,
+                    DisplayOrder = sizeInput.DisplayOrder
+                });
+            }
+
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
@@ -310,6 +417,7 @@ public class ProductsController : Controller
             .Include(p => p.Seasons)
             .Include(p => p.ProductFragranceNotes)
             .Include(p => p.ProductCategories)
+            .Include(p => p.ProductSizes)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
@@ -323,6 +431,38 @@ public class ProductsController : Controller
             selectedCatIds.Add(product.CategoryId);
         }
 
+        var orderedSizes = product.ProductSizes
+            .OrderByDescending(s => s.IsDefault)
+            .ThenBy(s => s.DisplayOrder)
+            .Select(s => new ProductSizeInputViewModel
+            {
+                Id = s.Id,
+                SizeLabel = s.SizeLabel,
+                CostPrice = s.CostPrice,
+                ProfitAmount = s.ProfitAmount,
+                SellingPrice = s.SellingPrice,
+                IsDefault = s.IsDefault,
+                DisplayOrder = s.DisplayOrder
+            })
+            .ToList();
+
+        var effectiveProfit = (product.ProfitAmount > 0 || product.CostPrice > 0)
+            ? product.ProfitAmount
+            : product.Price;
+
+        if (!orderedSizes.Any())
+        {
+            orderedSizes.Add(new ProductSizeInputViewModel
+            {
+                SizeLabel = "100ml",
+                CostPrice = product.CostPrice,
+                ProfitAmount = effectiveProfit,
+                SellingPrice = product.Price,
+                IsDefault = true,
+                DisplayOrder = 0
+            });
+        }
+
         var model = new ProductEditViewModel
         {
             Id = product.Id,
@@ -330,7 +470,10 @@ public class ProductsController : Controller
             Sku = product.Sku,
             Description = product.Description,
             FragranceTagline = product.FragranceTagline,
+            CostPrice = product.CostPrice,
+            ProfitAmount = effectiveProfit,
             Price = product.Price,
+            Sizes = orderedSizes,
             StockQuantity = product.StockQuantity,
             ReorderLevel = product.ReorderLevel,
             CategoryId = product.CategoryId,
@@ -371,6 +514,7 @@ public class ProductsController : Controller
             .Include(p => p.Seasons)
             .Include(p => p.ProductFragranceNotes)
             .Include(p => p.ProductCategories)
+            .Include(p => p.ProductSizes)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
@@ -426,6 +570,8 @@ public class ProductsController : Controller
         {
             ValidateFragranceProfileCompleteness(model.SelectedAudiences, model.SelectedSeasons, model.Projection, model.SelectedFragranceNoteIds);
         }
+
+        NormalizeAndValidatePricing(model);
 
         if (!ModelState.IsValid)
         {
@@ -494,6 +640,8 @@ public class ProductsController : Controller
         product.Sku = normalizedSku;
         product.Description = model.Description?.Trim();
         product.FragranceTagline = string.IsNullOrWhiteSpace(model.FragranceTagline) ? null : model.FragranceTagline.Trim();
+        product.CostPrice = model.CostPrice;
+        product.ProfitAmount = model.ProfitAmount;
         product.Price = model.Price;
         product.ReorderLevel = model.ReorderLevel;
         product.CategoryId = model.CategoryId;
@@ -574,6 +722,45 @@ public class ProductsController : Controller
             }
         }
 
+        // Synchronize Product Sizes (Net Cost + Profit = Selling Price)
+        var incomingIds = model.Sizes.Where(s => s.Id > 0).Select(s => s.Id).ToHashSet();
+        var sizesToRemove = product.ProductSizes.Where(s => !incomingIds.Contains(s.Id)).ToList();
+        foreach (var removed in sizesToRemove)
+        {
+            product.ProductSizes.Remove(removed);
+            _context.ProductSizes.Remove(removed);
+        }
+
+        foreach (var sizeInput in model.Sizes)
+        {
+            var existingSize = sizeInput.Id > 0
+                ? product.ProductSizes.FirstOrDefault(s => s.Id == sizeInput.Id)
+                : null;
+
+            if (existingSize != null)
+            {
+                existingSize.SizeLabel = sizeInput.SizeLabel;
+                existingSize.CostPrice = sizeInput.CostPrice;
+                existingSize.ProfitAmount = sizeInput.ProfitAmount;
+                existingSize.SellingPrice = sizeInput.SellingPrice;
+                existingSize.IsDefault = sizeInput.IsDefault;
+                existingSize.DisplayOrder = sizeInput.DisplayOrder;
+            }
+            else
+            {
+                product.ProductSizes.Add(new ProductSize
+                {
+                    ProductId = product.Id,
+                    SizeLabel = sizeInput.SizeLabel,
+                    CostPrice = sizeInput.CostPrice,
+                    ProfitAmount = sizeInput.ProfitAmount,
+                    SellingPrice = sizeInput.SellingPrice,
+                    IsDefault = sizeInput.IsDefault,
+                    DisplayOrder = sizeInput.DisplayOrder
+                });
+            }
+        }
+
         try
         {
             _context.Products.Update(product);
@@ -616,6 +803,7 @@ public class ProductsController : Controller
             .Include(p => p.Category)
             .Include(p => p.ProductCategories)
                 .ThenInclude(pc => pc.Category)
+            .Include(p => p.ProductSizes)
             .Include(p => p.InventoryTransactions.OrderByDescending(t => t.TransactionDate).Take(10))
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id);

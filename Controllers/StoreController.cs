@@ -105,6 +105,7 @@ public class StoreController : Controller
                     item.CategoryIds.Add(item.CategoryId);
                 }
             }
+            await _context.HydrateSizesAsync(list);
             return list;
         }) ?? new List<StoreProductCardViewModel>();
 
@@ -377,6 +378,8 @@ public class StoreController : Controller
                 CreatedAt = r.CreatedAt
             })
             .ToListAsync();
+
+        await _context.HydrateSizesAsync(new[] { product }.Concat(related));
 
         var model = new StoreProductDetailsViewModel
         {

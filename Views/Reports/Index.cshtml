@@ -5,6 +5,7 @@
 
     var monthLabelsJson = JsonSerializer.Serialize(Model.ChartMonthLabels);
     var actualRevenueJson = JsonSerializer.Serialize(Model.ChartActualRevenue);
+    var netProfitJson = JsonSerializer.Serialize(Model.ChartNetProfit);
     var targetRevenueJson = JsonSerializer.Serialize(Model.ChartTargetRevenue);
     var ordersCountJson = JsonSerializer.Serialize(Model.ChartOrdersCount);
 }
@@ -29,6 +30,61 @@
     </div>
 </div>
 
+<!-- Executive Profit & Net Margin KPIs ("أنا كسبت قد إيه") -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #1b4332 0%, #14532d 100%); color: #ffffff;">
+            <div class="card-body p-3.5">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="small fw-semibold opacity-75">صافي المكسب الإجمالي (All-Time Net Profit)</span>
+                    <span class="badge bg-white bg-opacity-25 text-white rounded-pill font-monospace">@Model.AllTimeProfitMarginPercent.ToString("0.0")% Margin</span>
+                </div>
+                <div class="fs-3 fw-extrabold font-monospace">+@Model.TotalNetProfitAllTime.ToString("N2") <span class="fs-6 fw-semibold">EGP</span></div>
+                <div class="small opacity-75 mt-1">إجمالي المبيعات: @Model.TotalRevenueAllTime.ToString("N2") EGP</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #630000 0%, #810100 100%); color: #EDEBDD;">
+            <div class="card-body p-3.5">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="small fw-semibold opacity-75">صافي مكسب هذا الشهر (Monthly Profit)</span>
+                    <span class="badge bg-white bg-opacity-25 text-white rounded-pill font-monospace">@Model.MonthlyProfitMarginPercent.ToString("0.0")% Margin</span>
+                </div>
+                <div class="fs-3 fw-extrabold font-monospace">+@Model.MonthlyNetProfit.ToString("N2") <span class="fs-6 fw-semibold">EGP</span></div>
+                <div class="small opacity-75 mt-1">صافي تكلفة الشهر: @Model.MonthlyNetCost.ToString("N2") EGP</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100 rounded-4 bg-white">
+            <div class="card-body p-3.5">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="small fw-semibold text-muted">صافي تكلفة المبيعات (COGS / Net Cost)</span>
+                    <span class="badge bg-light text-dark border rounded-pill">@Model.TotalOrdersCount طلب</span>
+                </div>
+                <div class="fs-3 fw-extrabold font-monospace text-dark">@Model.TotalNetCostAllTime.ToString("N2") <span class="fs-6 fw-semibold text-muted">EGP</span></div>
+                <div class="small text-muted mt-1">تكلفة المنتجات المباعة بدون المكسب</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100 rounded-4 bg-white">
+            <div class="card-body p-3.5">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="small fw-semibold text-muted">مكسب متوقع من المخزون (Stock Profit)</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">@Model.TotalInventoryUnits وحدة</span>
+                </div>
+                <div class="fs-3 fw-extrabold font-monospace text-success">+@Model.TotalInventoryProjectedProfit.ToString("N2") <span class="fs-6 fw-semibold">EGP</span></div>
+                <div class="small text-muted mt-1">رأس مال المخزون: @Model.TotalInventoryCostValuation.ToString("N2") EGP</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- 3 Detailed Live Report Cards -->
 <div class="row g-4 mb-4">
     <!-- 1. Sales & Revenue Report -->
@@ -46,6 +102,10 @@
                     <div class="d-flex justify-content-between py-1 border-bottom">
                         <span class="text-muted">Monthly Gross:</span>
                         <span class="fw-bold text-dark font-monospace">@Model.MonthlyGrossRevenue.ToString("N2") EGP</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Monthly Net Profit:</span>
+                        <span class="fw-bold text-success font-monospace">+@Model.MonthlyNetProfit.ToString("N2") EGP</span>
                     </div>
                     <div class="d-flex justify-content-between py-1 border-bottom">
                         <span class="text-muted">Avg. Order Value (AOV):</span>
@@ -77,8 +137,12 @@
                 </p>
                 <div class="bg-light p-3 rounded-3 mb-4 small mt-auto border" style="border-color: #f0ece3 !important;">
                     <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted">Total Stock Value:</span>
+                        <span class="text-muted">Selling Asset Value:</span>
                         <span class="fw-bold text-dark font-monospace" style="color: #630000 !important;">@Model.TotalStockValuation.ToString("N2") EGP</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span class="text-muted">Wholesale Net Cost:</span>
+                        <span class="fw-bold text-dark font-monospace">@Model.TotalInventoryCostValuation.ToString("N2") EGP</span>
                     </div>
                     <div class="d-flex justify-content-between py-1 border-bottom">
                         <span class="text-muted">Flacon Reserves:</span>
@@ -209,47 +273,58 @@
     <!-- Live Performance KPI Strip for Selected Period -->
     <div class="px-3 px-md-4 pt-3 pb-0">
         <div class="row g-2 g-md-3">
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-lg-2">
                 <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center gap-2" style="border-color: #f0ece3 !important;">
                     <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: rgba(99, 0, 0, 0.1); color: #630000;">
                         <i class="fa-solid fa-coins font-size-sm"></i>
                     </div>
                     <div class="min-w-0">
-                        <div class="text-muted small" style="font-size: 0.72rem;">مبيعات الفترة الحالية</div>
-                        <div class="fw-bold font-monospace text-truncate" id="kpiPeriodRevenue" style="color: #630000; font-size: 0.95rem;">@Model.ChartTotalRevenue.ToString("N2") EGP</div>
+                        <div class="text-muted small" style="font-size: 0.7rem;">مبيعات الفترة</div>
+                        <div class="fw-bold font-monospace text-truncate" id="kpiPeriodRevenue" style="color: #630000; font-size: 0.9rem;">@Model.ChartTotalRevenue.ToString("N2") EGP</div>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-lg-2">
+                <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center gap-2" style="border-color: #f0ece3 !important;">
+                    <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: rgba(108, 99, 88, 0.12); color: #5c544a;">
+                        <i class="fa-solid fa-receipt font-size-sm"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-muted small" style="font-size: 0.7rem;">صافي التكلفة</div>
+                        <div class="fw-bold font-monospace text-dark text-truncate" id="kpiPeriodCost" style="font-size: 0.9rem;">@Model.ChartTotalCost.ToString("N2") EGP</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="p-2.5 rounded-3 border bg-success-subtle d-flex align-items-center gap-2" style="border-color: #badbcc !important;">
+                    <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: rgba(25, 135, 84, 0.18); color: #146c43;">
+                        <i class="fa-solid fa-sack-dollar font-size-sm"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-success small fw-semibold" style="font-size: 0.72rem;">صافي المكسب بالفترة (<span id="kpiPeriodMargin">@Model.ChartProfitMarginPercent.ToString("0.0")%</span>)</div>
+                        <div class="fw-extrabold font-monospace text-success text-truncate" id="kpiPeriodProfit" style="font-size: 0.96rem;">+@Model.ChartTotalProfit.ToString("N2") EGP</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-2">
                 <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center gap-2" style="border-color: #f0ece3 !important;">
                     <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: rgba(10, 102, 194, 0.1); color: #0a66c2;">
                         <i class="fa-solid fa-bag-shopping font-size-sm"></i>
                     </div>
                     <div class="min-w-0">
-                        <div class="text-muted small" style="font-size: 0.72rem;">إجمالي الطلبات بالفترة</div>
-                        <div class="fw-bold font-monospace text-dark text-truncate" id="kpiPeriodOrders" style="font-size: 0.95rem;">@Model.ChartTotalOrders طلب</div>
+                        <div class="text-muted small" style="font-size: 0.7rem;">عدد الطلبات</div>
+                        <div class="fw-bold font-monospace text-dark text-truncate" id="kpiPeriodOrders" style="font-size: 0.9rem;">@Model.ChartTotalOrders طلب</div>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center gap-2" style="border-color: #f0ece3 !important;">
-                    <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: rgba(37, 211, 102, 0.1); color: #25d366;">
-                        <i class="fa-solid fa-chart-line font-size-sm"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <div class="text-muted small" style="font-size: 0.72rem;">متوسط المبيعات</div>
-                        <div class="fw-bold font-monospace text-dark text-truncate" id="kpiPeriodAvg" style="font-size: 0.95rem;">@Model.ChartAverageRevenue.ToString("N2") EGP</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
+            <div class="col-12 col-lg-3">
                 <div class="p-2.5 rounded-3 border bg-light d-flex align-items-center gap-2" style="border-color: #f0ece3 !important;">
                     <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: rgba(223, 177, 91, 0.2); color: #810100;">
                         <i class="fa-solid fa-trophy font-size-sm"></i>
                     </div>
                     <div class="min-w-0">
-                        <div class="text-muted small" style="font-size: 0.72rem;">أعلى فترة مبيعاً</div>
-                        <div class="fw-bold text-truncate" id="kpiPeriodPeak" style="color: #1B1717; font-size: 0.85rem;" title="@Model.ChartPeakPeriod">
+                        <div class="text-muted small" style="font-size: 0.7rem;">أعلى فترة مبيعاً</div>
+                        <div class="fw-bold text-truncate" id="kpiPeriodPeak" style="color: #1B1717; font-size: 0.84rem;" title="@Model.ChartPeakPeriod">
                             @(Model.ChartPeakRevenue > 0 ? $"{Model.ChartPeakPeriod} ({Model.ChartPeakRevenue:N0} EGP)" : "لا توجد مبيعات")
                         </div>
                     </div>
@@ -270,6 +345,75 @@
     </div>
 </div>
 
+<!-- Detailed Profit Breakdown By Product & Size Table -->
+<div class="card border-0 shadow-sm rounded-4 mt-4 overflow-hidden">
+    <div class="card-header bg-white py-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 border-bottom" style="border-color: #f0ece3 !important;">
+        <div>
+            <span class="fw-bold text-dark" style="font-size: 1.02rem;">
+                <i class="fa-solid fa-flask-vial me-2" style="color: #630000;"></i>
+                تفاصيل المبيعات والمكسب حسب كل منتج وحجم (Net Profit Breakdown)
+            </span>
+            <div class="text-muted small">توضح هذه القائمة الكمية المباعة، إجمالي السعر، صافي المنتج، وصافي المكسب الفعلي لكل حجم (بعد احتساب خصومات الكوبونات).</div>
+        </div>
+        <span class="badge badge-roven-cream px-3 py-1.5 rounded-pill fw-bold">@Model.ProductProfitBreakdown.Count أصناف</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light small">
+                <tr>
+                    <th>المنتج / العطر</th>
+                    <th>SKU</th>
+                    <th>الحجم</th>
+                    <th class="text-center">الكمية المباعة</th>
+                    <th class="text-end">إجمالي المبيعات (Selling)</th>
+                    <th class="text-end">صافي المنتج (Net Cost)</th>
+                    <th class="text-end">صافي المكسب (Net Profit)</th>
+                    <th class="text-center">هامش الربح</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.ProductProfitBreakdown.Any())
+                {
+                    foreach (var row in Model.ProductProfitBreakdown)
+                    {
+                        <tr>
+                            <td class="fw-bold text-dark">@row.ProductName</td>
+                            <td><code class="small">@row.Sku</code></td>
+                            <td><span class="badge bg-light text-dark border font-monospace">@row.SizeLabel</span></td>
+                            <td class="text-center fw-semibold">@row.UnitsSold</td>
+                            <td class="text-end font-monospace fw-semibold">@row.TotalRevenue.ToString("N2") EGP</td>
+                            <td class="text-end font-monospace text-muted">@row.TotalCost.ToString("N2") EGP</td>
+                            <td class="text-end font-monospace fw-bold text-success">+@row.TotalProfit.ToString("N2") EGP</td>
+                            <td class="text-center">
+                                <span class="badge bg-success-subtle text-success border border-success-subtle font-monospace">@row.MarginPercent.ToString("0.0")%</span>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">لا توجد مبيعات مسجلة حتى الآن.</td>
+                    </tr>
+                }
+            </tbody>
+            @if (Model.ProductProfitBreakdown.Any())
+            {
+                <tfoot class="fw-bold" style="background: #FAF6EE; border-top: 2px solid #decba8;">
+                    <tr>
+                        <td colspan="3" class="text-end">الإجمالي الكلي (Total)</td>
+                        <td class="text-center font-monospace">@Model.ProductProfitBreakdown.Sum(x => x.UnitsSold)</td>
+                        <td class="text-end font-monospace">@Model.ProductProfitBreakdown.Sum(x => x.TotalRevenue).ToString("N2") EGP</td>
+                        <td class="text-end font-monospace text-muted">@Model.ProductProfitBreakdown.Sum(x => x.TotalCost).ToString("N2") EGP</td>
+                        <td class="text-end font-monospace text-success fs-6">+@Model.ProductProfitBreakdown.Sum(x => x.TotalProfit).ToString("N2") EGP</td>
+                        <td class="text-center font-monospace">@Model.AllTimeProfitMarginPercent.ToString("0.0")%</td>
+                    </tr>
+                </tfoot>
+            }
+        </table>
+    </div>
+</div>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -279,6 +423,7 @@
 
             let currentLabels = @Html.Raw(monthLabelsJson);
             let currentActual = @Html.Raw(actualRevenueJson);
+            let currentProfit = @Html.Raw(netProfitJson);
             let currentTarget = @Html.Raw(targetRevenueJson);
             let currentOrders = @Html.Raw(ordersCountJson);
 
@@ -293,7 +438,15 @@
                             backgroundColor: '#630000',
                             hoverBackgroundColor: '#810100',
                             borderRadius: 6,
-                            maxBarThickness: 36
+                            maxBarThickness: 32
+                        },
+                        {
+                            label: 'Net Profit (صافي المكسب - EGP)',
+                            data: currentProfit,
+                            backgroundColor: '#198754',
+                            hoverBackgroundColor: '#157347',
+                            borderRadius: 6,
+                            maxBarThickness: 32
                         },
                         {
                             label: 'Benchmark Target (EGP)',
@@ -302,7 +455,7 @@
                             borderColor: '#dcd7c7',
                             borderWidth: 1,
                             borderRadius: 6,
-                            maxBarThickness: 36
+                            maxBarThickness: 32
                         }
                     ]
                 },
@@ -364,6 +517,9 @@
             const emptyState = document.getElementById('chartEmptyState');
 
             const kpiRev = document.getElementById('kpiPeriodRevenue');
+            const kpiCost = document.getElementById('kpiPeriodCost');
+            const kpiProfit = document.getElementById('kpiPeriodProfit');
+            const kpiMargin = document.getElementById('kpiPeriodMargin');
             const kpiOrders = document.getElementById('kpiPeriodOrders');
             const kpiAvg = document.getElementById('kpiPeriodAvg');
             const kpiPeak = document.getElementById('kpiPeriodPeak');
@@ -403,16 +559,21 @@
                     if (data && data.success) {
                         currentLabels = data.labels;
                         currentActual = data.actualData;
+                        currentProfit = data.profitData || [];
                         currentTarget = data.targetData;
                         currentOrders = data.ordersCount;
 
                         chart.data.labels = currentLabels;
                         chart.data.datasets[0].data = currentActual;
-                        chart.data.datasets[1].data = currentTarget;
+                        chart.data.datasets[1].data = currentProfit;
+                        chart.data.datasets[2].data = currentTarget;
                         chart.update();
 
                         if (activePeriodLabel) activePeriodLabel.textContent = data.periodTitle;
                         if (kpiRev) kpiRev.textContent = Number(data.totalRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
+                        if (kpiCost) kpiCost.textContent = Number(data.totalCost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
+                        if (kpiProfit) kpiProfit.textContent = '+' + Number(data.totalProfit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
+                        if (kpiMargin) kpiMargin.textContent = Number(data.profitMargin || 0).toFixed(1) + '%';
                         if (kpiOrders) kpiOrders.textContent = data.totalOrders + ' طلب';
                         if (kpiAvg) kpiAvg.textContent = Number(data.averageRevenue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EGP';
                         if (kpiPeak) {

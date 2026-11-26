@@ -67,6 +67,8 @@
                                         <span>@(string.IsNullOrWhiteSpace(product.FragranceTagline) ? Model.DefaultFragranceTagline : product.FragranceTagline)</span>
                                     </div>
 
+                                    <partial name="_ProductCardSizes" model="product" />
+
                                     <div class="roven-card-footer mt-auto">
                                         <div>
                                             <div class="roven-price-label">Price</div>
@@ -81,7 +83,7 @@
                                         }
                                         else
                                         {
-                                            <button type="button" class="roven-btn-add-bag" onclick="window.addStoreItemToCart(@product.Id, 1, this)" title="Add to Bag">
+                                            <button type="button" class="roven-btn-add-bag" data-size-id="@product.DefaultSizeId" onclick="window.addStoreItemToCart(@product.Id, 1, this)" title="Add to Bag">
                                                 <i class="fa-solid fa-bag-shopping"></i><span>Add</span>
                                             </button>
                                         }

@@ -6,7 +6,10 @@ public class ProductViewModel
     public string Name { get; set; } = string.Empty;
     public string Sku { get; set; } = string.Empty;
     public string? Description { get; set; }
+    public decimal CostPrice { get; set; }
+    public decimal ProfitAmount { get; set; }
     public decimal Price { get; set; }
+    public List<string> SizeLabels { get; set; } = new();
     public int StockQuantity { get; set; }
     public int ReorderLevel { get; set; }
     public string? ImageUrl { get; set; }

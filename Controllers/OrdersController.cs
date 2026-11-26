@@ -350,6 +350,7 @@ public class OrdersController : Controller
             Items = request.Items.Select(i => new CreateOrderItemRequest
             {
                 ProductId = i.ProductId,
+                ProductSizeId = i.ProductSizeId,
                 Quantity = i.Quantity
             }).ToList()
         };

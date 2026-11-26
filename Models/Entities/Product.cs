@@ -13,6 +13,12 @@ public class Product
     public string? FragranceTagline { get; set; }
 
     [Column(TypeName = "decimal(18,2)")]
+    public decimal CostPrice { get; set; } = 0m;
+
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal ProfitAmount { get; set; } = 0m;
+
+    [Column(TypeName = "decimal(18,2)")]
     public decimal Price { get; set; }
 
     public int StockQuantity { get; set; }
@@ -36,6 +42,7 @@ public class Product
     public int CategoryId { get; set; }
     public Category? Category { get; set; }
     public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
+    public ICollection<ProductSize> ProductSizes { get; set; } = new List<ProductSize>();
 
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     public ICollection<InventoryTransaction> InventoryTransactions { get; set; } = new List<InventoryTransaction>();

@@ -278,7 +278,7 @@
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge" style="background-color: #F4E7DA; color: #630000;">100ml Flacon</span>
+                                        <span class="badge" style="background-color: #F4E7DA; color: #630000;">@(string.IsNullOrWhiteSpace(oi.SizeLabel) ? "100ml Flacon" : oi.SizeLabel)</span>
                                     </td>
                                     <td class="text-center">
                                         <span class="badge rounded-pill px-3 py-1 fw-bold" style="background-color: #1B1717; color: #EDEBDD;">
@@ -345,7 +345,7 @@
                                             </span>
                                             <span class="text-muted" style="font-size: 0.7rem;">&bull;</span>
                                             <span class="badge" style="background-color: #F4E7DA; color: #630000; font-size: 0.7rem; font-weight: 600;">
-                                                100ml Flacon
+                                                @(string.IsNullOrWhiteSpace(oi.SizeLabel) ? "100ml Flacon" : oi.SizeLabel)
                                             </span>
                                         </div>
 

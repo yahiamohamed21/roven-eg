@@ -181,7 +181,23 @@
                                     <span class="badge bg-light text-dark border">@p.CategoryName</span>
                                 }
                             </td>
-                            <td class="fw-bold">@p.Price.ToString("N2") EGP</td>
+                            <td>
+                                <div class="fw-bold font-monospace">@p.Price.ToString("N2") EGP</div>
+                                @if (p.CostPrice > 0 || p.ProfitAmount > 0)
+                                {
+                                    var displayProfit = (p.ProfitAmount > 0 || p.CostPrice > 0) ? p.ProfitAmount : p.Price;
+                                    <div class="d-flex flex-wrap gap-1 mt-1" style="font-size: 0.68rem;">
+                                        <span class="badge bg-light text-muted border">صافي: @p.CostPrice.ToString("0.##")</span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">مكسب: +@displayProfit.ToString("0.##")</span>
+                                    </div>
+                                }
+                                @if (p.SizeLabels != null && p.SizeLabels.Any())
+                                {
+                                    <div class="text-muted mt-1" style="font-size: 0.68rem;">
+                                        <i class="fa-solid fa-flask me-1"></i>@string.Join(" · ", p.SizeLabels)
+                                    </div>
+                                }
+                            </td>
                             <td>
                                 <span class="badge @p.StockBadgeClass">
                                     @p.StockQuantity units
