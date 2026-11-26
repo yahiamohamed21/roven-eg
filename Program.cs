@@ -223,7 +223,7 @@ using (var scope = app.Services.CreateScope())
             logger.LogWarning(ex, "HomeOffers.ThirdProductId column check: {Message}", ex.Message);
         }
 
-        // Ensure ProductSizes table and Cost/Profit columns on Products & OrderItems exist
+        // Ensure ProductSizes table and Cost/Profit columns on Products & OrderItems exist (separate batches so SQL Server compiles new columns cleanly)
         try
         {
             await context.Database.ExecuteSqlRawAsync(@"
@@ -261,7 +261,9 @@ using (var scope = app.Services.CreateScope())
                     );
                     CREATE INDEX [IX_ProductSizes_ProductId] ON [ProductSizes] ([ProductId]);
                 END;
+            ");
 
+            await context.Database.ExecuteSqlRawAsync(@"
                 -- Backfill default ProfitAmount for legacy products that have Price > 0 and no Cost/Profit set
                 UPDATE [Products]
                 SET [ProfitAmount] = [Price]
@@ -281,7 +283,7 @@ using (var scope = app.Services.CreateScope())
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "ProductSizes & Cost/Profit schema initialization: {Message}", ex.Message);
+            logger.LogError(ex, "ProductSizes & Cost/Profit schema initialization: {Message}", ex.Message);
         }
 
         // Deduplicate any historical duplicate unrecovered AbandonedCheckouts rows
