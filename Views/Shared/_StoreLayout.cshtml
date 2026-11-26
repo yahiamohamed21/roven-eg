@@ -435,6 +435,10 @@
             color: #ffffff;
             box-shadow: 0 3px 10px rgba(27, 23, 23, 0.2);
         }
+        /* Ensure SweetAlert2 dialogs and toasts always stack above navbars and overlays */
+        .swal2-container {
+            z-index: 2147483645 !important;
+        }
 
         html {
             width: 100% !important;
@@ -2915,20 +2919,49 @@
     <!-- Store Cart Live Counter & Async Helper Script -->
     <script>
         (function() {
-            // Update live cart badge from server session
+            function showStoreAlert(opts) {
+                if (typeof Swal !== 'undefined') {
+                    return Swal.fire(opts);
+                }
+                const plainMsg = opts.text || (opts.title ? String(opts.title).replace(/<[^>]+>/g, '') : '');
+                if (plainMsg) alert(plainMsg);
+            }
+
+            function getStoreCsrfToken() {
+                return document.querySelector('#storefrontCsrfForm input[name="__RequestVerificationToken"]')?.value
+                    || document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                    || '';
+            }
+
+            function setStoreCsrfToken(token) {
+                if (!token) return;
+                document.querySelectorAll('#storefrontCsrfForm input[name="__RequestVerificationToken"]').forEach(el => {
+                    el.value = token;
+                });
+            }
+
+            // Sync live cart badge and refresh anti-forgery token (resilient across deploys & bfcache)
             async function refreshStoreCartBadge() {
                 try {
-                    const response = await fetch('/Cart/GetCartSummary');
+                    const response = await fetch('/Cart/GetCartSummary', {
+                        cache: 'no-store',
+                        credentials: 'same-origin'
+                    });
                     if (response.ok) {
                         const data = await response.json();
                         const badge = document.getElementById('cart-item-count');
                         if (badge) {
                             badge.textContent = data.count || 0;
                         }
+                        if (data.csrfToken) {
+                            setStoreCsrfToken(data.csrfToken);
+                        }
+                        return data.csrfToken || getStoreCsrfToken();
                     }
                 } catch (e) {
                     console.warn('Unable to sync cart count:', e);
                 }
+                return getStoreCsrfToken();
             }
 
             // Expose global helper for selecting flacon bottle sizes on cards and syncing price + sizeId
@@ -2957,204 +2990,175 @@
                 }
             };
 
-            // Expose global helper for adding to cart with immediate visual loading state
-            window.addStoreItemToCart = async function(productId, qty = 1, triggerBtn = null, sizeId = null, testerIds = null) {
-                // Automatically identify trigger button if not passed
+            async function postStoreCartAction(url, buildFormData, triggerBtn, loadingLabel, successLabel, warningTitle, successTitle) {
                 let btn = triggerBtn;
                 if (!btn && window.event && window.event.target) {
                     btn = window.event.target.closest('button');
                 }
-                if (!btn) {
-                    btn = document.getElementById('btn-add-to-cart');
+
+                let origHtml = '';
+                if (btn) {
+                    origHtml = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span class="small">${loadingLabel}</span>`;
+                }
+
+                const restoreBtn = () => {
+                    if (btn) {
+                        btn.innerHTML = origHtml;
+                        btn.disabled = false;
+                    }
+                };
+
+                const sendPost = async (token) => {
+                    const formData = buildFormData();
+                    if (token) {
+                        formData.append('__RequestVerificationToken', token);
+                    }
+                    const headers = token ? { 'RequestVerificationToken': token } : {};
+                    return fetch(url, {
+                        method: 'POST',
+                        headers,
+                        body: formData,
+                        credentials: 'same-origin'
+                    });
+                };
+
+                try {
+                    let csrfToken = getStoreCsrfToken();
+                    if (!csrfToken) {
+                        csrfToken = await refreshStoreCartBadge();
+                    }
+
+                    let res = await sendPost(csrfToken);
+
+                    // Auto-recover if CSRF token/cookie expired after deploy or browser bfcache navigation
+                    if (res.status === 400 || res.status === 403) {
+                        const freshToken = await refreshStoreCartBadge();
+                        if (freshToken) {
+                            res = await sendPost(freshToken);
+                        }
+                    }
+
+                    if (!res.ok) {
+                        restoreBtn();
+                        showStoreAlert({
+                            icon: 'error',
+                            iconColor: '#810100',
+                            title: 'تعذر الإضافة للسلة',
+                            text: 'حدث خطأ أثناء الاتصال بالسيرفر، يرجى تحديث الصفحة والمحاولة مرة أخرى.',
+                            confirmButtonColor: '#630000',
+                            confirmButtonText: 'حسناً'
+                        });
+                        return;
+                    }
+
+                    const data = await res.json();
+                    if (data.success) {
+                        const badge = document.getElementById('cart-item-count');
+                        if (badge) badge.textContent = data.cartCount;
+
+                        if (btn) {
+                            btn.innerHTML = `<i class="fa-solid fa-check text-white me-1"></i><span class="small">${successLabel}</span>`;
+                            setTimeout(restoreBtn, 900);
+                        }
+
+                        showStoreAlert({
+                            icon: 'success',
+                            iconColor: '#630000',
+                            title: successTitle,
+                            text: data.message,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2600,
+                            timerProgressBar: true
+                        });
+                    } else {
+                        restoreBtn();
+                        showStoreAlert({
+                            icon: 'warning',
+                            iconColor: '#810100',
+                            title: warningTitle,
+                            text: data.message || 'تعذر إضافة المنتج للسلة.',
+                            confirmButtonColor: '#630000',
+                            confirmButtonText: 'حسناً'
+                        });
+                    }
+                } catch (err) {
+                    console.error('Cart request error:', err);
+                    restoreBtn();
+                    showStoreAlert({
+                        icon: 'error',
+                        iconColor: '#810100',
+                        title: 'تعذر الاتصال',
+                        text: 'تعذر إضافة المنتج للسلة، يرجى التحقق من الاتصال بالإنترنت والمحاولة مجدداً.',
+                        confirmButtonColor: '#630000',
+                        confirmButtonText: 'حسناً'
+                    });
+                }
+            }
+
+            // Expose global helper for adding to cart with immediate visual loading state
+            window.addStoreItemToCart = function(productId, qty = 1, triggerBtn = null, sizeId = null, testerIds = null) {
+                let resolvedBtn = triggerBtn;
+                if (!resolvedBtn && window.event && window.event.target) {
+                    resolvedBtn = window.event.target.closest('button');
+                }
+                if (!resolvedBtn) {
+                    resolvedBtn = document.getElementById('btn-add-to-cart');
                 }
 
                 let resolvedSizeId = sizeId;
-                if (!resolvedSizeId && btn) {
-                    resolvedSizeId = btn.dataset?.sizeId || btn.closest('.product-card, .roven-store-flacon-card')?.querySelector('.roven-size-pill.active')?.dataset?.sizeId || null;
+                if (!resolvedSizeId && resolvedBtn) {
+                    resolvedSizeId = resolvedBtn.dataset?.sizeId || resolvedBtn.closest('.product-card, .roven-store-flacon-card')?.querySelector('.roven-size-pill.active')?.dataset?.sizeId || null;
                 }
 
-                let origHtml = '';
-                if (btn) {
-                    origHtml = btn.innerHTML;
-                    btn.disabled = true;
-                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span class="small">جاري الإضافة...</span>';
-                }
-
-                try {
-                    const formData = new FormData();
-                    formData.append('productId', productId);
-                    formData.append('quantity', qty);
-                    if (resolvedSizeId) {
-                        formData.append('sizeId', resolvedSizeId);
-                    }
-                    if (testerIds) {
-                        formData.append('testerIds', testerIds);
-                    }
-
-                    const csrfToken = document.querySelector('#storefrontCsrfForm input[name="__RequestVerificationToken"]')?.value 
-                                   || document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-                    if (csrfToken) {
-                        formData.append('__RequestVerificationToken', csrfToken);
-                    }
-
-                    const reqHeaders = {};
-                    if (csrfToken) {
-                        reqHeaders['RequestVerificationToken'] = csrfToken;
-                    }
-
-                    const res = await fetch('/Cart/AddToCart', {
-                        method: 'POST',
-                        headers: reqHeaders,
-                        body: formData
-                    });
-
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data.success) {
-                            const badge = document.getElementById('cart-item-count');
-                            if (badge) badge.textContent = data.cartCount;
-                            
-                            // Visual success feedback on button
-                            if (btn) {
-                                btn.innerHTML = '<i class="fa-solid fa-check text-white me-1"></i><span class="small">تمت الإضافة!</span>';
-                                setTimeout(() => {
-                                    if (btn) {
-                                        btn.innerHTML = origHtml;
-                                        btn.disabled = false;
-                                    }
-                                }, 900);
-                            }
-
-                            Swal.fire({
-                                icon: 'success',
-                                iconColor: '#630000',
-                                title: '<i class="fa-solid fa-cart-shopping me-2" style="color: #630000;"></i>Added to Bag!',
-                                text: data.message,
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 2500,
-                                timerProgressBar: true
-                            });
-                        } else {
-                            if (btn) {
-                                btn.innerHTML = origHtml;
-                                btn.disabled = false;
-                            }
-                            Swal.fire({
-                                icon: 'warning',
-                                iconColor: '#810100',
-                                title: 'Stock Limit',
-                                text: data.message,
-                                confirmButtonColor: '#630000'
-                            });
+                return postStoreCartAction(
+                    '/Cart/AddToCart',
+                    () => {
+                        const formData = new FormData();
+                        formData.append('productId', productId);
+                        formData.append('quantity', qty);
+                        if (resolvedSizeId) {
+                            formData.append('sizeId', resolvedSizeId);
                         }
-                    } else {
-                        if (btn) {
-                            btn.innerHTML = origHtml;
-                            btn.disabled = false;
+                        if (testerIds) {
+                            formData.append('testerIds', testerIds);
                         }
-                    }
-                } catch (err) {
-                    console.error('Add to cart error:', err);
-                    if (btn) {
-                        btn.innerHTML = origHtml;
-                        btn.disabled = false;
-                    }
-                }
+                        return formData;
+                    },
+                    resolvedBtn,
+                    'جاري الإضافة...',
+                    'تمت الإضافة!',
+                    'تنبيه السلة',
+                    '<i class="fa-solid fa-cart-shopping me-2" style="color: #630000;"></i>Added to Bag!'
+                );
             };
 
-            window.addOfferToCart = async function(offerId, triggerBtn = null) {
-                let btn = triggerBtn;
-                if (!btn && window.event && window.event.target) {
-                    btn = window.event.target.closest('button');
-                }
-
-                let origHtml = '';
-                if (btn) {
-                    origHtml = btn.innerHTML;
-                    btn.disabled = true;
-                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span><span class="small">جاري إضافة العرض...</span>';
-                }
-
-                try {
-                    const formData = new FormData();
-                    formData.append('offerId', offerId);
-
-                    const csrfToken = document.querySelector('#storefrontCsrfForm input[name="__RequestVerificationToken"]')?.value 
-                                   || document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-                    if (csrfToken) {
-                        formData.append('__RequestVerificationToken', csrfToken);
-                    }
-
-                    const reqHeaders = {};
-                    if (csrfToken) {
-                        reqHeaders['RequestVerificationToken'] = csrfToken;
-                    }
-
-                    const res = await fetch('/Cart/AddOfferToCart', {
-                        method: 'POST',
-                        headers: reqHeaders,
-                        body: formData
-                    });
-
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data.success) {
-                            const badge = document.getElementById('cart-item-count');
-                            if (badge) badge.textContent = data.cartCount;
-                            
-                            if (btn) {
-                                btn.innerHTML = '<i class="fa-solid fa-check text-white me-1"></i><span class="small">تمت إضافة العرض!</span>';
-                                setTimeout(() => {
-                                    if (btn) {
-                                        btn.innerHTML = origHtml;
-                                        btn.disabled = false;
-                                    }
-                                }, 900);
-                            }
-
-                            Swal.fire({
-                                icon: 'success',
-                                iconColor: '#630000',
-                                title: '<i class="fa-solid fa-gift me-2" style="color: #630000;"></i>تمت إضافة العرض!',
-                                text: data.message,
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 2800,
-                                timerProgressBar: true
-                            });
-                        } else {
-                            if (btn) {
-                                btn.innerHTML = origHtml;
-                                btn.disabled = false;
-                            }
-                            Swal.fire({
-                                icon: 'warning',
-                                iconColor: '#810100',
-                                title: 'تنبيه العرض',
-                                text: data.message,
-                                confirmButtonColor: '#630000'
-                            });
-                        }
-                    } else {
-                        if (btn) {
-                            btn.innerHTML = origHtml;
-                            btn.disabled = false;
-                        }
-                    }
-                } catch (err) {
-                    console.error('Add offer to cart error:', err);
-                    if (btn) {
-                        btn.innerHTML = origHtml;
-                        btn.disabled = false;
-                    }
-                }
+            window.addOfferToCart = function(offerId, triggerBtn = null) {
+                return postStoreCartAction(
+                    '/Cart/AddOfferToCart',
+                    () => {
+                        const formData = new FormData();
+                        formData.append('offerId', offerId);
+                        return formData;
+                    },
+                    triggerBtn,
+                    'جاري إضافة العرض...',
+                    'تمت إضافة العرض!',
+                    'تنبيه العرض',
+                    '<i class="fa-solid fa-gift me-2" style="color: #630000;"></i>تمت إضافة العرض!'
+                );
             };
 
-            // Run on initial load
+            // Run on initial load and whenever restored from browser back/forward cache
             refreshStoreCartBadge();
+            window.addEventListener('pageshow', function(ev) {
+                if (ev.persisted) {
+                    refreshStoreCartBadge();
+                }
+            });
         })();
     </script>
 

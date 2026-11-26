@@ -2,6 +2,11 @@
 @{
     Layout = "_StoreLayout";
     var p = Model.Product;
+    var availableTesterCount = p.AvailableTesterFragrances?.Count ?? 0;
+    var hasTesterPicker = p.IsTester && availableTesterCount > 0;
+    var effectiveTesterRequiredCount = hasTesterPicker
+        ? Math.Clamp(p.TesterRequiredCount > 0 ? p.TesterRequiredCount : 4, 1, availableTesterCount)
+        : 0;
     ViewData["Title"] = $"{p.Name} | عطر فاخر من دار روفان ROVEN Haute Parfumerie";
     ViewData["MetaDescription"] = $"تسوق عطر {p.Name} الأصلي من دار روڤين / روفان (ROVEN Haute Parfumerie). عطر فاخر ({p.CategoryName}) بتركيز Extrait de Parfum بنسبة 30% زيوت نقية فرنسية وشرقية بثبات وفوحان يتجاوز 24 ساعة. السعر: {p.Price:N0} ج.م مع التوصيل السريع لجميع محافظات مصر والدفع عند الاستلام مع المعاينة قبل الدفع.";
     ViewData["OgType"] = "product";
@@ -241,26 +246,26 @@
                     </p>
                 </div>
 
-                @if (p.IsTester && p.AvailableTesterFragrances != null && p.AvailableTesterFragrances.Any())
+                @if (hasTesterPicker)
                 {
-                    <div id="testerFragrancePicker" class="p-3 p-sm-3.5 rounded-3 mb-4 border" style="background: #FAF9F5; border-color: #e6dfd1 !important;">
+                    <div id="testerFragrancePicker" class="p-3 p-sm-3.5 rounded-3 mb-4 border" style="background: #FAF9F5; border-color: #e6dfd1 !important; transition: box-shadow 0.25s ease, border-color 0.25s ease;">
                         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
                             <div>
                                 <div class="fw-bold text-dark" style="font-size: 0.96rem;">
                                     <i class="fa-solid fa-vials me-1.5" style="color: #630000;"></i>
-                                    Fragrance: <span id="testerSelectedInlineText" class="fw-semibold text-muted" style="font-size: 0.88rem;">اختر @p.TesterRequiredCount عطور من القائمة</span>
+                                    Fragrance: <span id="testerSelectedInlineText" class="fw-semibold text-muted" style="font-size: 0.88rem;">اختر @effectiveTesterRequiredCount عطور من القائمة</span>
                                 </div>
                                 <div class="small text-muted" style="font-size: 0.76rem;">
-                                    لازم تختار <strong>@p.TesterRequiredCount منتجات</strong> من العطور المتاحة أدناه قبل الإضافة للسلة.
+                                    لازم تختار <strong>@effectiveTesterRequiredCount منتجات</strong> من العطور المتاحة أدناه قبل الإضافة للسلة.
                                 </div>
                             </div>
                             <span id="testerProgressBadge" class="badge rounded-pill px-3 py-1.5 fw-bold font-monospace" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99,0,0,0.2);">
-                                0 / @p.TesterRequiredCount عطور
+                                0 / @effectiveTesterRequiredCount عطور
                             </span>
                         </div>
 
                         <div class="d-flex flex-wrap gap-2 mt-2.5" id="testerOptionsButtonGrid">
-                            @foreach (var opt in p.AvailableTesterFragrances)
+                            @foreach (var opt in p.AvailableTesterFragrances!)
                             {
                                 <button type="button"
                                         class="roven-tester-pill"
@@ -274,7 +279,7 @@
                         </div>
 
                         <div class="mt-3 pt-2.5 border-top d-flex flex-wrap gap-1.5 align-items-center" id="testerSlotsPreview" style="border-color: #e8e0cf !important;">
-                            @for (int slot = 1; slot <= p.TesterRequiredCount; slot++)
+                            @for (int slot = 1; slot <= effectiveTesterRequiredCount; slot++)
                             {
                                 <span class="badge bg-white text-muted border px-2.5 py-1.5 rounded-2 tester-slot-badge" data-slot-index="@(slot - 1)" style="font-size: 0.74rem; border-style: dashed !important;">
                                     @(slot). — اختر عطر —
@@ -300,7 +305,7 @@
                             <div class="col-8 col-sm-8 d-flex align-items-end">
                                 <button type="button" id="btn-add-to-cart" class="btn w-100 py-2.5 py-sm-3 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2 shadow-sm text-nowrap" style="background: linear-gradient(135deg, #630000 0%, #810100 100%); color: #EDEBDD; border: 1px solid #810100;" onclick="handleAddToCart(this)">
                                     <i class="fa-solid fa-bag-shopping fs-5"></i>
-                                    <span>@(p.IsTester ? $"إضافة التيستر ({p.TesterRequiredCount} عطور) للسلة" : "إضافة إلى السلة")</span>
+                                    <span>@(hasTesterPicker ? $"إضافة التيستر ({effectiveTesterRequiredCount} عطور) للسلة" : "إضافة إلى السلة")</span>
                                 </button>
                             </div>
                         </div>
@@ -632,9 +637,39 @@
         }
     }
 
-    const isTesterProduct = @(p.IsTester ? "true" : "false");
-    const requiredTesterCount = @p.TesterRequiredCount;
+    const isTesterProduct = @(hasTesterPicker ? "true" : "false");
+    const requiredTesterCount = @effectiveTesterRequiredCount;
     let selectedTesters = [];
+
+    function focusTesterPicker() {
+        const picker = document.getElementById('testerFragrancePicker');
+        if (!picker) return;
+        picker.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        picker.style.boxShadow = '0 0 0 3px rgba(99, 0, 0, 0.25)';
+        picker.style.borderColor = '#630000';
+        setTimeout(() => {
+            picker.style.boxShadow = '';
+            picker.style.borderColor = '#e6dfd1';
+        }, 1600);
+    }
+
+    function showTesterRequirementAlert(title, text) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                iconColor: '#810100',
+                title,
+                text,
+                confirmButtonColor: '#630000',
+                confirmButtonText: 'اختيار العطور الآن',
+                returnFocus: false,
+                didClose: focusTesterPicker
+            });
+        } else {
+            focusTesterPicker();
+            alert(text);
+        }
+    }
 
     function renderTesterSelectionUI() {
         const inlineText = document.getElementById('testerSelectedInlineText');
@@ -688,16 +723,20 @@
             btn.querySelector('.tester-pill-check')?.classList.add('d-none');
         } else {
             if (selectedTesters.length >= requiredTesterCount) {
-                Swal.fire({
-                    icon: 'info',
-                    iconColor: '#630000',
-                    title: `مطلوب ${requiredTesterCount} عطور فقط`,
-                    text: `لقد اخترت ${requiredTesterCount} عطور بالفعل. اضغط على أي عطر مختار لإلغائه واستبداله.`,
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2600
-                });
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'info',
+                        iconColor: '#630000',
+                        title: `مطلوب ${requiredTesterCount} عطور فقط`,
+                        text: `لقد اخترت ${requiredTesterCount} عطور بالفعل. اضغط على أي عطر مختار لإلغائه واستبداله.`,
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2600
+                    });
+                } else {
+                    alert(`لقد اخترت ${requiredTesterCount} عطور بالفعل.`);
+                }
                 return;
             }
             selectedTesters.push({ id: tid, name: tname });
@@ -710,37 +749,27 @@
 
     function handleAddToCart(triggerBtn) {
         if (isTesterProduct && selectedTesters.length !== requiredTesterCount) {
-            const picker = document.getElementById('testerFragrancePicker');
-            if (picker) picker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            Swal.fire({
-                icon: 'warning',
-                iconColor: '#810100',
-                title: `يجب اختيار ${requiredTesterCount} عطور`,
-                text: `هذا المنتج تيستر ويتطلب اختيار ${requiredTesterCount} عطور من القائمة المتاحة (تم اختيار ${selectedTesters.length} من ${requiredTesterCount} حتى الآن).`,
-                confirmButtonColor: '#630000',
-                confirmButtonText: 'حسناً'
-            });
+            showTesterRequirementAlert(
+                `يجب اختيار ${requiredTesterCount} عطور`,
+                `هذا المنتج تيستر ويتطلب اختيار ${requiredTesterCount} عطور من القائمة المتاحة (تم اختيار ${selectedTesters.length} من ${requiredTesterCount} حتى الآن).`
+            );
             return;
         }
         const input = document.getElementById('purchase-qty');
-        const qty = parseInt(input.value) || 1;
+        const qty = input ? (parseInt(input.value) || 1) : 1;
         const testerIdsCsv = isTesterProduct ? selectedTesters.map(t => t.id).join(',') : null;
-        window.addStoreItemToCart(@p.Id, qty, triggerBtn || null, selectedDetailSizeId, testerIdsCsv);
+        if (typeof window.addStoreItemToCart === 'function') {
+            window.addStoreItemToCart(@p.Id, qty, triggerBtn || null, selectedDetailSizeId, testerIdsCsv);
+        }
     }
 
     function handleDirectWhatsAppOrder(e) {
         if (e) e.preventDefault();
         if (isTesterProduct && selectedTesters.length !== requiredTesterCount) {
-            const picker = document.getElementById('testerFragrancePicker');
-            if (picker) picker.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            Swal.fire({
-                icon: 'warning',
-                iconColor: '#810100',
-                title: `يجب اختيار ${requiredTesterCount} عطور`,
-                text: `يرجى اختيار ${requiredTesterCount} عطور أولاً قبل إرسال طلب الواتساب.`,
-                confirmButtonColor: '#630000',
-                confirmButtonText: 'حسناً'
-            });
+            showTesterRequirementAlert(
+                `يجب اختيار ${requiredTesterCount} عطور`,
+                `يرجى اختيار ${requiredTesterCount} عطور أولاً قبل إرسال طلب الواتساب.`
+            );
             return;
         }
         const input = document.getElementById('purchase-qty');

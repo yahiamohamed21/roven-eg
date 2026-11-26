@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Stockify.Data;
@@ -12,10 +13,12 @@ public class CartController : Controller
 {
     private const string CartSessionKey = "Stockify_Cart";
     private readonly ApplicationDbContext _context;
+    private readonly IAntiforgery _antiforgery;
 
-    public CartController(ApplicationDbContext context)
+    public CartController(ApplicationDbContext context, IAntiforgery antiforgery)
     {
         _context = context;
+        _antiforgery = antiforgery;
     }
 
     // GET: /Cart
@@ -25,17 +28,20 @@ public class CartController : Controller
         return View(cart);
     }
 
-    // GET: /Cart/GetCartSummary (used for header badge and quick cart)
+    // GET: /Cart/GetCartSummary (used for header badge, quick cart, and syncing fresh anti-forgery tokens)
     [HttpGet]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     public IActionResult GetCartSummary()
     {
         var cart = GetCartFromSession();
+        var tokens = _antiforgery.GetAndStoreTokens(HttpContext);
         return Json(new
         {
             count = cart.TotalItemCount,
             subtotal = cart.Subtotal,
             tax = cart.Tax,
-            grandTotal = cart.GrandTotal
+            grandTotal = cart.GrandTotal,
+            csrfToken = tokens.RequestToken
         });
     }
 
@@ -67,29 +73,34 @@ public class CartController : Controller
 
         if (product.IsTester)
         {
-            int reqCount = product.TesterRequiredCount > 0 ? product.TesterRequiredCount : 4;
             var allowedLookup = product.TesterOptions
                 .Where(o => o.FragranceProduct != null && o.FragranceProduct.IsActive)
                 .ToDictionary(o => o.FragranceProductId, o => o.FragranceProduct!.Name);
 
-            var parsedIds = (testerIds ?? string.Empty)
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Select(s => int.TryParse(s, out var tid) ? tid : 0)
-                .Where(tid => tid > 0 && allowedLookup.ContainsKey(tid))
-                .Distinct()
-                .ToList();
-
-            if (parsedIds.Count != reqCount)
+            if (allowedLookup.Count > 0)
             {
-                return Json(new
-                {
-                    success = false,
-                    message = $"هذا المنتج تيستر ويتطلب اختيار {reqCount} عطور بالضبط من القائمة المتاحة."
-                });
-            }
+                int configuredReq = product.TesterRequiredCount > 0 ? product.TesterRequiredCount : 4;
+                int reqCount = Math.Min(configuredReq, allowedLookup.Count);
 
-            selectedTestersSummary = string.Join("، ", parsedIds.Select(id => allowedLookup[id]));
-            selectedTesterIds = parsedIds.OrderBy(id => id).ToList();
+                var parsedIds = (testerIds ?? string.Empty)
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(s => int.TryParse(s, out var tid) ? tid : 0)
+                    .Where(tid => tid > 0 && allowedLookup.ContainsKey(tid))
+                    .Distinct()
+                    .ToList();
+
+                if (parsedIds.Count != reqCount)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = $"هذا المنتج تيستر ويتطلب اختيار {reqCount} عطور بالضبط من القائمة المتاحة."
+                    });
+                }
+
+                selectedTestersSummary = string.Join("، ", parsedIds.Select(id => allowedLookup[id]));
+                selectedTesterIds = parsedIds.OrderBy(id => id).ToList();
+            }
         }
 
         var selectedSize = sizeId.HasValue && sizeId.Value > 0
