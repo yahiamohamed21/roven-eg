@@ -303,9 +303,14 @@
                             }
                         </tbody>
                         <tfoot style="background-color: #FAF5ED; border-top: 2px solid #e8dccd;">
+                            @{
+                                var shippingLabel = !string.IsNullOrWhiteSpace(ord.City) ? $"تكلفة الشحن ({ord.City}):" : "تكلفة الشحن:";
+                            }
                             <tr>
-                                <td colspan="4" class="text-end fw-semibold" style="color: #6c6358;">تكلفة الشحن لكافة المحافظات:</td>
-                                <td class="text-end fw-bold text-success">مجاناً (Complimentary)</td>
+                                <td colspan="4" class="text-end fw-semibold" style="color: #6c6358;">@shippingLabel</td>
+                                <td class="text-end font-monospace fw-bold" style="color: @(ord.ShippingFee > 0 ? "#1B1717" : "#198754");">
+                                    <bdi dir="ltr">@ord.ShippingFee.ToString("N2") EGP</bdi>
+                                </td>
                             </tr>
                             <tr>
                                 <td colspan="4" class="text-end fw-extrabold fs-6" style="color: #1B1717;">إجمالي المبلغ المستحق عند الاستلام (COD):</td>
@@ -389,9 +394,9 @@
 
                     <div class="p-3.5 p-sm-4 rounded-4 mt-3" style="background: #ffffff; border: 1.5px solid #e8dccd; box-shadow: 0 4px 14px rgba(27, 23, 23, 0.04);">
                         <div class="d-flex justify-content-between align-items-center py-1">
-                            <span class="text-muted small fw-medium">الشحن لكافة المحافظات:</span>
-                            <span class="fw-bold text-success small d-inline-flex align-items-center gap-1">
-                                <i class="fa-solid fa-circle-check"></i> مجاناً (Complimentary)
+                            <span class="text-muted small fw-medium">@(!string.IsNullOrWhiteSpace(ord.City) ? $"تكلفة الشحن ({ord.City}):" : "تكلفة الشحن:")</span>
+                            <span class="fw-bold font-monospace small" style="color: @(ord.ShippingFee > 0 ? "#1B1717" : "#198754");">
+                                <bdi dir="ltr">@ord.ShippingFee.ToString("N2") EGP</bdi>
                             </span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center pt-2.5 mt-2 border-top" style="border-color: #efe4d6 !important;">
