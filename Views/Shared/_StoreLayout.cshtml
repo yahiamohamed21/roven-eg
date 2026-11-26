@@ -1,8 +1,12 @@
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Caching.Memory
 @using Stockify.Models.Entities
+@using Stockify.ViewModels.Store
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 @inject Stockify.Data.ApplicationDbContext DbContext
+@inject IMemoryCache MemoryCache
 
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
@@ -13,6 +17,23 @@
                        || (string.Equals(currentController, "OrderTracking", StringComparison.OrdinalIgnoreCase)
                            && string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase));
     var siteSetting = DbContext.HomeSettings.FirstOrDefault() ?? new Stockify.Models.Entities.HomeSetting();
+    var navCategories = MemoryCache.GetOrCreate("Roven_Store_Categories", entry =>
+    {
+        entry.SlidingExpiration = TimeSpan.FromMinutes(5);
+        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15);
+        return DbContext.Categories
+            .AsNoTracking()
+            .Select(c => new StoreCategoryViewModel
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description,
+                ImageUrl = c.ImageUrl,
+                ProductsCount = DbContext.Products.Count(p => p.IsActive && p.IsPublished && (p.CategoryId == c.Id || p.ProductCategories.Any(pc => pc.CategoryId == c.Id)))
+            })
+            .OrderBy(c => c.Name)
+            .ToList();
+    }) ?? new List<StoreCategoryViewModel>();
     var hasFilterParams = Context.Request.Query.ContainsKey("categoryId")
                        || Context.Request.Query.ContainsKey("inStockOnly")
                        || Context.Request.Query.ContainsKey("sort")
@@ -734,6 +755,151 @@
         .store-nav-link.active {
             color: #810100;
             background: rgba(129, 1, 0, 0.05);
+        }
+
+        /* Luxury Mini Hover Dropdown Menu for Collections */
+        .store-nav-dropdown {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .store-nav-dropdown-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .store-nav-caret {
+            font-size: 0.62rem;
+            opacity: 0.68;
+            transition: transform 0.22s ease, opacity 0.2s ease;
+        }
+
+        .store-nav-dropdown:hover .store-nav-caret,
+        .store-nav-dropdown:focus-within .store-nav-caret {
+            transform: rotate(180deg);
+            opacity: 1;
+        }
+
+        .store-nav-dropdown:hover .store-nav-dropdown-trigger,
+        .store-nav-dropdown:focus-within .store-nav-dropdown-trigger {
+            color: #810100;
+            background: rgba(129, 1, 0, 0.06);
+        }
+
+        .store-nav-mini-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            padding-top: 14px;
+            min-width: 224px;
+            max-width: 270px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(-6px) scale(0.98);
+            transform-origin: top left;
+            transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s ease;
+            z-index: 1060;
+        }
+
+        .store-nav-dropdown:hover .store-nav-mini-menu,
+        .store-nav-dropdown:focus-within .store-nav-mini-menu {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+        }
+
+        .store-mini-menu-inner {
+            background: rgba(255, 253, 249, 0.98);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(181, 141, 74, 0.34);
+            border-radius: 18px;
+            padding: 7px;
+            box-shadow:
+                0 18px 42px rgba(27, 23, 23, 0.14),
+                0 4px 12px rgba(99, 0, 0, 0.06);
+            max-height: min(62vh, 360px);
+            overflow-y: auto;
+        }
+
+        .store-mini-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 12px;
+            border-radius: 11px;
+            text-decoration: none !important;
+            color: #1B1717;
+            font-size: 0.83rem;
+            font-weight: 600;
+            line-height: 1.3;
+            transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+        }
+
+        .store-mini-item:hover,
+        .store-mini-item.active {
+            background: rgba(129, 1, 0, 0.06);
+            color: #810100;
+        }
+
+        .store-mini-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #C9A461;
+            flex-shrink: 0;
+            transition: transform 0.18s ease, background-color 0.18s ease;
+        }
+
+        .store-mini-item:hover .store-mini-dot,
+        .store-mini-item.active .store-mini-dot {
+            background: #810100;
+            transform: scale(1.25);
+        }
+
+        .store-mini-name {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .store-mini-count {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #7D6A56;
+            background: rgba(181, 141, 74, 0.13);
+            padding: 2px 7px;
+            border-radius: 9999px;
+            flex-shrink: 0;
+        }
+
+        .store-mini-item:hover .store-mini-count,
+        .store-mini-item.active .store-mini-count {
+            background: rgba(129, 1, 0, 0.10);
+            color: #810100;
+        }
+
+        .store-mini-arrow {
+            font-size: 0.7rem;
+            opacity: 0.55;
+            transition: transform 0.18s ease, opacity 0.18s ease;
+        }
+
+        .store-mini-item:hover .store-mini-arrow {
+            transform: translateX(2px);
+            opacity: 1;
+        }
+
+        .store-mini-divider {
+            height: 1px;
+            margin: 5px 8px;
+            background: linear-gradient(90deg, transparent, rgba(181, 141, 74, 0.28), transparent);
         }
 
         .store-brand {
@@ -2359,7 +2525,39 @@
                         <!-- Desktop Quick Nav Links -->
                         <div class="d-none d-lg-flex align-items-center gap-1 ms-2 ms-xl-3">
                             <a asp-controller="Home" asp-action="Index" class="store-nav-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")">Home</a>
-                            <a asp-controller="Store" asp-action="Index" class="store-nav-link @(currentController == "Store" ? "active" : "")">Collections</a>
+
+                            <div class="store-nav-dropdown @(currentController == "Store" ? "is-active-route" : "")">
+                                <a asp-controller="Store" asp-action="Index" class="store-nav-link store-nav-dropdown-trigger @(currentController == "Store" ? "active" : "")">
+                                    <span>Collections</span>
+                                    <i class="fa-solid fa-chevron-down store-nav-caret" aria-hidden="true"></i>
+                                </a>
+                                <div class="store-nav-mini-menu" role="menu" aria-label="Fragrance Collections">
+                                    <div class="store-mini-menu-inner">
+                                        <a asp-controller="Store" asp-action="Index" class="store-mini-item @(!Context.Request.Query.ContainsKey("categoryId") && currentController == "Store" ? "active" : "")" role="menuitem">
+                                            <span class="store-mini-dot"></span>
+                                            <span class="store-mini-name">All Collections</span>
+                                            <i class="fa-solid fa-arrow-right-long store-mini-arrow" aria-hidden="true"></i>
+                                        </a>
+                                        @if (navCategories.Count > 0)
+                                        {
+                                            <div class="store-mini-divider"></div>
+                                            @foreach (var cat in navCategories)
+                                            {
+                                                var isCatSelected = currentController == "Store" && string.Equals(Context.Request.Query["categoryId"].ToString(), cat.Id.ToString(), StringComparison.Ordinal);
+                                                <a asp-controller="Store" asp-action="Index" asp-route-categoryId="@cat.Id" class="store-mini-item @(isCatSelected ? "active" : "")" role="menuitem">
+                                                    <span class="store-mini-dot"></span>
+                                                    <span class="store-mini-name">@cat.Name</span>
+                                                    @if (cat.ProductsCount > 0)
+                                                    {
+                                                        <span class="store-mini-count">@cat.ProductsCount</span>
+                                                    }
+                                                </a>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
                             <a asp-controller="Home" asp-action="About" class="store-nav-link @(currentAction == "About" ? "active" : "")">About</a>
                             <a asp-controller="Home" asp-action="Contact" class="store-nav-link @(currentAction == "Contact" ? "active" : "")">Contact</a>
                         </div>
