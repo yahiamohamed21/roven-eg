@@ -154,26 +154,9 @@
                     {
                         var cleanPhone = item.CustomerPhone.Replace("+", "").Replace(" ", "").Replace("-", "");
                         var waPhone = cleanPhone.StartsWith("01") ? "20" + cleanPhone.Substring(1) : cleanPhone;
-                        
-                        // Parse JSON cart items
-                        var productsList = new List<string>();
-                        try
-                        {
-                            using var doc = JsonDocument.Parse(item.CartItemsJson);
-                            foreach (var el in doc.RootElement.EnumerateArray())
-                            {
-                                var pName = el.GetProperty("ProductName").GetString() ?? "Fragrance";
-                                var pQty = el.GetProperty("Quantity").GetInt32();
-                                productsList.Add($"{pName} (×{pQty})");
-                            }
-                        }
-                        catch
-                        {
-                            productsList.Add($"{item.ItemCount} منتجات");
-                        }
 
-                        var firstProductName = productsList.FirstOrDefault() ?? "عطور Roven";
-                        var encodedWaMsg = Uri.EscapeDataString($"أهلاً بك أ/ {item.CustomerName} في دار Roven للعطور، لاحظنا أنك لم تتمكن من استكمال طلبك لـ ({firstProductName})، هل واجهتك أي مشكلة في إتمام الطلب؟ يسعدنا مساعدتك وتوفير كود خصم خاص لك!");
+                        var productsList = Stockify.Helpers.AbandonedCheckoutHelper.ParseCartItems(item.CartItemsJson, item.ItemCount);
+                        var waRecoveryUrl = Stockify.Helpers.AbandonedCheckoutHelper.BuildRecoveryWhatsAppUrl(waPhone, item.CustomerName, item.CartItemsJson, item.ItemCount);
 
                         <tr>
                             <td>
@@ -182,7 +165,7 @@
                                     <a href="tel:@item.CustomerPhone" class="text-decoration-none small text-muted">
                                         <i class="fa-solid fa-phone me-1"></i>@item.CustomerPhone
                                     </a>
-                                    <a href="https://wa.me/@waPhone?text=@encodedWaMsg" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline-success rounded-circle p-1 d-inline-flex align-items-center justify-content-center" style="width: 22px; height: 22px;" title="مراسلة عبر واتساب">
+                                    <a href="@waRecoveryUrl" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline-success rounded-circle p-1 d-inline-flex align-items-center justify-content-center" style="width: 22px; height: 22px;" title="مراسلة عبر واتساب">
                                         <i class="fa-brands fa-whatsapp fs-7"></i>
                                     </a>
                                 </div>
@@ -192,15 +175,11 @@
                                 }
                             </td>
                             <td>
-                                @foreach (var p in productsList.Take(3))
+                                @foreach (var p in productsList)
                                 {
                                     <div class="small text-dark fw-medium">
                                         <i class="fa-solid fa-spray-can-sparkles text-muted me-1" style="font-size: 0.75rem;"></i>@p
                                     </div>
-                                }
-                                @if (productsList.Count > 3)
-                                {
-                                    <span class="badge bg-light text-muted border small mt-1">+@(productsList.Count - 3) إضافية</span>
                                 }
                             </td>
                             <td>
@@ -237,7 +216,7 @@
                             <td class="text-end pe-3">
                                 <div class="d-inline-flex align-items-center gap-1.5">
                                     <!-- Direct WhatsApp Recovery Action Button -->
-                                    <a href="https://wa.me/@waPhone?text=@encodedWaMsg" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-success rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1" title="مراسلة العميل عبر واتساب لاسترجاع السلة">
+                                    <a href="@waRecoveryUrl" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-success rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1" title="مراسلة العميل عبر واتساب لاسترجاع السلة">
                                         <i class="fa-brands fa-whatsapp"></i>
                                         <span class="d-none d-md-inline" style="font-size: 0.8rem;">استرجاع عبر واتساب</span>
                                     </a>

@@ -953,25 +953,9 @@
                             {
                                 var cleanPhone = ab.CustomerPhone.Replace("+", "").Replace(" ", "").Replace("-", "");
                                 var waPhone = cleanPhone.StartsWith("01") ? "20" + cleanPhone.Substring(1) : cleanPhone;
-                                
-                                var productsList = new List<string>();
-                                try
-                                {
-                                    using var doc = JsonDocument.Parse(ab.CartItemsJson);
-                                    foreach (var el in doc.RootElement.EnumerateArray())
-                                    {
-                                        var pName = el.GetProperty("ProductName").GetString() ?? "Fragrance";
-                                        var pQty = el.GetProperty("Quantity").GetInt32();
-                                        productsList.Add($"{pName} (×{pQty})");
-                                    }
-                                }
-                                catch
-                                {
-                                    productsList.Add($"{ab.ItemCount} منتجات");
-                                }
 
-                                var firstProductName = productsList.FirstOrDefault() ?? "عطور Roven";
-                                var encodedWaMsg = Uri.EscapeDataString($"أهلاً بك أ/ {ab.CustomerName} في دار Roven للعطور، لاحظنا أنك لم تتمكن من استكمال طلبك لـ ({firstProductName})، هل واجهتك أي مشكلة في إتمام الطلب؟ يسعدنا مساعدتك وتوفير كود خصم خاص لك!");
+                                var productsList = Stockify.Helpers.AbandonedCheckoutHelper.ParseCartItems(ab.CartItemsJson, ab.ItemCount);
+                                var waRecoveryUrl = Stockify.Helpers.AbandonedCheckoutHelper.BuildRecoveryWhatsAppUrl(waPhone, ab.CustomerName, ab.CartItemsJson, ab.ItemCount);
 
                                 <tr>
                                     <td class="fw-bold text-dark">@ab.CustomerName</td>
@@ -980,21 +964,17 @@
                                             <a href="tel:@ab.CustomerPhone" class="text-decoration-none small text-dark fw-semibold">
                                                 @ab.CustomerPhone
                                             </a>
-                                            <a href="https://wa.me/@waPhone?text=@encodedWaMsg" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline-success rounded-circle p-1 d-inline-flex align-items-center justify-content-center" style="width: 22px; height: 22px;" title="مراسلة عبر واتساب">
+                                            <a href="@waRecoveryUrl" target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-outline-success rounded-circle p-1 d-inline-flex align-items-center justify-content-center" style="width: 22px; height: 22px;" title="مراسلة عبر واتساب">
                                                 <i class="fa-brands fa-whatsapp fs-7"></i>
                                             </a>
                                         </div>
                                     </td>
                                     <td>
-                                        @foreach (var p in productsList.Take(2))
+                                        @foreach (var p in productsList)
                                         {
                                             <div class="small text-dark fw-medium">
                                                 <i class="fa-solid fa-spray-can-sparkles text-muted me-1" style="font-size: 0.72rem;"></i>@p
                                             </div>
-                                        }
-                                        @if (productsList.Count > 2)
-                                        {
-                                            <span class="badge bg-light text-muted border small mt-1">+@(productsList.Count - 2) إضافية</span>
                                         }
                                     </td>
                                     <td class="fw-bold font-monospace" style="color: #630000;">
@@ -1021,7 +1001,7 @@
                                         }
                                     </td>
                                     <td class="text-end pe-3">
-                                        <a href="https://wa.me/@waPhone?text=@encodedWaMsg" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-success rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1.5 shadow-xs" title="استرجاع الطلب عبر رسالة واتساب مباشرة">
+                                        <a href="@waRecoveryUrl" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-success rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1.5 shadow-xs" title="استرجاع الطلب عبر رسالة واتساب مباشرة">
                                             <i class="fa-brands fa-whatsapp"></i>
                                             <span style="font-size: 0.8rem;">استرجاع عبر واتساب</span>
                                         </a>
