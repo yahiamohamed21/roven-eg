@@ -254,6 +254,7 @@ public class OrderTrackingViewModel
     public string? QueryOrderNumber { get; set; }
     public string? QueryPhone { get; set; }
     public Order? Order { get; set; }
+    public string WhatsAppNumber { get; set; } = string.Empty;
     public bool HasSearched { get; set; }
     public bool NotFound => HasSearched && Order == null;
 }

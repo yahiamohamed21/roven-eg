@@ -29,6 +29,9 @@ public class OrderTrackingController : Controller
             return View(model);
         }
 
+        var siteSetting = await _context.HomeSettings.AsNoTracking().FirstOrDefaultAsync();
+        model.WhatsAppNumber = siteSetting?.WhatsAppNumber ?? string.Empty;
+
         model.HasSearched = true;
         var cleanNumber = orderNumber.Trim();
 
