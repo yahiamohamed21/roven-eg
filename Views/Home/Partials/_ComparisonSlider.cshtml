@@ -14,8 +14,8 @@
         ? settings.ComparisonTitle 
         : "US VS THEM";
 
-    var subtitle = !string.IsNullOrWhiteSpace(settings?.ComparisonSubtitle) 
-        ? settings.ComparisonSubtitle 
+    var subtitle = settings != null 
+        ? (settings.ComparisonSubtitle ?? string.Empty)
         : "Why settle for the brand name when you can wear the same scent for a fraction of the price?";
 
     var buttonText = !string.IsNullOrWhiteSpace(settings?.ComparisonButtonText) 
@@ -41,6 +41,38 @@
     var afterImage = !string.IsNullOrWhiteSpace(settings?.ComparisonAfterImageUrl) 
         ? settings.ComparisonAfterImageUrl 
         : "/images/comparison/roven-comparison-after.svg";
+
+    var vsIdx = title.IndexOf(" VS ", StringComparison.OrdinalIgnoreCase);
+    string? titleLeft = vsIdx > 0 ? title.Substring(0, vsIdx).Trim() : null;
+    string? titleRight = vsIdx > 0 ? title.Substring(vsIdx + 4).Trim() : null;
+
+    var featureCards = new[]
+    {
+        new
+        {
+            Title = settings?.ComparisonFeature1Title ?? "Extrait de Parfum (30% Concentration)",
+            Desc = settings?.ComparisonFeature1Desc ?? "أعلى تركيز زيوت عطرية نقية معتمدة لثبات وفوحان فائق",
+            MetricVal = settings?.ComparisonFeature1MetricVal ?? "30%",
+            MetricLbl = settings?.ComparisonFeature1MetricLbl ?? "Pure",
+            Icon = !string.IsNullOrWhiteSpace(settings?.ComparisonFeature1Icon) ? settings.ComparisonFeature1Icon : "fa-solid fa-droplet"
+        },
+        new
+        {
+            Title = settings?.ComparisonFeature2Title ?? "24+ Hours Royal Longevity & Sillage",
+            Desc = settings?.ComparisonFeature2Desc ?? "ثبات وفوحان ملكي يدوم أكثر من 24 ساعة على الملابس",
+            MetricVal = settings?.ComparisonFeature2MetricVal ?? "24h+",
+            MetricLbl = settings?.ComparisonFeature2MetricLbl ?? "Long",
+            Icon = !string.IsNullOrWhiteSpace(settings?.ComparisonFeature2Icon) ? settings.ComparisonFeature2Icon : "fa-solid fa-hourglass-half"
+        },
+        new
+        {
+            Title = settings?.ComparisonFeature3Title ?? "100% Risk-Free Inspection on Delivery",
+            Desc = settings?.ComparisonFeature3Desc ?? "حق المعاينة والتجربة الكاملة قبل استلام الطرد والدفع",
+            MetricVal = settings?.ComparisonFeature3MetricVal ?? "100%",
+            MetricLbl = settings?.ComparisonFeature3MetricLbl ?? "COD",
+            Icon = !string.IsNullOrWhiteSpace(settings?.ComparisonFeature3Icon) ? settings.ComparisonFeature3Icon : "fa-solid fa-shield-heart"
+        }
+    }.Where(c => !string.IsNullOrWhiteSpace(c.Title) || !string.IsNullOrWhiteSpace(c.Desc)).ToList();
 }
 
 <!-- ======================================================================== -->
@@ -56,11 +88,11 @@
         <!-- Mobile-Only Header: US VS THEM & Subtitle above the comparison slider image -->
         <div class="d-lg-none text-center mb-4 pb-1">
             <h2 class="roven-compare-title mb-2">
-                @if (title.Trim().Equals("US VS THEM", StringComparison.OrdinalIgnoreCase))
+                @if (!string.IsNullOrWhiteSpace(titleLeft) && !string.IsNullOrWhiteSpace(titleRight))
                 {
-                    <span class="roven-title-us">US</span>
+                    <span class="roven-title-us">@titleLeft</span>
                     <span class="roven-title-vs-pill">VS</span>
-                    <span class="roven-title-them">THEM</span>
+                    <span class="roven-title-them">@titleRight</span>
                 }
                 else
                 {
@@ -74,9 +106,12 @@
                 <span class="flourish-line-long"></span>
             </div>
 
-            <p class="roven-compare-subtitle mb-0">
-                @subtitle
-            </p>
+            @if (!string.IsNullOrWhiteSpace(subtitle))
+            {
+                <p class="roven-compare-subtitle mb-0">
+                    @subtitle
+                </p>
+            }
         </div>
 
         <div class="row align-items-center g-4 g-xl-5">
@@ -88,11 +123,11 @@
                     <!-- Desktop-Only Headline: US VS THEM & Subtitle -->
                     <div class="d-none d-lg-block">
                         <h2 class="roven-compare-title mb-3">
-                            @if (title.Trim().Equals("US VS THEM", StringComparison.OrdinalIgnoreCase))
+                            @if (!string.IsNullOrWhiteSpace(titleLeft) && !string.IsNullOrWhiteSpace(titleRight))
                             {
-                                <span class="roven-title-us">US</span>
+                                <span class="roven-title-us">@titleLeft</span>
                                 <span class="roven-title-vs-pill">VS</span>
-                                <span class="roven-title-them">THEM</span>
+                                <span class="roven-title-them">@titleRight</span>
                             }
                             else
                             {
@@ -108,58 +143,47 @@
                         </div>
 
                         <!-- Narrative Subtitle -->
-                        <p class="roven-compare-subtitle mb-4 pb-2">
-                            @subtitle
-                        </p>
+                        @if (!string.IsNullOrWhiteSpace(subtitle))
+                        {
+                            <p class="roven-compare-subtitle mb-4 pb-2">
+                                @subtitle
+                            </p>
+                        }
                     </div>
 
-                    <!-- Atelier Quality Signatures (3 Refined Luxury Plaque Cards) -->
+                    <!-- Atelier Quality Signatures (3 Editable Luxury Plaque Cards) -->
                     <div class="roven-compare-features d-flex flex-column gap-3 mb-4 pb-2 text-start">
-                        
-                        <!-- Signature 1: Concentration -->
-                        <div class="roven-feature-card d-flex align-items-center gap-3">
-                            <div class="roven-feature-icon-box flex-shrink-0">
-                                <i class="fa-solid fa-droplet"></i>
+                        @foreach (var feat in featureCards)
+                        {
+                            <div class="roven-feature-card d-flex align-items-center gap-3">
+                                <div class="roven-feature-icon-box flex-shrink-0">
+                                    <i class="@feat.Icon"></i>
+                                </div>
+                                <div class="flex-grow-1 min-w-0">
+                                    @if (!string.IsNullOrWhiteSpace(feat.Title))
+                                    {
+                                        <div class="roven-feature-name">@feat.Title</div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(feat.Desc))
+                                    {
+                                        <div class="roven-feature-desc">@feat.Desc</div>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(feat.MetricVal) || !string.IsNullOrWhiteSpace(feat.MetricLbl))
+                                {
+                                    <div class="roven-feature-metric flex-shrink-0 d-flex flex-column text-end">
+                                        @if (!string.IsNullOrWhiteSpace(feat.MetricVal))
+                                        {
+                                            <span class="metric-val">@feat.MetricVal</span>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(feat.MetricLbl))
+                                        {
+                                            <span class="metric-lbl">@feat.MetricLbl</span>
+                                        }
+                                    </div>
+                                }
                             </div>
-                            <div class="flex-grow-1 min-w-0">
-                                <div class="roven-feature-name">Extrait de Parfum (30% Concentration)</div>
-                                <div class="roven-feature-desc">أعلى تركيز زيوت عطرية نقية معتمدة لثبات وفوحان فائق</div>
-                            </div>
-                            <div class="roven-feature-metric flex-shrink-0 d-flex flex-column text-end">
-                                <span class="metric-val">30%</span>
-                                <span class="metric-lbl">Pure</span>
-                            </div>
-                        </div>
-
-                        <!-- Signature 2: Longevity -->
-                        <div class="roven-feature-card d-flex align-items-center gap-3">
-                            <div class="roven-feature-icon-box flex-shrink-0">
-                                <i class="fa-solid fa-hourglass-half"></i>
-                            </div>
-                            <div class="flex-grow-1 min-w-0">
-                                <div class="roven-feature-name">24+ Hours Royal Longevity &amp; Sillage</div>
-                                <div class="roven-feature-desc">ثبات وفوحان ملكي يدوم أكثر من 24 ساعة على الملابس</div>
-                            </div>
-                            <div class="roven-feature-metric flex-shrink-0 d-flex flex-column text-end">
-                                <span class="metric-val">24h+</span>
-                                <span class="metric-lbl">Long</span>
-                            </div>
-                        </div>
-
-                        <!-- Signature 3: Risk-Free Guarantee -->
-                        <div class="roven-feature-card d-flex align-items-center gap-3">
-                            <div class="roven-feature-icon-box flex-shrink-0">
-                                <i class="fa-solid fa-shield-heart"></i>
-                            </div>
-                            <div class="flex-grow-1 min-w-0">
-                                <div class="roven-feature-name">100% Risk-Free Inspection on Delivery</div>
-                                <div class="roven-feature-desc">حق المعاينة والتجربة الكاملة قبل استلام الطرد والدفع</div>
-                            </div>
-                            <div class="roven-feature-metric flex-shrink-0 d-flex flex-column text-end">
-                                <span class="metric-val">100%</span>
-                                <span class="metric-lbl">COD</span>
-                            </div>
-                        </div>
+                        }
                     </div>
  
                 </div>

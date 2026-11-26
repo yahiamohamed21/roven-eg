@@ -100,6 +100,21 @@ public class HomeControlController : Controller
             if (string.IsNullOrWhiteSpace(settings.ComparisonAfterLabel)) { settings.ComparisonAfterLabel = "After"; needsSave = true; }
             if (string.IsNullOrWhiteSpace(settings.ComparisonBeforeImageUrl)) { settings.ComparisonBeforeImageUrl = "/images/comparison/roven-comparison-before.svg"; needsSave = true; }
             if (string.IsNullOrWhiteSpace(settings.ComparisonAfterImageUrl)) { settings.ComparisonAfterImageUrl = "/images/comparison/roven-comparison-after.svg"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature1Title)) { settings.ComparisonFeature1Title = "Extrait de Parfum (30% Concentration)"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature1Desc)) { settings.ComparisonFeature1Desc = "أعلى تركيز زيوت عطرية نقية معتمدة لثبات وفوحان فائق"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature1MetricVal)) { settings.ComparisonFeature1MetricVal = "30%"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature1MetricLbl)) { settings.ComparisonFeature1MetricLbl = "Pure"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature1Icon)) { settings.ComparisonFeature1Icon = "fa-solid fa-droplet"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature2Title)) { settings.ComparisonFeature2Title = "24+ Hours Royal Longevity & Sillage"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature2Desc)) { settings.ComparisonFeature2Desc = "ثبات وفوحان ملكي يدوم أكثر من 24 ساعة على الملابس"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature2MetricVal)) { settings.ComparisonFeature2MetricVal = "24h+"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature2MetricLbl)) { settings.ComparisonFeature2MetricLbl = "Long"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature2Icon)) { settings.ComparisonFeature2Icon = "fa-solid fa-hourglass-half"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature3Title)) { settings.ComparisonFeature3Title = "100% Risk-Free Inspection on Delivery"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature3Desc)) { settings.ComparisonFeature3Desc = "حق المعاينة والتجربة الكاملة قبل استلام الطرد والدفع"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature3MetricVal)) { settings.ComparisonFeature3MetricVal = "100%"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature3MetricLbl)) { settings.ComparisonFeature3MetricLbl = "COD"; needsSave = true; }
+            if (string.IsNullOrWhiteSpace(settings.ComparisonFeature3Icon)) { settings.ComparisonFeature3Icon = "fa-solid fa-shield-heart"; needsSave = true; }
 
             // Ensure Main Brand Hero properties are initialized with approved defaults
             if (string.IsNullOrWhiteSpace(settings.BrandHeroDesktopImageUrl))
@@ -380,7 +395,22 @@ public class HomeControlController : Controller
         IFormFile? beforeImage,
         string? beforeImageUrl,
         IFormFile? afterImage,
-        string? afterImageUrl)
+        string? afterImageUrl,
+        string? comparisonFeature1Title,
+        string? comparisonFeature1Desc,
+        string? comparisonFeature1MetricVal,
+        string? comparisonFeature1MetricLbl,
+        string? comparisonFeature1Icon,
+        string? comparisonFeature2Title,
+        string? comparisonFeature2Desc,
+        string? comparisonFeature2MetricVal,
+        string? comparisonFeature2MetricLbl,
+        string? comparisonFeature2Icon,
+        string? comparisonFeature3Title,
+        string? comparisonFeature3Desc,
+        string? comparisonFeature3MetricVal,
+        string? comparisonFeature3MetricLbl,
+        string? comparisonFeature3Icon)
     {
         var settings = await _context.HomeSettings.FirstOrDefaultAsync();
         if (settings == null)
@@ -393,11 +423,29 @@ public class HomeControlController : Controller
         settings.ShowComparisonSection = comparisonActive;
         settings.ComparisonBadgeText = !string.IsNullOrWhiteSpace(comparisonBadgeText) ? comparisonBadgeText.Trim() : "MAISON ROVEN • QUALITY PROMISE";
         settings.ComparisonTitle = !string.IsNullOrWhiteSpace(comparisonTitle) ? comparisonTitle.Trim() : "US VS THEM";
-        settings.ComparisonSubtitle = !string.IsNullOrWhiteSpace(comparisonSubtitle) ? comparisonSubtitle.Trim() : "Why settle for the brand name when you can wear the same scent for a fraction of the price?";
+        settings.ComparisonSubtitle = comparisonSubtitle?.Trim() ?? "";
         settings.ComparisonButtonText = !string.IsNullOrWhiteSpace(comparisonButtonText) ? comparisonButtonText.Trim() : "Shop Now";
         settings.ComparisonButtonLink = !string.IsNullOrWhiteSpace(comparisonButtonLink) ? comparisonButtonLink.Trim() : "/Store";
         settings.ComparisonBeforeLabel = !string.IsNullOrWhiteSpace(comparisonBeforeLabel) ? comparisonBeforeLabel.Trim() : "Before";
         settings.ComparisonAfterLabel = !string.IsNullOrWhiteSpace(comparisonAfterLabel) ? comparisonAfterLabel.Trim() : "After";
+
+        settings.ComparisonFeature1Title = comparisonFeature1Title?.Trim() ?? "";
+        settings.ComparisonFeature1Desc = comparisonFeature1Desc?.Trim() ?? "";
+        settings.ComparisonFeature1MetricVal = comparisonFeature1MetricVal?.Trim() ?? "";
+        settings.ComparisonFeature1MetricLbl = comparisonFeature1MetricLbl?.Trim() ?? "";
+        settings.ComparisonFeature1Icon = !string.IsNullOrWhiteSpace(comparisonFeature1Icon) ? comparisonFeature1Icon.Trim() : "fa-solid fa-droplet";
+
+        settings.ComparisonFeature2Title = comparisonFeature2Title?.Trim() ?? "";
+        settings.ComparisonFeature2Desc = comparisonFeature2Desc?.Trim() ?? "";
+        settings.ComparisonFeature2MetricVal = comparisonFeature2MetricVal?.Trim() ?? "";
+        settings.ComparisonFeature2MetricLbl = comparisonFeature2MetricLbl?.Trim() ?? "";
+        settings.ComparisonFeature2Icon = !string.IsNullOrWhiteSpace(comparisonFeature2Icon) ? comparisonFeature2Icon.Trim() : "fa-solid fa-hourglass-half";
+
+        settings.ComparisonFeature3Title = comparisonFeature3Title?.Trim() ?? "";
+        settings.ComparisonFeature3Desc = comparisonFeature3Desc?.Trim() ?? "";
+        settings.ComparisonFeature3MetricVal = comparisonFeature3MetricVal?.Trim() ?? "";
+        settings.ComparisonFeature3MetricLbl = comparisonFeature3MetricLbl?.Trim() ?? "";
+        settings.ComparisonFeature3Icon = !string.IsNullOrWhiteSpace(comparisonFeature3Icon) ? comparisonFeature3Icon.Trim() : "fa-solid fa-shield-heart";
 
         if (beforeImage != null && beforeImage.Length > 0)
         {
@@ -452,6 +500,21 @@ public class HomeControlController : Controller
             settings.ComparisonAfterLabel = "After";
             settings.ComparisonBeforeImageUrl = "/images/comparison/roven-comparison-before.svg";
             settings.ComparisonAfterImageUrl = "/images/comparison/roven-comparison-after.svg";
+            settings.ComparisonFeature1Title = "Extrait de Parfum (30% Concentration)";
+            settings.ComparisonFeature1Desc = "أعلى تركيز زيوت عطرية نقية معتمدة لثبات وفوحان فائق";
+            settings.ComparisonFeature1MetricVal = "30%";
+            settings.ComparisonFeature1MetricLbl = "Pure";
+            settings.ComparisonFeature1Icon = "fa-solid fa-droplet";
+            settings.ComparisonFeature2Title = "24+ Hours Royal Longevity & Sillage";
+            settings.ComparisonFeature2Desc = "ثبات وفوحان ملكي يدوم أكثر من 24 ساعة على الملابس";
+            settings.ComparisonFeature2MetricVal = "24h+";
+            settings.ComparisonFeature2MetricLbl = "Long";
+            settings.ComparisonFeature2Icon = "fa-solid fa-hourglass-half";
+            settings.ComparisonFeature3Title = "100% Risk-Free Inspection on Delivery";
+            settings.ComparisonFeature3Desc = "حق المعاينة والتجربة الكاملة قبل استلام الطرد والدفع";
+            settings.ComparisonFeature3MetricVal = "100%";
+            settings.ComparisonFeature3MetricLbl = "COD";
+            settings.ComparisonFeature3Icon = "fa-solid fa-shield-heart";
 
             await _context.SaveChangesAsync();
             InvalidateStoreCache();
@@ -890,13 +953,28 @@ public class HomeControlController : Controller
         // Comparison Section Details
         if (!string.IsNullOrWhiteSpace(model.ComparisonBadgeText)) settings.ComparisonBadgeText = model.ComparisonBadgeText.Trim();
         if (!string.IsNullOrWhiteSpace(model.ComparisonTitle)) settings.ComparisonTitle = model.ComparisonTitle.Trim();
-        if (!string.IsNullOrWhiteSpace(model.ComparisonSubtitle)) settings.ComparisonSubtitle = model.ComparisonSubtitle.Trim();
+        settings.ComparisonSubtitle = model.ComparisonSubtitle?.Trim() ?? "";
         if (!string.IsNullOrWhiteSpace(model.ComparisonButtonText)) settings.ComparisonButtonText = model.ComparisonButtonText.Trim();
         if (!string.IsNullOrWhiteSpace(model.ComparisonButtonLink)) settings.ComparisonButtonLink = model.ComparisonButtonLink.Trim();
         if (!string.IsNullOrWhiteSpace(model.ComparisonBeforeLabel)) settings.ComparisonBeforeLabel = model.ComparisonBeforeLabel.Trim();
         if (!string.IsNullOrWhiteSpace(model.ComparisonAfterLabel)) settings.ComparisonAfterLabel = model.ComparisonAfterLabel.Trim();
         if (!string.IsNullOrWhiteSpace(model.ComparisonBeforeImageUrl)) settings.ComparisonBeforeImageUrl = model.ComparisonBeforeImageUrl.Trim();
         if (!string.IsNullOrWhiteSpace(model.ComparisonAfterImageUrl)) settings.ComparisonAfterImageUrl = model.ComparisonAfterImageUrl.Trim();
+        settings.ComparisonFeature1Title = model.ComparisonFeature1Title?.Trim() ?? "";
+        settings.ComparisonFeature1Desc = model.ComparisonFeature1Desc?.Trim() ?? "";
+        settings.ComparisonFeature1MetricVal = model.ComparisonFeature1MetricVal?.Trim() ?? "";
+        settings.ComparisonFeature1MetricLbl = model.ComparisonFeature1MetricLbl?.Trim() ?? "";
+        settings.ComparisonFeature1Icon = !string.IsNullOrWhiteSpace(model.ComparisonFeature1Icon) ? model.ComparisonFeature1Icon.Trim() : "fa-solid fa-droplet";
+        settings.ComparisonFeature2Title = model.ComparisonFeature2Title?.Trim() ?? "";
+        settings.ComparisonFeature2Desc = model.ComparisonFeature2Desc?.Trim() ?? "";
+        settings.ComparisonFeature2MetricVal = model.ComparisonFeature2MetricVal?.Trim() ?? "";
+        settings.ComparisonFeature2MetricLbl = model.ComparisonFeature2MetricLbl?.Trim() ?? "";
+        settings.ComparisonFeature2Icon = !string.IsNullOrWhiteSpace(model.ComparisonFeature2Icon) ? model.ComparisonFeature2Icon.Trim() : "fa-solid fa-hourglass-half";
+        settings.ComparisonFeature3Title = model.ComparisonFeature3Title?.Trim() ?? "";
+        settings.ComparisonFeature3Desc = model.ComparisonFeature3Desc?.Trim() ?? "";
+        settings.ComparisonFeature3MetricVal = model.ComparisonFeature3MetricVal?.Trim() ?? "";
+        settings.ComparisonFeature3MetricLbl = model.ComparisonFeature3MetricLbl?.Trim() ?? "";
+        settings.ComparisonFeature3Icon = !string.IsNullOrWhiteSpace(model.ComparisonFeature3Icon) ? model.ComparisonFeature3Icon.Trim() : "fa-solid fa-shield-heart";
 
         // Section Display Order
         settings.OrderBrandHero = model.OrderBrandHero > 0 ? model.OrderBrandHero : 1;

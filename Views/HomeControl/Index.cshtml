@@ -2328,6 +2328,8 @@
                                     <label class="form-label small fw-bold text-secondary mb-1">مسار صورة After الحالية</label>
                                     <input asp-for="ComparisonAfterImageUrl" class="form-control rounded-3 font-monospace form-control-sm" placeholder="/images/comparison/roven-comparison-after.svg" />
                                 </div>
+
+                                <partial name="_ComparisonFeaturesInputs" model="Model" />
                             </div>
                         </div>
                     </div>
@@ -2607,6 +2609,8 @@
                             <label class="form-label small fw-bold text-dark mb-1">النص الوصفي التوضيحي (Subtitle)</label>
                             <textarea name="comparisonSubtitle" class="form-control rounded-3" rows="2" placeholder="Why settle for the brand name when you can wear the same scent for a fraction of the price?">@Model.ComparisonSubtitle</textarea>
                         </div>
+
+                        <partial name="_ComparisonFeaturesInputs" model="Model" />
 
                         <!-- Button Text & Link -->
                         <div class="row g-2">

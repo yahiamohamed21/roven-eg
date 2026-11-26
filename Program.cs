@@ -254,6 +254,24 @@ using (var scope = app.Services.CreateScope())
                 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('OrderItems') AND name = 'SelectedTestersSummary')
                     ALTER TABLE [OrderItems] ADD [SelectedTestersSummary] nvarchar(600) NULL;
 
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('HomeSettings') AND name = 'ComparisonFeature1Title')
+                    ALTER TABLE [HomeSettings] ADD
+                        [ComparisonFeature1Title] nvarchar(200) NOT NULL DEFAULT N'Extrait de Parfum (30% Concentration)',
+                        [ComparisonFeature1Desc] nvarchar(350) NOT NULL DEFAULT N'أعلى تركيز زيوت عطرية نقية معتمدة لثبات وفوحان فائق',
+                        [ComparisonFeature1MetricVal] nvarchar(40) NOT NULL DEFAULT N'30%',
+                        [ComparisonFeature1MetricLbl] nvarchar(40) NOT NULL DEFAULT N'Pure',
+                        [ComparisonFeature1Icon] nvarchar(100) NOT NULL DEFAULT N'fa-solid fa-droplet',
+                        [ComparisonFeature2Title] nvarchar(200) NOT NULL DEFAULT N'24+ Hours Royal Longevity & Sillage',
+                        [ComparisonFeature2Desc] nvarchar(350) NOT NULL DEFAULT N'ثبات وفوحان ملكي يدوم أكثر من 24 ساعة على الملابس',
+                        [ComparisonFeature2MetricVal] nvarchar(40) NOT NULL DEFAULT N'24h+',
+                        [ComparisonFeature2MetricLbl] nvarchar(40) NOT NULL DEFAULT N'Long',
+                        [ComparisonFeature2Icon] nvarchar(100) NOT NULL DEFAULT N'fa-solid fa-hourglass-half',
+                        [ComparisonFeature3Title] nvarchar(200) NOT NULL DEFAULT N'100% Risk-Free Inspection on Delivery',
+                        [ComparisonFeature3Desc] nvarchar(350) NOT NULL DEFAULT N'حق المعاينة والتجربة الكاملة قبل استلام الطرد والدفع',
+                        [ComparisonFeature3MetricVal] nvarchar(40) NOT NULL DEFAULT N'100%',
+                        [ComparisonFeature3MetricLbl] nvarchar(40) NOT NULL DEFAULT N'COD',
+                        [ComparisonFeature3Icon] nvarchar(100) NOT NULL DEFAULT N'fa-solid fa-shield-heart';
+
                 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ProductTesterOptions')
                 BEGIN
                     CREATE TABLE [ProductTesterOptions] (

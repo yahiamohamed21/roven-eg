@@ -196,6 +196,52 @@ public class HomeSetting
     [MaxLength(100)]
     public string ComparisonAfterLabel { get; set; } = "After";
 
+    // US vs THEM 3 Feature Plaque Cards (Fully Editable)
+    [MaxLength(200)]
+    public string ComparisonFeature1Title { get; set; } = "Extrait de Parfum (30% Concentration)";
+
+    [MaxLength(350)]
+    public string ComparisonFeature1Desc { get; set; } = "أعلى تركيز زيوت عطرية نقية معتمدة لثبات وفوحان فائق";
+
+    [MaxLength(40)]
+    public string ComparisonFeature1MetricVal { get; set; } = "30%";
+
+    [MaxLength(40)]
+    public string ComparisonFeature1MetricLbl { get; set; } = "Pure";
+
+    [MaxLength(100)]
+    public string ComparisonFeature1Icon { get; set; } = "fa-solid fa-droplet";
+
+    [MaxLength(200)]
+    public string ComparisonFeature2Title { get; set; } = "24+ Hours Royal Longevity & Sillage";
+
+    [MaxLength(350)]
+    public string ComparisonFeature2Desc { get; set; } = "ثبات وفوحان ملكي يدوم أكثر من 24 ساعة على الملابس";
+
+    [MaxLength(40)]
+    public string ComparisonFeature2MetricVal { get; set; } = "24h+";
+
+    [MaxLength(40)]
+    public string ComparisonFeature2MetricLbl { get; set; } = "Long";
+
+    [MaxLength(100)]
+    public string ComparisonFeature2Icon { get; set; } = "fa-solid fa-hourglass-half";
+
+    [MaxLength(200)]
+    public string ComparisonFeature3Title { get; set; } = "100% Risk-Free Inspection on Delivery";
+
+    [MaxLength(350)]
+    public string ComparisonFeature3Desc { get; set; } = "حق المعاينة والتجربة الكاملة قبل استلام الطرد والدفع";
+
+    [MaxLength(40)]
+    public string ComparisonFeature3MetricVal { get; set; } = "100%";
+
+    [MaxLength(40)]
+    public string ComparisonFeature3MetricLbl { get; set; } = "COD";
+
+    [MaxLength(100)]
+    public string ComparisonFeature3Icon { get; set; } = "fa-solid fa-shield-heart";
+
     // Section Toggles
     public bool ShowBrandHero { get; set; } = true;
     public bool ShowHeroBanners { get; set; } = true;

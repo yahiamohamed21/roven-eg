@@ -1,0 +1,77 @@
+@model Stockify.Models.Entities.HomeSetting
+@{
+    var iconOptions = new (string Value, string Label)[]
+    {
+        ("fa-solid fa-droplet", "قطرة زيت عطري (Droplet)"),
+        ("fa-solid fa-hourglass-half", "ساعة زمنية / ثبات (Hourglass)"),
+        ("fa-solid fa-shield-heart", "درع أمان وضمان (Shield)"),
+        ("fa-solid fa-crown", "تاج ملكي (Crown)"),
+        ("fa-solid fa-gem", "جوهرة فاخرة (Gem)"),
+        ("fa-solid fa-award", "شهادة جودة (Award)"),
+        ("fa-solid fa-star", "نجمة تميز (Star)"),
+        ("fa-solid fa-truck-fast", "شحن سريع (Truck)"),
+        ("fa-solid fa-wand-magic-sparkles", "تألق وفوحان (Sparkles)"),
+        ("fa-solid fa-flask-vial", "تركيز نقي (Flask)")
+    };
+
+    var cards = new (int Index, string CardHeading, string TitleName, string TitleVal, string DescName, string DescVal, string ValName, string ValVal, string LblName, string LblVal, string IconName, string IconVal)[]
+    {
+        (1, "البطاقة الأولى (Card 1 — مثال: التركيز 30%)", "ComparisonFeature1Title", Model.ComparisonFeature1Title, "ComparisonFeature1Desc", Model.ComparisonFeature1Desc, "ComparisonFeature1MetricVal", Model.ComparisonFeature1MetricVal, "ComparisonFeature1MetricLbl", Model.ComparisonFeature1MetricLbl, "ComparisonFeature1Icon", Model.ComparisonFeature1Icon),
+        (2, "البطاقة الثانية (Card 2 — مثال: الثبات 24h+)", "ComparisonFeature2Title", Model.ComparisonFeature2Title, "ComparisonFeature2Desc", Model.ComparisonFeature2Desc, "ComparisonFeature2MetricVal", Model.ComparisonFeature2MetricVal, "ComparisonFeature2MetricLbl", Model.ComparisonFeature2MetricLbl, "ComparisonFeature2Icon", Model.ComparisonFeature2Icon),
+        (3, "البطاقة الثالثة (Card 3 — مثال: المعاينة 100%)", "ComparisonFeature3Title", Model.ComparisonFeature3Title, "ComparisonFeature3Desc", Model.ComparisonFeature3Desc, "ComparisonFeature3MetricVal", Model.ComparisonFeature3MetricVal, "ComparisonFeature3MetricLbl", Model.ComparisonFeature3MetricLbl, "ComparisonFeature3Icon", Model.ComparisonFeature3Icon)
+    };
+}
+
+<div class="col-12 mt-2">
+    <div class="p-3 rounded-4 border bg-white">
+        <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+            <span class="fw-bold text-dark small">
+                <i class="fa-solid fa-layer-group me-1.5" style="color: #810100;"></i>
+                كروت المميزات والنصوص الـ 3 (Feature Plaque Cards — US vs THEM)
+            </span>
+            <span class="text-muted" style="font-size: 0.72rem;">تحكم في العنوان والوصف والرقم والأيقونة لكل بطاقة</span>
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+            @foreach (var card in cards)
+            {
+                <div class="p-2.5 px-3 rounded-3 border bg-light" style="border-color: #ebe4d7 !important;">
+                    <div class="fw-bold small mb-2" style="color: #630000; font-size: 0.8rem;">
+                        <span class="badge bg-white text-dark border me-1">#@card.Index</span>@card.CardHeading
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-12 col-md-7">
+                            <label class="form-label text-muted small mb-0.5" style="font-size: 0.72rem;">عنوان البطاقة الرئيسي (Title)</label>
+                            <input type="text" name="@card.TitleName" value="@card.TitleVal" class="form-control form-control-sm rounded-3 fw-semibold" />
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <label class="form-label text-muted small mb-0.5" style="font-size: 0.72rem;">الرقم/القيمة (Stat)</label>
+                            <input type="text" name="@card.ValName" value="@card.ValVal" class="form-control form-control-sm rounded-3 font-monospace fw-bold" placeholder="30%" />
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label class="form-label text-muted small mb-0.5" style="font-size: 0.72rem;">الوصف المختصر (Unit)</label>
+                            <input type="text" name="@card.LblName" value="@card.LblVal" class="form-control form-control-sm rounded-3" placeholder="Pure" />
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <label class="form-label text-muted small mb-0.5" style="font-size: 0.72rem;">النص الوصفي أسفل العنوان (Description)</label>
+                            <input type="text" name="@card.DescName" value="@card.DescVal" class="form-control form-control-sm rounded-3" />
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label text-muted small mb-0.5" style="font-size: 0.72rem;">الأيقونة (Icon)</label>
+                            <select name="@card.IconName" class="form-select form-select-sm rounded-3">
+                                @foreach (var opt in iconOptions)
+                                {
+                                    <option value="@opt.Value" selected="@(string.Equals(card.IconVal, opt.Value, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@opt.Label</option>
+                                }
+                                @if (!iconOptions.Any(o => string.Equals(o.Value, card.IconVal, StringComparison.OrdinalIgnoreCase)) && !string.IsNullOrWhiteSpace(card.IconVal))
+                                {
+                                    <option value="@card.IconVal" selected="selected">@card.IconVal</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
