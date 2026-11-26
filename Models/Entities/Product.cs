@@ -43,6 +43,9 @@ public class Product
     public bool IsTester { get; set; } = false;
     public int TesterRequiredCount { get; set; } = 4;
 
+    // Catalog & Admin Display Ordering
+    public int DisplayOrder { get; set; } = 0;
+
     public int CategoryId { get; set; }
     public Category? Category { get; set; }
     public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();

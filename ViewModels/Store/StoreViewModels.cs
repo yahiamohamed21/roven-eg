@@ -124,6 +124,7 @@ public class StoreProductCardViewModel
     public bool IsFeatured { get; set; }
     public bool IsTester { get; set; }
     public int TesterRequiredCount { get; set; } = 4;
+    public int DisplayOrder { get; set; } = 0;
     public bool IsOutOfStock => StockQuantity <= 0;
     public bool IsLowStock => StockQuantity > 0 && StockQuantity <= 5;
     public List<StoreProductSizeViewModel> Sizes { get; set; } = new();

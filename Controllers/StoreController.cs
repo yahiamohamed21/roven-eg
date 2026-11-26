@@ -79,7 +79,8 @@ public class StoreController : Controller
                 .Include(p => p.ProductCategories)
                     .ThenInclude(pc => pc.Category)
                 .Where(p => p.IsActive && p.IsPublished)
-                .OrderByDescending(p => p.CreatedAt)
+                .OrderBy(p => p.DisplayOrder)
+                .ThenByDescending(p => p.CreatedAt)
                 .Select(p => new StoreProductCardViewModel
                 {
                     Id = p.Id,
@@ -94,7 +95,8 @@ public class StoreController : Controller
                     CategoryName = p.Category != null ? p.Category.Name : "General",
                     CategoryIds = p.ProductCategories.Select(pc => pc.CategoryId).ToList(),
                     CategoryNames = p.ProductCategories.Select(pc => pc.Category.Name).ToList(),
-                    IsFeatured = p.IsFeatured
+                    IsFeatured = p.IsFeatured,
+                    DisplayOrder = p.DisplayOrder
                 })
                 .ToListAsync();
 
@@ -192,7 +194,7 @@ public class StoreController : Controller
             "price_desc" => query.OrderByDescending(p => p.Price),
             "name_asc" => query.OrderBy(p => p.Name),
             "name_desc" => query.OrderByDescending(p => p.Name),
-            _ => query.OrderByDescending(p => p.Id)
+            _ => query.OrderBy(p => p.DisplayOrder).ThenByDescending(p => p.Id)
         };
 
         var products = query.ToList();

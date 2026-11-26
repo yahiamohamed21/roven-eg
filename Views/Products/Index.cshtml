@@ -6,6 +6,44 @@
     var lowStock = ViewBag.LowStockCount ?? 0;
     var outOfStock = ViewBag.OutOfStockCount ?? 0;
     var categories = ViewBag.Categories as List<SelectListItem> ?? new List<SelectListItem>();
+    var isAdmin = User.IsInRole(Stockify.Common.Constants.Roles.Admin);
+}
+
+@if (isAdmin)
+{
+    <form id="productsReorderTokenForm" class="d-none" aria-hidden="true">
+        @Html.AntiForgeryToken()
+    </form>
+    <style>
+        tr.roven-draggable-row {
+            transition: background-color 0.15s ease, opacity 0.15s ease;
+        }
+        tr.roven-draggable-row.roven-dragging {
+            opacity: 0.5;
+            background-color: #FAF6EE !important;
+        }
+        tr.roven-draggable-row.roven-drag-over {
+            box-shadow: inset 0 3px 0 #630000;
+            background-color: rgba(99, 0, 0, 0.04) !important;
+        }
+        .roven-drag-handle {
+            cursor: grab;
+            color: #9e9488;
+        }
+        .roven-drag-handle:active {
+            cursor: grabbing;
+            color: #630000;
+        }
+        .roven-move-btn {
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+    </style>
 }
 
 <!-- Header -->
@@ -82,7 +120,7 @@
 </div>
 
 <!-- Table Card -->
-<div class="card border-0 shadow-sm" data-page-size="10">
+<div class="card border-0 shadow-sm" data-page-size="50">
     <!-- Filter Bar -->
     <div class="card-header bg-white py-3">
         <form method="get" class="row g-2 align-items-center">
@@ -122,23 +160,50 @@
 
     <!-- Data Table -->
     <div class="table-responsive">
-        <table class="table align-middle">
+        <table class="table align-middle" id="adminProductsTable">
             <thead>
                 <tr>
-                    <th style="width: 35%;">Product</th>
-                    <th style="width: 15%;">SKU</th>
+                    @if (isAdmin)
+                    {
+                        <th style="width: 96px;" title="اسحب الصف أو استخدم الأسهم لتغيير الترتيب">Order</th>
+                    }
+                    <th style="width: 33%;">Product</th>
+                    <th style="width: 12%;">SKU</th>
                     <th style="width: 15%;">Category</th>
-                    <th style="width: 12%;">Price (EGP)</th>
+                    <th style="width: 14%;">Price (EGP)</th>
                     <th style="width: 10%;">Stock</th>
-                    <th style="width: 13%;" class="text-end">Actions</th>
+                    <th style="width: 12%;" class="text-end">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="adminProductsTbody">
                 @if (Model != null && Model.Any())
                 {
+                    int rowIdx = 0;
                     foreach (var p in Model)
                     {
-                        <tr class="@(!p.IsActive ? "opacity-75 bg-light" : "")">
+                        rowIdx++;
+                        <tr class="@(!p.IsActive ? "opacity-75 bg-light" : "") @(isAdmin ? "roven-draggable-row" : "")"
+                            data-product-id="@p.Id"
+                            draggable="@(isAdmin ? "true" : "false")">
+                            @if (isAdmin)
+                            {
+                                <td>
+                                    <div class="d-flex align-items-center gap-1.5">
+                                        <span class="roven-drag-handle px-1" title="اسحب لتغيير الترتيب">
+                                            <i class="fa-solid fa-grip-vertical"></i>
+                                        </span>
+                                        <span class="badge bg-light text-dark border font-monospace roven-order-badge" style="min-width: 26px;">@rowIdx</span>
+                                        <div class="d-flex flex-column gap-0.5">
+                                            <button type="button" class="btn btn-outline-secondary rounded roven-move-btn roven-move-up" title="تحريك لأعلى" onclick="moveProductRow(this, -1)">
+                                                <i class="fa-solid fa-chevron-up"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary rounded roven-move-btn roven-move-down" title="تحريك لأسفل" onclick="moveProductRow(this, 1)">
+                                                <i class="fa-solid fa-chevron-down"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            }
                             <td>
                                 <div class="d-flex align-items-center gap-3">
                                     @if (!string.IsNullOrEmpty(p.ImageUrl))
@@ -234,7 +299,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">
+                        <td colspan="@(isAdmin ? 7 : 6)" class="text-center py-5 text-muted">
                             <i class="bi bi-box-seam fs-2 d-block mb-2 text-secondary"></i>
                             No products matching criteria found in inventory.
                         </td>
@@ -287,5 +352,114 @@
             setTimeout(ensurePaginationControls, 400);
             setTimeout(ensurePaginationControls, 1000);
         })();
+
+        @if (isAdmin)
+        {
+            <text>
+            (function () {
+                const tbody = document.getElementById('adminProductsTbody');
+                if (!tbody) return;
+
+                let draggedRow = null;
+
+                function refreshOrderBadges() {
+                    const rows = Array.from(tbody.querySelectorAll('tr[data-product-id]'));
+                    rows.forEach((r, idx) => {
+                        const badge = r.querySelector('.roven-order-badge');
+                        if (badge) badge.textContent = idx + 1;
+                        const upBtn = r.querySelector('.roven-move-up');
+                        const downBtn = r.querySelector('.roven-move-down');
+                        if (upBtn) upBtn.disabled = idx === 0;
+                        if (downBtn) downBtn.disabled = idx === rows.length - 1;
+                    });
+                }
+
+                async function persistOrder() {
+                    refreshOrderBadges();
+                    const orderedIds = Array.from(tbody.querySelectorAll('tr[data-product-id]'))
+                        .map(r => parseInt(r.dataset.productId))
+                        .filter(id => !isNaN(id) && id > 0);
+                    if (orderedIds.length === 0) return;
+
+                    const csrf = document.querySelector('#productsReorderTokenForm input[name="__RequestVerificationToken"]')?.value
+                        || document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+
+                    try {
+                        const res = await fetch('/Products/ReorderProducts', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': csrf
+                            },
+                            body: JSON.stringify(orderedIds)
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data.success && window.StockifyAlert) {
+                                window.StockifyAlert.toastSuccess('تم حفظ ترتيب المنتجات');
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Reorder save error:', err);
+                    }
+                }
+
+                window.moveProductRow = function (btn, delta) {
+                    const row = btn?.closest('tr[data-product-id]');
+                    if (!row) return;
+                    const rows = Array.from(tbody.querySelectorAll('tr[data-product-id]'));
+                    const idx = rows.indexOf(row);
+                    const targetIdx = idx + delta;
+                    if (targetIdx < 0 || targetIdx >= rows.length) return;
+                    if (delta < 0) {
+                        tbody.insertBefore(row, rows[targetIdx]);
+                    } else {
+                        tbody.insertBefore(rows[targetIdx], row);
+                    }
+                    persistOrder();
+                };
+
+                tbody.addEventListener('dragstart', function (e) {
+                    const row = e.target.closest('tr.roven-draggable-row');
+                    if (!row) return;
+                    draggedRow = row;
+                    row.classList.add('roven-dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', row.dataset.productId || '');
+                });
+
+                tbody.addEventListener('dragover', function (e) {
+                    e.preventDefault();
+                    if (!draggedRow) return;
+                    const targetRow = e.target.closest('tr.roven-draggable-row');
+                    tbody.querySelectorAll('.roven-drag-over').forEach(el => el.classList.remove('roven-drag-over'));
+                    if (targetRow && targetRow !== draggedRow) {
+                        targetRow.classList.add('roven-drag-over');
+                    }
+                });
+
+                tbody.addEventListener('drop', function (e) {
+                    e.preventDefault();
+                    tbody.querySelectorAll('.roven-drag-over').forEach(el => el.classList.remove('roven-drag-over'));
+                    if (!draggedRow) return;
+                    const targetRow = e.target.closest('tr.roven-draggable-row');
+                    if (targetRow && targetRow !== draggedRow) {
+                        const rect = targetRow.getBoundingClientRect();
+                        const after = (e.clientY - rect.top) > (rect.height / 2);
+                        tbody.insertBefore(draggedRow, after ? targetRow.nextSibling : targetRow);
+                        persistOrder();
+                    }
+                });
+
+                tbody.addEventListener('dragend', function () {
+                    if (draggedRow) draggedRow.classList.remove('roven-dragging');
+                    tbody.querySelectorAll('.roven-drag-over').forEach(el => el.classList.remove('roven-drag-over'));
+                    draggedRow = null;
+                });
+
+                refreshOrderBadges();
+            })();
+            </text>
+        }
     </script>
 }

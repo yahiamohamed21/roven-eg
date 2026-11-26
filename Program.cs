@@ -251,6 +251,9 @@ using (var scope = app.Services.CreateScope())
                 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Products') AND name = 'TesterRequiredCount')
                     ALTER TABLE [Products] ADD [TesterRequiredCount] int NOT NULL DEFAULT 4;
 
+                IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Products') AND name = 'DisplayOrder')
+                    ALTER TABLE [Products] ADD [DisplayOrder] int NOT NULL DEFAULT 0;
+
                 IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('OrderItems') AND name = 'SelectedTestersSummary')
                     ALTER TABLE [OrderItems] ADD [SelectedTestersSummary] nvarchar(600) NULL;
 
@@ -308,6 +311,20 @@ using (var scope = app.Services.CreateScope())
                 UPDATE [Products]
                 SET [ProfitAmount] = [Price]
                 WHERE [CostPrice] = 0 AND [ProfitAmount] = 0 AND [Price] > 0;
+
+                -- Backfill initial DisplayOrder for existing products if not yet assigned
+                IF EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Products') AND name = 'DisplayOrder')
+                   AND NOT EXISTS (SELECT 1 FROM [Products] WHERE [DisplayOrder] <> 0)
+                BEGIN
+                    ;WITH OrderedProducts AS (
+                        SELECT [Id], ROW_NUMBER() OVER (ORDER BY [Name] ASC, [Id] ASC) AS rn
+                        FROM [Products]
+                    )
+                    UPDATE p
+                    SET [DisplayOrder] = o.rn
+                    FROM [Products] p
+                    INNER JOIN OrderedProducts o ON p.[Id] = o.[Id];
+                END;
 
                 -- Seed default 100ml size row for any existing product missing ProductSizes
                 IF EXISTS (SELECT * FROM sys.tables WHERE name = 'ProductSizes') AND EXISTS (SELECT * FROM sys.tables WHERE name = 'Products')

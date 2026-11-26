@@ -178,7 +178,9 @@ public class ProductsController : Controller
         }
 
         var products = await query
-            .OrderBy(p => p.Name)
+            .OrderBy(p => p.DisplayOrder)
+            .ThenBy(p => p.Name)
+            .ThenBy(p => p.Id)
             .Select(p => new ProductViewModel
             {
                 Id = p.Id,
@@ -200,6 +202,7 @@ public class ProductsController : Controller
                 IsTester = p.IsTester,
                 TesterRequiredCount = p.TesterRequiredCount,
                 TesterOptionsCount = p.TesterOptions.Count,
+                DisplayOrder = p.DisplayOrder,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category != null ? p.Category.Name : "General",
                 CategoryNames = p.ProductCategories.Any() ? p.ProductCategories.Select(pc => pc.Category.Name).ToList() : new List<string> { p.Category != null ? p.Category.Name : "General" },
@@ -208,6 +211,65 @@ public class ProductsController : Controller
             .ToListAsync();
 
         return View(products);
+    }
+
+    // POST: Products/ReorderProducts
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> ReorderProducts([FromBody] List<int> orderedIds)
+    {
+        if (orderedIds == null || orderedIds.Count == 0)
+        {
+            return Json(new { success = false, message = "لم يتم إرسال قائمة الترتيب." });
+        }
+
+        var distinctIds = orderedIds.Distinct().ToList();
+        var products = await _context.Products
+            .Where(p => distinctIds.Contains(p.Id))
+            .ToListAsync();
+
+        if (products.Count == 0)
+        {
+            return Json(new { success = false, message = "لم يتم العثور على المنتجات المحددة." });
+        }
+
+        // Preserve slot numbers of the subset when filtered, or 1..N when reordering all
+        var totalProductsCount = await _context.Products.CountAsync();
+        List<int> targetSlots;
+        if (products.Count == totalProductsCount)
+        {
+            targetSlots = Enumerable.Range(1, products.Count).ToList();
+        }
+        else
+        {
+            targetSlots = products
+                .Select(p => p.DisplayOrder)
+                .OrderBy(o => o)
+                .ToList();
+
+            // If legacy rows share 0 slots, fall back to sequential offsets
+            if (targetSlots.Distinct().Count() < products.Count)
+            {
+                int baseSlot = targetSlots.FirstOrDefault() > 0 ? targetSlots.First() : 1;
+                targetSlots = Enumerable.Range(baseSlot, products.Count).ToList();
+            }
+        }
+
+        var productMap = products.ToDictionary(p => p.Id);
+        int slotIndex = 0;
+        foreach (var id in distinctIds)
+        {
+            if (productMap.TryGetValue(id, out var prod) && slotIndex < targetSlots.Count)
+            {
+                prod.DisplayOrder = targetSlots[slotIndex++];
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        InvalidateStoreCache();
+
+        return Json(new { success = true, message = "تم حفظ ترتيب المنتجات بنجاح." });
     }
 
     // GET: Products/Create
@@ -313,6 +375,8 @@ public class ProductsController : Controller
                 }
             }
 
+            var nextOrder = (await _context.Products.MaxAsync(p => (int?)p.DisplayOrder) ?? 0) + 1;
+
             var product = new Product
             {
                 Name = (model.Name ?? string.Empty).Trim(),
@@ -331,6 +395,7 @@ public class ProductsController : Controller
                 IsBestSeller = model.IsBestSeller,
                 IsTester = model.IsTester,
                 TesterRequiredCount = model.TesterRequiredCount,
+                DisplayOrder = nextOrder,
                 Projection = model.Projection,
                 InspiredBy = string.IsNullOrWhiteSpace(model.InspiredBy) ? null : model.InspiredBy.Trim(),
                 IsFragranceProfileApproved = model.IsFragranceProfileApproved,
