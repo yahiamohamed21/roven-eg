@@ -43,6 +43,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     // Bidirectional Catalog Synchronization (Phase 7)
     public DbSet<SyncOutboxEvent> SyncOutboxEvents => Set<SyncOutboxEvent>();
+
+    // Web Push Notifications (PWA / iOS Home Screen)
+    public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
+    public DbSet<PushVapidSetting> PushVapidSettings => Set<PushVapidSetting>();
     public DbSet<SyncConflict> SyncConflicts => Set<SyncConflict>();
     public DbSet<SyncStateRecord> SyncStateRecords => Set<SyncStateRecord>();
     public DbSet<SyncHistoryLog> SyncHistoryLogs => Set<SyncHistoryLog>();

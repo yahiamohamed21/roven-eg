@@ -25,6 +25,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICatalogSyncService, CatalogSyncService>();
         services.AddHostedService<CatalogSyncBackgroundService>();
 
+        // Web Push Notifications (PWA / iOS Home Screen)
+        services.AddScoped<IPushNotificationService, WebPushNotificationService>();
+        services.AddHostedService<AbandonedCartPushBackgroundService>();
+
         return services;
     }
 }

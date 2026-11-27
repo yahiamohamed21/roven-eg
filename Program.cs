@@ -375,6 +375,46 @@ using (var scope = app.Services.CreateScope())
             logger.LogWarning(ex, "AbandonedCheckouts deduplication cleanup: {Message}", ex.Message);
         }
 
+        // Ensure Web Push Subscriptions & VAPID Settings tables and AbandonedCheckouts.AdminPushSentAt exist
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                IF OBJECT_ID(N'[PushSubscriptions]', N'U') IS NULL
+                BEGIN
+                    CREATE TABLE [PushSubscriptions] (
+                        [Id] int NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                        [Endpoint] nvarchar(1024) NOT NULL,
+                        [P256dh] nvarchar(512) NOT NULL,
+                        [Auth] nvarchar(512) NOT NULL,
+                        [UserId] nvarchar(256) NULL,
+                        [UserAgent] nvarchar(512) NULL,
+                        [CreatedAt] datetime2 NOT NULL DEFAULT GETUTCDATE(),
+                        [LastSuccessAt] datetime2 NULL
+                    );
+                END;
+
+                IF OBJECT_ID(N'[PushVapidSettings]', N'U') IS NULL
+                BEGIN
+                    CREATE TABLE [PushVapidSettings] (
+                        [Id] int NOT NULL IDENTITY(1,1) PRIMARY KEY,
+                        [Subject] nvarchar(256) NOT NULL,
+                        [PublicKey] nvarchar(512) NOT NULL,
+                        [PrivateKey] nvarchar(512) NOT NULL,
+                        [CreatedAt] datetime2 NOT NULL DEFAULT GETUTCDATE()
+                    );
+                END;
+
+                IF COL_LENGTH(N'[AbandonedCheckouts]', N'AdminPushSentAt') IS NULL
+                BEGIN
+                    ALTER TABLE [AbandonedCheckouts] ADD [AdminPushSentAt] datetime2 NULL;
+                END;
+            ");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Web Push schema initialization: {Message}", ex.Message);
+        }
+
         // Ensure Comparison Section settings are initialized with active status
         var homeSetting = await context.HomeSettings.FirstOrDefaultAsync();
         if (homeSetting != null)

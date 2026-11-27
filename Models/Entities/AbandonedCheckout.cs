@@ -19,6 +19,7 @@ public class AbandonedCheckout
     public int ItemCount { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime LastUpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? AdminPushSentAt { get; set; }
     public bool IsRecovered { get; set; } = false;
     public int? RecoveredOrderId { get; set; }
     public Order? RecoveredOrder { get; set; }

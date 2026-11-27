@@ -12,15 +12,18 @@ public class OrderService : IOrderService
     private readonly ApplicationDbContext _context;
     private readonly ILogger<OrderService> _logger;
     private readonly IStoreCacheService _storeCacheService;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     public OrderService(
         ApplicationDbContext context,
         ILogger<OrderService> logger,
-        IStoreCacheService storeCacheService)
+        IStoreCacheService storeCacheService,
+        IServiceScopeFactory scopeFactory)
     {
         _context = context;
         _logger = logger;
         _storeCacheService = storeCacheService;
+        _scopeFactory = scopeFactory;
     }
 
     private static (int? SizeId, string? SizeLabel, decimal UnitCost, decimal UnitProfit, decimal UnitPrice) ResolveLinePricing(
@@ -447,6 +450,45 @@ public class OrderService : IOrderService
                 {
                     _logger.LogError(cacheEx, "Failed to invalidate store catalog cache after order {OrderNumber} creation.", order.OrderNumber);
                 }
+
+                // Dispatch Web Push notifications (new order + any low-stock product) asynchronously
+                var pushOrderId = order.Id;
+                var pushOrderNumber = order.OrderNumber;
+                var pushCustomerName = !string.IsNullOrWhiteSpace(request.CustomerName)
+                    ? request.CustomerName.Trim()
+                    : (resolvedCustomer?.FullName ?? "عميل");
+                var pushTotalAmount = order.TotalAmount;
+                var pushProductIds = request.Items.Select(i => i.ProductId).Distinct().ToList();
+
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        using var scope = _scopeFactory.CreateScope();
+                        var pushService = scope.ServiceProvider.GetRequiredService<IPushNotificationService>();
+                        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+                        await pushService.NotifyNewOrderAsync(pushOrderId, pushOrderNumber, pushCustomerName, pushTotalAmount);
+
+                        if (pushProductIds.Count > 0)
+                        {
+                            var lowStockProducts = await db.Products
+                                .AsNoTracking()
+                                .Where(p => pushProductIds.Contains(p.Id) && p.IsActive && p.StockQuantity <= p.ReorderLevel)
+                                .Select(p => new { p.Name, p.StockQuantity, p.ReorderLevel })
+                                .ToListAsync();
+
+                            foreach (var prod in lowStockProducts)
+                            {
+                                await pushService.NotifyLowStockAsync(prod.Name, prod.StockQuantity, prod.ReorderLevel);
+                            }
+                        }
+                    }
+                    catch (Exception pushEx)
+                    {
+                        _logger.LogWarning(pushEx, "Web Push dispatch failed for order {OrderNumber}: {Message}", pushOrderNumber, pushEx.Message);
+                    }
+                });
 
                 return new CreateOrderResult
                 {
