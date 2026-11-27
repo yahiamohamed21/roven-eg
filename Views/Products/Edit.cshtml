@@ -38,30 +38,7 @@
                             <span asp-validation-for="Sku" class="text-danger small"></span>
                         </div>
 
-                        <div class="col-12 col-md-6">
-                            <label class="form-label small fw-semibold text-secondary d-flex justify-content-between align-items-center mb-1">
-                                <span><i class="bi bi-tags-fill text-primary me-1"></i>Categories / الأقسام <span class="text-danger">*</span></span>
-                                <span class="badge bg-light text-secondary border fw-normal" style="font-size: 0.72rem;">يمكن اختيار أكثر من قسم</span>
-                            </label>
-                            <div class="p-2.5 border rounded-3 bg-light" style="max-height: 175px; overflow-y: auto;">
-                                <div class="row g-1.5">
-                                    @foreach (var item in Model.CategoriesList)
-                                    {
-                                        var catId = int.Parse(item.Value);
-                                        var isChecked = Model.SelectedCategoryIds != null && Model.SelectedCategoryIds.Contains(catId);
-                                        <div class="col-12 col-sm-6">
-                                            <label class="d-flex align-items-center gap-2 p-2 rounded-2 border bg-white mb-0 h-100" style="cursor: pointer; transition: all 0.18s ease;">
-                                                <input type="checkbox" name="SelectedCategoryIds" value="@item.Value" class="form-check-input mt-0 roven-category-check flex-shrink-0" @(isChecked ? "checked" : "") onchange="updatePrimaryCategory()" />
-                                                <span class="small fw-semibold text-dark text-truncate">@item.Text</span>
-                                            </label>
-                                        </div>
-                                    }
-                                </div>
-                                <input type="hidden" asp-for="CategoryId" id="primaryCategoryIdInput" />
-                            </div>
-                            <span asp-validation-for="SelectedCategoryIds" class="text-danger small mt-1 d-block"></span>
-                            <small class="text-muted d-block mt-1">اختر قسماً واحداً أو أكثر (مثل: Best Seller + Winter معاً).</small>
-                        </div>
+                        <partial name="_CategorySelectorSection" model="Model" />
 
                         <div class="col-12 col-md-6">
                             <div class="row g-3">

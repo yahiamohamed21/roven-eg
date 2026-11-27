@@ -1,0 +1,84 @@
+@model dynamic
+@{
+    var categories = Model.CategoriesList as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+    var selectedIds = Model.SelectedCategoryIds as IEnumerable<int> ?? Enumerable.Empty<int>();
+    var selectedSet = selectedIds.ToHashSet();
+}
+
+<style>
+    .roven-cat-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.48rem 0.9rem;
+        border-radius: 999px;
+        border: 1.5px solid #dfd7c8;
+        background: #ffffff;
+        color: #1B1717;
+        font-size: 0.84rem;
+        font-weight: 600;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.18s ease;
+        box-shadow: 0 1px 2px rgba(27, 23, 23, 0.04);
+    }
+    .roven-cat-chip:hover {
+        border-color: #810100;
+        background: #fdfaf5;
+        transform: translateY(-1px);
+    }
+    .roven-cat-chip.is-selected {
+        background: linear-gradient(135deg, #630000 0%, #810100 100%);
+        border-color: #630000;
+        color: #EDEBDD;
+        box-shadow: 0 4px 10px rgba(99, 0, 0, 0.22);
+    }
+    .roven-cat-chip-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 1.5px solid #cfc5b4;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.62rem;
+        background: #ffffff;
+        color: transparent;
+        transition: all 0.16s ease;
+        flex-shrink: 0;
+    }
+    .roven-cat-chip.is-selected .roven-cat-chip-dot {
+        border-color: #EDEBDD;
+        background: #EDEBDD;
+        color: #630000;
+    }
+</style>
+
+<div class="col-12 col-md-6">
+    <label class="form-label small fw-semibold text-secondary d-flex justify-content-between align-items-center mb-1.5">
+        <span><i class="bi bi-tags-fill me-1" style="color: #630000;"></i>Categories / الأقسام <span class="text-danger">*</span></span>
+        <span class="badge rounded-pill border fw-normal px-2.5 py-1" style="background: #FAF6EE; color: #630000; border-color: #e4d6bf !important; font-size: 0.72rem;">يمكن اختيار أكثر من قسم</span>
+    </label>
+    <div class="p-3 rounded-3 border" style="background: #FAF8F4; border-color: #e6dfd1 !important; max-height: 185px; overflow-y: auto; overflow-x: hidden;">
+        <div class="d-flex flex-wrap gap-2">
+            @foreach (var item in categories)
+            {
+                var catId = int.Parse(item.Value);
+                var isChecked = selectedSet.Contains(catId);
+                <label class="roven-cat-chip @(isChecked ? "is-selected" : "")">
+                    <input type="checkbox"
+                           name="SelectedCategoryIds"
+                           value="@item.Value"
+                           class="d-none roven-category-check"
+                           @(isChecked ? "checked" : "")
+                           onchange="this.closest('.roven-cat-chip').classList.toggle('is-selected', this.checked); updatePrimaryCategory();" />
+                    <span class="roven-cat-chip-dot"><i class="fa-solid fa-check"></i></span>
+                    <span>@item.Text</span>
+                </label>
+            }
+        </div>
+        <input type="hidden" name="CategoryId" id="primaryCategoryIdInput" value="@Model.CategoryId" />
+    </div>
+    <span class="text-danger small mt-1 d-block">@Html.ValidationMessage("SelectedCategoryIds")</span>
+    <small class="text-muted d-block mt-1">اختر قسماً واحداً أو أكثر (مثل: Best Seller + Winter معاً).</small>
+</div>
