@@ -94,7 +94,7 @@ public class CartController : Controller
                     return Json(new
                     {
                         success = false,
-                        message = $"هذا المنتج تيستر ويتطلب اختيار {reqCount} عطور بالضبط من القائمة المتاحة."
+                        message = $"This tester requires selecting {reqCount} fragrances from the available options."
                     });
                 }
 

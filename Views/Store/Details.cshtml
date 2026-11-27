@@ -120,7 +120,7 @@
                     @if (p.IsFeatured)
                     {
                         <span class="position-absolute top-0 start-0 m-2.5 m-sm-3 badge px-3 py-1.5 rounded-pill shadow-sm" style="background: linear-gradient(135deg, #810100 0%, #630000 100%); color: #EDEBDD; font-size: 0.74rem; letter-spacing: 0.5px;">
-                            <i class="fa-solid fa-gem me-1 text-warning"></i>إصدار حصري
+                            <i class="fa-solid fa-gem me-1 text-warning"></i>Featured
                         </span>
                     }
                 </div>
@@ -136,7 +136,7 @@
                     @if (p.StockQuantity > 0 && p.StockQuantity <= 5)
                     {
                         <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2.5 py-1" style="font-size: 0.75rem;">
-                            <i class="fa-solid fa-fire me-1"></i>طلب عالي جداً
+                            <i class="fa-solid fa-fire me-1"></i>High Demand
                         </span>
                     }
                 </div>
@@ -164,9 +164,9 @@
                         }
                     </div>
                     <span class="fw-bold small" style="color: #1B1717;">@Model.AverageRating.ToString("0.0")</span>
-                    <span class="text-muted small">(@(Model.ReviewsCount > 0 ? $"{Model.ReviewsCount} تقييمات معتمدة" : "كن أول من يقيّم"))</span>
+                    <span class="text-muted small">(@(Model.ReviewsCount > 0 ? $"{Model.ReviewsCount} verified reviews" : "Be the first to review"))</span>
                     <a href="#reviewsSection" class="small text-decoration-none ms-1 text-nowrap" style="color: #810100; font-weight: 600;">
-                        <i class="fa-solid fa-arrow-down small me-1"></i>قراءة التقييمات
+                        <i class="fa-solid fa-arrow-down small me-1"></i>Read Reviews
                     </a>
                 </div>
 
@@ -174,7 +174,7 @@
                 <div class="p-3 p-sm-3.5 rounded-3 mb-3 d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-3" style="background-color: #FAF9F5; border: 1px solid #e8e3d5;">
                     <div>
                         <div class="text-uppercase small fw-bold mb-0.5 d-flex align-items-center gap-2" style="color: #8c8374; font-size: 0.72rem; letter-spacing: 0.5px;">
-                            <span>سعر الزجاجة (Flacon Price)</span>
+                            <span>Flacon Price</span>
                             @if (!string.IsNullOrWhiteSpace(p.DefaultSizeLabel))
                             {
                                 <span class="badge bg-white text-dark border font-monospace" id="detailSelectedSizeText">@p.DefaultSizeLabel</span>
@@ -184,26 +184,26 @@
                             <span class="fw-extrabold" id="detailSellingPriceDisplay" style="color: #630000; font-size: clamp(1.8rem, 5vw, 2.4rem); font-family: 'Playfair Display', serif; line-height: 1;">
                                 @p.Price.ToString("N2")
                             </span>
-                            <span class="fw-bold" style="color: #6c6358; font-size: 0.95rem;">جنيه مصري</span>
+                            <span class="fw-bold" style="color: #6c6358; font-size: 0.95rem;">EGP</span>
                         </div>
                     </div>
                     <div class="align-self-stretch align-self-sm-auto text-sm-end">
                         @if (p.IsOutOfStock)
                         {
                             <span class="badge px-3 py-2 w-100 w-sm-auto text-center" style="background-color: #EDEBDD; color: #810100; border: 1px solid #810100; font-size: 0.82rem;">
-                                <i class="fa-solid fa-circle-xmark me-1"></i>تم نفاد الكمية (Allocated)
+                                <i class="fa-solid fa-circle-xmark me-1"></i>Out of Stock
                             </span>
                         }
                         else if (p.IsLowStock)
                         {
                             <span class="badge px-3 py-2 w-100 w-sm-auto text-center" style="background: linear-gradient(135deg, #810100 0%, #630000 100%); color: #EDEBDD; font-size: 0.82rem;">
-                                <i class="fa-solid fa-fire me-1 text-warning"></i>متبقي @p.StockQuantity زجاجات فقط!
+                                <i class="fa-solid fa-fire me-1 text-warning"></i>Only @p.StockQuantity left!
                             </span>
                         }
                         else
                         {
                             <span class="badge px-3 py-2 w-100 w-sm-auto text-center" style="background-color: #630000; color: #EDEBDD; font-size: 0.82rem;">
-                                <i class="fa-solid fa-circle-check me-1 text-success"></i>متوفر جاهز للشحن الفوري
+                                <i class="fa-solid fa-circle-check me-1 text-success"></i>In Stock • Ready to Ship
                             </span>
                         }
                     </div>
@@ -213,7 +213,7 @@
                 {
                     <div class="mb-4">
                         <div class="small fw-bold text-uppercase mb-2" style="letter-spacing: 0.05em; color: #630000;">
-                            <i class="fa-solid fa-flask me-1"></i>اختر الحجم المطلوب (Select Size)
+                            <i class="fa-solid fa-flask me-1"></i>Select Size
                         </div>
                         <div class="d-flex flex-wrap gap-2">
                             @foreach (var sz in p.Sizes)
@@ -237,11 +237,11 @@
                 <div class="mb-4">
                     <h6 class="fw-bold mb-2 d-flex align-items-center gap-2" style="color: #1B1717;">
                         <i class="fa-solid fa-droplet text-danger"></i>
-                        <span>الهرم العطري والتفاصيل (Olfactory Profile)</span>
+                        <span>Olfactory Profile</span>
                     </h6>
                     <p class="leading-relaxed mb-0" style="color: #4a4545; line-height: 1.8; font-size: 0.94rem;">
                         @(string.IsNullOrWhiteSpace(p.Description) 
-                            ? "تحفة عطرية من دار Roven بتركيز إكستري دي بارفان 30% من الزيوت النقية المستخلصة في غراس بفرنسا، لثبات يدوم طويلاً وفوحان أخّاذ يأسر الحواس." 
+                            ? "Crafted by Maison ROVEN at a 30% Extrait de Parfum pure oil concentration for long-lasting sillage and distinction." 
                             : p.Description)
                     </p>
                 </div>
@@ -253,14 +253,14 @@
                             <div>
                                 <div class="fw-bold text-dark" style="font-size: 0.96rem;">
                                     <i class="fa-solid fa-vials me-1.5" style="color: #630000;"></i>
-                                    Fragrance: <span id="testerSelectedInlineText" class="fw-semibold text-muted" style="font-size: 0.88rem;">اختر @effectiveTesterRequiredCount عطور من القائمة</span>
+                                    Fragrance: <span id="testerSelectedInlineText" class="fw-semibold text-muted" style="font-size: 0.88rem;">Select @effectiveTesterRequiredCount fragrances from the list</span>
                                 </div>
                                 <div class="small text-muted" style="font-size: 0.76rem;">
-                                    لازم تختار <strong>@effectiveTesterRequiredCount منتجات</strong> من العطور المتاحة أدناه قبل الإضافة للسلة.
+                                    Please select <strong>@effectiveTesterRequiredCount fragrances</strong> below before adding to your bag.
                                 </div>
                             </div>
                             <span id="testerProgressBadge" class="badge rounded-pill px-3 py-1.5 fw-bold font-monospace" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99,0,0,0.2);">
-                                0 / @effectiveTesterRequiredCount عطور
+                                0 / @effectiveTesterRequiredCount Scents
                             </span>
                         </div>
 
@@ -282,7 +282,7 @@
                             @for (int slot = 1; slot <= effectiveTesterRequiredCount; slot++)
                             {
                                 <span class="badge bg-white text-muted border px-2.5 py-1.5 rounded-2 tester-slot-badge" data-slot-index="@(slot - 1)" style="font-size: 0.74rem; border-style: dashed !important;">
-                                    @(slot). — اختر عطر —
+                                    @(slot). — Select scent —
                                 </span>
                             }
                         </div>
@@ -295,7 +295,7 @@
                     <div class="mt-auto pt-3 border-top" style="border-color: #e8e3d5 !important;">
                         <div class="row g-2 g-sm-3 align-items-center mb-3">
                             <div class="col-4 col-sm-4">
-                                <label class="form-label small fw-semibold mb-1 d-block text-muted" style="font-size: 0.75rem;">الكمية</label>
+                                <label class="form-label small fw-semibold mb-1 d-block text-muted" style="font-size: 0.75rem;">Quantity</label>
                                 <div class="input-group">
                                     <button class="btn btn-outline-secondary px-2 py-2" type="button" onclick="adjustQty(-1)" style="border-color: #d1c9b8;">-</button>
                                     <input type="number" id="purchase-qty" class="form-control text-center fw-bold px-1" value="1" min="1" max="@p.StockQuantity" style="border-color: #d1c9b8;" />
@@ -305,7 +305,7 @@
                             <div class="col-8 col-sm-8 d-flex align-items-end">
                                 <button type="button" id="btn-add-to-cart" class="btn w-100 py-2.5 py-sm-3 fw-bold rounded-pill d-flex align-items-center justify-content-center gap-2 shadow-sm text-nowrap" style="background: linear-gradient(135deg, #630000 0%, #810100 100%); color: #EDEBDD; border: 1px solid #810100;" onclick="handleAddToCart(this)">
                                     <i class="fa-solid fa-bag-shopping fs-5"></i>
-                                    <span>@(hasTesterPicker ? $"إضافة التيستر ({effectiveTesterRequiredCount} عطور) للسلة" : "إضافة إلى السلة")</span>
+                                    <span>@(hasTesterPicker ? $"Add Tester ({effectiveTesterRequiredCount} Scents) to Bag" : "Add to Bag")</span>
                                 </button>
                             </div>
                         </div>
@@ -318,7 +318,7 @@
                             var cleanWaPhone = Stockify.Models.Entities.HomeSetting.NormalizeWhatsAppNumber(siteWaPhone);
                             var productUrl = $"{Context.Request.Scheme}://{Context.Request.Host}/Store/Details/{p.Id}";
                             var perfumeConcentration = !string.IsNullOrWhiteSpace(p.FragranceTagline) ? p.FragranceTagline : Model.DefaultFragranceTagline;
-                            var defaultWaMessage = Uri.EscapeDataString($"مرحباً دار Roven، أود طلب عطر {p.Name} ({perfumeConcentration}) بسعر {p.Price:N0} ج.م.\nالرابط: {productUrl}");
+                            var defaultWaMessage = Uri.EscapeDataString($"Hello Maison ROVEN, I would like to order {p.Name} ({perfumeConcentration}) for {p.Price:N0} EGP.\nLink: {productUrl}");
                         }
                         <div class="mb-3">
                             <a id="btnDirectWhatsAppOrder"
@@ -329,15 +329,15 @@
                                class="btn btn-outline-success w-100 py-2.5 rounded-pill fw-bold d-inline-flex align-items-center justify-content-center gap-2 shadow-xs" 
                                style="font-size: 0.88rem; border-width: 1.5px; border-color: #25d366; color: #128c7e; background: rgba(37, 211, 102, 0.05); transition: all 0.25s ease;">
                                 <i class="fa-brands fa-whatsapp fs-5 text-success"></i>
-                                <span>طلب فوري مباشر عبر الواتساب</span>
+                                <span>Order Instantly via WhatsApp</span>
                             </a>
                         </div>
 
                         <!-- Trust Badges with Wrap -->
                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 border-top" style="border-color: #f0ece3 !important;">
-                            <span class="roven-details-trust-item"><i class="fa-solid fa-truck-fast text-danger"></i> شحن سريع لكافة المحافظات</span>
-                            <span class="roven-details-trust-item"><i class="fa-solid fa-hand-holding-dollar text-success"></i> معاينة ودفع عند الاستلام</span>
-                            <span class="roven-details-trust-item"><i class="fa-solid fa-shield-halved text-primary"></i> زيوت أصلية 100% مضمونة</span>
+                            <span class="roven-details-trust-item"><i class="fa-solid fa-truck-fast text-danger"></i> Fast Nationwide Delivery</span>
+                            <span class="roven-details-trust-item"><i class="fa-solid fa-hand-holding-dollar text-success"></i> Cash on Delivery &amp; Inspection</span>
+                            <span class="roven-details-trust-item"><i class="fa-solid fa-shield-halved text-primary"></i> 100% Authentic Pure Oils</span>
                         </div>
                     </div>
                 }
@@ -347,7 +347,7 @@
                         <div class="alert alert-secondary mb-0 d-flex align-items-center gap-2 rounded-4" style="background-color: #EDEBDD; color: #630000; border: 1px solid rgba(99, 0, 0, 0.2);">
                             <i class="fa-solid fa-circle-info fs-5 flex-shrink-0"></i>
                             <div class="small">
-                                <strong>محجوز بالكامل:</strong> هذا العطر الحصري نفدت كميته مؤقتاً. تابعونا في إطلاق دورة التعتيق القادمة.
+                                <strong>Currently Sold Out:</strong> This exclusive fragrance is temporarily out of stock. Check back soon for our next batch.
                             </div>
                         </div>
                     </div>
@@ -366,8 +366,8 @@
                     <i class="fa-solid fa-star text-warning"></i>
                     <span>CLIENT EXPERIENCES & REVIEWS</span>
                 </div>
-                <h3 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif; font-size: clamp(1.25rem, 3.5vw, 1.75rem);">آراء وتقييمات العملاء</h3>
-                <p class="small text-muted mb-0">تجارب حقيقية لعملاء دار Roven مع عطر <strong>@p.Name</strong> وثباته وفوحانه.</p>
+                <h3 class="fw-extrabold mb-1" style="color: #1B1717; font-family: 'Playfair Display', serif; font-size: clamp(1.25rem, 3.5vw, 1.75rem);">Customer Reviews</h3>
+                <p class="small text-muted mb-0">Verified experiences with <strong>@p.Name</strong> longevity and sillage.</p>
             </div>
             <div class="d-flex flex-wrap align-items-center gap-3 w-100 w-md-auto justify-content-between justify-content-md-end">
                 <div class="text-start text-md-end">
@@ -378,11 +378,11 @@
                         }
                     </div>
                     <div class="small text-muted mt-1" style="font-size: 0.78rem;">
-                        متوسط التقييم <strong class="text-dark">@Model.AverageRating.ToString("0.0")</strong> من 5 (@Model.ReviewsCount تقييم معتمد)
+                        Average rating <strong class="text-dark">@Model.AverageRating.ToString("0.0")</strong> / 5 (@Model.ReviewsCount verified reviews)
                     </div>
                 </div>
                 <button type="button" class="btn btn-sm btn-roven-wine px-3 py-2 rounded-pill fw-bold text-nowrap" onclick="document.getElementById('addReviewCard').scrollIntoView({ behavior: 'smooth' });">
-                    <i class="fa-solid fa-pen-nib me-1"></i> أضف تقييمك
+                    <i class="fa-solid fa-pen-nib me-1"></i> Write a Review
                 </button>
             </div>
         </div>
@@ -393,9 +393,9 @@
                 <div class="card border-0 rounded-4 p-3 p-sm-4 shadow-xs" style="background: #FAF9F5; border: 1.5px solid rgba(99, 0, 0, 0.12) !important;" id="addReviewCard">
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <i class="fa-solid fa-award" style="color: #630000;"></i>
-                        <h5 class="fw-bold mb-0" style="color: #1B1717; font-size: 1.05rem;">شاركنا رأيك في العطر</h5>
+                        <h5 class="fw-bold mb-0" style="color: #1B1717; font-size: 1.05rem;">Share Your Impression</h5>
                     </div>
-                    <p class="small text-muted mb-3" style="font-size: 0.8rem;">تقييمك يساعد عملاء دار Roven في اختيار العطر المناسب لذوقهم.</p>
+                    <p class="small text-muted mb-3" style="font-size: 0.8rem;">Your feedback helps fellow Maison ROVEN clients choose their signature scent.</p>
 
                     <form id="productReviewForm" asp-controller="Store" asp-action="SubmitReview" method="post">
                         @Html.AntiForgeryToken()
@@ -403,49 +403,49 @@
                         
                         <!-- Star Selection -->
                         <div class="mb-3 text-center p-2.5 p-sm-3 bg-white rounded-3 border">
-                            <label class="form-label small fw-bold d-block mb-1 text-dark">تقييمك للعطر بالنجوم</label>
+                            <label class="form-label small fw-bold d-block mb-1 text-dark">Your Rating</label>
                             <div class="star-rating-box d-inline-flex flex-row-reverse gap-2 fs-2" id="starRatingBox">
                                 <input type="radio" id="star5" name="rating" value="5" checked class="d-none star-radio" />
-                                <label for="star5" class="star-label cursor-pointer text-warning" data-val="5" title="5 نجوم - ممتاز جداً"><i class="fa-solid fa-star"></i></label>
+                                <label for="star5" class="star-label cursor-pointer text-warning" data-val="5" title="5 Stars - Exceptional"><i class="fa-solid fa-star"></i></label>
                                 <input type="radio" id="star4" name="rating" value="4" class="d-none star-radio" />
-                                <label for="star4" class="star-label cursor-pointer text-warning" data-val="4" title="4 نجوم - رائع"><i class="fa-solid fa-star"></i></label>
+                                <label for="star4" class="star-label cursor-pointer text-warning" data-val="4" title="4 Stars - Great"><i class="fa-solid fa-star"></i></label>
                                 <input type="radio" id="star3" name="rating" value="3" class="d-none star-radio" />
-                                <label for="star3" class="star-label cursor-pointer text-warning" data-val="3" title="3 نجوم - جيد"><i class="fa-solid fa-star"></i></label>
+                                <label for="star3" class="star-label cursor-pointer text-warning" data-val="3" title="3 Stars - Good"><i class="fa-solid fa-star"></i></label>
                                 <input type="radio" id="star2" name="rating" value="2" class="d-none star-radio" />
-                                <label for="star2" class="star-label cursor-pointer text-warning" data-val="2" title="نجمتان - متوسط"><i class="fa-solid fa-star"></i></label>
+                                <label for="star2" class="star-label cursor-pointer text-warning" data-val="2" title="2 Stars - Fair"><i class="fa-solid fa-star"></i></label>
                                 <input type="radio" id="star1" name="rating" value="1" class="d-none star-radio" />
-                                <label for="star1" class="star-label cursor-pointer text-warning" data-val="1" title="نجمة واحدة - غير راضٍ"><i class="fa-solid fa-star"></i></label>
+                                <label for="star1" class="star-label cursor-pointer text-warning" data-val="1" title="1 Star - Poor"><i class="fa-solid fa-star"></i></label>
                             </div>
-                            <div id="starRatingLabel" class="small fw-bold text-muted mt-1" style="font-size: 0.78rem;">5 نجوم — ثبات وفوحان استثنائي</div>
+                            <div id="starRatingLabel" class="small fw-bold text-muted mt-1" style="font-size: 0.78rem;">5 Stars — Exceptional longevity &amp; sillage</div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-dark">الاسم الكامل *</label>
-                            <input type="text" name="customerName" class="form-control rounded-3" placeholder="مثال: أحمد عبد الله" required />
+                            <label class="form-label small fw-bold text-dark">Full Name *</label>
+                            <input type="text" name="customerName" class="form-control rounded-3" placeholder="e.g. John Doe" required />
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-dark">رقم الهاتف (اختياري)</label>
-                            <input type="tel" name="customerPhone" class="form-control rounded-3 font-monospace" placeholder="مثال: 01001234567" />
+                            <label class="form-label small fw-bold text-dark">Phone Number (Optional)</label>
+                            <input type="tel" name="customerPhone" class="form-control rounded-3 font-monospace" placeholder="e.g. 01001234567" />
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-dark">البريد الإلكتروني (اختياري)</label>
+                            <label class="form-label small fw-bold text-dark">Email Address (Optional)</label>
                             <input type="email" name="customerEmail" class="form-control rounded-3" placeholder="name@domain.com" />
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-dark">رأيك وتجربتك مع العطر *</label>
-                            <textarea name="comment" rows="3" class="form-control rounded-3" placeholder="حدثنا عن تجاربك مع فوحان العطر، ثباته، والمناسبات المفضلة لاستخدامه..." required></textarea>
+                            <label class="form-label small fw-bold text-dark">Your Review *</label>
+                            <textarea name="comment" rows="3" class="form-control rounded-3" placeholder="Share your thoughts on sillage, longevity, and favorite occasions..." required></textarea>
                         </div>
 
                         <div class="alert alert-light border small text-muted py-2 mb-3" style="font-size: 0.76rem;">
-                            <i class="fa-solid fa-shield-halved text-success me-1"></i> يتم فحص واعتماد التقييمات من إدارة المتجر قبل ظهورها علناً حفاظاً على جودة التعليقات.
+                            <i class="fa-solid fa-shield-halved text-success me-1"></i> Reviews are moderated by our team before publishing.
                         </div>
 
                         <button type="submit" id="btnSubmitReview" class="btn btn-roven-wine w-100 py-2.5 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
                             <i class="fa-solid fa-paper-plane"></i>
-                            <span>إرسال التقييم للاعتماد</span>
+                            <span>Submit Review</span>
                         </button>
                     </form>
                 </div>
@@ -459,8 +459,8 @@
                         <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 56px; height: 56px; background: #EDEBDD; color: #630000; font-size: 1.4rem;">
                             <i class="fa-regular fa-comment-dots"></i>
                         </div>
-                        <h6 class="fw-bold mb-1" style="color: #1B1717;">كن أول من يقيّم هذا العطر!</h6>
-                        <p class="small text-muted mb-0">لم يقم أحد بتقييم عطر <strong>@p.Name</strong> حتى الآن. شاركنا تجربتك ورأيك وكن أول المراجعين.</p>
+                        <h6 class="fw-bold mb-1" style="color: #1B1717;">Be the first to review!</h6>
+                        <p class="small text-muted mb-0">No reviews yet for <strong>@p.Name</strong>. Share your experience and be our first reviewer.</p>
                     </div>
                 }
                 else
@@ -478,7 +478,7 @@
                                             <div class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">@rev.CustomerName</div>
                                             <div class="d-flex align-items-center gap-2 flex-wrap">
                                                 <span class="badge bg-success-subtle text-success border border-success-subtle py-0.5 px-2 rounded-pill" style="font-size: 0.68rem;">
-                                                    <i class="fa-solid fa-circle-check me-1"></i> عميل موثّق
+                                                    <i class="fa-solid fa-circle-check me-1"></i> Verified Buyer
                                                 </span>
                                                 <span class="small text-muted" style="font-size: 0.72rem;">@rev.CreatedAt.ToEgyptTimeString("dd MMM yyyy")</span>
                                             </div>
@@ -513,13 +513,13 @@
                         <span>CURATED PERFUMERY SELECTIONS</span>
                     </div>
                     <h4 class="fw-bold text-dark mb-1" style="font-family: 'Playfair Display', serif; font-size: clamp(1.15rem, 3vw, 1.5rem);">
-                        عطور أخرى قد تنال إعجابك
+                        You May Also Like
                     </h4>
-                    <p class="small text-muted mb-0">تشكيلة مختارة بعناية من أرقى إصدارات دار Roven</p>
+                    <p class="small text-muted mb-0">Handpicked selections from Maison ROVEN</p>
                 </div>
                 <a asp-action="Index" class="btn btn-sm btn-outline-dark rounded-pill px-3 py-1.5 d-none d-sm-inline-flex align-items-center gap-1.5" style="font-size: 0.78rem;">
-                    <span>عرض كافة العطور</span>
-                    <i class="fa-solid fa-arrow-left small"></i>
+                    <span>View All Fragrances</span>
+                    <i class="fa-solid fa-arrow-right small"></i>
                 </a>
             </div>
 
@@ -528,7 +528,7 @@
                 {
                     <div class="@(Model.RelatedProducts.Count == 1 ? "col-12 col-sm-8 col-md-6 col-lg-4" : (Model.RelatedProducts.Count == 2 ? "col-6 col-md-6 col-lg-4" : "col-6 col-lg-3"))">
                         <div class="product-card roven-store-flacon-card" data-details-url="@Url.Action("Details", "Store", new { id = related.Id })">
-                            <a asp-action="Details" asp-route-id="@related.Id" class="product-image-container d-block position-relative text-decoration-none" title="عرض تفاصيل عطر @related.Name">
+                            <a asp-action="Details" asp-route-id="@related.Id" class="product-image-container d-block position-relative text-decoration-none" title="View @related.Name details">
                                 @if (!string.IsNullOrWhiteSpace(related.ImageUrl))
                                 {
                                     <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" data-src="@related.ImageUrl" alt="@related.Name" class="roven-lazy-img" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/images/products/perfume_default.svg';" />
@@ -558,7 +558,7 @@
                                 </div>
 
                                 <h4 class="roven-product-title">
-                                    <a asp-action="Details" asp-route-id="@related.Id" title="عرض تفاصيل عطر @related.Name">
+                                    <a asp-action="Details" asp-route-id="@related.Id" title="View @related.Name details">
                                         @related.Name
                                     </a>
                                 </h4>
@@ -583,8 +583,8 @@
                                     }
                                     else if (related.IsTester)
                                     {
-                                        <a asp-action="Details" asp-route-id="@related.Id" class="roven-btn-add-bag text-decoration-none" title="اختر @related.TesterRequiredCount عطور للتيستر">
-                                            <i class="fa-solid fa-vials"></i><span>اختر @related.TesterRequiredCount</span>
+                                        <a asp-action="Details" asp-route-id="@related.Id" class="roven-btn-add-bag text-decoration-none" title="Select @related.TesterRequiredCount tester scents">
+                                            <i class="fa-solid fa-vials"></i><span>Select @related.TesterRequiredCount</span>
                                         </a>
                                     }
                                     else
@@ -661,7 +661,7 @@
                 title,
                 text,
                 confirmButtonColor: '#630000',
-                confirmButtonText: 'اختيار العطور الآن',
+                confirmButtonText: 'Select Fragrances',
                 returnFocus: false,
                 didClose: focusTesterPicker
             });
@@ -678,15 +678,15 @@
 
         if (inlineText) {
             inlineText.textContent = selectedTesters.length > 0
-                ? selectedTesters.map(t => t.name).join(' ، ')
-                : `اختر ${requiredTesterCount} عطور من القائمة`;
+                ? selectedTesters.map(t => t.name).join(', ')
+                : `Select ${requiredTesterCount} fragrances from the list`;
             inlineText.classList.toggle('text-dark', selectedTesters.length > 0);
             inlineText.classList.toggle('text-muted', selectedTesters.length === 0);
         }
 
         if (progressBadge) {
             const done = selectedTesters.length === requiredTesterCount;
-            progressBadge.textContent = `${selectedTesters.length} / ${requiredTesterCount} عطور`;
+            progressBadge.textContent = `${selectedTesters.length} / ${requiredTesterCount} Scents`;
             progressBadge.style.backgroundColor = done ? '#198754' : '#EDEBDD';
             progressBadge.style.color = done ? '#ffffff' : '#630000';
             progressBadge.style.borderColor = done ? '#198754' : 'rgba(99,0,0,0.2)';
@@ -701,7 +701,7 @@
                 slotEl.style.borderStyle = 'solid';
                 slotEl.classList.remove('bg-white', 'text-muted');
             } else {
-                slotEl.textContent = `${idx + 1}. — اختر عطر —`;
+                slotEl.textContent = `${idx + 1}. — Select scent —`;
                 slotEl.style.backgroundColor = '#ffffff';
                 slotEl.style.color = '#6c757d';
                 slotEl.style.borderColor = '#dee2e6';
@@ -727,15 +727,15 @@
                     Swal.fire({
                         icon: 'info',
                         iconColor: '#630000',
-                        title: `مطلوب ${requiredTesterCount} عطور فقط`,
-                        text: `لقد اخترت ${requiredTesterCount} عطور بالفعل. اضغط على أي عطر مختار لإلغائه واستبداله.`,
+                        title: `Only ${requiredTesterCount} scents allowed`,
+                        text: `You have already selected ${requiredTesterCount} fragrances. Click any selected scent to deselect it.`,
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
                         timer: 2600
                     });
                 } else {
-                    alert(`لقد اخترت ${requiredTesterCount} عطور بالفعل.`);
+                    alert(`You have already selected ${requiredTesterCount} fragrances.`);
                 }
                 return;
             }
@@ -750,8 +750,8 @@
     function handleAddToCart(triggerBtn) {
         if (isTesterProduct && selectedTesters.length !== requiredTesterCount) {
             showTesterRequirementAlert(
-                `يجب اختيار ${requiredTesterCount} عطور`,
-                `هذا المنتج تيستر ويتطلب اختيار ${requiredTesterCount} عطور من القائمة المتاحة (تم اختيار ${selectedTesters.length} من ${requiredTesterCount} حتى الآن).`
+                `Please select ${requiredTesterCount} fragrances`,
+                `This tester pack requires choosing ${requiredTesterCount} fragrances from the list above (${selectedTesters.length} of ${requiredTesterCount} selected).`
             );
             return;
         }
@@ -767,8 +767,8 @@
         if (e) e.preventDefault();
         if (isTesterProduct && selectedTesters.length !== requiredTesterCount) {
             showTesterRequirementAlert(
-                `يجب اختيار ${requiredTesterCount} عطور`,
-                `يرجى اختيار ${requiredTesterCount} عطور أولاً قبل إرسال طلب الواتساب.`
+                `Please select ${requiredTesterCount} fragrances`,
+                `Please choose ${requiredTesterCount} fragrances first before sending your WhatsApp order.`
             );
             return;
         }
@@ -782,19 +782,19 @@
         const cleanPhone = '@Stockify.Models.Entities.HomeSetting.NormalizeWhatsAppNumber(!string.IsNullOrWhiteSpace(Model.WhatsAppNumber) ? Model.WhatsAppNumber : "201006856199")';
         const pageUrl = window.location.href;
 
-        let msg = `مرحباً دار Roven، أود طلب عطر ${productName}${sizePart}`;
+        let msg = `Hello Maison ROVEN, I would like to order ${productName}${sizePart}`;
         if (qty > 1) {
-            msg += ` (الكمية: ${qty} زجاجات - الإجمالي: ${totalPrice} ج.م)`;
+            msg += ` (Qty: ${qty} - Total: ${totalPrice} EGP)`;
         } else {
-            msg += ` بسعر ${totalPrice} ج.م`;
+            msg += ` for ${totalPrice} EGP`;
         }
         if (isTesterProduct && selectedTesters.length > 0) {
-            msg += `\nالعطور المختارة للتيستر (${selectedTesters.length}): ${selectedTesters.map(t => t.name).join('، ')}`;
+            msg += `\nSelected Tester Fragrances (${selectedTesters.length}): ${selectedTesters.map(t => t.name).join(', ')}`;
         }
         if (concentration) {
-            msg += `\nالتركيز: ${concentration}`;
+            msg += `\nConcentration: ${concentration}`;
         }
-        msg += `\nرابط العطر: ${pageUrl}`;
+        msg += `\nProduct Link: ${pageUrl}`;
 
         const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
         window.open(waUrl, '_blank', 'noopener,noreferrer');
@@ -807,11 +807,11 @@
         const labelText = document.getElementById('starRatingLabel');
 
         const ratingDescriptions = {
-            1: 'نجمة واحدة — تقييم غير راضٍ',
-            2: 'نجمتان — تقييم متوسط',
-            3: '3 نجوم — عطر جيد',
-            4: '4 نجوم — عطر رائع ومميز',
-            5: '5 نجوم — ثبات وفوحان استثنائي'
+            1: '1 Star — Poor',
+            2: '2 Stars — Fair',
+            3: '3 Stars — Good',
+            4: '4 Stars — Great',
+            5: '5 Stars — Exceptional longevity & sillage'
         };
 
         function updateStars(val) {
@@ -864,7 +864,7 @@
                 const btn = document.getElementById('btnSubmitReview');
                 const originalHtml = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> جاري إرسال التقييم...';
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
 
                 try {
                     const formData = new FormData(this);
@@ -877,9 +877,9 @@
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 icon: 'success',
-                                title: '<i class="fa-solid fa-circle-check text-success me-2"></i>تم استلام تقييمك بنجاح!',
+                                title: '<i class="fa-solid fa-circle-check text-success me-2"></i>Review Submitted!',
                                 html: `<p class="mb-0 text-muted">${data.message}</p>`,
-                                confirmButtonText: 'حسناً، شكراً لكم',
+                                confirmButtonText: 'OK, Thank You',
                                 customClass: {
                                     confirmButton: 'btn btn-primary px-4 py-2 fw-bold'
                                 },
@@ -894,9 +894,9 @@
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 icon: 'warning',
-                                title: 'تنبيه',
-                                text: data.message || 'حدث خطأ أثناء إرسال التقييم.',
-                                confirmButtonText: 'حسناً',
+                                title: 'Notice',
+                                text: data.message || 'Could not submit your review.',
+                                confirmButtonText: 'OK',
                                 customClass: {
                                     confirmButton: 'btn btn-warning px-4 py-2 fw-bold'
                                 },
@@ -911,16 +911,16 @@
                     if (typeof Swal !== 'undefined') {
                         Swal.fire({
                             icon: 'error',
-                            title: 'تعذر الاتصال',
-                            text: 'تعذر إرسال التقييم، يرجى التحقق من اتصال الإنترنت.',
-                            confirmButtonText: 'إغلاق',
+                            title: 'Connection Error',
+                            text: 'Could not submit your review. Please check your internet connection.',
+                            confirmButtonText: 'Close',
                             customClass: {
                                 confirmButton: 'btn btn-secondary px-4 py-2'
                             },
                             buttonsStyling: false
                         });
                     } else {
-                        alert('تعذر إرسال التقييم، يرجى المحاولة مرة أخرى.');
+                        alert('Could not submit your review. Please try again.');
                     }
                 } finally {
                     btn.disabled = false;

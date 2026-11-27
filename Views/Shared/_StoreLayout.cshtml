@@ -3043,10 +3043,10 @@
                         showStoreAlert({
                             icon: 'error',
                             iconColor: '#810100',
-                            title: 'تعذر الإضافة للسلة',
-                            text: 'حدث خطأ أثناء الاتصال بالسيرفر، يرجى تحديث الصفحة والمحاولة مرة أخرى.',
+                            title: 'Unable to Add to Bag',
+                            text: 'Something went wrong while contacting the server. Please refresh and try again.',
                             confirmButtonColor: '#630000',
-                            confirmButtonText: 'حسناً'
+                            confirmButtonText: 'OK'
                         });
                         return;
                     }
@@ -3078,9 +3078,9 @@
                             icon: 'warning',
                             iconColor: '#810100',
                             title: warningTitle,
-                            text: data.message || 'تعذر إضافة المنتج للسلة.',
+                            text: data.message || 'Could not add item to bag.',
                             confirmButtonColor: '#630000',
-                            confirmButtonText: 'حسناً'
+                            confirmButtonText: 'OK'
                         });
                     }
                 } catch (err) {
@@ -3089,10 +3089,10 @@
                     showStoreAlert({
                         icon: 'error',
                         iconColor: '#810100',
-                        title: 'تعذر الاتصال',
-                        text: 'تعذر إضافة المنتج للسلة، يرجى التحقق من الاتصال بالإنترنت والمحاولة مجدداً.',
+                        title: 'Connection Error',
+                        text: 'Could not add item to bag. Please check your internet connection and try again.',
                         confirmButtonColor: '#630000',
-                        confirmButtonText: 'حسناً'
+                        confirmButtonText: 'OK'
                     });
                 }
             }
@@ -3127,9 +3127,9 @@
                         return formData;
                     },
                     resolvedBtn,
-                    'جاري الإضافة...',
-                    'تمت الإضافة!',
-                    'تنبيه السلة',
+                    'Adding...',
+                    'Added!',
+                    'Bag Notice',
                     '<i class="fa-solid fa-cart-shopping me-2" style="color: #630000;"></i>Added to Bag!'
                 );
             };
