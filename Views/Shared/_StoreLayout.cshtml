@@ -7,6 +7,7 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject Stockify.Data.ApplicationDbContext DbContext
 @inject IMemoryCache MemoryCache
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment WebEnv
 
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
@@ -41,6 +42,24 @@
                        || Context.Request.Query.ContainsKey("orderNumber");
     var isAjaxRequest = Context.Request.Headers["X-Requested-With"] == "XMLHttpRequest";
     var shouldSkipPreloader = hasFilterParams || isAjaxRequest || (ViewData["SkipPreloader"] as bool? == true);
+    var preloaderCrestSrc = MemoryCache.GetOrCreate("roven_preloader_crest_data_uri", entry =>
+    {
+        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24);
+        try
+        {
+            var b64Path = System.IO.Path.Combine(WebEnv.WebRootPath ?? "wwwroot", "images", "roven-crest-inline.b64.txt");
+            if (System.IO.File.Exists(b64Path))
+            {
+                var b64 = System.IO.File.ReadAllText(b64Path).Trim();
+                if (!string.IsNullOrEmpty(b64))
+                {
+                    return "data:image/jpeg;base64," + b64;
+                }
+            }
+        }
+        catch { }
+        return "/images/roven-crest.png?v=roven_crest_20261127";
+    });
 }
 
 <!DOCTYPE html>
@@ -2601,7 +2620,7 @@
                 <div class="preloader-gold-orbit"></div>
                 <div class="preloader-gold-ring"></div>
                 <div class="preloader-shield" style="padding: 0; overflow: hidden; background: transparent; border: none; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);">
-                    <img src="/images/roven-crest.png?v=roven_crest_20261127" alt="ROVEN" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;" />
+                    <img src="@preloaderCrestSrc" alt="ROVEN" decoding="sync" loading="eager" fetchpriority="high" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block;" />
                 </div>
             </div>
 
