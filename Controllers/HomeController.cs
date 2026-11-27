@@ -50,8 +50,6 @@ public class HomeController : Controller
                 settings.ComparisonButtonLink = "/Store";
                 settings.ComparisonBeforeLabel = "Before";
                 settings.ComparisonAfterLabel = "After";
-                settings.ComparisonBeforeImageUrl = "/images/comparison/roven-comparison-before.svg";
-                settings.ComparisonAfterImageUrl = "/images/comparison/roven-comparison-after.svg";
                 settings.ComparisonActive = true;
                 settings.ShowComparisonSection = true;
                 settings.OrderComparison = 6;
@@ -444,8 +442,6 @@ public class HomeController : Controller
             settings.ComparisonButtonLink = "/Store";
             settings.ComparisonBeforeLabel = "Before";
             settings.ComparisonAfterLabel = "After";
-            settings.ComparisonBeforeImageUrl = "/images/comparison/roven-comparison-before.svg";
-            settings.ComparisonAfterImageUrl = "/images/comparison/roven-comparison-after.svg";
             settings.ComparisonActive = true;
             settings.ShowComparisonSection = true;
             settings.OrderComparison = 6;

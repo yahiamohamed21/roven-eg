@@ -2211,14 +2211,21 @@
                                         <span class="badge bg-white text-muted border font-monospace" style="font-size: 0.72rem;">المنافسين / العطور العادية</span>
                                     </div>
                                     <div class="position-relative overflow-hidden rounded-3 border bg-white" style="aspect-ratio: 16/10; max-height: 240px;">
-                                        <img src="@(string.IsNullOrWhiteSpace(Model.ComparisonBeforeImageUrl) ? "/images/comparison/roven-comparison-before.svg" : Model.ComparisonBeforeImageUrl)" 
-                                             alt="Before Preview" 
-                                             id="displayComparisonBeforePreview"
-                                             style="width: 100%; height: 100%; object-fit: cover;" 
-                                             onerror="this.src='/images/comparison/roven-comparison-before.svg'" />
+                                        @if (!string.IsNullOrWhiteSpace(Model.ComparisonBeforeImageUrl))
+                                        {
+                                            <img src="@Model.ComparisonBeforeImageUrl" 
+                                                 alt="Before Preview" 
+                                                 id="displayComparisonBeforePreview"
+                                                 style="width: 100%; height: 100%; object-fit: cover;" 
+                                                 onerror="this.style.display='none'" />
+                                        }
+                                        else
+                                        {
+                                            <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted small">لا توجد صورة مرفوعة</div>
+                                        }
                                     </div>
                                     <div class="mt-2 text-truncate small text-muted font-monospace" style="font-size: 0.75rem;" title="@Model.ComparisonBeforeImageUrl">
-                                        <i class="fa-regular fa-image me-1"></i>المسار: @(string.IsNullOrWhiteSpace(Model.ComparisonBeforeImageUrl) ? "/images/comparison/roven-comparison-before.svg" : Model.ComparisonBeforeImageUrl)
+                                        <i class="fa-regular fa-image me-1"></i>المسار: @(string.IsNullOrWhiteSpace(Model.ComparisonBeforeImageUrl) ? "—" : Model.ComparisonBeforeImageUrl)
                                     </div>
                                 </div>
                             </div>
@@ -2234,14 +2241,21 @@
                                         <span class="badge bg-white text-success border font-monospace" style="font-size: 0.72rem;">دار ROVEN الفاخرة</span>
                                     </div>
                                     <div class="position-relative overflow-hidden rounded-3 border bg-white" style="aspect-ratio: 16/10; max-height: 240px;">
-                                        <img src="@(string.IsNullOrWhiteSpace(Model.ComparisonAfterImageUrl) ? "/images/comparison/roven-comparison-after.svg" : Model.ComparisonAfterImageUrl)" 
-                                             alt="After Preview" 
-                                             id="displayComparisonAfterPreview"
-                                             style="width: 100%; height: 100%; object-fit: cover;" 
-                                             onerror="this.src='/images/comparison/roven-comparison-after.svg'" />
+                                        @if (!string.IsNullOrWhiteSpace(Model.ComparisonAfterImageUrl))
+                                        {
+                                            <img src="@Model.ComparisonAfterImageUrl" 
+                                                 alt="After Preview" 
+                                                 id="displayComparisonAfterPreview"
+                                                 style="width: 100%; height: 100%; object-fit: cover;" 
+                                                 onerror="this.style.display='none'" />
+                                        }
+                                        else
+                                        {
+                                            <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted small">لا توجد صورة مرفوعة</div>
+                                        }
                                     </div>
                                     <div class="mt-2 text-truncate small text-muted font-monospace" style="font-size: 0.75rem;" title="@Model.ComparisonAfterImageUrl">
-                                        <i class="fa-regular fa-image me-1"></i>المسار: @(string.IsNullOrWhiteSpace(Model.ComparisonAfterImageUrl) ? "/images/comparison/roven-comparison-after.svg" : Model.ComparisonAfterImageUrl)
+                                        <i class="fa-regular fa-image me-1"></i>المسار: @(string.IsNullOrWhiteSpace(Model.ComparisonAfterImageUrl) ? "—" : Model.ComparisonAfterImageUrl)
                                     </div>
                                 </div>
                             </div>
@@ -2322,11 +2336,11 @@
                                 <!-- Image URLs (fallback/direct) -->
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold text-secondary mb-1">مسار صورة Before الحالية</label>
-                                    <input asp-for="ComparisonBeforeImageUrl" class="form-control rounded-3 font-monospace form-control-sm" placeholder="/images/comparison/roven-comparison-before.svg" />
+                                    <input asp-for="ComparisonBeforeImageUrl" class="form-control rounded-3 font-monospace form-control-sm" placeholder="https://..." />
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label class="form-label small fw-bold text-secondary mb-1">مسار صورة After الحالية</label>
-                                    <input asp-for="ComparisonAfterImageUrl" class="form-control rounded-3 font-monospace form-control-sm" placeholder="/images/comparison/roven-comparison-after.svg" />
+                                    <input asp-for="ComparisonAfterImageUrl" class="form-control rounded-3 font-monospace form-control-sm" placeholder="https://..." />
                                 </div>
 
                                 <partial name="_ComparisonFeaturesInputs" model="Model" />
@@ -2561,7 +2575,7 @@
                             <div class="row g-2 mt-2">
                                 <div class="col-12 col-md-8">
                                     <label class="form-label text-muted small mb-1" style="font-size: 0.75rem;">مسار / رابط الصورة المباشر:</label>
-                                    <input type="text" name="beforeImageUrl" id="compBeforeUrlInput" value="@Model.ComparisonBeforeImageUrl" class="form-control form-control-sm rounded-3 font-monospace" placeholder="/images/comparison/roven-comparison-before.svg" />
+                                    <input type="text" name="beforeImageUrl" id="compBeforeUrlInput" value="@Model.ComparisonBeforeImageUrl" class="form-control form-control-sm rounded-3 font-monospace" placeholder="https://..." />
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <label class="form-label text-muted small mb-1" style="font-size: 0.75rem;">تسمية الطرف (Before Label):</label>
@@ -2583,7 +2597,7 @@
                             <div class="row g-2 mt-2">
                                 <div class="col-12 col-md-8">
                                     <label class="form-label text-muted small mb-1" style="font-size: 0.75rem;">مسار / رابط الصورة المباشر:</label>
-                                    <input type="text" name="afterImageUrl" id="compAfterUrlInput" value="@Model.ComparisonAfterImageUrl" class="form-control form-control-sm rounded-3 font-monospace" placeholder="/images/comparison/roven-comparison-after.svg" />
+                                    <input type="text" name="afterImageUrl" id="compAfterUrlInput" value="@Model.ComparisonAfterImageUrl" class="form-control form-control-sm rounded-3 font-monospace" placeholder="https://..." />
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <label class="form-label text-muted small mb-1" style="font-size: 0.75rem;">تسمية الطرف (After Label):</label>
@@ -5005,8 +5019,8 @@
     function setComparisonDefaults() {
         const beforeInput = document.getElementById('compBeforeUrlInput');
         const afterInput = document.getElementById('compAfterUrlInput');
-        if (beforeInput) beforeInput.value = '/images/comparison/roven-comparison-before.svg';
-        if (afterInput) afterInput.value = '/images/comparison/roven-comparison-after.svg';
+        if (beforeInput) beforeInput.value = '';
+        if (afterInput) afterInput.value = '';
     }
 
     // ==============================================================

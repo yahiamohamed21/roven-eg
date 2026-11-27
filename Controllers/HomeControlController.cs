@@ -98,8 +98,6 @@ public class HomeControlController : Controller
             if (string.IsNullOrWhiteSpace(settings.ComparisonButtonLink)) { settings.ComparisonButtonLink = "/Store"; needsSave = true; }
             if (string.IsNullOrWhiteSpace(settings.ComparisonBeforeLabel)) { settings.ComparisonBeforeLabel = "Before"; needsSave = true; }
             if (string.IsNullOrWhiteSpace(settings.ComparisonAfterLabel)) { settings.ComparisonAfterLabel = "After"; needsSave = true; }
-            if (string.IsNullOrWhiteSpace(settings.ComparisonBeforeImageUrl)) { settings.ComparisonBeforeImageUrl = "/images/comparison/roven-comparison-before.svg"; needsSave = true; }
-            if (string.IsNullOrWhiteSpace(settings.ComparisonAfterImageUrl)) { settings.ComparisonAfterImageUrl = "/images/comparison/roven-comparison-after.svg"; needsSave = true; }
             if (string.IsNullOrWhiteSpace(settings.ComparisonFeature1Title)) { settings.ComparisonFeature1Title = "Extrait de Parfum (30% Concentration)"; needsSave = true; }
             if (string.IsNullOrWhiteSpace(settings.ComparisonFeature1Desc)) { settings.ComparisonFeature1Desc = "أعلى تركيز زيوت عطرية نقية معتمدة لثبات وفوحان فائق"; needsSave = true; }
             if (string.IsNullOrWhiteSpace(settings.ComparisonFeature1MetricVal)) { settings.ComparisonFeature1MetricVal = "30%"; needsSave = true; }
@@ -498,8 +496,8 @@ public class HomeControlController : Controller
             settings.ComparisonButtonLink = "/Store";
             settings.ComparisonBeforeLabel = "Before";
             settings.ComparisonAfterLabel = "After";
-            settings.ComparisonBeforeImageUrl = "/images/comparison/roven-comparison-before.svg";
-            settings.ComparisonAfterImageUrl = "/images/comparison/roven-comparison-after.svg";
+            settings.ComparisonBeforeImageUrl = null;
+            settings.ComparisonAfterImageUrl = null;
             settings.ComparisonFeature1Title = "Extrait de Parfum (30% Concentration)";
             settings.ComparisonFeature1Desc = "أعلى تركيز زيوت عطرية نقية معتمدة لثبات وفوحان فائق";
             settings.ComparisonFeature1MetricVal = "30%";
