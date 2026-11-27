@@ -2751,14 +2751,13 @@
 
     <!-- Maison ROVEN Luxury Mobile Navigation Drawer -->
     <div class="offcanvas offcanvas-start roven-mobile-drawer" tabindex="-1" id="rovenMobileDrawer" aria-labelledby="rovenMobileDrawerLabel">
-        <div class="offcanvas-header">
-            <a asp-controller="Home" asp-action="Index" class="d-inline-flex align-items-center gap-2.5 text-decoration-none" id="rovenMobileDrawerLabel" title="ROVEN">
-                <img src="/images/roven-crest.png?v=roven_crest_20261127" alt="ROVEN" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 10px rgba(0,0,0,0.4);" />
-                <span style="font-family: 'Playfair Display', Georgia, serif; font-weight: 800; letter-spacing: 3px; font-size: 1.2rem; color: #EDEBDD;">ROVEN</span>
-            </a>
+        <div class="offcanvas-header justify-content-between">
             <button type="button" class="drawer-close-pill" data-bs-dismiss="offcanvas" aria-label="Close">
                 <i class="fa-solid fa-xmark"></i>
             </button>
+            <a asp-controller="Home" asp-action="Index" class="store-brand d-inline-flex align-items-center text-decoration-none" id="rovenMobileDrawerLabel" title="ROVEN">
+                <img src="~/images/roven-logo.png?v=roven_tp" alt="ROVEN" class="roven-nav-logo" style="max-height: 36px; width: auto;" />
+            </a>
         </div>
 
         <!-- Integrated Luxury Pill Search Bar -->
@@ -2830,29 +2829,14 @@
             @{
                 var drawerWaPhone = Stockify.Models.Entities.HomeSetting.NormalizeWhatsAppNumber(
                     !string.IsNullOrWhiteSpace(siteSetting?.WhatsAppNumber) ? siteSetting.WhatsAppNumber : "201006856199");
-                var drawerFb = !string.IsNullOrWhiteSpace(siteSetting?.FacebookUrl) ? siteSetting.FacebookUrl : "https://facebook.com/roven.parfumerie";
-                var drawerIg = !string.IsNullOrWhiteSpace(siteSetting?.InstagramUrl) ? siteSetting.InstagramUrl : "https://instagram.com/roven.parfums";
             }
             <div class="mt-auto p-3 border-top" style="background: #EFE8DA; border-color: rgba(99, 0, 0, 0.1) !important;">
                 <a href="https://wa.me/@drawerWaPhone" target="_blank" rel="noopener noreferrer"
-                   class="btn w-100 rounded-pill fw-bold text-white py-2 mb-2.5 d-flex align-items-center justify-content-center gap-2 shadow-xs"
+                   class="btn w-100 rounded-pill fw-bold text-white py-2 d-flex align-items-center justify-content-center gap-2 shadow-xs"
                    style="background: #25D366; font-size: 0.84rem;">
                     <i class="fa-brands fa-whatsapp fs-5"></i>
                     <span>WhatsApp Concierge</span>
                 </a>
-                <div class="d-flex align-items-center justify-content-between">
-                    <span class="small fw-semibold" style="color: #6c6358; font-size: 0.72rem;">
-                        <i class="fa-solid fa-shield-halved me-1" style="color: #630000;"></i>COD &amp; Inspection
-                    </span>
-                    <div class="d-flex align-items-center gap-2">
-                        <a href="@drawerFb" target="_blank" rel="noopener noreferrer" class="text-decoration-none d-inline-flex align-items-center justify-content-center rounded-circle bg-white border" style="width: 30px; height: 30px; color: #1B1717; font-size: 0.8rem;" title="Facebook">
-                            <i class="fa-brands fa-facebook-f"></i>
-                        </a>
-                        <a href="@drawerIg" target="_blank" rel="noopener noreferrer" class="text-decoration-none d-inline-flex align-items-center justify-content-center rounded-circle bg-white border" style="width: 30px; height: 30px; color: #1B1717; font-size: 0.85rem;" title="Instagram">
-                            <i class="fa-brands fa-instagram"></i>
-                        </a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
