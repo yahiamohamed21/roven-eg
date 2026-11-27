@@ -416,7 +416,7 @@ public class HomeController : Controller
     // GET: /Home/About
     public IActionResult About()
     {
-        ViewData["Title"] = "About Us — Maison ROVEN Haute Parfumerie";
+        ViewData["Title"] = "About Us — ROVEN";
         ViewData["MetaDescription"] = "Discover the story, legacy, and craftsmanship behind Maison ROVEN Haute Parfumerie. 30%+ Extrait de Parfum, rare Assam oud, and Grasse botanical absolutes.";
         return View();
     }
@@ -602,7 +602,7 @@ public class HomeController : Controller
                 var imgUrl = p.ImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? p.ImageUrl : $"{baseUrl}{p.ImageUrl}";
                 sb.AppendLine("    <image:image>");
                 sb.AppendLine($"      <image:loc>{System.Security.SecurityElement.Escape(imgUrl)}</image:loc>");
-                sb.AppendLine($"      <image:title>{System.Security.SecurityElement.Escape(p.Name)} - ROVEN Haute Parfumerie</image:title>");
+                sb.AppendLine($"      <image:title>{System.Security.SecurityElement.Escape(p.Name)} - ROVEN</image:title>");
                 sb.AppendLine($"      <image:caption>{System.Security.SecurityElement.Escape(p.Name)} عطور روفان ROVEN مصر</image:caption>");
                 sb.AppendLine("    </image:image>");
             }

@@ -7,7 +7,7 @@
     var effectiveTesterRequiredCount = hasTesterPicker
         ? Math.Clamp(p.TesterRequiredCount > 0 ? p.TesterRequiredCount : 4, 1, availableTesterCount)
         : 0;
-    ViewData["Title"] = $"{p.Name} | عطر فاخر من دار روفان ROVEN Haute Parfumerie";
+    ViewData["Title"] = $"{p.Name} | ROVEN";
     ViewData["MetaDescription"] = $"تسوق عطر {p.Name} الأصلي من دار روڤين / روفان (ROVEN Haute Parfumerie). عطر فاخر ({p.CategoryName}) بتركيز Extrait de Parfum بنسبة 30% زيوت نقية فرنسية وشرقية بثبات وفوحان يتجاوز 24 ساعة. السعر: {p.Price:N0} ج.م مع التوصيل السريع لجميع محافظات مصر والدفع عند الاستلام مع المعاينة قبل الدفع.";
     ViewData["OgType"] = "product";
     ViewData["OgImage"] = !string.IsNullOrWhiteSpace(p.ImageUrl) ? (p.ImageUrl.StartsWith("http") ? p.ImageUrl : $"https://roven-eg.online{p.ImageUrl}") : "https://roven-eg.online/images/roven-logo.png";

@@ -3,7 +3,7 @@
     var isAjax = (ViewData["IsAjax"] as bool? == true) || (Context.Request.Headers["X-Requested-With"] == "XMLHttpRequest");
     Layout = isAjax ? null : "_StoreLayout";
     var catTitle = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "كتالوج عطور روفان الفاخرة | All ROVEN Fragrances" : $"عطور {Model.SelectedCategoryName} | دار روفان ROVEN";
-    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "كتالوج عطور روفان الرسمية | ROVEN Haute Parfumerie" : $"عطور {Model.SelectedCategoryName} | دار روفان ROVEN";
+    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "كتالوج عطور روفان الرسمية | ROVEN" : $"عطور {Model.SelectedCategoryName} | دار روفان ROVEN";
     ViewData["MetaDescription"] = $"تسوق أرقى تشكيلات عطور روفان (Maison ROVEN) الأصلية في مصر. عطور نيش وExtraits de Parfum بتركيز 30% مع ثبات وفوحان فائق يدوم طويلاً، وشحن وتوصيل فوري مع المعاينة قبل الدفع.";
     var activeFiltersCount = (Model.SelectedCategoryId.HasValue ? 1 : 0) + (Model.InStockOnly ? 1 : 0);
 }
@@ -1855,7 +1855,7 @@
 @section SeoStructuredData {
     @{
         var catUrl = Model.SelectedCategoryId.HasValue ? $"https://roven-eg.online/Store?categoryId={Model.SelectedCategoryId.Value}" : "https://roven-eg.online/Store";
-        var pageTitle = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "كتالوج عطور روفان الرسمية | ROVEN Haute Parfumerie" : $"عطور {Model.SelectedCategoryName} | دار روفان ROVEN";
+        var pageTitle = string.IsNullOrWhiteSpace(Model.SelectedCategoryName) ? "كتالوج عطور روفان الرسمية | ROVEN" : $"عطور {Model.SelectedCategoryName} | دار روفان ROVEN";
     }
     <!-- Google BreadcrumbList & CollectionPage Structured Data for Catalog -->
     <script type="application/ld+json">
