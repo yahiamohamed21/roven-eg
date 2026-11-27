@@ -745,7 +745,9 @@
             .roven-result-container {
                 max-width: 960px;
                 padding: 0 20px 4rem;
-                margin-top: 36px;
+                margin-top: -36px;
+                position: relative;
+                z-index: 5;
             }
         }
 
@@ -999,7 +1001,7 @@
             </section>
 
             <!-- 2. Overlapping Luxury Lookup Card -->
-            <div class="roven-track-card-container">
+            <div class="roven-track-card-container @(Model.HasSearched ? "d-none" : "")" id="rovenTrackLookupCard">
             <div class="roven-floating-card">
                 <!-- Top Overlapping Circular Emblem (Isometric Box + Map Pin) -->
                 <div class="roven-card-emblem-header">
@@ -1204,6 +1206,23 @@
             });
         }
 
+        window.backToOrderSearch = function() {
+            const lookupCard = document.getElementById('rovenTrackLookupCard');
+            const resultSlot = document.getElementById('rovenTrackResultSlot');
+            if (resultSlot) resultSlot.innerHTML = '';
+            if (lookupCard) {
+                lookupCard.classList.remove('d-none');
+                lookupCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, '', '/OrderTracking');
+            }
+            const orderInput = document.getElementById('orderNumberInput');
+            if (orderInput) {
+                setTimeout(function() { orderInput.focus(); }, 250);
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', function() {
             const initialResult = document.getElementById('rovenTrackResult');
             if (initialResult) {
@@ -1269,6 +1288,8 @@
                         }
 
                         const html = await response.text();
+                        const lookupCard = document.getElementById('rovenTrackLookupCard');
+                        if (lookupCard) lookupCard.classList.add('d-none');
                         resultSlot.innerHTML = html;
 
                         if (window.history && window.history.replaceState) {
