@@ -219,4 +219,78 @@
 
         document.getElementById('newsletter-email').value = '';
     }
+
+    // ========================================================================
+    // LIGHTWEIGHT SCROLL REVEAL (IntersectionObserver, 0ms LCP Safe)
+    // ========================================================================
+    (function () {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return;
+        }
+        if (!('IntersectionObserver' in window)) {
+            return;
+        }
+
+        function initScrollReveal() {
+            const mainEl = document.querySelector('main');
+            if (!mainEl) return;
+
+            const targets = [];
+            const seen = new Set();
+
+            // Observe below-the-fold sections (never touch above-the-fold BrandHero/Marquee)
+            mainEl.querySelectorAll('section').forEach(function (sec, idx) {
+                if (idx === 0 || sec.closest('.roven-brand-hero-section') || sec.classList.contains('roven-brand-hero-section')) {
+                    return;
+                }
+                if (!seen.has(sec)) {
+                    seen.add(sec);
+                    targets.push({ el: sec, delay: 0 });
+                }
+
+                // Stagger cards inside each section cleanly (max 220ms delay)
+                const cards = sec.querySelectorAll('.product-card, .roven-category-card, .roven-testimonial-card, .roven-trust-item, .accordion-item');
+                cards.forEach(function (card, cardIdx) {
+                    if (!seen.has(card)) {
+                        seen.add(card);
+                        targets.push({ el: card, delay: Math.min(cardIdx % 5, 4) * 55 });
+                    }
+                });
+            });
+
+            if (targets.length === 0) return;
+
+            const vh = window.innerHeight || document.documentElement.clientHeight;
+            const observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-revealed');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.08,
+                rootMargin: '0px 0px -24px 0px'
+            });
+
+            targets.forEach(function (item) {
+                const rect = item.el.getBoundingClientRect();
+                // Keep anything already visible on screen immediate (0ms)
+                if (rect.top < vh * 0.92) {
+                    return;
+                }
+                if (item.delay > 0) {
+                    item.el.style.setProperty('--roven-reveal-delay', item.delay + 'ms');
+                }
+                item.el.classList.add('roven-reveal');
+                observer.observe(item.el);
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initScrollReveal);
+        } else {
+            initScrollReveal();
+        }
+    })();
 </script>

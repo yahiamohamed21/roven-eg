@@ -3255,3 +3255,30 @@
     .roven-testimonials-nav-btn:active {
         transform: translateY(-50%) scale(0.96);
     }
+
+    /* ========================================================================
+       LIGHTWEIGHT GPU SCROLL REVEAL ANIMATIONS (0ms First Paint Safe)
+       ======================================================================== */
+    .roven-reveal {
+        opacity: 0;
+        transform: translate3d(0, 18px, 0);
+        transition:
+            opacity 0.48s cubic-bezier(0.22, 1, 0.36, 1),
+            transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+        transition-delay: var(--roven-reveal-delay, 0ms);
+        will-change: opacity, transform;
+    }
+
+    .roven-reveal.is-revealed {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+        will-change: auto;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .roven-reveal {
+            opacity: 1 !important;
+            transform: none !important;
+            transition: none !important;
+        }
+    }
