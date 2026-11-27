@@ -1347,11 +1347,11 @@
                                 {
                                     if (isInitiallyVisible && renderedCount <= 2)
                                     {
-                                        <img src="@product.ImageUrl" alt="@product.Name" loading="eager" fetchpriority="high" decoding="async" onload="this.classList.add('loaded'); this.closest('.product-image-container')?.classList.add('is-loaded');" onerror="this.onerror=null;this.src='/images/products/perfume_default.svg';" />
+                                        <img src="@product.ImageUrl" alt="@product.Name" loading="eager" fetchpriority="high" decoding="async" onload="this.classList.add('loaded'); this.closest('.product-image-container')?.classList.add('is-loaded');" onerror="this.onerror=null;this.style.display='none';" />
                                     }
                                     else
                                     {
-                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" data-src="@product.ImageUrl" alt="@product.Name" class="roven-lazy-img" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/images/products/perfume_default.svg';" />
+                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" data-src="@product.ImageUrl" alt="@product.Name" class="roven-lazy-img" loading="lazy" decoding="async" onerror="this.onerror=null;this.style.display='none';" />
                                     }
                                 }
                                 else
