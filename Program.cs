@@ -415,6 +415,32 @@ using (var scope = app.Services.CreateScope())
             logger.LogWarning(ex, "Web Push schema initialization: {Message}", ex.Message);
         }
 
+        // Remove requested test orders cleanly from database
+        try
+        {
+            await context.Database.ExecuteSqlRawAsync(@"
+                IF EXISTS (SELECT 1 FROM [Orders] WHERE [OrderNumber] IN (N'ORD-20261127-2041', N'ORD-20261126-7363'))
+                BEGIN
+                    UPDATE [AbandonedCheckouts]
+                    SET [RecoveredOrderId] = NULL
+                    WHERE [RecoveredOrderId] IN (SELECT [Id] FROM [Orders] WHERE [OrderNumber] IN (N'ORD-20261127-2041', N'ORD-20261126-7363'));
+
+                    DELETE FROM [InventoryTransactions]
+                    WHERE [OrderId] IN (SELECT [Id] FROM [Orders] WHERE [OrderNumber] IN (N'ORD-20261127-2041', N'ORD-20261126-7363'));
+
+                    DELETE FROM [OrderItems]
+                    WHERE [OrderId] IN (SELECT [Id] FROM [Orders] WHERE [OrderNumber] IN (N'ORD-20261127-2041', N'ORD-20261126-7363'));
+
+                    DELETE FROM [Orders]
+                    WHERE [OrderNumber] IN (N'ORD-20261127-2041', N'ORD-20261126-7363');
+                END;
+            ");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Test orders cleanup: {Message}", ex.Message);
+        }
+
         // Ensure Comparison Section settings are initialized with active status
         var homeSetting = await context.HomeSettings.FirstOrDefaultAsync();
         if (homeSetting != null)
