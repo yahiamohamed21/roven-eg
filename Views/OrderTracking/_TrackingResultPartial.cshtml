@@ -13,10 +13,10 @@
                 <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto shadow-sm" style="width: 64px; height: 64px; background-color: #F4E7DA; color: #810100;">
                     <i class="fa-solid fa-magnifying-glass-chart fs-3"></i>
                 </div>
-                <h4 class="fw-bold mb-2" style="color: #630000;">لم يتم العثور على شحنة بهذا الرقم</h4>
+                <h4 class="fw-bold mb-2" style="color: #630000;">لم يتم العثور على شحنة بهذه البيانات</h4>
                 <p class="small mb-3 mx-auto" style="color: #1B1717; max-width: 540px; line-height: 1.6;">
-                    لم نتمكن من العثور على طلب برقم <strong>"@Model.QueryOrderNumber"</strong>.
-                    يرجى التأكد من كتابة الرقم بشكل صحيح كما هو موضح في رسالة التأكيد أو الإيصال.
+                    لم نتمكن من العثور على طلب مطابق لـ <strong>"@(!string.IsNullOrWhiteSpace(Model.QueryOrderNumber) ? Model.QueryOrderNumber : Model.QueryPhone)"</strong>.
+                    يرجى التأكد من كتابة رقم الطلب أو رقم الهاتف بشكل صحيح كما هو مسجل عند إتمام الطلب.
                 </p>
                 <div class="d-flex justify-content-center gap-3 flex-wrap">
                     <a href="https://wa.me/@cleanWa" target="_blank" rel="noopener noreferrer" class="btn btn-sm px-3 py-2 rounded-pill fw-semibold text-white" style="background-color: #25D366;">

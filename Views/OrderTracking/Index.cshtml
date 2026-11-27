@@ -138,13 +138,13 @@
                 top: 180px;
                 left: 0;
                 right: 0;
-                bottom: -2px;
+                height: 680px;
                 width: 100%;
                 background-image:
-                    linear-gradient(180deg, #240305 0%, rgba(36, 3, 5, 0.55) 18%, rgba(45, 22, 16, 0.08) 48%, rgba(28, 16, 12, 0.25) 100%),
+                    linear-gradient(180deg, #240305 0%, rgba(36, 3, 5, 0.55) 18%, rgba(45, 22, 16, 0.08) 48%, rgba(28, 16, 12, 0.65) 84%, #240305 100%),
                     url('/images/banners/track-order-hero-desktop.webp');
-                background-size: auto 130%;
-                background-position: 64% bottom;
+                background-size: cover;
+                background-position: 64% top;
                 background-repeat: no-repeat;
                 pointer-events: none;
                 z-index: 1;
@@ -577,10 +577,10 @@
                 top: 44px;
                 left: 0;
                 right: 0;
-                bottom: -2px;
+                height: 820px;
                 width: 100%;
                 background-image:
-                    linear-gradient(180deg, #1C0203 0%, rgba(28, 2, 3, 0) 64px),
+                    linear-gradient(180deg, #1C0203 0%, rgba(28, 2, 3, 0) 64px, rgba(28, 2, 3, 0) 70%, #1C0203 100%),
                     linear-gradient(90deg, rgba(20, 2, 3, 0.52) 0%, rgba(28, 4, 5, 0.16) 40%, rgba(28, 4, 5, 0) 65%),
                     url('/images/banners/track-order-hero-desktop.webp');
                 background-size: cover;
@@ -1056,9 +1056,8 @@
                                        name="orderNumber"
                                        id="orderNumberInput"
                                        class="roven-cream-input"
-                                       placeholder="e.g. ORD-20261105-6525"
+                                       placeholder="e.g. ORD-20261105-6525 (optional with phone)"
                                        value="@Model.QueryOrderNumber"
-                                       required
                                        autocomplete="off" />
                             </div>
                         </div>
@@ -1231,7 +1230,19 @@
                     const orderNumber = orderInput ? orderInput.value.trim() : '';
                     const phone = phoneInput ? phoneInput.value.trim().replace(/[\s\-]/g, '') : '';
 
-                    if (!orderNumber) return;
+                    if (!orderNumber && !phone) {
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'يرجى إدخال البيانات',
+                                text: 'اكتب رقم الطلب أو رقم الهاتف للبحث عن شحنتك.',
+                                confirmButtonColor: '#630000'
+                            });
+                        } else if (orderInput) {
+                            orderInput.focus();
+                        }
+                        return;
+                    }
 
                     isSubmitting = true;
                     btn.disabled = true;
@@ -1239,7 +1250,7 @@
                     btn.innerHTML = '<span class="roven-btn-spinner" aria-hidden="true"></span><span>Checking Order...</span>';
 
                     const params = new URLSearchParams();
-                    params.set('orderNumber', orderNumber);
+                    if (orderNumber) params.set('orderNumber', orderNumber);
                     if (phone) params.set('phone', phone);
 
                     const baseAction = form.getAttribute('action') || '/OrderTracking';

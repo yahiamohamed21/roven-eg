@@ -24,7 +24,7 @@ public class OrderTrackingController : Controller
             HasSearched = false
         };
 
-        if (string.IsNullOrWhiteSpace(orderNumber))
+        if (string.IsNullOrWhiteSpace(orderNumber) && string.IsNullOrWhiteSpace(phone))
         {
             return View(model);
         }
@@ -33,22 +33,33 @@ public class OrderTrackingController : Controller
         model.WhatsAppNumber = siteSetting?.WhatsAppNumber ?? string.Empty;
 
         model.HasSearched = true;
-        var cleanNumber = orderNumber.Trim();
+        var cleanNumber = orderNumber?.Trim();
+        var cleanPhone = string.IsNullOrWhiteSpace(phone)
+            ? null
+            : phone.Trim().Replace(" ", "").Replace("-", "");
 
         var query = _context.Orders
             .AsNoTracking()
             .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
             .Include(o => o.Customer)
-            .Where(o => o.OrderNumber.ToLower() == cleanNumber.ToLower());
+            .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(phone))
+        if (!string.IsNullOrWhiteSpace(cleanNumber))
         {
-            var cleanPhone = phone.Trim().Replace(" ", "").Replace("-", "");
-            query = query.Where(o => o.CustomerPhone == cleanPhone || (o.Customer != null && o.Customer.PhoneNumber == cleanPhone));
+            query = query.Where(o => o.OrderNumber.ToLower() == cleanNumber.ToLower());
         }
 
-        model.Order = await query.FirstOrDefaultAsync();
+        if (!string.IsNullOrWhiteSpace(cleanPhone))
+        {
+            query = query.Where(o =>
+                o.CustomerPhone == cleanPhone ||
+                (o.Customer != null && o.Customer.PhoneNumber == cleanPhone));
+        }
+
+        model.Order = await query
+            .OrderByDescending(o => o.OrderDate)
+            .FirstOrDefaultAsync();
 
         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
         {
