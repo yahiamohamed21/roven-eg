@@ -277,15 +277,6 @@
                                 </button>
                             }
                         </div>
-
-                        <div class="mt-3 pt-2.5 border-top d-flex flex-wrap gap-1.5 align-items-center" id="testerSlotsPreview" style="border-color: #e8e0cf !important;">
-                            @for (int slot = 1; slot <= effectiveTesterRequiredCount; slot++)
-                            {
-                                <span class="badge bg-white text-muted border px-2.5 py-1.5 rounded-2 tester-slot-badge" data-slot-index="@(slot - 1)" style="font-size: 0.74rem; border-style: dashed !important;">
-                                    @(slot). — Select scent —
-                                </span>
-                            }
-                        </div>
                     </div>
                 }
 
@@ -674,7 +665,6 @@
     function renderTesterSelectionUI() {
         const inlineText = document.getElementById('testerSelectedInlineText');
         const progressBadge = document.getElementById('testerProgressBadge');
-        const slots = document.querySelectorAll('#testerSlotsPreview .tester-slot-badge');
 
         if (inlineText) {
             inlineText.textContent = selectedTesters.length > 0
@@ -691,24 +681,6 @@
             progressBadge.style.color = done ? '#ffffff' : '#630000';
             progressBadge.style.borderColor = done ? '#198754' : 'rgba(99,0,0,0.2)';
         }
-
-        slots.forEach((slotEl, idx) => {
-            if (selectedTesters[idx]) {
-                slotEl.textContent = `${idx + 1}. ${selectedTesters[idx].name}`;
-                slotEl.style.backgroundColor = '#1B1717';
-                slotEl.style.color = '#EDEBDD';
-                slotEl.style.borderColor = '#1B1717';
-                slotEl.style.borderStyle = 'solid';
-                slotEl.classList.remove('bg-white', 'text-muted');
-            } else {
-                slotEl.textContent = `${idx + 1}. — Select scent —`;
-                slotEl.style.backgroundColor = '#ffffff';
-                slotEl.style.color = '#6c757d';
-                slotEl.style.borderColor = '#dee2e6';
-                slotEl.style.borderStyle = 'dashed';
-                slotEl.classList.add('bg-white', 'text-muted');
-            }
-        });
     }
 
     function toggleTesterChoice(btn) {
