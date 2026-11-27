@@ -31,7 +31,7 @@
                         <div class="col-12 col-md-4">
                             <label asp-for="Sku" class="form-label small fw-semibold text-secondary"></label>
                             <span class="text-danger">*</span>
-                            <input asp-for="Sku" class="form-control text-uppercase" placeholder="e.g. ROV-OUD-100" />
+                            <input asp-for="Sku" class="form-control text-uppercase" placeholder="ROV-ROYAL-OUD (تلقائي)" />
                             <span asp-validation-for="Sku" class="text-danger small"></span>
                         </div>
 
@@ -155,6 +155,40 @@
 
             if (clearBtn) clearBtn.addEventListener('click', resetNewFile);
             if (cancelNewFileBtn) cancelNewFileBtn.addEventListener('click', resetNewFile);
+
+            // Auto-generate SKU Code as ROV-<PerfumeName> while typing Product Name
+            const nameInput = document.getElementById('Name');
+            const skuInput = document.getElementById('Sku');
+            if (nameInput && skuInput) {
+                let skuManuallyEdited = skuInput.value.trim().length > 0;
+
+                function buildRovSku(rawName) {
+                    const cleaned = (rawName || '')
+                        .trim()
+                        .replace(/\s+/g, '-')
+                        .replace(/[^\p{L}\p{N}-]+/gu, '')
+                        .replace(/-+/g, '-')
+                        .replace(/^-|-$/g, '')
+                        .toUpperCase();
+                    return cleaned ? `ROV-${cleaned}` : '';
+                }
+
+                nameInput.addEventListener('input', function () {
+                    if (!skuManuallyEdited) {
+                        skuInput.value = buildRovSku(this.value);
+                    }
+                });
+
+                skuInput.addEventListener('input', function () {
+                    const val = this.value.trim();
+                    if (!val) {
+                        skuManuallyEdited = false;
+                        skuInput.value = buildRovSku(nameInput.value);
+                    } else {
+                        skuManuallyEdited = val.toUpperCase() !== buildRovSku(nameInput.value);
+                    }
+                });
+            }
         });
 
         function updatePrimaryCategory() {
