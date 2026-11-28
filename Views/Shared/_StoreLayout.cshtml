@@ -515,15 +515,15 @@
         }
 
         /* Completely hide the rest of the page under the preloader until dismiss starts */
-        html.roven-loading body:not(.roven-revealing) > *:not(#roven-preloader),
-        body.roven-loading:not(.roven-revealing) > *:not(#roven-preloader) {
+        html.roven-loading body:not(.roven-revealing) > *:not(#roven-preloader):not(#rovenLeadModal),
+        body.roven-loading:not(.roven-revealing) > *:not(#roven-preloader):not(#rovenLeadModal) {
             opacity: 0 !important;
             visibility: hidden !important;
             pointer-events: none !important;
             user-select: none !important;
         }
 
-        body.roven-revealing > *:not(#roven-preloader) {
+        body.roven-revealing > *:not(#roven-preloader):not(#rovenLeadModal) {
             opacity: 1 !important;
             visibility: visible !important;
             transition: opacity 0.4s ease-in;
