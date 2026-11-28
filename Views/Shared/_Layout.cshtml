@@ -896,6 +896,7 @@
 
                     var res = await fetch('/api/push/subscribe', {
                         method: 'POST',
+                        credentials: 'same-origin',
                         headers: {
                             'Content-Type': 'application/json',
                             'RequestVerificationToken': getNotifsCsrfToken()
@@ -906,6 +907,9 @@
                             auth: json.keys.auth
                         })
                     });
+                    if (res.status === 401 || res.status === 403) {
+                        throw new Error('AUTH_EXPIRED');
+                    }
                     if (!res.ok) {
                         var errTxt = '';
                         try { errTxt = await res.text(); } catch (_) {}
@@ -972,7 +976,7 @@
                         var reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
                         await navigator.serviceWorker.ready;
 
-                        var keyRes = await fetch('/api/push/vapid-public-key');
+                        var keyRes = await fetch('/api/push/vapid-public-key', { credentials: 'same-origin' });
                         if (!keyRes.ok) throw new Error('VAPID HTTP ' + keyRes.status);
                         var keyData = await keyRes.json();
 
@@ -997,6 +1001,21 @@
                         }
                     } catch (err) {
                         var reason = (err && err.message) ? err.message : 'خطأ غير معروف';
+                        if (reason === 'AUTH_EXPIRED') {
+                            setPushUiState('idle', 'يرجى إعادة تسجيل الدخول بعد التحديث');
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'انتهت جلسة الدخول',
+                                    text: 'تم تحديث السيرفر للتو — اضغط موافق لإعادة تسجيل الدخول ثم تفعيل الإشعارات.',
+                                    confirmButtonText: 'تسجيل الدخول',
+                                    confirmButtonColor: '#810100'
+                                }).then(function () { window.location.href = '/Account/Login?ReturnUrl=/Dashboard'; });
+                            } else {
+                                window.location.href = '/Account/Login?ReturnUrl=/Dashboard';
+                            }
+                            return;
+                        }
                         setPushUiState('idle', 'تعذر التفعيل: ' + reason);
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
@@ -1014,8 +1033,13 @@
                     try {
                         var res = await fetch('/api/push/test', {
                             method: 'POST',
+                            credentials: 'same-origin',
                             headers: { 'RequestVerificationToken': getNotifsCsrfToken() }
                         });
+                        if (res.status === 401 || res.status === 403) {
+                            window.location.href = '/Account/Login?ReturnUrl=/Dashboard';
+                            return;
+                        }
                         var data = res.ok ? await res.json() : null;
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({

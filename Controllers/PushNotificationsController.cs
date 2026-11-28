@@ -19,6 +19,7 @@ public class PushNotificationsController : ControllerBase
     }
 
     [HttpGet("vapid-public-key")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetVapidPublicKey(CancellationToken ct)
     {
         var key = await _pushService.GetPublicVapidKeyAsync(ct);
