@@ -334,35 +334,69 @@ public class OrderService : IOrderService
                 if (!string.IsNullOrWhiteSpace(request.CouponCode))
                 {
                     var codeClean = request.CouponCode.Trim().ToUpper();
-                    var coupon = await _context.Coupons.FirstOrDefaultAsync(c => c.Code == codeClean);
-                    if (coupon != null && coupon.IsActive)
+                    var coupon = await _context.Coupons.AsNoTracking().FirstOrDefaultAsync(c => c.Code == codeClean);
+                    if (coupon == null || !coupon.IsActive)
                     {
-                        var now = DateTime.UtcNow;
-                        bool validDate = (!coupon.StartDate.HasValue || coupon.StartDate <= now) &&
-                                         (!coupon.ExpiryDate.HasValue || coupon.ExpiryDate >= now);
-                        bool validUsage = !coupon.MaxUsageCount.HasValue || coupon.TimesUsed < coupon.MaxUsageCount.Value;
-                        bool validMin = !coupon.MinimumOrderAmount.HasValue || subtotal >= coupon.MinimumOrderAmount.Value;
-
-                        if (validDate && validUsage && validMin)
+                        await transaction.RollbackAsync();
+                        return new CreateOrderResult
                         {
-                            if (coupon.DiscountType == CouponDiscountType.Percentage)
-                            {
-                                discountAmount = Math.Round((subtotal * coupon.DiscountValue) / 100m, 2);
-                                if (coupon.MaxDiscountAmount.HasValue && discountAmount > coupon.MaxDiscountAmount.Value)
-                                {
-                                    discountAmount = coupon.MaxDiscountAmount.Value;
-                                }
-                            }
-                            else
-                            {
-                                discountAmount = Math.Min(subtotal, coupon.DiscountValue);
-                            }
+                            Success = false,
+                            ErrorMessage = "عذراً، كود الكوبون غير صالح أو معطل حالياً."
+                        };
+                    }
 
-                            appliedCouponId = coupon.Id;
-                            appliedCouponCode = coupon.Code;
-                            coupon.TimesUsed += 1;
+                    var now = DateTime.UtcNow;
+                    bool validDate = (!coupon.StartDate.HasValue || coupon.StartDate <= now) &&
+                                     (!coupon.ExpiryDate.HasValue || coupon.ExpiryDate.Value.Date.AddDays(1).AddTicks(-1) >= now);
+                    bool validUsage = !coupon.MaxUsageCount.HasValue || coupon.TimesUsed < coupon.MaxUsageCount.Value;
+                    bool validMin = !coupon.MinimumOrderAmount.HasValue || subtotal >= coupon.MinimumOrderAmount.Value;
+
+                    if (!validDate || !validUsage || !validMin)
+                    {
+                        await transaction.RollbackAsync();
+                        return new CreateOrderResult
+                        {
+                            Success = false,
+                            ErrorMessage = !validUsage
+                                ? "عذراً، تم استنفاد الحد الأقصى لمرات استخدام هذا الكوبون."
+                                : (!validDate ? "عذراً، هذا الكوبون منتهي الصلاحية." : $"الحد الأدنى لتطبيق هذا الكوبون هو {coupon.MinimumOrderAmount:N2} ج.م.")
+                        };
+                    }
+
+                    // Atomic claim inside transaction so single-use (MaxUsageCount = 1) cannot be double-redeemed concurrently
+                    var claimed = await _context.Database.ExecuteSqlRawAsync(@"
+                        UPDATE [Coupons]
+                        SET [TimesUsed] = [TimesUsed] + 1
+                        WHERE [Id] = {0}
+                          AND [IsActive] = 1
+                          AND ([MaxUsageCount] IS NULL OR [TimesUsed] < [MaxUsageCount])
+                    ", coupon.Id);
+
+                    if (claimed == 0)
+                    {
+                        await transaction.RollbackAsync();
+                        return new CreateOrderResult
+                        {
+                            Success = false,
+                            ErrorMessage = "عذراً، تم استنفاد الحد الأقصى لمرات استخدام هذا الكوبون."
+                        };
+                    }
+
+                    if (coupon.DiscountType == CouponDiscountType.Percentage)
+                    {
+                        discountAmount = Math.Round((subtotal * coupon.DiscountValue) / 100m, 2);
+                        if (coupon.MaxDiscountAmount.HasValue && discountAmount > coupon.MaxDiscountAmount.Value)
+                        {
+                            discountAmount = coupon.MaxDiscountAmount.Value;
                         }
                     }
+                    else
+                    {
+                        discountAmount = Math.Min(subtotal, coupon.DiscountValue);
+                    }
+
+                    appliedCouponId = coupon.Id;
+                    appliedCouponCode = coupon.Code;
                 }
 
                 decimal grandTotal = Math.Max(0m, subtotal - discountAmount + request.ShippingFee);

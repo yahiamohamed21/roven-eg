@@ -211,6 +211,21 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="btn-group btn-group-sm">
+                                        <button type="button"
+                                                class="btn btn-outline-primary btn-edit-coupon"
+                                                data-id="@c.Id"
+                                                data-code="@c.Code"
+                                                data-description="@c.Description"
+                                                data-discount-type="@((int)c.DiscountType)"
+                                                data-discount-value="@c.DiscountValue.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                                data-min-order="@(c.MinimumOrderAmount?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")"
+                                                data-max-discount="@(c.MaxDiscountAmount?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")"
+                                                data-expiry="@(c.ExpiryDate?.ToString("yyyy-MM-dd") ?? "")"
+                                                data-max-usage="@(c.MaxUsageCount?.ToString() ?? "")"
+                                                data-active="@(c.IsActive ? "true" : "false")"
+                                                title="تعديل بيانات وقيمة الكوبون">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
                                         <a asp-controller="Coupons" asp-action="Orders" asp-route-id="@c.Id" class="btn btn-outline-info" title="عرض كافة الطلبات التي استخدمت هذا الكوبون">
                                             <i class="fa-solid fa-receipt me-1"></i>الطلبات
                                         </a>
@@ -364,21 +379,139 @@
     </div>
 </div>
 
+<!-- Modal: Edit Coupon -->
+<div class="modal fade" id="modalEditCoupon" tabindex="-1" aria-labelledby="modalEditCouponLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <form asp-controller="Coupons" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" id="editCouponId" />
+                <div class="modal-header bg-dark text-white py-3">
+                    <h5 class="modal-title fw-bold" id="modalEditCouponLabel">
+                        <i class="fa-solid fa-pen-to-square text-warning me-2"></i>تعديل الكوبون
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-dark">
+                                كود الكوبون (Coupon Code) <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fa-solid fa-barcode"></i></span>
+                                <input type="text" name="Code" id="editCouponCode" class="form-control font-monospace text-uppercase fw-bold" required maxlength="50" />
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-bold text-dark">وصف الكوبون (Description)</label>
+                            <input type="text" name="Description" id="editCouponDescription" class="form-control" maxlength="250" />
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">
+                                نوع الخصم <span class="text-danger">*</span>
+                            </label>
+                            <select name="DiscountType" id="editCouponDiscountType" class="form-select" required>
+                                <option value="0">نسبة مئوية (%)</option>
+                                <option value="1">مبلغ مالي ثابت (EGP)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">
+                                قيمة الخصم <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="0.01" name="DiscountValue" id="editCouponDiscountValue" class="form-control font-monospace fw-bold" required />
+                                <span class="input-group-text bg-light" id="edit-discount-unit-addon">%</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">الحد الأدنى للطلب (EGP)</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="0" name="MinimumOrderAmount" id="editCouponMinOrder" class="form-control font-monospace" />
+                                <span class="input-group-text bg-light">ج.م</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">أقصى قيمة للخصم (Cap EGP)</label>
+                            <div class="input-group">
+                                <input type="number" step="0.01" min="0" name="MaxDiscountAmount" id="editCouponMaxDiscount" class="form-control font-monospace" />
+                                <span class="input-group-text bg-light">ج.م</span>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">تاريخ الانتهاء</label>
+                            <input type="date" name="ExpiryDate" id="editCouponExpiry" class="form-control" />
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small fw-bold text-dark">أقصى عدد مرات استخدام</label>
+                            <input type="number" min="1" name="MaxUsageCount" id="editCouponMaxUsage" class="form-control font-monospace" placeholder="غير محدود" />
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" name="IsActive" value="true" id="editCouponIsActive">
+                                <label class="form-check-label fw-bold text-dark" for="editCouponIsActive">الكوبون فعال ونشط</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light py-2">
+                    <button type="button" class="btn btn-outline-secondary px-3" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
+                        <i class="fa-solid fa-floppy-disk me-1"></i>حفظ التعديلات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
 <script>
-    // Handle Discount Type change for Unit Addon
-    const discountTypeSelect = document.getElementById('select-discount-type');
-    if (discountTypeSelect) {
-        discountTypeSelect.addEventListener('change', function () {
-            const addon = document.getElementById('discount-unit-addon');
-            if (addon) {
-                addon.textContent = this.value === '0' ? '%' : 'ج.م';
-            }
-        });
+    // Handle Discount Type change for Unit Addon (Create + Edit)
+    function bindDiscountUnit(selectId, addonId) {
+        const sel = document.getElementById(selectId);
+        const addon = document.getElementById(addonId);
+        if (!sel || !addon) return;
+        const sync = () => { addon.textContent = sel.value === '0' ? '%' : 'ج.م'; };
+        sel.addEventListener('change', sync);
+        sync();
     }
+    bindDiscountUnit('select-discount-type', 'discount-unit-addon');
+    bindDiscountUnit('editCouponDiscountType', 'edit-discount-unit-addon');
 
-    // Delegated click handler for SweetAlert2 Coupon Deletion and Toggle
+    // Delegated click handler for Edit, Delete, and Toggle
     document.addEventListener('click', function (e) {
+        const editBtn = e.target.closest('.btn-edit-coupon');
+        if (editBtn) {
+            e.preventDefault();
+            document.getElementById('editCouponId').value = editBtn.dataset.id || '';
+            document.getElementById('editCouponCode').value = editBtn.dataset.code || '';
+            document.getElementById('editCouponDescription').value = editBtn.dataset.description || '';
+            const dtSel = document.getElementById('editCouponDiscountType');
+            dtSel.value = editBtn.dataset.discountType || '0';
+            document.getElementById('edit-discount-unit-addon').textContent = dtSel.value === '0' ? '%' : 'ج.م';
+            document.getElementById('editCouponDiscountValue').value = editBtn.dataset.discountValue || '';
+            document.getElementById('editCouponMinOrder').value = editBtn.dataset.minOrder || '';
+            document.getElementById('editCouponMaxDiscount').value = editBtn.dataset.maxDiscount || '';
+            document.getElementById('editCouponExpiry').value = editBtn.dataset.expiry || '';
+            document.getElementById('editCouponMaxUsage').value = editBtn.dataset.maxUsage || '';
+            document.getElementById('editCouponIsActive').checked = editBtn.dataset.active === 'true';
+
+            const modalEl = document.getElementById('modalEditCoupon');
+            if (modalEl && window.bootstrap) {
+                window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            }
+            return;
+        }
         // Delete button
         const deleteBtn = e.target.closest('.btn-delete-coupon');
         if (deleteBtn) {

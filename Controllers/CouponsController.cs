@@ -106,6 +106,60 @@ public class CouponsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // POST: /Coupons/Edit
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(Coupon model)
+    {
+        var coupon = await _context.Coupons.FindAsync(model.Id);
+        if (coupon == null)
+        {
+            TempData["ErrorMessage"] = "الكوبون المطلوب تعديله غير موجود.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (string.IsNullOrWhiteSpace(model.Code))
+        {
+            TempData["ErrorMessage"] = "كود الكوبون مطلوب.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var cleanCode = model.Code.Trim().ToUpper();
+        var duplicateExists = await _context.Coupons.AnyAsync(c => c.Code == cleanCode && c.Id != model.Id);
+        if (duplicateExists)
+        {
+            TempData["ErrorMessage"] = $"الكود '{cleanCode}' مستخدم بالفعل في كوبون آخر. يرجى اختيار كود فريد.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (model.DiscountValue <= 0)
+        {
+            TempData["ErrorMessage"] = "قيمة الخصم يجب أن تكون أكبر من الصفر.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (model.DiscountType == CouponDiscountType.Percentage && model.DiscountValue > 100)
+        {
+            TempData["ErrorMessage"] = "نسبة الخصم لا يمكن أن تتجاوز 100%.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        coupon.Code = cleanCode;
+        coupon.Description = string.IsNullOrWhiteSpace(model.Description) ? null : model.Description.Trim();
+        coupon.DiscountType = model.DiscountType;
+        coupon.DiscountValue = model.DiscountValue;
+        coupon.MinimumOrderAmount = model.MinimumOrderAmount;
+        coupon.MaxDiscountAmount = model.MaxDiscountAmount;
+        coupon.ExpiryDate = model.ExpiryDate;
+        coupon.MaxUsageCount = model.MaxUsageCount;
+        coupon.IsActive = model.IsActive;
+
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = $"تم تعديل الكوبون '{cleanCode}' بنجاح.";
+        return RedirectToAction(nameof(Index));
+    }
+
     // POST: /Coupons/ToggleActive/5
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -198,7 +252,7 @@ public class CouponsController : Controller
             return Json(new { success = false, message = "لم يبدأ موعد سريان هذا الكوبون بعد." });
         }
 
-        if (coupon.ExpiryDate.HasValue && coupon.ExpiryDate.Value < now)
+        if (coupon.ExpiryDate.HasValue && coupon.ExpiryDate.Value.Date.AddDays(1).AddTicks(-1) < now)
         {
             return Json(new { success = false, message = "عذراً، هذا الكوبون منتهي الصلاحية." });
         }
