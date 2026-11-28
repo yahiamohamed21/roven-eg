@@ -6,8 +6,8 @@ namespace Stockify.Services.Implementations;
 
 public class AbandonedCartPushBackgroundService : BackgroundService
 {
-    private static readonly TimeSpan PollInterval = TimeSpan.FromMinutes(3);
-    private static readonly TimeSpan AbandonmentDelay = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan PollInterval = TimeSpan.FromMinutes(1);
+    private static readonly TimeSpan AbandonmentDelay = TimeSpan.FromMinutes(5);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<AbandonedCartPushBackgroundService> _logger;

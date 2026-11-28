@@ -178,9 +178,10 @@ public class WebPushNotificationService : IPushNotificationService
 
     public Task NotifyAbandonedCartAsync(int checkoutId, string customerName, string customerPhone, decimal totalAmount, int itemCount, CancellationToken ct = default)
     {
-        var displayName = string.IsNullOrWhiteSpace(customerName) ? customerPhone : customerName;
-        var title = "سلة متروكة جديدة";
-        var body = $"{displayName} ({customerPhone}) — {itemCount} منتج بقيمة {totalAmount:N0} ج.م";
+        var displayName = string.IsNullOrWhiteSpace(customerName) ? (string.IsNullOrWhiteSpace(customerPhone) ? "عميل" : customerPhone) : customerName;
+        var phonePart = string.IsNullOrWhiteSpace(customerPhone) ? "" : $" | {customerPhone}";
+        var title = $"سلة متروكة جديدة (ID: {checkoutId})";
+        var body = $"العميل: {displayName}{phonePart}\n{itemCount} منتج — الإجمالي: {totalAmount:N0} ج.م";
         return SendToAllAsync(title, body, "/AbandonedCheckouts", $"abandoned-{checkoutId}", ct);
     }
 
