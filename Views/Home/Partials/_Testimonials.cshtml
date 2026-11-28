@@ -75,141 +75,126 @@
                                     </p>
 
                                     <div class="d-flex align-items-center gap-3 pt-3 border-top mt-auto" style="border-color: #f0ece3 !important;">
-                                        <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0 shadow-xs" style="width: 44px; height: 44px; background-color: @avatarBg; color: #EDEBDD; font-size: 0.95rem; letter-spacing: 0.5px;">
+                                        <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0 shadow-xs" style="width: 42px; height: 42px; background-color: @avatarBg; color: #EDEBDD; font-size: 0.9rem; letter-spacing: 0.5px;">
                                             @initials
                                         </div>
                                         <div class="flex-grow-1 min-w-0" style="min-width: 0;">
                                             <div class="fw-bold small text-truncate" style="color: #1B1717;">@rev.CustomerName</div>
-                                            @if (rev.Product != null)
-                                            {
-                                                <a asp-controller="Store"
-                                                   asp-action="Details"
-                                                   asp-route-id="@rev.Product.Id"
-                                                   class="d-inline-flex align-items-center gap-1.5 mt-1 px-2.5 py-1 rounded-pill text-decoration-none mw-100"
-                                                   style="font-size: 0.74rem; color: #630000; background: rgba(129, 1, 0, 0.06); border: 1px solid rgba(129, 1, 0, 0.16); font-weight: 700; transition: all 0.2s ease;"
-                                                   onmouseover="this.style.background='#630000'; this.style.color='#FAF9F5';"
-                                                   onmouseout="this.style.background='rgba(129, 1, 0, 0.06)'; this.style.color='#630000';"
-                                                   title="View @rev.Product.Name">
-                                                    @if (!string.IsNullOrWhiteSpace(rev.Product.ImageUrl))
-                                                    {
-                                                        <img src="@rev.Product.ImageUrl" alt="@rev.Product.Name" class="rounded-circle flex-shrink-0" style="width: 18px; height: 18px; object-fit: cover;" onerror="this.style.display='none';" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <i class="fa-solid fa-spray-can-sparkles flex-shrink-0" style="font-size: 0.7rem;"></i>
-                                                    }
-                                                    <span class="text-truncate">@rev.Product.Name</span>
-                                                    <i class="fa-solid fa-chevron-right flex-shrink-0" style="font-size: 0.62rem; opacity: 0.8;"></i>
-                                                </a>
-                                            }
-                                            else
-                                            {
-                                                <span class="small text-muted" style="font-size: 0.75rem;">Verified Fragrance Collector</span>
-                                            }
+                                            <div class="small text-muted" style="font-size: 0.72rem;">Verified Fragrance Collector</div>
                                         </div>
                                     </div>
+
+                                    @if (rev.Product != null)
+                                    {
+                                        <a asp-controller="Store"
+                                           asp-action="Details"
+                                           asp-route-id="@rev.Product.Id"
+                                           class="d-flex align-items-center gap-2.5 mt-3 p-2 rounded-3 text-decoration-none"
+                                           style="background: #faf8f4; border: 1px solid #e8dfd0; transition: all 0.2s ease;"
+                                           onmouseover="this.style.borderColor='#810100'; this.style.background='#f5efe6';"
+                                           onmouseout="this.style.borderColor='#e8dfd0'; this.style.background='#faf8f4';"
+                                           title="View @rev.Product.Name">
+                                            <div class="rounded-2 overflow-hidden flex-shrink-0 d-flex align-items-center justify-content-center bg-white border" style="width: 42px; height: 42px; border-color: #ece4d6 !important;">
+                                                @if (!string.IsNullOrWhiteSpace(rev.Product.ImageUrl))
+                                                {
+                                                    <img src="@rev.Product.ImageUrl" alt="@rev.Product.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none';" />
+                                                }
+                                                else
+                                                {
+                                                    <i class="fa-solid fa-spray-can-sparkles" style="color: #810100; font-size: 0.95rem;"></i>
+                                                }
+                                            </div>
+                                            <div class="flex-grow-1 min-w-0">
+                                                <div class="text-uppercase fw-semibold" style="font-size: 0.62rem; color: #8c7e6d; letter-spacing: 0.6px;">Reviewed Perfume</div>
+                                                <div class="fw-bold text-truncate" style="font-size: 0.82rem; color: #1B1717;">@rev.Product.Name</div>
+                                            </div>
+                                            <span class="rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 26px; height: 26px; background: rgba(129, 1, 0, 0.08); color: #810100; font-size: 0.7rem;">
+                                                <i class="fa-solid fa-chevron-right"></i>
+                                            </span>
+                                        </a>
+                                    }
                                 </div>
                             </div>
                         }
                     }
                     else
                     {
-                        <!-- Default Curated Maison ROVEN Patrons Testimonials -->
-                        <div class="roven-testimonial-track-item">
-                            <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4 bg-white d-flex flex-column">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <div class="star-rating" style="color: #810100; letter-spacing: 2px;">
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                    </div>
-                                    <span class="badge rounded-pill fw-semibold font-monospace" style="background: rgba(129, 1, 0, 0.06); color: #810100; font-size: 0.72rem; padding: 4px 8px;">
-                                        <i class="fa-solid fa-certificate me-1"></i>VERIFIED PATRON
-                                    </span>
-                                </div>
-                                <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.65; font-style: italic;">
-                                    "Rouge Velours Extrait is simply hypnotic. The dark cherry and ambergris trail lasts well past 24 hours on wool coats. Delivery to New Cairo was immaculate and paying Cash on Delivery was seamless."
-                                </p>
-                                <div class="d-flex align-items-center gap-3 pt-3 border-top mt-auto" style="border-color: #f0ece3 !important;">
-                                    <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0 shadow-xs" style="width: 44px; height: 44px; background-color: #630000; color: #EDEBDD;">
-                                        AM
-                                    </div>
-                                    <div class="flex-grow-1 min-w-0" style="min-width: 0;">
-                                        <div class="fw-bold small text-truncate" style="color: #1B1717;">Ahmed Mansour</div>
-                                        <div class="d-inline-flex align-items-center gap-1.5 small mt-0.5 text-truncate" style="font-size: 0.76rem; color: #810100; font-weight: 600;">
-                                            <i class="fa-solid fa-spray-can-sparkles" style="font-size: 0.7rem;"></i>
-                                            <span class="text-truncate">Rouge Velours Extrait</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        var curatedFallbacks = new[]
+                        {
+                            new { Initials = "AM", Bg = "#630000", Customer = "Ahmed Mansour", Comment = "Simply hypnotic! The scent trail lasts well past 24 hours on clothes. Delivery to New Cairo was immaculate and paying Cash on Delivery was seamless." },
+                            new { Initials = "ME", Bg = "#810100", Customer = "Mona El-Shennawy", Comment = "Genuine depth without harsh synthetic sharpness. The presentation box and atomizers are true works of art. ROVEN is in a class of its own." },
+                            new { Initials = "TZ", Bg = "#1B1717", Customer = "Tarek Zaki", Comment = "Testing the fragrances before selecting my signature bottle made all the difference. The order arrived the very next afternoon in Sheikh Zayed." }
+                        };
+                        var fallbackProducts = (Model.BestSellers ?? Enumerable.Empty<Stockify.ViewModels.Store.StoreProductCardViewModel>())
+                            .Concat(Model.FeaturedProducts ?? Enumerable.Empty<Stockify.ViewModels.Store.StoreProductCardViewModel>())
+                            .Concat(Model.LatestProducts ?? Enumerable.Empty<Stockify.ViewModels.Store.StoreProductCardViewModel>())
+                            .GroupBy(p => p.Id)
+                            .Select(g => g.First())
+                            .Take(3)
+                            .ToList();
 
-                        <div class="roven-testimonial-track-item">
-                            <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4 bg-white d-flex flex-column">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <div class="star-rating" style="color: #810100; letter-spacing: 2px;">
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
+                        for (int idx = 0; idx < curatedFallbacks.Length; idx++)
+                        {
+                            var item = curatedFallbacks[idx];
+                            var linkedProd = idx < fallbackProducts.Count ? fallbackProducts[idx] : null;
+                            <div class="roven-testimonial-track-item">
+                                <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4 bg-white d-flex flex-column">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <div class="star-rating" style="color: #810100; letter-spacing: 2px;">
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                            <i class="fa-solid fa-star"></i>
+                                        </div>
+                                        <span class="badge rounded-pill fw-semibold font-monospace" style="background: rgba(129, 1, 0, 0.06); color: #810100; font-size: 0.72rem; padding: 4px 8px;">
+                                            <i class="fa-solid fa-certificate me-1"></i>VERIFIED PATRON
+                                        </span>
                                     </div>
-                                    <span class="badge rounded-pill fw-semibold font-monospace" style="background: rgba(129, 1, 0, 0.06); color: #810100; font-size: 0.72rem; padding: 4px 8px;">
-                                        <i class="fa-solid fa-certificate me-1"></i>VERIFIED PATRON
-                                    </span>
-                                </div>
-                                <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.65; font-style: italic;">
-                                    "Royal Amber & Oud possesses the depth of genuine aged Assam wood without harsh synthetic sharpness. The presentation box and atomizers are true works of art. ROVEN is in a class of its own."
-                                </p>
-                                <div class="d-flex align-items-center gap-3 pt-3 border-top mt-auto" style="border-color: #f0ece3 !important;">
-                                    <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0 shadow-xs" style="width: 44px; height: 44px; background-color: #810100; color: #EDEBDD;">
-                                        ME
-                                    </div>
-                                    <div class="flex-grow-1 min-w-0" style="min-width: 0;">
-                                        <div class="fw-bold small text-truncate" style="color: #1B1717;">Mona El-Shennawy</div>
-                                        <div class="d-inline-flex align-items-center gap-1.5 small mt-0.5 text-truncate" style="font-size: 0.76rem; color: #810100; font-weight: 600;">
-                                            <i class="fa-solid fa-spray-can-sparkles" style="font-size: 0.7rem;"></i>
-                                            <span class="text-truncate">Royal Amber & Oud</span>
+                                    <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.65; font-style: italic;">
+                                        "@item.Comment"
+                                    </p>
+                                    <div class="d-flex align-items-center gap-3 pt-3 border-top mt-auto" style="border-color: #f0ece3 !important;">
+                                        <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0 shadow-xs" style="width: 42px; height: 42px; background-color: @item.Bg; color: #EDEBDD;">
+                                            @item.Initials
+                                        </div>
+                                        <div class="flex-grow-1 min-w-0" style="min-width: 0;">
+                                            <div class="fw-bold small text-truncate" style="color: #1B1717;">@item.Customer</div>
+                                            <div class="small text-muted" style="font-size: 0.72rem;">Verified Fragrance Collector</div>
                                         </div>
                                     </div>
+                                    @if (linkedProd != null)
+                                    {
+                                        <a asp-controller="Store"
+                                           asp-action="Details"
+                                           asp-route-id="@linkedProd.Id"
+                                           class="d-flex align-items-center gap-2.5 mt-3 p-2 rounded-3 text-decoration-none"
+                                           style="background: #faf8f4; border: 1px solid #e8dfd0; transition: all 0.2s ease;"
+                                           onmouseover="this.style.borderColor='#810100'; this.style.background='#f5efe6';"
+                                           onmouseout="this.style.borderColor='#e8dfd0'; this.style.background='#faf8f4';"
+                                           title="View @linkedProd.Name">
+                                            <div class="rounded-2 overflow-hidden flex-shrink-0 d-flex align-items-center justify-content-center bg-white border" style="width: 42px; height: 42px; border-color: #ece4d6 !important;">
+                                                @if (!string.IsNullOrWhiteSpace(linkedProd.ImageUrl))
+                                                {
+                                                    <img src="@linkedProd.ImageUrl" alt="@linkedProd.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none';" />
+                                                }
+                                                else
+                                                {
+                                                    <i class="fa-solid fa-spray-can-sparkles" style="color: #810100; font-size: 0.95rem;"></i>
+                                                }
+                                            </div>
+                                            <div class="flex-grow-1 min-w-0">
+                                                <div class="text-uppercase fw-semibold" style="font-size: 0.62rem; color: #8c7e6d; letter-spacing: 0.6px;">Reviewed Perfume</div>
+                                                <div class="fw-bold text-truncate" style="font-size: 0.82rem; color: #1B1717;">@linkedProd.Name</div>
+                                            </div>
+                                            <span class="rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 26px; height: 26px; background: rgba(129, 1, 0, 0.08); color: #810100; font-size: 0.7rem;">
+                                                <i class="fa-solid fa-chevron-right"></i>
+                                            </span>
+                                        </a>
+                                    }
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="roven-testimonial-track-item">
-                            <div class="card testimonial-card border-0 shadow-sm p-4 h-100 rounded-4 bg-white d-flex flex-column">
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <div class="star-rating" style="color: #810100; letter-spacing: 2px;">
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                    </div>
-                                    <span class="badge rounded-pill fw-semibold font-monospace" style="background: rgba(129, 1, 0, 0.06); color: #810100; font-size: 0.72rem; padding: 4px 8px;">
-                                        <i class="fa-solid fa-certificate me-1"></i>VERIFIED PATRON
-                                    </span>
-                                </div>
-                                <p class="small mb-4 flex-grow-1" style="color: #595252; line-height: 1.65; font-style: italic;">
-                                    "The Grand Discovery Coffret allowed me to test all five fragrances over several weeks before selecting Santal Impérial. The order arrived the very next afternoon in Sheikh Zayed."
-                                </p>
-                                <div class="d-flex align-items-center gap-3 pt-3 border-top mt-auto" style="border-color: #f0ece3 !important;">
-                                    <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0 shadow-xs" style="width: 44px; height: 44px; background-color: #1B1717; color: #EDEBDD;">
-                                        TZ
-                                    </div>
-                                    <div class="flex-grow-1 min-w-0" style="min-width: 0;">
-                                        <div class="fw-bold small text-truncate" style="color: #1B1717;">Tarek Zaki</div>
-                                        <div class="d-inline-flex align-items-center gap-1.5 small mt-0.5 text-truncate" style="font-size: 0.76rem; color: #810100; font-weight: 600;">
-                                            <i class="fa-solid fa-spray-can-sparkles" style="font-size: 0.7rem;"></i>
-                                            <span class="text-truncate">Santal Impérial</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        }
                     }
                 </div>
             </div>
