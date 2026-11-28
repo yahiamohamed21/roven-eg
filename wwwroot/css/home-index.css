@@ -3182,7 +3182,7 @@
     .testimonial-card:hover {
         transform: translateY(-4px) !important;
         border-color: #dfb15b !important;
-        box-shadow: 0 16px 36px rgba(129, 1, 0, 0.12) !important;
+        box-shadow: none !important;
     }
 
     /* Carousel Nav Arrows (Unified Luxury ROVEN Standard) */
