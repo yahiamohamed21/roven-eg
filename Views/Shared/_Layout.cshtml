@@ -906,7 +906,12 @@
                             auth: json.keys.auth
                         })
                     });
-                    return res.ok;
+                    if (!res.ok) {
+                        var errTxt = '';
+                        try { errTxt = await res.text(); } catch (_) {}
+                        throw new Error('Subscribe HTTP ' + res.status + (errTxt ? (': ' + errTxt.slice(0, 80)) : ''));
+                    }
+                    return true;
                 }
 
                 async function initMobilePush() {
@@ -968,7 +973,7 @@
                         await navigator.serviceWorker.ready;
 
                         var keyRes = await fetch('/api/push/vapid-public-key');
-                        if (!keyRes.ok) throw new Error('VAPID fetch failed');
+                        if (!keyRes.ok) throw new Error('VAPID HTTP ' + keyRes.status);
                         var keyData = await keyRes.json();
 
                         var sub = await reg.pushManager.getSubscription();
@@ -979,8 +984,7 @@
                             });
                         }
 
-                        var ok = await syncPushSubscription(sub);
-                        if (!ok) throw new Error('Subscribe API failed');
+                        await syncPushSubscription(sub);
 
                         setPushUiState('subscribed', 'الإشعارات مفعّلة وتعمل في الخلفية ✓');
                         if (typeof Swal !== 'undefined') {
@@ -992,7 +996,16 @@
                             });
                         }
                     } catch (err) {
-                        setPushUiState('idle', 'تعذر التفعيل، تأكد من السماح بالإشعارات');
+                        var reason = (err && err.message) ? err.message : 'خطأ غير معروف';
+                        setPushUiState('idle', 'تعذر التفعيل: ' + reason);
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'تعذر تفعيل الإشعارات',
+                                text: reason,
+                                confirmButtonColor: '#810100'
+                            });
+                        }
                     }
                 };
 
@@ -1007,8 +1020,10 @@
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 icon: data && data.sentCount > 0 ? 'success' : 'warning',
-                                title: data && data.sentCount > 0 ? 'تم إرسال الإشعار التجريبي' : 'لا توجد أجهزة مفعّلة حالياً',
-                                text: data && data.sentCount > 0 ? ('تم الإرسال إلى ' + data.sentCount + ' جهاز بنجاح.') : 'اضغط تفعيل من الهاتف أولاً.',
+                                title: data && data.sentCount > 0 ? 'تم إرسال الإشعار التجريبي' : 'لم يتم الإرسال',
+                                text: data && data.sentCount > 0
+                                    ? ('تم الإرسال إلى ' + data.sentCount + ' جهاز بنجاح.')
+                                    : ((data && data.lastPushError) ? data.lastPushError : 'اضغط تفعيل من الهاتف أولاً.'),
                                 confirmButtonColor: '#810100'
                             });
                         }

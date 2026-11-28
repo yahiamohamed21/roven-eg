@@ -13,8 +13,12 @@ namespace Stockify.Services.Implementations;
 public class WebPushNotificationService : IPushNotificationService
 {
     private static readonly SemaphoreSlim VapidLock = new(1, 1);
+    private static string? _lastPushError;
+    private static DateTime? _lastPushSuccessAt;
     private readonly ApplicationDbContext _context;
     private readonly ILogger<WebPushNotificationService> _logger;
+
+    public static (string? LastError, DateTime? LastSuccessAt) GetDiagnostics() => (_lastPushError, _lastPushSuccessAt);
 
     public WebPushNotificationService(
         ApplicationDbContext context,
@@ -102,7 +106,8 @@ public class WebPushNotificationService : IPushNotificationService
         if (subscriptions.Count == 0) return 0;
 
         var vapid = await EnsureVapidSettingsAsync(ct);
-        var vapidDetails = new VapidDetails(vapid.Subject, vapid.PublicKey, vapid.PrivateKey);
+        var subject = string.IsNullOrWhiteSpace(vapid.Subject) ? "mailto:support@roven-eg.online" : vapid.Subject;
+        var vapidDetails = new VapidDetails(subject, vapid.PublicKey, vapid.PrivateKey);
         var options = new Dictionary<string, object>
         {
             ["vapidDetails"] = vapidDetails,
@@ -131,6 +136,8 @@ public class WebPushNotificationService : IPushNotificationService
                 var pushSub = new WebPushSubscription(sub.Endpoint, sub.P256dh, sub.Auth);
                 await client.SendNotificationAsync(pushSub, payload, options, ct);
                 sub.LastSuccessAt = DateTime.UtcNow;
+                _lastPushSuccessAt = DateTime.UtcNow;
+                _lastPushError = null;
                 sentCount++;
             }
             catch (WebPushException wpEx) when (wpEx.StatusCode == HttpStatusCode.Gone || wpEx.StatusCode == HttpStatusCode.NotFound)
@@ -140,6 +147,7 @@ public class WebPushNotificationService : IPushNotificationService
             }
             catch (Exception ex)
             {
+                _lastPushError = $"{ex.GetType().Name}: {ex.Message}";
                 _logger.LogWarning(ex, "Failed sending web push to subscription {Id}: {Message}", sub.Id, ex.Message);
             }
         }

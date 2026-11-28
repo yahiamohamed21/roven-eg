@@ -29,7 +29,13 @@ public class PushNotificationsController : ControllerBase
     public async Task<IActionResult> GetStatus(CancellationToken ct)
     {
         var count = await _pushService.GetActiveSubscriptionCountAsync(ct);
-        return Ok(new { activeSubscriptions = count });
+        var diag = Stockify.Services.Implementations.WebPushNotificationService.GetDiagnostics();
+        return Ok(new
+        {
+            activeSubscriptions = count,
+            lastPushError = diag.LastError,
+            lastPushSuccessAt = diag.LastSuccessAt
+        });
     }
 
     [HttpPost("subscribe")]
@@ -75,7 +81,8 @@ public class PushNotificationsController : ControllerBase
             "roven-test",
             ct);
 
-        return Ok(new { success = true, sentCount });
+        var diag = Stockify.Services.Implementations.WebPushNotificationService.GetDiagnostics();
+        return Ok(new { success = true, sentCount, lastPushError = diag.LastError });
     }
 
     public class PushSubscribeRequest
