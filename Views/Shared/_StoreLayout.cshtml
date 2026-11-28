@@ -3504,11 +3504,30 @@
             let modalDismissedThisView = false;
 
             function isLeadModalDismissed() {
-                return modalDismissedThisView;
+                if (modalDismissedThisView) return true;
+                try {
+                    if (localStorage.getItem('roven_lead_dismissed') === 'true') return true;
+                } catch (e) {}
+                try {
+                    if (sessionStorage.getItem('roven_lead_dismissed') === 'true') return true;
+                } catch (e) {}
+                try {
+                    if (document.cookie.indexOf('roven_lead_dismissed=true') !== -1) return true;
+                } catch (e) {}
+                return false;
             }
 
             function markLeadModalDismissed() {
                 modalDismissedThisView = true;
+                try {
+                    localStorage.setItem('roven_lead_dismissed', 'true');
+                } catch (e) {}
+                try {
+                    sessionStorage.setItem('roven_lead_dismissed', 'true');
+                } catch (e) {}
+                try {
+                    document.cookie = "roven_lead_dismissed=true; path=/; max-age=31536000; SameSite=Lax";
+                } catch (e) {}
             }
 
             function lockScroll() {
