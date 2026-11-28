@@ -112,7 +112,10 @@ public class WebPushNotificationService : IPushNotificationService
         {
             ["vapidDetails"] = vapidDetails,
             ["TTL"] = 86400,
-            ["urgency"] = "high"
+            ["headers"] = new Dictionary<string, object>
+            {
+                ["Urgency"] = "high"
+            }
         };
 
         var payload = JsonSerializer.Serialize(new
