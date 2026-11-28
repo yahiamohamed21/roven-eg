@@ -103,6 +103,12 @@ public class WebPushNotificationService : IPushNotificationService
 
         var vapid = await EnsureVapidSettingsAsync(ct);
         var vapidDetails = new VapidDetails(vapid.Subject, vapid.PublicKey, vapid.PrivateKey);
+        var options = new Dictionary<string, object>
+        {
+            ["vapidDetails"] = vapidDetails,
+            ["TTL"] = 86400,
+            ["urgency"] = "high"
+        };
 
         var payload = JsonSerializer.Serialize(new
         {
@@ -123,7 +129,7 @@ public class WebPushNotificationService : IPushNotificationService
             try
             {
                 var pushSub = new WebPushSubscription(sub.Endpoint, sub.P256dh, sub.Auth);
-                await client.SendNotificationAsync(pushSub, payload, vapidDetails, ct);
+                await client.SendNotificationAsync(pushSub, payload, options, ct);
                 sub.LastSuccessAt = DateTime.UtcNow;
                 sentCount++;
             }
@@ -151,10 +157,13 @@ public class WebPushNotificationService : IPushNotificationService
         return sentCount;
     }
 
-    public Task NotifyNewOrderAsync(int orderId, string orderNumber, string customerName, decimal totalAmount, CancellationToken ct = default)
+    public Task NotifyNewOrderAsync(int orderId, string orderNumber, string customerName, string customerPhone, decimal totalAmount, decimal shippingFee, string? city = null, CancellationToken ct = default)
     {
         var title = $"طلب جديد #{orderNumber}";
-        var body = $"{customerName} — الإجمالي {totalAmount:N0} ج.م";
+        var phonePart = string.IsNullOrWhiteSpace(customerPhone) ? "" : $" | {customerPhone}";
+        var cityPart = string.IsNullOrWhiteSpace(city) ? "" : $" ({city})";
+        var shippingPart = shippingFee > 0 ? $"شامل الشحن {shippingFee:N0} ج.م" : "شحن مجاني";
+        var body = $"العميل: {customerName}{phonePart}{cityPart}\nالإجمالي: {totalAmount:N0} ج.م ({shippingPart}) | ID: {orderId}";
         return SendToAllAsync(title, body, $"/Orders/Details/{orderId}", $"order-{orderId}", ct);
     }
 

@@ -457,7 +457,12 @@ public class OrderService : IOrderService
                 var pushCustomerName = !string.IsNullOrWhiteSpace(request.CustomerName)
                     ? request.CustomerName.Trim()
                     : (resolvedCustomer?.FullName ?? "عميل");
+                var pushCustomerPhone = !string.IsNullOrWhiteSpace(order.CustomerPhone)
+                    ? order.CustomerPhone
+                    : (resolvedCustomer?.PhoneNumber ?? string.Empty);
                 var pushTotalAmount = order.TotalAmount;
+                var pushShippingFee = order.ShippingFee;
+                var pushCity = order.City;
                 var pushProductIds = request.Items.Select(i => i.ProductId).Distinct().ToList();
 
                 _ = Task.Run(async () =>
@@ -468,7 +473,14 @@ public class OrderService : IOrderService
                         var pushService = scope.ServiceProvider.GetRequiredService<IPushNotificationService>();
                         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-                        await pushService.NotifyNewOrderAsync(pushOrderId, pushOrderNumber, pushCustomerName, pushTotalAmount);
+                        await pushService.NotifyNewOrderAsync(
+                            pushOrderId,
+                            pushOrderNumber,
+                            pushCustomerName,
+                            pushCustomerPhone,
+                            pushTotalAmount,
+                            pushShippingFee,
+                            pushCity);
 
                         if (pushProductIds.Count > 0)
                         {
