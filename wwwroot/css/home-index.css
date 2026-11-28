@@ -3282,3 +3282,26 @@
             transition: none !important;
         }
     }
+
+    /* Unified Mobile X-Axis Scroll Stability Across All Horizontal Card Tracks */
+    .roven-cat-track,
+    .roven-products-track,
+    .roven-offers-track,
+    .roven-testimonials-track {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        overscroll-behavior-x: contain;
+        overscroll-behavior-y: none;
+        touch-action: pan-x pan-y;
+        -webkit-overflow-scrolling: touch;
+        align-items: stretch;
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+        .roven-cat-track *:hover,
+        .roven-products-track .product-card:hover,
+        .roven-offers-track *:hover,
+        .roven-testimonials-track .testimonial-card:hover {
+            transform: none !important;
+        }
+    }
