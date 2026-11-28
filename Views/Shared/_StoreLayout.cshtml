@@ -84,8 +84,8 @@
                 var tc = document.getElementById('rovenThemeColorMeta');
                 if (tc) tc.setAttribute('content', '#FAF9F5');
             }
-            if (localStorage.getItem('roven_lead_dismissed') === 'true' && document.cookie.indexOf('roven_lead_dismissed=true') === -1) {
-                document.cookie = "roven_lead_dismissed=true; path=/; max-age=31536000; SameSite=Lax";
+            if (localStorage.getItem('roven_sidebar_closed') === 'true') {
+                // Keep sidebar preference intact
             }
         } catch(e) {}
     </script>
@@ -3417,13 +3417,8 @@
     </script>
     }
 
-    @{
-        var isVipLeadDismissed = Context.Request.Cookies["roven_lead_dismissed"] == "true";
-    }
-    @if (!isVipLeadDismissed)
-    {
     <!-- ============================================================== -->
-    <!-- MAISON ROVEN — HAUTE PARFUMERIE WHATSAPP VIP OFFERS MODAL       -->
+    <!-- MAISON ROVEN — WHATSAPP VIP OFFERS MODAL                       -->
     <!-- ============================================================== -->
     <div id="rovenLeadModal" class="roven-lead-backdrop" aria-hidden="true">
         <div class="roven-lead-modal shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="rovenLeadTitle">
@@ -3473,15 +3468,15 @@
 
             <!-- Post-Submit Success View: Direct Notification Confirmation -->
             <div id="rovenLeadSuccessView" class="d-none py-2">
-                <div class="roven-lead-wa-icon" style="background: rgba(37, 211, 102, 0.15); border-color: rgba(37, 211, 102, 0.4);">
-                    <i class="fa-solid fa-check" style="font-size: 1.3rem;"></i>
+                <div id="rovenSuccessIconWrap" class="roven-lead-wa-icon" style="background: rgba(37, 211, 102, 0.15); border-color: rgba(37, 211, 102, 0.4);">
+                    <i id="rovenSuccessIcon" class="fa-solid fa-check" style="font-size: 1.3rem;"></i>
                 </div>
 
-                <h4 class="fw-bold mb-1" style="font-family: 'Playfair Display', Georgia, serif; color: #EDEBDD; font-size: 1.25rem;">
+                <h4 id="rovenSuccessTitle" class="fw-bold mb-1" style="font-family: 'Playfair Display', Georgia, serif; color: #EDEBDD; font-size: 1.25rem;">
                     تم تسجيلك بنجاح!
                 </h4>
 
-                <p class="small mb-1 text-muted" style="color: #c9c4b8 !important; font-size: 0.85rem;">
+                <p id="rovenSuccessSubtitle" class="small mb-1 text-muted" style="color: #c9c4b8 !important; font-size: 0.85rem;">
                     سيتم إرسال كافة العروض والخصومات الحصرية لرقم الواتساب المسجل:
                 </p>
 
@@ -3506,29 +3501,14 @@
             const modal = document.getElementById('rovenLeadModal');
             if (!modal) return;
 
+            let modalDismissedThisView = false;
+
             function isLeadModalDismissed() {
-                try {
-                    if (localStorage.getItem('roven_lead_dismissed') === 'true') return true;
-                } catch (e) {}
-                try {
-                    if (sessionStorage.getItem('roven_lead_dismissed') === 'true') return true;
-                } catch (e) {}
-                try {
-                    if (document.cookie.indexOf('roven_lead_dismissed=true') !== -1) return true;
-                } catch (e) {}
-                return false;
+                return modalDismissedThisView;
             }
 
             function markLeadModalDismissed() {
-                try {
-                    localStorage.setItem('roven_lead_dismissed', 'true');
-                } catch (e) {}
-                try {
-                    sessionStorage.setItem('roven_lead_dismissed', 'true');
-                } catch (e) {}
-                try {
-                    document.cookie = "roven_lead_dismissed=true; path=/; max-age=31536000; SameSite=Lax";
-                } catch (e) {}
+                modalDismissedThisView = true;
             }
 
             function lockScroll() {
@@ -3655,6 +3635,35 @@
                     if (data.success) {
                         markLeadModalDismissed();
 
+                        const titleEl = document.getElementById('rovenSuccessTitle');
+                        const subEl = document.getElementById('rovenSuccessSubtitle');
+                        const iconWrap = document.getElementById('rovenSuccessIconWrap');
+                        const iconEl = document.getElementById('rovenSuccessIcon');
+
+                        if (data.isNew === false) {
+                            if (titleEl) titleEl.textContent = 'هذا الرقم مسجل لدينا قبل كده!';
+                            if (subEl) subEl.textContent = 'رقمك مسجل بالفعل في قائمة عروض ROVEN VIP، وستصلك العروض والخصومات على نفس الرقم:';
+                            if (iconWrap) {
+                                iconWrap.style.background = 'rgba(223, 177, 91, 0.16)';
+                                iconWrap.style.borderColor = 'rgba(223, 177, 91, 0.5)';
+                            }
+                            if (iconEl) {
+                                iconEl.className = 'fa-solid fa-circle-info';
+                                iconEl.style.color = '#E8C688';
+                            }
+                        } else {
+                            if (titleEl) titleEl.textContent = 'تم تسجيلك بنجاح!';
+                            if (subEl) subEl.textContent = 'سيتم إرسال كافة العروض والخصومات الحصرية لرقم الواتساب المسجل:';
+                            if (iconWrap) {
+                                iconWrap.style.background = 'rgba(37, 211, 102, 0.15)';
+                                iconWrap.style.borderColor = 'rgba(37, 211, 102, 0.4)';
+                            }
+                            if (iconEl) {
+                                iconEl.className = 'fa-solid fa-check';
+                                iconEl.style.color = '#25D366';
+                            }
+                        }
+
                         document.getElementById('rovenLeadFormView').classList.add('d-none');
                         const successView = document.getElementById('rovenLeadSuccessView');
                         if (successView) {
@@ -3697,7 +3706,6 @@
             }, 2400);
         })();
     </script>
-    }
 
     @await RenderSectionAsync("Scripts", required: false)
     <script>
