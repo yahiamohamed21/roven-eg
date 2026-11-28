@@ -490,7 +490,7 @@ public class HomeController : Controller
             return Json(new
             {
                 success = false,
-                message = "يرجى إدخال رقم الواتساب لاستلام كافة العروض الحصرية."
+                message = "Please enter your WhatsApp number to receive exclusive offers."
             });
         }
 
@@ -502,7 +502,7 @@ public class HomeController : Controller
             return Json(new
             {
                 success = false,
-                message = "يرجى إدخال رقم واتساب صحيح (مثال: 010xxxxxxxx)."
+                message = "Please enter a valid WhatsApp number (e.g. 010xxxxxxxx)."
             });
         }
 
@@ -523,12 +523,12 @@ public class HomeController : Controller
                 hasOrders = hasOrders,
                 phone = cleanPhone,
                 customerName = existingCustomer.FullName,
-                message = $"أهلاً بك مجدداً في دار Roven! رقمك مسجل لدينا بالفعل وسيتم إرسال كافة العروض والخصومات الحصرية لرقم الواتساب ({cleanPhone})."
+                message = $"Welcome back to Maison ROVEN! This number ({cleanPhone}) is already registered and will receive all exclusive offers."
             });
         }
 
         // 2. Register as a new lead in Customers table (No orders yet)
-        var patronName = !string.IsNullOrWhiteSpace(fullName) ? fullName.Trim() : $"عميل واتساب ({cleanPhone})";
+        var patronName = !string.IsNullOrWhiteSpace(fullName) ? fullName.Trim() : $"WhatsApp Lead ({cleanPhone})";
         var patronEmail = !string.IsNullOrWhiteSpace(email) && email.Contains("@") 
             ? email.Trim().ToLower() 
             : $"whatsapp_{digitsOnly}@roven.vip";
@@ -552,7 +552,7 @@ public class HomeController : Controller
             hasOrders = false,
             phone = cleanPhone,
             customerName = patronName,
-            message = $"تم تسجيل رقمك بنجاح! سيتم إرسال كافة العروض والخصومات الحصرية لرقم الواتساب ({cleanPhone})."
+            message = $"You have been registered! Exclusive offers and discount codes will be sent to ({cleanPhone})."
         });
     }
 

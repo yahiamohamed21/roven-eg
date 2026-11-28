@@ -3427,7 +3427,7 @@
             </button>
 
             <!-- Pre-Submit View: Luxury VIP Coupon Invitation -->
-            <div id="rovenLeadFormView" dir="rtl">
+            <div id="rovenLeadFormView" dir="ltr">
                 <div class="roven-lead-crest-badge">
                     <img src="/images/roven-crest.png?v=roven_crest_20261127" alt="ROVEN" />
                 </div>
@@ -3437,12 +3437,12 @@
                     <span>ROVEN VIP CIRCLE</span>
                 </div>
 
-                <h4 id="rovenLeadTitle" class="fw-bold mb-2" style="color: #FFFDF8; font-size: 1.32rem; line-height: 1.4;">
-                    احصل على خصم خاص عبر واتساب
+                <h4 id="rovenLeadTitle" class="fw-bold mb-2" style="font-family: 'Playfair Display', Georgia, serif; color: #FFFDF8; font-size: 1.32rem; line-height: 1.35;">
+                    Unlock Your Exclusive Discount
                 </h4>
 
-                <p class="small mb-3.5" style="color: #d6cfc2; font-size: 0.86rem; line-height: 1.65;">
-                    سجّل رقم الواتساب الخاص بك ليصلك <strong style="color: #E8C688;">كود خصم حصري</strong> على طلبك الأول مع أحدث إصدارات دار ROVEN.
+                <p class="small mb-3.5" style="color: #d6cfc2; font-size: 0.86rem; line-height: 1.6;">
+                    Enter your WhatsApp number to receive an <strong style="color: #E8C688;">exclusive coupon code</strong> on your first order and early access to new ROVEN releases.
                 </p>
 
                 <form id="rovenLeadForm" onsubmit="submitRovenLeadForm(event)">
@@ -3454,30 +3454,30 @@
                     <div id="rovenLeadError" class="alert alert-danger py-1.5 px-3 small mb-2 d-none" style="background-color: rgba(220, 53, 69, 0.25); border-color: rgba(220, 53, 69, 0.4); color: #ffc9c9; font-size: 0.82rem; border-radius: 10px;"></div>
 
                     <button type="submit" id="rovenLeadSubmitBtn" class="btn w-100 py-2.5 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 mt-2" style="background: linear-gradient(135deg, #810100 0%, #5a0000 100%); color: #FFFDF8; border: 1px solid rgba(232, 198, 136, 0.55); font-size: 0.94rem; transition: all 0.2s ease;">
-                        <span>احصل على الكوبون الآن</span>
+                        <span>Claim My Coupon</span>
                         <i class="fa-solid fa-gift" style="font-size: 0.9rem; color: #E8C688;"></i>
                     </button>
                 </form>
 
                 <div class="mt-3">
                     <button type="button" class="btn btn-link text-decoration-none p-1" style="color: #d6cfc2 !important; opacity: 0.72; font-size: 0.8rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.72'" onclick="dismissRovenLeadModal()">
-                        لاحقاً، متابعة تصفح المتجر
+                        Maybe later, continue browsing
                     </button>
                 </div>
             </div>
 
             <!-- Post-Submit Success View: Direct Notification Confirmation -->
-            <div id="rovenLeadSuccessView" class="d-none py-2">
+            <div id="rovenLeadSuccessView" class="d-none py-2" dir="ltr">
                 <div id="rovenSuccessIconWrap" class="roven-lead-wa-icon" style="background: rgba(37, 211, 102, 0.15); border-color: rgba(37, 211, 102, 0.4);">
                     <i id="rovenSuccessIcon" class="fa-solid fa-check" style="font-size: 1.3rem;"></i>
                 </div>
 
                 <h4 id="rovenSuccessTitle" class="fw-bold mb-1" style="font-family: 'Playfair Display', Georgia, serif; color: #EDEBDD; font-size: 1.25rem;">
-                    تم تسجيلك بنجاح!
+                    You're on the List!
                 </h4>
 
                 <p id="rovenSuccessSubtitle" class="small mb-1 text-muted" style="color: #c9c4b8 !important; font-size: 0.85rem;">
-                    سيتم إرسال كافة العروض والخصومات الحصرية لرقم الواتساب المسجل:
+                    Exclusive offers and discount codes will be sent to your WhatsApp number:
                 </p>
 
                 <div id="rovenSuccessPhone" class="fs-4 fw-extrabold font-monospace text-warning my-2" dir="ltr" style="letter-spacing: 1.5px;">
@@ -3485,11 +3485,11 @@
                 </div>
 
                 <p class="small text-muted mb-3" style="color: #a8a29e !important; font-size: 0.78rem;">
-                    شكراً لانضمامك إلى دار Roven للعطور.
+                    Thank you for joining Maison ROVEN.
                 </p>
 
                 <button type="button" onclick="dismissRovenLeadModal()" class="btn w-100 py-2 rounded-3 fw-semibold shadow-sm" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2); color: #EDEBDD; font-size: 0.88rem;">
-                    متابعة تصفح المتجر
+                    Continue Shopping
                 </button>
             </div>
         </div>
@@ -3606,7 +3606,7 @@
 
                 if (!phone) {
                     if (errorEl) {
-                        errorEl.textContent = 'يرجى إدخال رقم الواتساب.';
+                        errorEl.textContent = 'Please enter your WhatsApp number.';
                         errorEl.classList.remove('d-none');
                     }
                     return;
@@ -3614,7 +3614,7 @@
 
                 const originalBtnHtml = submitBtn.innerHTML;
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> جاري الإرسال...';
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Submitting...';
 
                 try {
                     const formData = new FormData();
@@ -3642,8 +3642,8 @@
                         const iconEl = document.getElementById('rovenSuccessIcon');
 
                         if (data.isNew === false) {
-                            if (titleEl) titleEl.textContent = 'هذا الرقم مسجل لدينا قبل كده!';
-                            if (subEl) subEl.textContent = 'رقمك مسجل بالفعل في قائمة عروض ROVEN VIP، وستصلك العروض والخصومات على نفس الرقم:';
+                            if (titleEl) titleEl.textContent = 'This Number Is Already Registered!';
+                            if (subEl) subEl.textContent = 'Your number is already in the ROVEN VIP list — exclusive offers and coupons will be sent to:';
                             if (iconWrap) {
                                 iconWrap.style.background = 'rgba(223, 177, 91, 0.16)';
                                 iconWrap.style.borderColor = 'rgba(223, 177, 91, 0.5)';
@@ -3653,8 +3653,8 @@
                                 iconEl.style.color = '#E8C688';
                             }
                         } else {
-                            if (titleEl) titleEl.textContent = 'تم تسجيلك بنجاح!';
-                            if (subEl) subEl.textContent = 'سيتم إرسال كافة العروض والخصومات الحصرية لرقم الواتساب المسجل:';
+                            if (titleEl) titleEl.textContent = "You're on the List!";
+                            if (subEl) subEl.textContent = 'Exclusive offers and discount codes will be sent to your WhatsApp number:';
                             if (iconWrap) {
                                 iconWrap.style.background = 'rgba(37, 211, 102, 0.15)';
                                 iconWrap.style.borderColor = 'rgba(37, 211, 102, 0.4)';
@@ -3677,14 +3677,14 @@
                         }
                     } else {
                         if (errorEl) {
-                            errorEl.textContent = data.message || 'حدث خطأ أثناء التسجيل، يرجى المحاولة مرة أخرى.';
+                            errorEl.textContent = data.message || 'Something went wrong. Please try again.';
                             errorEl.classList.remove('d-none');
                         }
                     }
                 } catch (err) {
                     console.error('Lead subscription error:', err);
                     if (errorEl) {
-                        errorEl.textContent = 'تعذر الاتصال بالسيرفر، يرجى التحقق من اتصال الإنترنت.';
+                        errorEl.textContent = 'Unable to connect to the server. Please check your internet connection.';
                         errorEl.classList.remove('d-none');
                     }
                 } finally {
