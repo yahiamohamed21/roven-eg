@@ -2433,23 +2433,58 @@
         }
 
         .roven-lead-modal {
-            background: radial-gradient(135% 120% at 50% 0%, #221616 0%, #151111 60%, #0d0a0a 100%) !important;
-            border: 1px solid rgba(232, 198, 136, 0.4) !important;
-            border-radius: 20px !important;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(99, 0, 0, 0.35) !important;
+            background: radial-gradient(130% 110% at 50% 0%, #2b0b0c 0%, #170f10 58%, #0e0a0a 100%) !important;
+            border: 1.5px solid rgba(223, 177, 91, 0.5) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 28px 70px rgba(0, 0, 0, 0.92), 0 0 40px rgba(129, 1, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
             width: 100% !important;
-            max-width: 400px !important;
-            max-height: min(90dvh, 620px) !important;
-            color: #EDEBDD !important;
+            max-width: 420px !important;
+            max-height: min(90dvh, 640px) !important;
+            color: #FAF7F2 !important;
             position: relative !important;
-            padding: 2.2rem 1.75rem 1.6rem !important;
+            padding: 2.3rem 1.85rem 1.7rem !important;
             text-align: center !important;
-            transform: scale(0.94) translateY(12px);
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+            transform: scale(0.94) translateY(14px);
+            transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
             overflow-y: auto !important;
             overscroll-behavior: contain !important;
             touch-action: pan-y !important;
             -webkit-overflow-scrolling: touch !important;
+        }
+
+        .roven-lead-vip-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 999px;
+            background: rgba(223, 177, 91, 0.12);
+            border: 1px solid rgba(223, 177, 91, 0.38);
+            color: #E8C688;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1.3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .roven-lead-crest-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 14px;
+            padding: 3px;
+            background: linear-gradient(135deg, #E8C688, #810100);
+            box-shadow: 0 8px 24px rgba(223, 177, 91, 0.25);
+            position: relative;
+        }
+
+        .roven-lead-crest-badge img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
         }
 
         .roven-lead-backdrop.active .roven-lead-modal {
@@ -3396,37 +3431,42 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
 
-            <!-- Pre-Submit View: Clean & Minimalist WhatsApp Input -->
-            <div id="rovenLeadFormView">
-                <div class="roven-lead-wa-icon">
-                    <i class="fa-brands fa-whatsapp"></i>
+            <!-- Pre-Submit View: Luxury VIP Coupon Invitation -->
+            <div id="rovenLeadFormView" dir="rtl">
+                <div class="roven-lead-crest-badge">
+                    <img src="/images/roven-crest.png?v=roven_crest_20261127" alt="ROVEN" />
                 </div>
 
-                <h4 id="rovenLeadTitle" class="fw-bold mb-2" style="font-family: 'Playfair Display', Georgia, serif; color: #EDEBDD; font-size: 1.25rem;">
-                    عروض وإصدارات Roven الخاصة
+                <div class="roven-lead-vip-pill">
+                    <i class="fa-brands fa-whatsapp text-success" style="font-size: 0.85rem;"></i>
+                    <span>ROVEN VIP CIRCLE</span>
+                </div>
+
+                <h4 id="rovenLeadTitle" class="fw-bold mb-2" style="color: #FFFDF8; font-size: 1.32rem; line-height: 1.4;">
+                    احصل على خصم خاص عبر واتساب
                 </h4>
 
-                <p class="small mb-3" style="color: #c9c4b8; font-size: 0.85rem; line-height: 1.55;">
-                    سجّل رقم هاتفك ليصلك أحدث إصدارات العطور والعروض الخاصة مباشرة عبر تطبيق واتساب.
+                <p class="small mb-3.5" style="color: #d6cfc2; font-size: 0.86rem; line-height: 1.65;">
+                    سجّل رقم الواتساب الخاص بك ليصلك <strong style="color: #E8C688;">كود خصم حصري</strong> على طلبك الأول مع أحدث إصدارات دار ROVEN.
                 </p>
 
                 <form id="rovenLeadForm" onsubmit="submitRovenLeadForm(event)">
-                    <div class="roven-lead-input-group">
-                        <i class="fa-brands fa-whatsapp"></i>
-                        <input type="tel" id="rovenLeadPhone" class="roven-lead-input" placeholder="010xxxxxxxx (رقم الواتساب)" required dir="ltr" autocomplete="tel" />
+                    <div class="roven-lead-input-group" style="border-radius: 14px; border: 1px solid rgba(232, 198, 136, 0.32); background: rgba(255,255,255,0.06);">
+                        <i class="fa-brands fa-whatsapp" style="color: #25D366;"></i>
+                        <input type="tel" id="rovenLeadPhone" class="roven-lead-input" placeholder="010xxxxxxxx" required dir="ltr" autocomplete="tel" />
                     </div>
 
                     <div id="rovenLeadError" class="alert alert-danger py-1.5 px-3 small mb-2 d-none" style="background-color: rgba(220, 53, 69, 0.25); border-color: rgba(220, 53, 69, 0.4); color: #ffc9c9; font-size: 0.82rem; border-radius: 10px;"></div>
 
-                    <button type="submit" id="rovenLeadSubmitBtn" class="btn w-100 py-2.5 rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 mt-2" style="background: #630000; color: #EDEBDD; border: 1px solid rgba(232, 198, 136, 0.35); font-size: 0.92rem; transition: all 0.2s ease;">
-                        <span>إرسال</span>
-                        <i class="fa-solid fa-paper-plane" style="font-size: 0.85rem;"></i>
+                    <button type="submit" id="rovenLeadSubmitBtn" class="btn w-100 py-2.5 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 mt-2" style="background: linear-gradient(135deg, #810100 0%, #5a0000 100%); color: #FFFDF8; border: 1px solid rgba(232, 198, 136, 0.55); font-size: 0.94rem; transition: all 0.2s ease;">
+                        <span>احصل على الكوبون الآن</span>
+                        <i class="fa-solid fa-gift" style="font-size: 0.9rem; color: #E8C688;"></i>
                     </button>
                 </form>
 
                 <div class="mt-3">
-                    <button type="button" class="btn btn-link text-decoration-none p-1" style="color: #EDEBDD !important; opacity: 0.65; font-size: 0.8rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.65'" onclick="dismissRovenLeadModal()">
-                        تخطي ومتابعة تصفح المتجر
+                    <button type="button" class="btn btn-link text-decoration-none p-1" style="color: #d6cfc2 !important; opacity: 0.72; font-size: 0.8rem; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.72'" onclick="dismissRovenLeadModal()">
+                        لاحقاً، متابعة تصفح المتجر
                     </button>
                 </div>
             </div>
@@ -3510,14 +3550,17 @@
                 }
             } catch (e) {}
 
+            let modalOpenedAt = 0;
+
             window.openRovenLeadModal = function() {
                 if (!isForceTesting && isLeadModalDismissed()) {
                     return;
                 }
+                if (modal.classList.contains('active')) {
+                    return;
+                }
 
-                // Immediately mark as dismissed/seen on this device so refresh never triggers it again
-                markLeadModalDismissed();
-
+                modalOpenedAt = Date.now();
                 modal.classList.add('active');
                 modal.setAttribute('aria-hidden', 'false');
                 lockScroll();
@@ -3541,8 +3584,7 @@
                 if (!isForceTesting && isLeadModalDismissed()) {
                     return;
                 }
-                markLeadModalDismissed();
-                setTimeout(openRovenLeadModal, 450);
+                setTimeout(openRovenLeadModal, 550);
             };
 
             // Prevent background dragging and rubber-banding when touching modal or backdrop
@@ -3553,9 +3595,9 @@
                 }
             }, { passive: false });
 
-            // Click outside dialog to dismiss
+            // Click outside dialog to dismiss (ignore accidental taps in first 600ms after opening)
             modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
+                if (e.target === modal && (Date.now() - modalOpenedAt) > 600) {
                     dismissRovenLeadModal();
                 }
             });
