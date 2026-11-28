@@ -3531,6 +3531,7 @@
             } catch (e) {}
 
             let modalOpenedAt = 0;
+            let hasTriggeredThisPage = false;
 
             window.openRovenLeadModal = function() {
                 if (!isForceTesting && isLeadModalDismissed()) {
@@ -3561,10 +3562,10 @@
             };
 
             window.checkAndTriggerVipLeadModal = function() {
-                if (!isForceTesting && isLeadModalDismissed()) {
-                    return;
-                }
-                setTimeout(openRovenLeadModal, 550);
+                if (hasTriggeredThisPage) return;
+                if (!isForceTesting && isLeadModalDismissed()) return;
+                hasTriggeredThisPage = true;
+                setTimeout(openRovenLeadModal, 500);
             };
 
             // Prevent background dragging and rubber-banding when touching modal or backdrop
