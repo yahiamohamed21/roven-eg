@@ -210,9 +210,9 @@
                                     }
                                 </td>
                                 <td class="text-end pe-4">
-                                    <div class="btn-group btn-group-sm">
+                                    <div class="d-inline-flex align-items-center gap-1.5">
                                         <button type="button"
-                                                class="btn btn-outline-primary btn-edit-coupon"
+                                                class="btn btn-sm btn-outline-primary btn-edit-coupon"
                                                 data-id="@c.Id"
                                                 data-code="@c.Code"
                                                 data-description="@c.Description"
@@ -226,13 +226,14 @@
                                                 title="تعديل بيانات وقيمة الكوبون">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
-                                        <a asp-controller="Coupons" asp-action="Orders" asp-route-id="@c.Id" class="btn btn-outline-info" title="عرض كافة الطلبات التي استخدمت هذا الكوبون">
-                                            <i class="fa-solid fa-receipt me-1"></i>الطلبات
+                                        <a asp-controller="Coupons" asp-action="Orders" asp-route-id="@c.Id" class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1" title="عرض كافة الطلبات التي استخدمت هذا الكوبون">
+                                            <i class="fa-solid fa-receipt"></i>
+                                            <span>الطلبات</span>
                                         </a>
 
                                         <form asp-controller="Coupons" asp-action="ToggleActive" asp-route-id="@c.Id" method="post" class="d-inline" id="toggle-coupon-form-@c.Id">
                                             @Html.AntiForgeryToken()
-                                            <button type="button" class="btn @(c.IsActive ? "btn-outline-warning" : "btn-outline-success") btn-toggle-coupon" 
+                                            <button type="button" class="btn btn-sm @(c.IsActive ? "btn-outline-warning" : "btn-outline-success") btn-toggle-coupon" 
                                                     data-form-id="toggle-coupon-form-@c.Id" 
                                                     data-code="@c.Code" 
                                                     data-active="@(c.IsActive ? "true" : "false")"
@@ -243,10 +244,10 @@
 
                                         <form asp-controller="Coupons" asp-action="Delete" asp-route-id="@c.Id" method="post" class="d-inline" id="delete-coupon-form-@c.Id">
                                             @Html.AntiForgeryToken()
-                                            <button type="button" class="btn btn-outline-danger btn-delete-coupon" 
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-delete-coupon" 
                                                     data-form-id="delete-coupon-form-@c.Id" 
                                                     data-code="@c.Code" 
-                                                    title="حذف الكوبون">
+                                                    title="حذف الكوبون نهائياً">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
                                         </form>

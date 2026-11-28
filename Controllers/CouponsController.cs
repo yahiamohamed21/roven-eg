@@ -194,16 +194,17 @@ public class CouponsController : Controller
 
         if (coupon.Orders.Any())
         {
-            coupon.IsActive = false;
-            await _context.SaveChangesAsync();
-            TempData["WarningMessage"] = $"الكوبون '{coupon.Code}' مرتبط بطلبات شراء سابقة، لذلك تم تعطيله لحفظ السجلات المالية بدلاً من حذفه.";
-            return RedirectToAction(nameof(Index));
+            // Preserve historical CouponCode and DiscountAmount on orders, only unlink the FK
+            foreach (var ord in coupon.Orders)
+            {
+                ord.CouponId = null;
+            }
         }
 
         _context.Coupons.Remove(coupon);
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = $"تم حذف الكوبون '{coupon.Code}' بنجاح.";
+        TempData["SuccessMessage"] = $"تم حذف الكوبون '{coupon.Code}' نهائياً بنجاح.";
         return RedirectToAction(nameof(Index));
     }
 
