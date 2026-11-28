@@ -243,7 +243,7 @@
                         </a>
                         <a class="nav-link @(currentController == "FragranceNotes" ? "active" : "")" asp-controller="FragranceNotes" asp-action="Index">
                             <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            <span>Fragrance Notes (كتالوج النوتات)</span>
+                            <span>Fragrance Notes</span>
                         </a>
                     }
                     @if (User.HasPermission(Permissions.Categories))
@@ -277,7 +277,7 @@
                     {
                         <a class="nav-link @(currentController == "Coupons" ? "active" : "")" asp-controller="Coupons" asp-action="Index">
                             <i class="fa-solid fa-ticket"></i>
-                            <span>الكوبونات والخصومات</span>
+                            <span>Coupons &amp; Discounts</span>
                         </a>
                     }
                 }
@@ -297,14 +297,14 @@
                     {
                         <a class="nav-link @(currentController == "Government" || currentController == "goverment" ? "active" : "")" href="/goverment">
                             <i class="fa-solid fa-truck-fast"></i>
-                            <span>المحافظات والشحن (Government)</span>
+                            <span>Shipping &amp; Governorates</span>
                         </a>
                     }
                     @if (User.HasPermission(Permissions.Messages))
                     {
                         <a class="nav-link @(currentController == "Messages" ? "active" : "")" asp-controller="Messages" asp-action="Index">
                             <i class="fa-solid fa-envelope-open-text"></i>
-                            <span>رسائل واستفسارات المتجر</span>
+                            <span>Messages &amp; Inquiries</span>
                         </a>
                     }
                 }
